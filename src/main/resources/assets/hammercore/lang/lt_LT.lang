@@ -1,0 +1,112 @@
+#Translated by DeividasX
+itemGroup.vanillatech=Vanilla Tech
+
+
+
+tile.vanillatech:charcoal_block.name=Medžio Anglies Blokas
+tile.vanillatech:compressed_charcoal_block.name=Suspaustas Medžio Anglies Blokas
+tile.vanillatech:compressed_coal_block.name=Suspaustas Anglies Blokas
+tile.vanillatech:red_stone.name=Raudonasis Akmuo
+tile.vanillatech:red_cobblestone.name=Raudonojo Akmens Skalda
+tile.vanillatech:quartz_ore.name=Kvarco rūda
+tile.vanillatech:acacia_crafting_table.name=Darbastalis iš Akacijos Medžio
+tile.vanillatech:birch_crafting_table.name=Darbastalis iš Beržo Medžio
+tile.vanillatech:dark_oak_crafting_table.name=Darbastalis iš Tamsiojo Ąžuolo Medžio
+tile.vanillatech:jungle_crafting_table.name=Darbastalis iš Džiunglių Medžio
+tile.vanillatech:spruce_crafting_table.name=Darbastalis iš Eglės Medžio
+tile.vanillatech:glowstone_ore.name=Šviesakmenio rūda
+tile.vanillatech:witherproof_red_stone.name=Vitheriui-atsparus Raudonasis Akmuo
+tile.vanillatech:mossy_red_cobblestone.name=Samanotas Raudonasis Akmuo
+tile.vanillatech:quartz_spike.name=Kvarco Spyglys
+tile.vanillatech:netherstar_ore.name=Netherio žvaigždės rūda
+tile.vanillatech:redstone_teleporter.name=Redstouno siųstuvas-imtuvas
+tile.vanillatech:enhanced_furnace.name=Patobulinta Krosnis
+tile.vanillatech:enhanced_furnace.tooltip0=Gali būti užkerėta.
+tile.vanillatech:unstable_metal_block.name=Nestabilaus Metalo Blokas
+tile.vanillatech:fisher.name=Auto-Žvejys
+tile.vanillatech:anriatphyte_block.name=Anriatfito Kristalų Blokas
+tile.vanillatech:time_bomb.name=Laiko Bomba
+
+tile.vanillatech:flora/slimy_flower.name=Gleivėta Gėlė
+tile.vanillatech:flora/lavender.name=Levanda
+tile.vanillatech:flora/buttercup.name=Vėdrynas
+tile.vanillatech:flora/daisy.name=Saulutė
+
+
+
+item.vanillatech:shield_totem.name=Skydo Totemas
+item.vanillatech:shield_totem.tooltip0=Visiškai apsaugo žaidėją nuo
+item.vanillatech:shield_totem.tooltip1=bet kokios žalos kai yra laikomas bet kurioje rankoje ar hotbar'e.
+item.vanillatech:creative_recipe_book.name=Kūrybinė Receptų Knyga
+item.vanillatech:creative_recipe_book.tooltip0=Naudokite norėdami atrakinti visus žinomus receptus
+item.vanillatech:backpack.name=Backpack
+item.vanillatech:backpack.tooltip0=Nešiojama dviguba skrynia
+item.vanillatech:netherstar_shard.name=Netherio Žvaigždės Šukė
+item.vanillatech:enhanced_pickaxe.name=Patobulintas Kirtiklis
+item.vanillatech:unstable_metal_ingot.name=Nestabilaus Metalo Liejinys
+item.vanillatech:crystal_anriatphyte.name=Anriatfito Kristalas
+
+
+
+potion.effect.levitation_short=Sklandymo eliksyras
+potion.effect.levitation_long=Sklandymo eliksyras
+splash_potion.effect.levitation_short=Mėtomas sklandymo eliksyras
+splash_potion.effect.levitation_long=Mėtomas Sklandymo Eliksyras
+lingering_potion.effect.levitation_short=Garuojantis sklandymo eliksyras
+lingering_potion.effect.levitation_long=Garuojantis sklandymo eliksyras
+
+
+
+enchantment.vanillatech:auto_smelt=Auto-Lydymas
+enchantment.vanillatech:infernal_prediction=Pragariškas Aiškiaregys
+enchantment.vanillatech:repair=Savęs-Pasitaisymas
+
+
+
+death.attack.vanillatech:quartz_spike=%s stovėjo ant kvraco spyglio.
+death.attack.vanillatech:unstable_block_form=%s buvo destabilizuotas.
+death.attack.vanillatech:nether_star_dissolve=%s ištirpo.
+death.attack.vanillatech:anriatphyte_block=%s mirė nuo Anriatfito Energijos.
+
+
+
+advancement.vanillatech:main/root=Vanilla Tech
+advancement.vanillatech:main/root.desc=Išplėčia Minecraft trūkstamomis funkcijomis
+
+advancement.vanillatech:main/craftBackpack=Išplėsti Inventorių
+advancement.vanillatech:main/craftBackpack.desc=Pasigaminti Kuprinę
+
+advancement.vanillatech:main/craftCoalBlock=Geresnis Kuras
+advancement.vanillatech:main/craftCoalBlock.desc=Pasigaminti Anglies Bloką
+
+advancement.vanillatech:main/craftCharcoalBlock=Geresnė Medžio Anglis
+advancement.vanillatech:main/craftCharcoalBlock.desc=Pasigaminti Medžio Anglies Bloką
+
+advancement.vanillatech:main/craftCompressedCoalBlock=Dar Geresnis Kuras
+advancement.vanillatech:main/craftCompressedCoalBlock.desc=Pasigaminti Suspaustą Anglies Bloką
+
+advancement.vanillatech:main/craftCompressedCharcoalBlock=Dar Geresnė Medžio Anglis
+advancement.vanillatech:main/craftCompressedCharcoalBlock.desc=Pasigaminti Suspaustą Medžio Anglies Bloką
+
+advancement.vanillatech:main/craftShieldTotem=Kaip Dievas
+advancement.vanillatech:main/craftShieldTotem.desc=Pasigaminti Skydo Totemą ir tapti nenužudomu
+
+advancement.vanillatech:main/craftWitherProofRedStone=Sulaikyti jėgas
+advancement.vanillatech:main/craftWitherProofRedStone.desc=Pasigaminti Vitheriui-Atsparų Raudonajį Akmenį, kad sulaikyti Vitherį viduje dėžutės
+
+advancement.vanillatech:main/craftEnhancedPickaxe=Patobulintas Instrumentas: Kirtiklis
+advancement.vanillatech:main/craftEnhancedPickaxe.desc=Pasigaminti Patobulintą Kirtiklį iš Netherio Žvaigždės Šukių, Pagaliuko ir deimantinio kirtiklio
+
+advancement.vanillatech:main/makeUnstableMetalBlock=KABOOM!!
+advancement.vanillatech:main/makeUnstableMetalBlock.desc=Gauti Nestabilaus Metalo Bloką išmetus Netherio Žvaigždės Šukę ant Geležies Bloko ir susprogdinus tai.
+
+
+
+advancement.vanillatech:flora/root=Vanilla Tech: Flora
+advancement.vanillatech:flora/root.desc=Gražios Gėlės!
+
+advancement.vanillatech:flora/breakSlimyFlower=Gleivėta Situacija
+advancement.vanillatech:flora/breakSlimyFlower.desc=Rasti ir surinkti Gleivėtą Gėlę
+
+advancement.vanillatech:flora/collectAllFlowers=Visi nauji aromatai!
+advancement.vanillatech:flora/collectAllFlowers.desc=Surinkti visas gėles iš Vanilla Tech

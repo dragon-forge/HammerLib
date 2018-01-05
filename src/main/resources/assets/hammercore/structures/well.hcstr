@@ -1,0 +1,27 @@
+#Mossy base
+{block}.{-1 to 1,-5 to 0,-1 to 1}.0.minecraft:mossy_cobblestone
+
+#Air
+{block}.{0,0,0}.0.minecraft:air
+
+#Place water
+{block}.{0,-3 to -1,0}.0.minecraft:water
+
+#Place fences
+{block}.{-1,1 to 2,-1}.0.minecraft:fence
+{block}.{-1,1 to 2,1}.0.minecraft:fence
+{block}.{1,1 to 2,-1}.0.minecraft:fence
+{block}.{1,1 to 2,1}.0.minecraft:fence
+
+#Oak wood slabs that are the bottom halfs
+{block}.{-1 to 1,3,-1 to 1}.0.minecraft:wooden_slab
+
+#Place chest with diamond
+{block}.{0,-4,0}.0.minecraft:trapped_chest
+{tile}.{0,-4,0}.{id:"chest",LootTable:"minecraft:chests/jungle_temple"}
+
+#Place commands
+{block}.{0,-6,0}.0.minecraft:command_block
+{tile}.{0,-6,0}.{id:"command_block",Command:"tellraw @p {\"text\":\"You've found some loot!\",\"color\":\"dark_green\"}"}
+{block}.{0,-7,0}.0.minecraft:chain_command_block
+{tile}.{0,-7,0}.{id:"command_block",Command:"fill ~ ~ ~ ~ ~1 ~ air",CustomName:"§6§kDebug",auto:1b}

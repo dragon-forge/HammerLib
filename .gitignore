@@ -1,0 +1,27 @@
+# eclipse
+bin
+*.launch
+.settings
+.metadata
+.classpath
+.project
+
+# idea
+out
+*.ipr
+*.iws
+*.iml
+.idea
+
+# gradle
+build
+.gradle
+# I had to exclude this file.
+gradle.properties
+
+# other
+eclipse
+run
+libs
+*.rar
+*.jks

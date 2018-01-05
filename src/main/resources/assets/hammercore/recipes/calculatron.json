@@ -1,0 +1,20 @@
+{
+    "conditions": [{
+        "type": "minecraft:item_exists",
+        "item": "hammercore:calculatron"
+    }],
+    "type": "forge:ore_shaped",
+    "pattern": [
+        "igi",
+        "rlr",
+        "idi"
+    ],
+    "key": {
+        "g": { "ore": "blockGlass", "type": "forge:ore_dict" },
+		"i": { "ore": "ingotIron", "type": "forge:ore_dict" },
+		"r": { "ore": "dustRedstone", "type": "forge:ore_dict" },
+		"d": { "ore": "ingotGold", "type": "forge:ore_dict" },
+		"l": { "ore": "dyeLime", "type": "forge:ore_dict" }
+    },
+    "result": { "item": "hammercore:calculatron" }
+}

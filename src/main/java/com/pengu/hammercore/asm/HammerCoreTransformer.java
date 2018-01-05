@@ -1,0 +1,386 @@
+package com.pengu.hammercore.asm;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.ListIterator;
+
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.LdcInsnNode;
+import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.VarInsnNode;
+
+import com.pengu.hammercore.asm.TransformerSystem.iASMHook;
+
+import net.minecraft.launchwrapper.IClassTransformer;
+
+/**
+ * Transforms classes
+ */
+public class HammerCoreTransformer implements IClassTransformer
+{
+	public static final ClassnameMap CLASS_MAPPINGS = new ClassnameMap("net/minecraft/entity/Entity", "vg", "net/minecraft/item/ItemStack", "aip", "net/minecraft/client/renderer/block/model/IBakedModel", "cfy", "net/minecraft/entity/EntityLivingBase", "vp", "net/minecraft/inventory/EntityEquipmentSlot", "vl", "net/minecraft/client/renderer/entity/RenderLivingBase", "caa", "net/minecraft/client/model/ModelBase", "bqf", "net/minecraft/util/DamageSource", "ur", "net/minecraft/entity/item/EntityBoat", "afd", "net/minecraft/world/World", "amu", "net/minecraft/util/math/BlockPos", "et", "net/minecraft/util/EnumFacing", "fa", "net/minecraft/entity/player/EntityPlayer", "aed", "net/minecraft/block/state/IBlockState", "awt", "net/minecraft/client/renderer/BufferBuilder", "buk", "net/minecraft/world/IBlockAccess", "amy", "net/minecraft/client/renderer/block/model/BakedQuad", "bvp");
+	
+	/* (Lnet/minecraft/util/BlockPos;Lnet/minecraft/world/EnumSkyBlock;)I /
+	 * func_175638_a */
+	private static String targetMethodDesc = "(Lco;Lajw;)I";
+	
+	/* net/minecraft/world/World.getRawLight / func_175638_a */
+	private static String computeLightValueMethodName = "a";
+	
+	/* (Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/
+	 * IBlockAccess; Lnet/minecraft/util/BlockPos;)I */
+	private static String goalInvokeDesc = "(Latl;Laju;Lco;)I";
+	
+	public static final TransformerSystem asm = new TransformerSystem();
+	
+	static
+	{
+		asm.addHook(new iASMHook()
+		{
+			@Override
+			public void transform(ClassNode node, boolean obf)
+			{
+				if(!obf)
+				{
+					computeLightValueMethodName = "getRawLight";
+					goalInvokeDesc = "(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/math/BlockPos;)I";
+				}
+				
+				String desc = "(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Z)Z";
+				if(obf)
+					desc = "(Lamu;Lco;Z)Z";
+					
+				// InsnList canSnowAtBody = new InsnList();
+				// canSnowAtBody.add(new VarInsnNode(Opcodes.ALOAD, 0));
+				// canSnowAtBody.add(new VarInsnNode(Opcodes.ALOAD, 1));
+				// canSnowAtBody.add(new VarInsnNode(Opcodes.ILOAD, 2));
+				// canSnowAtBody.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+				// "com/pengu/hammercore/asm/SnowfallHooks", "canSnowAtBody",
+				// desc));
+				// canSnowAtBody.add(new InsnNode(Opcodes.IRETURN));
+				
+				// boolean add_func_72853_d = true;
+				
+				for(MethodNode m : node.methods)
+				{
+					// if(m.name.equals("canSnowAtBody"))
+					// {
+					// m.instructions = canSnowAtBody;
+					// HammerCoreCore.ASM_LOG.info("Sending instructions to
+					// World for
+					// function canSnowAtBody");
+					// }
+					
+					// if((m.name.equals("getMoonPhase") ||
+					// m.name.equals("func_72853_d") || m.name.equals("D")) &&
+					// m.desc.equals("()I"))
+					// {
+					// add_func_72853_d = false;
+					// HammerCoreCore.ASM_LOG.info("Sending instructions to
+					// World for
+					// function getMoonPhase");
+					// AnnotationNode sideonly = null;
+					// for(AnnotationNode node : m.visibleAnnotations)
+					// if(node.desc.equals("Lnet/minecraftforge/fml/relauncher/SideOnly;"))
+					// {
+					// sideonly = node;
+					// break;
+					// }
+					// }
+					
+					if(m.name.equals(computeLightValueMethodName) && (!obf || m.desc.equals(targetMethodDesc)))
+					{
+						AbstractInsnNode targetNode = null;
+						Iterator<AbstractInsnNode> iter = m.instructions.iterator();
+						boolean found = false;
+						int index = 0;
+						while(iter.hasNext())
+						{
+							targetNode = iter.next();
+							if(targetNode.getOpcode() == Opcodes.ASTORE)
+							{
+								VarInsnNode astore = (VarInsnNode) targetNode;
+								while(targetNode.getOpcode() != Opcodes.ISTORE)
+								{
+									if(targetNode instanceof MethodInsnNode && targetNode.getOpcode() != Opcodes.INVOKEINTERFACE)
+									{
+										MethodInsnNode mNode = (MethodInsnNode) targetNode;
+										found = true;
+										iter.remove();
+										targetNode = iter.next();
+										break;
+									}
+									targetNode = iter.next();
+								}
+								break;
+							}
+							index++;
+						}
+						if(found)
+						{
+							m.instructions.insertBefore(targetNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/pengu/hammercore/api/dynlight/ProxiedDynlightGetter", "getLightValue", goalInvokeDesc, false));
+							asm.info("Light Patched.");
+						}
+						break;
+					}
+				}
+				
+				// if(add_func_72853_d)
+				// {
+				// asm.info("Sending instructions to World for
+				// function getMoonPhase");
+				//
+				// classNode.methods.add(getMoonPhase(obf ? "D" :
+				// "getMoonPhase"));
+				//
+				// asm.info(" Adding getMoonPhase
+				// (func_72853_d) back
+				// because we are on server.");
+				// }
+			}
+			
+			@Override
+			public String opName()
+			{
+				return "Patching Light...";
+			}
+			
+			@Override
+			public boolean accepts(String name)
+			{
+				return name.equals("net.minecraft.world.World");
+			}
+		});
+		
+		asm.addHook(new iASMHook()
+		{
+			@Override
+			public void transform(ClassNode node, boolean obf)
+			{
+				MethodSignature sig1 = new MethodSignature("renderItem", "func_180454_a", "a", "(Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/renderer/block/model/IBakedModel;)V");
+				MethodSignature sig2 = new MethodSignature("renderEffect", "func_191966_a", "a", "(Lnet/minecraft/client/renderer/block/model/IBakedModel;)V");
+				
+				String funcName = sig1.funcName;
+				if(HammerCoreCore.runtimeDeobfEnabled)
+					funcName = sig1.srgName;
+				
+				for(MethodNode method : node.methods)
+				{
+					if(!method.name.equals(funcName) && !method.name.equals(sig1.obfName) && !method.name.equals(sig1.srgName) || !method.desc.equals(sig1.funcDesc) && !method.desc.equals(sig1.obfDesc))
+						continue;
+					
+					InsnList insn = method.instructions;
+					InsnList newInstructions = new InsnList();
+					newInstructions.add(new VarInsnNode(25, 1));
+					newInstructions.add(new MethodInsnNode(184, "com/pengu/hammercore/client/ItemColorHelper", "setTargetStackAndHandleRender", "(Lnet/minecraft/item/ItemStack;)V"));
+					insn.insertBefore(insn.get(0), newInstructions);
+					asm.info("Sending instructions to RenderItem for function renderItem");
+				}
+				
+				funcName = sig2.funcName;
+				if(HammerCoreCore.runtimeDeobfEnabled)
+					funcName = sig2.srgName;
+				
+				for(MethodNode method : node.methods)
+				{
+					if(!method.name.equals(funcName) && !method.name.equals(sig2.obfName) && !method.name.equals(sig2.srgName) || !method.desc.equals(sig2.funcDesc) && !method.desc.equals(sig2.obfDesc))
+						continue;
+					
+					InsnList insn = method.instructions;
+					
+					boolean worked = false;
+					
+					for(int i = 0; i < insn.size(); ++i)
+					{
+						AbstractInsnNode n = insn.get(i);
+						
+						if(n.getOpcode() == 18 && ((LdcInsnNode) n).cst.equals(-8372020))
+						{
+							InsnList newInstructions = new InsnList();
+							newInstructions.add(new MethodInsnNode(184, "com/pengu/hammercore/client/ItemColorHelper", "getCustomColor", "()I"));
+							insn.insertBefore(n, newInstructions);
+							insn.remove(n);
+							worked = true;
+						}
+					}
+					
+					if(worked)
+						asm.info("Sending instructions to RenderItem for function renderEffect");
+				}
+			}
+			
+			@Override
+			public String opName()
+			{
+				return "Coloring Item Glint...";
+			}
+			
+			@Override
+			public boolean accepts(String name)
+			{
+				return name.equals("net.minecraft.client.renderer.RenderItem");
+			}
+		});
+		
+		asm.addHook(new iASMHook()
+		{
+			@Override
+			public void transform(ClassNode node, boolean obf)
+			{
+				String targetMethod;
+				
+				if(obf)
+					targetMethod = "a";
+				else
+					targetMethod = "getSuitableLanPort";
+				
+				for(MethodNode m : node.methods)
+					if(m.name.equals(targetMethod) && m.desc.equals("()I"))
+					{
+						int index = -1;
+						AbstractInsnNode instruction = null;
+						
+						ListIterator<AbstractInsnNode> instructions = m.instructions.iterator();
+						while(instructions.hasNext())
+						{
+							index++;
+							instruction = instructions.next();
+							if(instruction.getOpcode() == 3)
+							{
+								AbstractInsnNode toRemove = m.instructions.get(index);
+								m.instructions.remove(toRemove);
+								
+								InsnList toInject = new InsnList();
+								toInject.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/pengu/hammercore/net/LanUtil", "getSuitableLanPort", "()I"));
+								m.instructions.insertBefore(m.instructions.get(index), toInject);
+								asm.info("Sending instructions to HttpUtil for function getSuitableLanPort");
+							}
+						}
+					}
+			}
+			
+			@Override
+			public String opName()
+			{
+				return "Custom Ports";
+			}
+			
+			@Override
+			public boolean accepts(String name)
+			{
+				return name.equals("net.minecraft.util.HttpUtil");
+			}
+		});
+	}
+	
+	@Override
+	public byte[] transform(String name, String transformedName, byte[] basicClass)
+	{
+		// if(name.equals("net.minecraft.block.BlockSnow") ||
+		// name.equals("aqs"))
+		// {
+		// HammerCoreCore.ASM_LOG.info("Transforming
+		// net.minecraft.block.BlockSnow ("
+		// + name + ")...");
+		// ClassNode classNode = ObjectWebUtils.loadClass(basicClass);
+		// boolean obf = name.equals("aqs");
+		// HammerCoreCore.ASM_LOG.info("-We are in " + (obf ? "" : "de") +
+		// "obfuscated minecraft.");
+		//
+		// String desc = "(Lajs;Lco;Latl;Ljava/util/Random;)V";
+		// if(!obf)
+		// desc =
+		// "(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;Ljava/util/Random;)V";
+		//
+		// for(MethodNode m : classNode.methods)
+		// {
+		// if(m.desc.equals(desc) && (m.name.equals("b") ||
+		// m.name.equals("func_180650_b") || m.name.equals("updateTick")))
+		// {
+		// InsnList updateTick = new InsnList();
+		// updateTick.add(new VarInsnNode(Opcodes.ALOAD, 1));
+		// updateTick.add(new VarInsnNode(Opcodes.ALOAD, 2));
+		// updateTick.add(new VarInsnNode(Opcodes.ALOAD, 3));
+		// updateTick.add(new VarInsnNode(Opcodes.ALOAD, 4));
+		// updateTick.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+		// "com/pengu/hammercore/asm/SnowfallHooks", "updateTick", m.desc));
+		// updateTick.add(new InsnNode(Opcodes.RETURN));
+		//
+		// m.instructions = updateTick;
+		// HammerCoreCore.ASM_LOG.info("-Sending instructions to BlockSnow for
+		// function updateTick");
+		// }
+		// }
+		//
+		// return ObjectWebUtils.writeClassToByteArray(classNode);
+		// }
+		
+		return asm.transform(name, transformedName, basicClass);
+	}
+	
+	// private String insnToString(AbstractInsnNode insn)
+	// {
+	// insn.accept(mp);
+	// StringWriter sw = new StringWriter();
+	// printer.print(new PrintWriter(sw));
+	// printer.getText().clear();
+	// return sw.toString();
+	// }
+	//
+	// private Printer printer = new Textifier();
+	// private TraceMethodVisitor mp = new TraceMethodVisitor(printer);
+	
+	private MethodNode getMoonPhase(String name)
+	{
+		MethodNode func_72853_d = new MethodNode(Opcodes.ASM5);
+		func_72853_d.desc = "()I";
+		func_72853_d.access = Opcodes.ACC_PUBLIC;
+		func_72853_d.exceptions = new ArrayList<>();
+		func_72853_d.name = name;
+		InsnList list = new InsnList();
+		list.add(new VarInsnNode(Opcodes.ALOAD, 0));
+		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/pengu/hammercore/asm/WorldHooks", "getMoonPhase", "(Lamu;)I"));
+		list.add(new InsnNode(Opcodes.IRETURN));
+		func_72853_d.instructions = list;
+		return func_72853_d;
+	}
+	
+	private static class MethodSignature
+	{
+		String funcName;
+		String srgName;
+		String obfName;
+		String funcDesc;
+		String obfDesc;
+		
+		public MethodSignature(String funcName, String srgName, String obfName, String funcDesc)
+		{
+			this.funcName = funcName;
+			this.srgName = srgName;
+			this.obfName = obfName;
+			this.funcDesc = funcDesc;
+			this.obfDesc = MethodSignature.obfuscate(funcDesc);
+		}
+		
+		public String toString()
+		{
+			return "Names [" + this.funcName + ", " + this.srgName + ", " + this.obfName + "] Descriptor " + this.funcDesc + " / " + this.obfDesc;
+		}
+		
+		private static String obfuscate(String desc)
+		{
+			for(String s : CLASS_MAPPINGS.keySet())
+			{
+				if(!desc.contains(s))
+					continue;
+				desc = desc.replaceAll(s, CLASS_MAPPINGS.get(s));
+			}
+			return desc;
+		}
+	}
+}

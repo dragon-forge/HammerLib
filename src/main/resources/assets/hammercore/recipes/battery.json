@@ -1,0 +1,18 @@
+{
+    "conditions": [{
+        "type": "minecraft:item_exists",
+        "item": "hammercore:battery"
+    }],
+    "type": "forge:ore_shaped",
+    "pattern": [
+        " g ",
+        "iri",
+        "iri"
+    ],
+    "key": {
+        "g": { "ore": "gearIron", "type": "forge:ore_dict" },
+		"i": { "ore": "ingotIron", "type": "forge:ore_dict" },
+		"r": { "ore": "blockRedstone", "type": "forge:ore_dict" }
+    },
+    "result": { "item": "hammercore:battery" }
+}

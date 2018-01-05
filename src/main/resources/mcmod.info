@@ -1,0 +1,14 @@
+[
+{
+  "modid": "hammercore",
+  "name": "Hammer Core",
+  "description": "Core used by most of Pengu's Mods.",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["APengu"],
+  "credits": "",
+  "logoFile": "assets/hammercore/textures/logo.png",
+  "screenshots": [],
+  "dependencies": []
+}
+]

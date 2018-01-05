@@ -1,0 +1,17 @@
+{
+    "conditions": [{
+        "type": "minecraft:item_exists",
+        "item": "hammercore:wrench"
+    }],
+    "type": "forge:ore_shaped",
+    "pattern": [
+        " i ",
+        " gi",
+        "i  "
+    ],
+    "key": {
+		"i": { "ore": "ingotIron", "type": "forge:ore_dict" },
+		"g": { "ore": "gearIron", "type": "forge:ore_dict" }
+    },
+    "result": { "item": "hammercore:wrench" }
+}

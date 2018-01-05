@@ -1,0 +1,137 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            name = "forge"
+            url = "http://files.minecraftforge.net/maven"
+        }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+    }
+}
+
+plugins {
+    id 'com.matthewprenger.cursegradle' version '1.0.8'
+}
+
+apply plugin: 'net.minecraftforge.gradle.forge'
+
+ext.configFile = file "build.txt"
+
+configFile.withReader {
+    def prop = new Properties()
+    prop.load(it)
+    project.ext.config = new ConfigSlurper().parse prop
+}
+
+version = "${config.mod_version}"
+group = "com.pengu.${config.mod_id}"
+archivesBaseName = "${config.mod_id_fancy}-${config.minecraft_version}"
+
+sourceCompatibility = targetCompatibility = "1.8"
+compileJava {
+    sourceCompatibility = targetCompatibility = "1.8"
+}
+
+minecraft {
+    version = "${config.minecraft_version}-${config.forge_version}"
+    runDir = "run"
+    mappings = "${config.mcp}"
+    makeObfSourceJar = false
+	replace 'required-after:hammercore', "required-after:hammercore@[${config.hc_version},)"
+    replace '@VERSION@', "${config.mod_version}"
+	replace '@FINGERPRINT@', project.findProperty('signSHA1')
+}
+
+repositories {
+	maven {
+        name = "APengu Maven"
+        url = "http://apengu.github.io/PenguLibs"
+    }
+}
+
+dependencies {
+	deobfCompile "apengu:HammerCore:${config.minecraft_version}-${config.hc_version}:deobf"
+}
+
+processResources
+{
+    inputs.property "version", project.version
+    inputs.property "mcversion", config.minecraft_version
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+		include 'pack.mcmeta'
+        expand 'version':project.version, 'mcversion':project.minecraft.version
+    }
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+		exclude 'pack.mcmeta'
+    }
+	rename "mod_id_at.cfg", "META-INF/${config.mod_id}_at.cfg"
+}
+
+task deobfJar(type: Jar) {
+    from sourceSets.main.output
+    classifier = 'deobf'
+    manifest {
+        attributes 'FMLAT': "${config.mod_id}_at.cfg"
+    }
+}
+
+task srcJar(type: Jar, dependsOn: classes) {
+    from sourceSets.main.allSource
+    classifier = 'sources'
+	manifest {
+        attributes 'FMLAT': "${config.mod_id}_at.cfg"
+    }
+}
+
+task signJar(type: SignJar, dependsOn: reobfJar) {
+    onlyIf {
+        project.hasProperty('keyStore')
+    }
+    keyStore = project.findProperty('keyStore')
+    alias = project.findProperty('keyStoreAlias')
+    storePass = project.findProperty('keyStorePass')
+    keyPass = project.findProperty('keyStoreKeyPass')
+    inputFile = jar.archivePath
+    outputFile = jar.archivePath
+}
+
+build.dependsOn signJar
+
+jar {
+	manifest {
+		attributes 'FMLAT': "${config.mod_id}_at.cfg"
+	}
+}
+
+artifacts {
+    archives deobfJar
+	archives srcJar
+}
+
+curseforge {
+	apiKey = System.env.CURSEFORGE_API_KEY
+	project {
+		id = "${config.cf_project}"
+		changelogType = 'html'
+		changelog = ""
+		releaseType = "${config.release_type}"
+		addGameVersion "${config.minecraft_version}"
+		mainArtifact(jar) {
+		  displayName = "[${config.minecraft_version}] ${config.mod_name} - ${config.mod_version}"
+		}
+		addArtifact(deobfJar) {
+		  displayName = "[${config.minecraft_version}] ${config.mod_name} (Deobfuscated) - ${config.mod_version}"
+		}
+		addArtifact(srcJar) {
+		  displayName = "[${config.minecraft_version}] ${config.mod_name} (Sources) - ${config.mod_version}"
+		}
+	}
+}
+
+afterEvaluate {
+	tasks.curseforge247401.dependsOn.add(signJar)
+}

@@ -1,0 +1,16 @@
+{
+    "conditions": [{
+        "type": "minecraft:item_exists",
+        "item": "hammercore:manual"
+    }],
+    "type": "forge:ore_shaped",
+    "pattern": [
+        "g",
+        "b"
+    ],
+    "key": {
+        "g": { "ore": "gearIron", "type": "forge:ore_dict" },
+		"b": { "item": "minecraft:writable_book" }
+    },
+    "result": { "item": "hammercore:manual" }
+}

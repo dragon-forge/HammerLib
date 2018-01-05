@@ -1,0 +1,6 @@
+{
+	"variants": {
+		"active=false": { "model": "hammercore:tesseract" },
+		"active=true": { "model": "hammercore:tesseract_active" }
+	}
+}

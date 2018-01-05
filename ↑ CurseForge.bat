@@ -1,0 +1,2 @@
+gradlew curseforge -S
+pause

@@ -1,0 +1,76 @@
+
+itemGroup.hammercore=Hammer Core
+
+###ITEMS###
+
+item.hammercore:zapper.name=[Debug] Zapper
+item.hammercore:ray_tracer.name=[Debug] Ray Tracer
+
+item.hammercore:calculatron.name=Rechnotron
+item.hammercore:calculatron.tooltip0=Wissenschaftlicher Taschenrechner in Minecraft!
+item.hammercore:calculatron.tooltip1=§oNicht für Hausaufgaben benutzen!§r
+
+item.hammercore:manual.name=Hammer Core Handbuch
+item.hammercore:manual.tooltip0=Alle Infos enthalten
+item.hammercore:manual.tooltip1=um zu überleben
+
+item.hammercore:battery.name=Akkumulator
+item.hammercore:battery.tooltip0=Schleich-Klick um
+item.hammercore:battery.tooltip1=den Share-Modus zu wechseln.
+
+item.hammercore:wrench.name=Schraubenschlüssel
+item.hammercore:wrench.tooltip0=Betrieben mit der HammerCore WrenchAPI.
+
+item.hammercore:iron_gear.name=Eisenzahnrad
+item.hammercore:iron_gear.tooltip0=Verhält sich wie ein Zahnrad!
+
+item.hammercore:iwrench.name=iSchraubenschlüssel
+item.hammercore:iwrench.tooltip0=Betrieben mit der HammerCore WrenchAPI.
+
+###########
+
+###BLOCKS###
+
+tile.hammercore:tesseract.name=[WIP] Tesserakt
+tile.hammercore:infi_rf.name=Kreative Energiequelle
+tile.hammercore:infi_rf.tooltip0=Erzeugt 2,147,483,647 En/t
+tile.hammercore:infi_rf.tooltip1=Unterstützte Energiearten:
+tile.hammercore:infi_rf.tooltip2=RF, FE, TESLA
+tile.hammercore:chunk_loader.name=Chunk Loader
+
+############
+
+##GUI##
+
+gui.hammercore:calculatron=Rechnotron vVERSION
+info.hammercore:energy_stored=RF gespeichert
+info.hammercore:changed_mode=ladet
+
+battery.hammercore:mode.noshare=Aus
+battery.hammercore:mode.hotbar=Hotbar
+battery.hammercore:mode.armor=Rüstung
+battery.hammercore:mode.armor_hotbar=Rüstung & Hotbar
+battery.hammercore:mode.inventory=Inventar
+
+capability.fe.name=FE
+capability.ej.name=EJ
+capability.fluid.name=Flüssigkeit
+capability.items.name=Items
+
+#######
+
+##MANUAL##
+
+bookapi.hammercore:manual:items=Items
+bookapi.hammercore:manual:blocks=Blöcke
+
+gui.hammercore:manual/items/calculatron.title=Rechnotron
+gui.hammercore:manual/items/calculatron.desc=Dieses mächtige Item ist in der Lage komplizierte Ausdrücke zu berechnen. Versuchs Mal!
+
+gui.hammercore:manual/items/battery.title=Akkumulator
+gui.hammercore:manual/items/battery.desc=Dieser Gegenstand ist in der Lage 2M RF/FE zu speichern.
+
+gui.hammercore:manual/items/wrench.title=Schraubenschlüssel
+gui.hammercore:manual/items/wrench.desc=HammerCore erweitert die WrenchAPI um APengu's mods unabhängig von der Buildcraft APIzu machen. Dieses Item ist ein einfacher Schraubenschlüssel der auf Gegenständen dieser API reagiert.
+
+##########
