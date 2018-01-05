@@ -75,7 +75,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.HttpUtil;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.MinecraftForge;
@@ -91,6 +90,7 @@ import net.minecraftforge.fml.common.ProgressManager;
 import net.minecraftforge.fml.common.ProgressManager.ProgressBar;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLConstructionEvent;
+import net.minecraftforge.fml.common.event.FMLFingerprintViolationEvent;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLInterModComms;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
@@ -185,6 +185,15 @@ public class HammerCore
 		//
 		// FIELD_CSV = f;
 		// METHODS_CSV = m;
+	}
+	
+	@EventHandler
+	public void certificateViolation(FMLFingerprintViolationEvent e)
+	{
+		LOG.warn("*****************************");
+		LOG.warn("WARNING: Somebody has been tampering with HammerCore jar!");
+		LOG.warn("It is highly recommended that you redownload mod from https://minecraft.curseforge.com/projects/247401 !");
+		LOG.warn("*****************************");
 	}
 	
 	/**
