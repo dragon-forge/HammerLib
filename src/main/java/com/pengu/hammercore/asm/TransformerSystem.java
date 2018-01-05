@@ -26,7 +26,7 @@ public class TransformerSystem
 			++indents;
 		indentstr = "";
 		for(int i = 0; i < indents; ++i)
-			indentstr += " ";
+			indentstr += "  ";
 	}
 	
 	public void pop()
@@ -35,7 +35,7 @@ public class TransformerSystem
 			--indents;
 		indentstr = "";
 		for(int i = 0; i < indents; ++i)
-			indentstr += " ";
+			indentstr += "  ";
 	}
 	
 	public void info(String text)

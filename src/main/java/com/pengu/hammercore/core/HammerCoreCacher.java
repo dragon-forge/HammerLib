@@ -5,6 +5,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import com.endie.lib.io.VoidInputStream;
 import com.endie.lib.io.VoidOutputStream;
@@ -39,7 +41,7 @@ public class HammerCoreCacher implements iCacher
 		File f = new File(cacheDir, MD5.encrypt(url));
 		try
 		{
-			return new FileInputStream(f);
+			return new GZIPInputStream(new FileInputStream(f));
 		} catch(Throwable err)
 		{
 		}
@@ -52,7 +54,7 @@ public class HammerCoreCacher implements iCacher
 		File f = new File(cacheDir, MD5.encrypt(url));
 		try
 		{
-			return new FileOutputStream(f);
+			return new GZIPOutputStream(new FileOutputStream(f));
 		} catch(Throwable err)
 		{
 		}

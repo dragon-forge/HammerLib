@@ -3,6 +3,8 @@ package com.pengu.hammercore.asm;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.ListIterator;
+import java.util.function.BiConsumer;
+import java.util.function.Predicate;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -40,242 +42,208 @@ public class HammerCoreTransformer implements IClassTransformer
 	
 	static
 	{
-		asm.addHook(new iASMHook()
+		hook((node, obf) ->
 		{
-			@Override
-			public void transform(ClassNode node, boolean obf)
+			if(!obf)
 			{
-				if(!obf)
-				{
-					computeLightValueMethodName = "getRawLight";
-					goalInvokeDesc = "(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/math/BlockPos;)I";
-				}
+				computeLightValueMethodName = "getRawLight";
+				goalInvokeDesc = "(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/math/BlockPos;)I";
+			}
+			
+			String desc = "(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Z)Z";
+			if(obf)
+				desc = "(Lamu;Lco;Z)Z";
 				
-				String desc = "(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Z)Z";
-				if(obf)
-					desc = "(Lamu;Lco;Z)Z";
-					
-				// InsnList canSnowAtBody = new InsnList();
-				// canSnowAtBody.add(new VarInsnNode(Opcodes.ALOAD, 0));
-				// canSnowAtBody.add(new VarInsnNode(Opcodes.ALOAD, 1));
-				// canSnowAtBody.add(new VarInsnNode(Opcodes.ILOAD, 2));
-				// canSnowAtBody.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-				// "com/pengu/hammercore/asm/SnowfallHooks", "canSnowAtBody",
-				// desc));
-				// canSnowAtBody.add(new InsnNode(Opcodes.IRETURN));
-				
-				// boolean add_func_72853_d = true;
-				
-				for(MethodNode m : node.methods)
-				{
-					// if(m.name.equals("canSnowAtBody"))
-					// {
-					// m.instructions = canSnowAtBody;
-					// HammerCoreCore.ASM_LOG.info("Sending instructions to
-					// World for
-					// function canSnowAtBody");
-					// }
-					
-					// if((m.name.equals("getMoonPhase") ||
-					// m.name.equals("func_72853_d") || m.name.equals("D")) &&
-					// m.desc.equals("()I"))
-					// {
-					// add_func_72853_d = false;
-					// HammerCoreCore.ASM_LOG.info("Sending instructions to
-					// World for
-					// function getMoonPhase");
-					// AnnotationNode sideonly = null;
-					// for(AnnotationNode node : m.visibleAnnotations)
-					// if(node.desc.equals("Lnet/minecraftforge/fml/relauncher/SideOnly;"))
-					// {
-					// sideonly = node;
-					// break;
-					// }
-					// }
-					
-					if(m.name.equals(computeLightValueMethodName) && (!obf || m.desc.equals(targetMethodDesc)))
-					{
-						AbstractInsnNode targetNode = null;
-						Iterator<AbstractInsnNode> iter = m.instructions.iterator();
-						boolean found = false;
-						int index = 0;
-						while(iter.hasNext())
-						{
-							targetNode = iter.next();
-							if(targetNode.getOpcode() == Opcodes.ASTORE)
-							{
-								VarInsnNode astore = (VarInsnNode) targetNode;
-								while(targetNode.getOpcode() != Opcodes.ISTORE)
-								{
-									if(targetNode instanceof MethodInsnNode && targetNode.getOpcode() != Opcodes.INVOKEINTERFACE)
-									{
-										MethodInsnNode mNode = (MethodInsnNode) targetNode;
-										found = true;
-										iter.remove();
-										targetNode = iter.next();
-										break;
-									}
-									targetNode = iter.next();
-								}
-								break;
-							}
-							index++;
-						}
-						if(found)
-						{
-							m.instructions.insertBefore(targetNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/pengu/hammercore/api/dynlight/ProxiedDynlightGetter", "getLightValue", goalInvokeDesc, false));
-							asm.info("Light Patched.");
-						}
-						break;
-					}
-				}
-				
-				// if(add_func_72853_d)
+			// InsnList canSnowAtBody = new InsnList();
+			// canSnowAtBody.add(new VarInsnNode(Opcodes.ALOAD, 0));
+			// canSnowAtBody.add(new VarInsnNode(Opcodes.ALOAD, 1));
+			// canSnowAtBody.add(new VarInsnNode(Opcodes.ILOAD, 2));
+			// canSnowAtBody.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+			// "com/pengu/hammercore/asm/SnowfallHooks", "canSnowAtBody",
+			// desc));
+			// canSnowAtBody.add(new InsnNode(Opcodes.IRETURN));
+			
+			// boolean add_func_72853_d = true;
+			
+			for(MethodNode m : node.methods)
+			{
+				// if(m.name.equals("canSnowAtBody"))
 				// {
-				// asm.info("Sending instructions to World for
-				// function getMoonPhase");
-				//
-				// classNode.methods.add(getMoonPhase(obf ? "D" :
-				// "getMoonPhase"));
-				//
-				// asm.info(" Adding getMoonPhase
-				// (func_72853_d) back
-				// because we are on server.");
+				// m.instructions = canSnowAtBody;
+				// HammerCoreCore.ASM_LOG.info("Sending instructions to
+				// World for
+				// function canSnowAtBody");
 				// }
-			}
-			
-			@Override
-			public String opName()
-			{
-				return "Patching Light...";
-			}
-			
-			@Override
-			public boolean accepts(String name)
-			{
-				return name.equals("net.minecraft.world.World");
-			}
-		});
-		
-		asm.addHook(new iASMHook()
-		{
-			@Override
-			public void transform(ClassNode node, boolean obf)
-			{
-				MethodSignature sig1 = new MethodSignature("renderItem", "func_180454_a", "a", "(Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/renderer/block/model/IBakedModel;)V");
-				MethodSignature sig2 = new MethodSignature("renderEffect", "func_191966_a", "a", "(Lnet/minecraft/client/renderer/block/model/IBakedModel;)V");
 				
-				String funcName = sig1.funcName;
-				if(HammerCoreCore.runtimeDeobfEnabled)
-					funcName = sig1.srgName;
+				// if((m.name.equals("getMoonPhase") ||
+				// m.name.equals("func_72853_d") || m.name.equals("D")) &&
+				// m.desc.equals("()I"))
+				// {
+				// add_func_72853_d = false;
+				// HammerCoreCore.ASM_LOG.info("Sending instructions to
+				// World for
+				// function getMoonPhase");
+				// AnnotationNode sideonly = null;
+				// for(AnnotationNode node : m.visibleAnnotations)
+				// if(node.desc.equals("Lnet/minecraftforge/fml/relauncher/SideOnly;"))
+				// {
+				// sideonly = node;
+				// break;
+				// }
+				// }
 				
-				for(MethodNode method : node.methods)
+				if(m.name.equals(computeLightValueMethodName) && (!obf || m.desc.equals(targetMethodDesc)))
 				{
-					if(!method.name.equals(funcName) && !method.name.equals(sig1.obfName) && !method.name.equals(sig1.srgName) || !method.desc.equals(sig1.funcDesc) && !method.desc.equals(sig1.obfDesc))
-						continue;
-					
-					InsnList insn = method.instructions;
-					InsnList newInstructions = new InsnList();
-					newInstructions.add(new VarInsnNode(25, 1));
-					newInstructions.add(new MethodInsnNode(184, "com/pengu/hammercore/client/ItemColorHelper", "setTargetStackAndHandleRender", "(Lnet/minecraft/item/ItemStack;)V"));
-					insn.insertBefore(insn.get(0), newInstructions);
-					asm.info("Sending instructions to RenderItem for function renderItem");
-				}
-				
-				funcName = sig2.funcName;
-				if(HammerCoreCore.runtimeDeobfEnabled)
-					funcName = sig2.srgName;
-				
-				for(MethodNode method : node.methods)
-				{
-					if(!method.name.equals(funcName) && !method.name.equals(sig2.obfName) && !method.name.equals(sig2.srgName) || !method.desc.equals(sig2.funcDesc) && !method.desc.equals(sig2.obfDesc))
-						continue;
-					
-					InsnList insn = method.instructions;
-					
-					boolean worked = false;
-					
-					for(int i = 0; i < insn.size(); ++i)
+					AbstractInsnNode targetNode = null;
+					Iterator<AbstractInsnNode> iter = m.instructions.iterator();
+					boolean found = false;
+					int index = 0;
+					while(iter.hasNext())
 					{
-						AbstractInsnNode n = insn.get(i);
-						
-						if(n.getOpcode() == 18 && ((LdcInsnNode) n).cst.equals(-8372020))
+						targetNode = iter.next();
+						if(targetNode.getOpcode() == Opcodes.ASTORE)
 						{
-							InsnList newInstructions = new InsnList();
-							newInstructions.add(new MethodInsnNode(184, "com/pengu/hammercore/client/ItemColorHelper", "getCustomColor", "()I"));
-							insn.insertBefore(n, newInstructions);
-							insn.remove(n);
-							worked = true;
-						}
-					}
-					
-					if(worked)
-						asm.info("Sending instructions to RenderItem for function renderEffect");
-				}
-			}
-			
-			@Override
-			public String opName()
-			{
-				return "Coloring Item Glint...";
-			}
-			
-			@Override
-			public boolean accepts(String name)
-			{
-				return name.equals("net.minecraft.client.renderer.RenderItem");
-			}
-		});
-		
-		asm.addHook(new iASMHook()
-		{
-			@Override
-			public void transform(ClassNode node, boolean obf)
-			{
-				String targetMethod;
-				
-				if(obf)
-					targetMethod = "a";
-				else
-					targetMethod = "getSuitableLanPort";
-				
-				for(MethodNode m : node.methods)
-					if(m.name.equals(targetMethod) && m.desc.equals("()I"))
-					{
-						int index = -1;
-						AbstractInsnNode instruction = null;
-						
-						ListIterator<AbstractInsnNode> instructions = m.instructions.iterator();
-						while(instructions.hasNext())
-						{
-							index++;
-							instruction = instructions.next();
-							if(instruction.getOpcode() == 3)
+							VarInsnNode astore = (VarInsnNode) targetNode;
+							while(targetNode.getOpcode() != Opcodes.ISTORE)
 							{
-								AbstractInsnNode toRemove = m.instructions.get(index);
-								m.instructions.remove(toRemove);
-								
-								InsnList toInject = new InsnList();
-								toInject.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/pengu/hammercore/net/LanUtil", "getSuitableLanPort", "()I"));
-								m.instructions.insertBefore(m.instructions.get(index), toInject);
-								asm.info("Sending instructions to HttpUtil for function getSuitableLanPort");
+								if(targetNode instanceof MethodInsnNode && targetNode.getOpcode() != Opcodes.INVOKEINTERFACE)
+								{
+									MethodInsnNode mNode = (MethodInsnNode) targetNode;
+									found = true;
+									iter.remove();
+									targetNode = iter.next();
+									break;
+								}
+								targetNode = iter.next();
 							}
+							break;
+						}
+						index++;
+					}
+					if(found)
+					{
+						m.instructions.insertBefore(targetNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/pengu/hammercore/api/dynlight/ProxiedDynlightGetter", "getLightValue", goalInvokeDesc, false));
+						asm.info("Light Patched.");
+					}
+					break;
+				}
+			}
+			
+			// if(add_func_72853_d)
+			// {
+			// asm.info("Sending instructions to World for
+			// function getMoonPhase");
+			//
+			// classNode.methods.add(getMoonPhase(obf ? "D" :
+			// "getMoonPhase"));
+			//
+			// asm.info(" Adding getMoonPhase
+			// (func_72853_d) back
+			// because we are on server.");
+			// }
+		}, "Patching Light...", cv("net.minecraft.world.World"));
+		
+		hook((node, obf) ->
+		{
+			MethodSignature sig1 = new MethodSignature("renderItem", "func_180454_a", "a", "(Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/renderer/block/model/IBakedModel;)V");
+			MethodSignature sig2 = new MethodSignature("renderEffect", "func_191966_a", "a", "(Lnet/minecraft/client/renderer/block/model/IBakedModel;)V");
+			
+			String funcName = sig1.funcName;
+			if(HammerCoreCore.runtimeDeobfEnabled)
+				funcName = sig1.srgName;
+			
+			for(MethodNode method : node.methods)
+			{
+				if(!method.name.equals(funcName) && !method.name.equals(sig1.obfName) && !method.name.equals(sig1.srgName) || !method.desc.equals(sig1.funcDesc) && !method.desc.equals(sig1.obfDesc))
+					continue;
+				
+				InsnList insn = method.instructions;
+				InsnList newInstructions = new InsnList();
+				newInstructions.add(new VarInsnNode(25, 1));
+				newInstructions.add(new MethodInsnNode(184, "com/pengu/hammercore/client/ItemColorHelper", "setTargetStackAndHandleRender", "(Lnet/minecraft/item/ItemStack;)V"));
+				insn.insertBefore(insn.get(0), newInstructions);
+				asm.info("Sending instructions to RenderItem for function renderItem");
+			}
+			
+			funcName = sig2.funcName;
+			if(HammerCoreCore.runtimeDeobfEnabled)
+				funcName = sig2.srgName;
+			
+			for(MethodNode method : node.methods)
+			{
+				if(!method.name.equals(funcName) && !method.name.equals(sig2.obfName) && !method.name.equals(sig2.srgName) || !method.desc.equals(sig2.funcDesc) && !method.desc.equals(sig2.obfDesc))
+					continue;
+				
+				InsnList insn = method.instructions;
+				
+				boolean worked = false;
+				
+				for(int i = 0; i < insn.size(); ++i)
+				{
+					AbstractInsnNode n = insn.get(i);
+					
+					if(n.getOpcode() == 18 && ((LdcInsnNode) n).cst.equals(-8372020))
+					{
+						InsnList newInstructions = new InsnList();
+						newInstructions.add(new MethodInsnNode(184, "com/pengu/hammercore/client/ItemColorHelper", "getCustomColor", "()I"));
+						insn.insertBefore(n, newInstructions);
+						insn.remove(n);
+						worked = true;
+					}
+				}
+				
+				if(worked)
+					asm.info("Sending instructions to RenderItem for function renderEffect");
+			}
+		}, "Coloring Item Glint...", cv("net.minecraft.client.renderer.RenderItem"));
+		
+		hook((node, obf) ->
+		{
+			String targetMethod;
+			
+			if(obf)
+				targetMethod = "a";
+			else
+				targetMethod = "getSuitableLanPort";
+			
+			for(MethodNode m : node.methods)
+				if(m.name.equals(targetMethod) && m.desc.equals("()I"))
+				{
+					int index = -1;
+					AbstractInsnNode instruction = null;
+					
+					ListIterator<AbstractInsnNode> instructions = m.instructions.iterator();
+					while(instructions.hasNext())
+					{
+						index++;
+						instruction = instructions.next();
+						if(instruction.getOpcode() == 3)
+						{
+							AbstractInsnNode toRemove = m.instructions.get(index);
+							m.instructions.remove(toRemove);
+							
+							InsnList toInject = new InsnList();
+							toInject.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/pengu/hammercore/net/LanUtil", "getSuitableLanPort", "()I"));
+							m.instructions.insertBefore(m.instructions.get(index), toInject);
+							asm.info("Sending instructions to HttpUtil for function getSuitableLanPort");
 						}
 					}
-			}
-			
-			@Override
-			public String opName()
+				}
+		}, "Custom Ports", cv("net.minecraft.util.HttpUtil"));
+		
+		hook((node, obf) ->
+		{
+			for(int i = 0; i < node.methods.size(); ++i)
 			{
-				return "Custom Ports";
+				MethodNode mn = node.methods.get(i);
+				/* Prevent duplicate */
+				if(mn.name.equalsIgnoreCase("onItemTooltip"))
+				{
+					node.methods.remove(i);
+					asm.info("Deleted onItemTooltip (see why: https://goo.gl/L5c8pD )");
+				}
 			}
-			
-			@Override
-			public boolean accepts(String name)
-			{
-				return name.equals("net.minecraft.util.HttpUtil");
-			}
-		});
+		}, "Patching XVLib (TooltipApi)", cv("xmrvizzy.xvlib.api.TooltipApi"));
 	}
 	
 	@Override
@@ -323,17 +291,35 @@ public class HammerCoreTransformer implements IClassTransformer
 		return asm.transform(name, transformedName, basicClass);
 	}
 	
-	// private String insnToString(AbstractInsnNode insn)
-	// {
-	// insn.accept(mp);
-	// StringWriter sw = new StringWriter();
-	// printer.print(new PrintWriter(sw));
-	// printer.getText().clear();
-	// return sw.toString();
-	// }
-	//
-	// private Printer printer = new Textifier();
-	// private TraceMethodVisitor mp = new TraceMethodVisitor(printer);
+	public static Predicate<String> cv(String c)
+	{
+		return s -> c.equalsIgnoreCase(s);
+	}
+	
+	public static void hook(BiConsumer<ClassNode, Boolean> handle, String desc, Predicate<String> acceptor)
+	{
+		asm.addHook(new iASMHook()
+		{
+			
+			@Override
+			public void transform(ClassNode node, boolean obf)
+			{
+				handle.accept(node, obf);
+			}
+			
+			@Override
+			public String opName()
+			{
+				return desc;
+			}
+			
+			@Override
+			public boolean accepts(String name)
+			{
+				return acceptor.test(name);
+			}
+		});
+	}
 	
 	private MethodNode getMoonPhase(String name)
 	{

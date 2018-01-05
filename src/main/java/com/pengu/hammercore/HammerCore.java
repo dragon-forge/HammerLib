@@ -117,8 +117,7 @@ public class HammerCore
 {
 	public static final List<String> initHCChannels = new ArrayList<>();
 	public static final List<AttuneResult> closeAfterLogoff = new ArrayList<>();
-	public static final boolean IS_OBFUSCATED_MC = false;
-	
+	public static boolean invalidCertificate = false;
 	public static final List<iProcess> updatables = new ArrayList<>(16);
 	
 	/**
@@ -194,6 +193,7 @@ public class HammerCore
 		LOG.warn("WARNING: Somebody has been tampering with HammerCore jar!");
 		LOG.warn("It is highly recommended that you redownload mod from https://minecraft.curseforge.com/projects/247401 !");
 		LOG.warn("*****************************");
+		invalidCertificate = true;
 	}
 	
 	/**
