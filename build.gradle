@@ -91,7 +91,39 @@ task signJar(type: SignJar, dependsOn: reobfJar) {
     outputFile = jar.archivePath
 }
 
+task signDeobfJar(type: SignJar, dependsOn: deobfJar) {
+    onlyIf {
+        project.hasProperty('keyStore')
+    }
+    keyStore = project.findProperty('keyStore')
+    alias = project.findProperty('keyStoreAlias')
+    storePass = project.findProperty('keyStorePass')
+    keyPass = project.findProperty('keyStoreKeyPass')
+    inputFile = deobfJar.archivePath
+    outputFile = deobfJar.archivePath
+}
+
+task signSrcJar(type: SignJar, dependsOn: srcJar) {
+    onlyIf {
+        project.hasProperty('keyStore')
+    }
+    keyStore = project.findProperty('keyStore')
+    alias = project.findProperty('keyStoreAlias')
+    storePass = project.findProperty('keyStorePass')
+    keyPass = project.findProperty('keyStoreKeyPass')
+    inputFile = srcJar.archivePath
+    outputFile = srcJar.archivePath
+}
+
 build.dependsOn signJar
+build.dependsOn signDeobfJar
+build.dependsOn signSrcJar
+
+afterEvaluate {
+	tasks["curseforge${config.project_id}"].dependsOn.add(signJar)
+	tasks["curseforge${config.project_id}"].dependsOn.add(signDeobfJar)
+	tasks["curseforge${config.project_id}"].dependsOn.add(signSrcJar)
+}
 
 jar {
 	manifest {
@@ -124,8 +156,4 @@ curseforge {
 		  displayName = "[${config.minecraft_version}] ${config.mod_name} (Sources) - ${config.mod_version}"
 		}
 	}
-}
-
-afterEvaluate {
-	tasks.curseforge247401.dependsOn.add(signJar)
 }

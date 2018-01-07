@@ -617,7 +617,7 @@ public class HammerCore
 		                int b = 150 + (int) (80F * sine);
 		                
 		                return ColorHelper.packRGB(r / 255F, g / 255F, b / 255F);
-	                }), //
+	                }, true), //
 	                new HCAuthor("EndieDargon", TextFormatting.DARK_PURPLE + "" + TextFormatting.ITALIC + "              " + TextFormatting.RESET + "  ", () ->
 	                {
 		                float sine = .5F * ((float) Math.sin(Math.toRadians(16 * client_ticks)) + 1);
@@ -627,7 +627,7 @@ public class HammerCore
 		                int b = 255;
 		                
 		                return ColorHelper.packRGB(r / 255F, g / 255F, b / 255F);
-	                }) //
+	                }, true) //
 			};
 			
 	public static HCAuthor[] getHCAuthors()
@@ -639,7 +639,8 @@ public class HammerCore
 	{
 		List<String> a = new ArrayList<>();
 		for(HCAuthor h : HCAUTHORS)
-			a.add(h.getUsername());
+			if(h.isAuthor())
+				a.add(h.getUsername());
 		return Collections.unmodifiableList(a);
 	}
 	
@@ -652,12 +653,19 @@ public class HammerCore
 	{
 		private final String username, dname;
 		private final Supplier<Integer> color;
+		private final boolean isAuthor;
 		
-		private HCAuthor(String username, String dname, Supplier<Integer> color)
+		private HCAuthor(String username, String dname, Supplier<Integer> color, boolean isAuthor)
 		{
 			this.username = username;
 			this.dname = dname;
 			this.color = color;
+			this.isAuthor = isAuthor;
+		}
+		
+		public boolean isAuthor()
+		{
+			return isAuthor;
 		}
 		
 		public String getUsername()
