@@ -56,7 +56,7 @@ processResources
         exclude 'mcmod.info'
 		exclude 'pack.mcmeta'
     }
-	rename "mod_id_at.cfg", "META-INF/${config.mod_id}_at.cfg"
+	rename "hc_at.cfg", "META-INF/hc_at.cfg"
 }
 
 task deobfJar(type: Jar) {
