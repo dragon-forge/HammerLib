@@ -1,6 +1,10 @@
 package com.pengu.hammercore.tile;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import com.pengu.hammercore.common.capabilities.CapabilityEJ;
 import com.pengu.hammercore.core.ext.TeslaAPI;
@@ -16,6 +20,12 @@ import net.minecraftforge.energy.IEnergyStorage;
 
 public class TileInfiRF extends TileSyncableTickable implements IEnergyStorage, iPowerStorage
 {
+	/**
+	 * Allows mods to make custom creative providers.
+	 */
+	public static final List<Consumer<TileInfiRF>> CUSTOM_SOURCES = new ArrayList<>();
+	public static final Map<Capability, Object> CUSTOM_CAPS = new HashMap<>();
+	
 	@Override
 	public void tick()
 	{
@@ -43,6 +53,9 @@ public class TileInfiRF extends TileSyncableTickable implements IEnergyStorage, 
 					storage.receiveEnergy(Integer.MAX_VALUE, false);
 			}
 		}
+		
+		for(int i = 0; i < CUSTOM_SOURCES.size(); ++i)
+			CUSTOM_SOURCES.get(i).accept(this);
 	}
 	
 	@Override
@@ -51,10 +64,12 @@ public class TileInfiRF extends TileSyncableTickable implements IEnergyStorage, 
 		properties.put("power", Integer.MAX_VALUE);
 	}
 	
+	@Override
 	public void writeNBT(NBTTagCompound nbt)
 	{
 	}
 	
+	@Override
 	public void readNBT(NBTTagCompound nbt)
 	{
 	}
@@ -100,6 +115,8 @@ public class TileInfiRF extends TileSyncableTickable implements IEnergyStorage, 
 	{
 		if(capability == CapabilityEJ.ENERGY || capability == CapabilityEnergy.ENERGY)
 			return true;
+		if(CUSTOM_CAPS.containsKey(capability))
+			return true;
 		return super.hasCapability(capability, facing);
 	}
 	
@@ -108,6 +125,12 @@ public class TileInfiRF extends TileSyncableTickable implements IEnergyStorage, 
 	{
 		if(capability == CapabilityEJ.ENERGY || capability == CapabilityEnergy.ENERGY)
 			return (T) this;
+		try
+		{
+			return (T) CUSTOM_CAPS.get(capability);
+		} catch(Throwable err)
+		{
+		}
 		return super.getCapability(capability, facing);
 	}
 }

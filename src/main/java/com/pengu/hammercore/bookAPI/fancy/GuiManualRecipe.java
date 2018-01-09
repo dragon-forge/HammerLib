@@ -97,12 +97,14 @@ public class GuiManualRecipe extends GuiScreen implements iTooltipContext
 			--page;
 		this.page = page;
 	}
-	
+
+	@Override
 	public void initGui()
 	{
 		
 	}
-	
+
+	@Override
 	protected void keyTyped(char par1, int par2) throws IOException
 	{
 		if(par2 == this.mc.gameSettings.keyBindInventory.getKeyCode() || par2 == 1)
@@ -113,6 +115,7 @@ public class GuiManualRecipe extends GuiScreen implements iTooltipContext
 			super.keyTyped(par1, par2);
 	}
 	
+	@Override
 	public void drawScreen(int par1, int par2, float par3)
 	{
 		mx = par1;
@@ -656,7 +659,8 @@ public class GuiManualRecipe extends GuiScreen implements iTooltipContext
 		sx -= x + 8 + side * 152;
 		sy -= y + 59;
 	}
-	
+
+	@Override
 	protected void mouseClicked(int par1, int par2, int par3) throws IOException
 	{
 		int var4 = (width - paneWidth) / 2;
@@ -709,7 +713,8 @@ public class GuiManualRecipe extends GuiScreen implements iTooltipContext
 		
 		super.mouseClicked(par1, par2, par3);
 	}
-	
+
+	@Override
 	public boolean doesGuiPauseGame()
 	{
 		return false;
