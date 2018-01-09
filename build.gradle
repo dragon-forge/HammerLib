@@ -5,6 +5,10 @@ buildscript {
             name = "forge"
             url = "http://files.minecraftforge.net/maven"
         }
+		maven {
+            name = "sonatype"
+            url = "https://oss.sonatype.org/content/repositories/snapshots/"
+        }
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
@@ -13,6 +17,7 @@ buildscript {
 
 plugins {
     id 'com.matthewprenger.cursegradle' version '1.0.8'
+	id 'se.bjurr.gitchangelog.git-changelog-gradle-plugin' version '1.50'
 }
 
 apply plugin: 'net.minecraftforge.gradle.forge'
@@ -79,6 +84,39 @@ task srcJar(type: Jar, dependsOn: classes) {
     }
 }
 
+jar {
+	manifest {
+        attributes 'FMLCorePlugin': 'com.pengu.hammercore.asm.HammerCoreCore'
+		attributes 'FMLCorePluginContainsFMLMod': 'false'
+		attributes 'FMLAT': 'hc_at.cfg'
+    }
+}
+
+artifacts {
+    archives deobfJar
+	archives srcJar
+}
+
+curseforge {
+	apiKey = System.env.CURSEFORGE_API_KEY
+	project {
+		id = "${config.project_id}"
+		changelogType = 'html'
+		changelog = ""
+		releaseType = "${config.release_type}"
+		addGameVersion "${config.minecraft_version}"
+		mainArtifact(jar) {
+		  displayName = "[${config.minecraft_version}] ${config.mod_name} - ${config.mod_version}"
+		}
+		addArtifact(deobfJar) {
+		  displayName = "[${config.minecraft_version}] ${config.mod_name} (Deobfuscated) - ${config.mod_version}"
+		}
+		addArtifact(srcJar) {
+		  displayName = "[${config.minecraft_version}] ${config.mod_name} (Sources) - ${config.mod_version}"
+		}
+	}
+}
+
 task signJar(type: SignJar, dependsOn: reobfJar) {
     onlyIf {
         project.hasProperty('keyStore')
@@ -115,45 +153,33 @@ task signSrcJar(type: SignJar, dependsOn: srcJar) {
     outputFile = srcJar.archivePath
 }
 
+task makeChangelog(type: se.bjurr.gitchangelog.plugin.gradle.GitChangelogTask) {
+    file = new File("changelog.html")
+    untaggedName = "Version ${project.version}"
+    fromCommit = startGitRev
+    toRef =  "HEAD"
+    gitHubIssuePattern = "nonada123";
+    templateContent = """
+{{#tags}}
+<h1>Changes:</h1>
+  <ul>
+    {{#commits}}
+    <li> <a href="https://github.com/APengu/HammerCore/commit/{{hash}}" target=_blank> {{{message}}}</a>
+</li>
+    {{/commits}}
+  </ul>
+{{/tags}}
+"""
+}
+
 build.dependsOn signJar
 build.dependsOn signDeobfJar
 build.dependsOn signSrcJar
+tasks.build.dependsOn makeChangelog
 
 afterEvaluate {
 	tasks["curseforge${config.project_id}"].dependsOn.add(signJar)
 	tasks["curseforge${config.project_id}"].dependsOn.add(signDeobfJar)
 	tasks["curseforge${config.project_id}"].dependsOn.add(signSrcJar)
-}
-
-jar {
-	manifest {
-        attributes 'FMLCorePlugin': 'com.pengu.hammercore.asm.HammerCoreCore'
-		attributes 'FMLCorePluginContainsFMLMod': 'false'
-		attributes 'FMLAT': 'hc_at.cfg'
-    }
-}
-
-artifacts {
-    archives deobfJar
-	archives srcJar
-}
-
-curseforge {
-	apiKey = System.env.CURSEFORGE_API_KEY
-	project {
-		id = "${config.project_id}"
-		changelogType = 'html'
-		changelog = ""
-		releaseType = "${config.release_type}"
-		addGameVersion "${config.minecraft_version}"
-		mainArtifact(jar) {
-		  displayName = "[${config.minecraft_version}] ${config.mod_name} - ${config.mod_version}"
-		}
-		addArtifact(deobfJar) {
-		  displayName = "[${config.minecraft_version}] ${config.mod_name} (Deobfuscated) - ${config.mod_version}"
-		}
-		addArtifact(srcJar) {
-		  displayName = "[${config.minecraft_version}] ${config.mod_name} (Sources) - ${config.mod_version}"
-		}
-	}
+	tasks["curseforge${config.cf_project}"].dependsOn.add(makeChangelog)
 }
