@@ -3,6 +3,8 @@ package com.pengu.hammercore.common.structure;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.pengu.hammercore.client.render.world.VirtualWorld;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
@@ -60,6 +62,19 @@ public class Structure
 				TileEntity tile = TileEntity.create(world, nbt);
 				world.setTileEntity(at.add(pos), tile);
 			}
+		}
+	}
+	
+	public void build(VirtualWorld world, BlockPos at)
+	{
+		for(Long l : stateMap.keySet().toArray(new Long[0]))
+		{
+			if(l == null)
+				continue;
+			BlockPos pos = BlockPos.fromLong(l);
+			BlockPos tpos = at.add(pos);
+			IBlockState state = getStateAt(pos);
+			world.setBlockState(tpos, state);
 		}
 	}
 	

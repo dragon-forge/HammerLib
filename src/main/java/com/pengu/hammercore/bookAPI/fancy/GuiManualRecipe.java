@@ -28,7 +28,6 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.client.util.ITooltipFlag.TooltipFlags;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
@@ -64,7 +63,7 @@ public class GuiManualRecipe extends GuiScreen implements iTooltipContext
 	String tex1 = "textures/gui/gui_manual_page.png";
 	String tex2 = "textures/gui/gui_manual_overlay.png";
 	String tex3 = "textures/misc/infuser_symbol.png";
-	public  Object[] tooltip = null;
+	public Object[] tooltip = null;
 	public long lastCycle = 0;
 	public ArrayList<List> reference = new ArrayList();
 	public int cycle = -1;

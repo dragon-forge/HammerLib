@@ -358,6 +358,7 @@ public class HammerCore
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent e)
 	{
+		renderProxy.postInit();
 		for(iJavaCode code : COMPILED_CODES)
 			code.postInit();
 		for(iRecipePlugin plugin : recipePlugins)

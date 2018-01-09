@@ -37,7 +37,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
-import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.discovery.ASMDataTable;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
@@ -260,5 +259,10 @@ public class RenderProxy_Client extends RenderProxy_Common
 	public void crel(TextureStitchEvent e)
 	{
 		reloaded = cticked;
+	}
+	
+	@Override
+	public void postInit()
+	{
 	}
 }
