@@ -148,7 +148,7 @@ public class TileMultipart extends TileSyncableTickable implements iHandlerProvi
 		
 		NBTTagList list = nbt.getTagList("signature", NBT.TAG_COMPOUND);
 		for(int i = 0; i < list.tagCount(); ++i)
-			internal_addMultipart(MultipartSignature.createAndLoadSignature(list.getCompoundTagAt(i)));
+			internal_addMultipart(MultipartSignature.createAndLoadSignature(list.getCompoundTagAt(i), this));
 	}
 	
 	@Override

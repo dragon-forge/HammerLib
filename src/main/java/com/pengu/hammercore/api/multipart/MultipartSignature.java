@@ -342,11 +342,14 @@ public abstract class MultipartSignature implements iPropertyChangeHandler
 		return true;
 	}
 	
-	public static MultipartSignature createAndLoadSignature(NBTTagCompound nbt)
+	public static MultipartSignature createAndLoadSignature(NBTTagCompound nbt, TileMultipart tmp)
 	{
 		try
 		{
 			MultipartSignature signature = (MultipartSignature) Class.forName(nbt.getString("class")).newInstance();
+			signature.setOwner(tmp);
+			signature.setWorld(tmp.getWorld());
+			signature.setPos(tmp.getPos());
 			signature.readSignature(nbt);
 			return signature;
 		} catch(Throwable err)
