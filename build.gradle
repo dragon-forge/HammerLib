@@ -102,7 +102,7 @@ curseforge {
 	project {
 		id = "${config.project_id}"
 		changelogType = 'html'
-		changelog = ""
+		changelog = file('changelog.html')
 		releaseType = "${config.release_type}"
 		addGameVersion "${config.minecraft_version}"
 		mainArtifact(jar) {
@@ -181,5 +181,5 @@ afterEvaluate {
 	tasks["curseforge${config.project_id}"].dependsOn.add(signJar)
 	tasks["curseforge${config.project_id}"].dependsOn.add(signDeobfJar)
 	tasks["curseforge${config.project_id}"].dependsOn.add(signSrcJar)
-	tasks["curseforge${config.cf_project}"].dependsOn.add(makeChangelog)
+	tasks["curseforge${config.project_id}"].dependsOn.add(makeChangelog)
 }
