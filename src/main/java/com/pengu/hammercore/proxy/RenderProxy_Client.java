@@ -1,12 +1,18 @@
 package com.pengu.hammercore.proxy;
 
+import java.io.File;
+import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Scanner;
+
+import javax.imageio.ImageIO;
 
 import com.pengu.hammercore.HammerCore;
 import com.pengu.hammercore.TooltipAPI;
 import com.pengu.hammercore.annotations.AtTESR;
 import com.pengu.hammercore.cfg.HammerCoreConfigs;
+import com.pengu.hammercore.client.HCClientOptions;
 import com.pengu.hammercore.client.ItemColorHelper;
 import com.pengu.hammercore.client.RenderGui;
 import com.pengu.hammercore.client.TexturePixelGetter;
@@ -16,24 +22,34 @@ import com.pengu.hammercore.client.particle.iRenderHelper;
 import com.pengu.hammercore.client.render.item.TileEntityItemStackRendererHC;
 import com.pengu.hammercore.client.render.tesr.TESR;
 import com.pengu.hammercore.client.texture.TextureFXManager;
+import com.pengu.hammercore.client.texture.gui.theme.GuiTheme;
 import com.pengu.hammercore.client.utils.iEnchantmentColorManager;
 import com.pengu.hammercore.common.items.MultiVariantItem;
 import com.pengu.hammercore.common.utils.AnnotatedInstanceUtil;
+import com.pengu.hammercore.common.utils.IOUtils;
+import com.pengu.hammercore.core.gui.GuiPersonalisation;
 import com.pengu.hammercore.core.init.ItemsHC;
+import com.pengu.hammercore.json.JSONException;
+import com.pengu.hammercore.json.JSONObject;
 import com.pengu.hammercore.utils.ColorHelper;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiNewChat;
 import net.minecraft.client.renderer.block.model.ModelBakery;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.command.CommandBase;
+import net.minecraft.command.CommandException;
+import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
+import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
@@ -64,6 +80,43 @@ public class RenderProxy_Client extends RenderProxy_Common
 	public void preInit(ASMDataTable table)
 	{
 		tesrs = AnnotatedInstanceUtil.getInstances(table, AtTESR.class, TESR.class);
+		
+		ClientCommandHandler.instance.registerCommand(new CommandBase()
+		{
+			@Override
+			public String getUsage(ICommandSender sender)
+			{
+				return "/hc_themes";
+			}
+			
+			@Override
+			public String getName()
+			{
+				return "hc_themes";
+			}
+			
+			@Override
+			public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
+			{
+				
+				new Thread(() ->
+				{
+					Scanner sc = new Scanner(HammerCore.class.getResourceAsStream("/assets/hammercore/themes/themes.txt"));
+					while(sc.hasNext())
+						GuiTheme.makeTheme(sc.next());
+					sc.close();
+					
+					try
+					{
+						Thread.sleep(100L);
+					} catch(Throwable err)
+					{
+					}
+					
+					Minecraft.getMinecraft().addScheduledTask(() -> Minecraft.getMinecraft().displayGuiScreen(new GuiPersonalisation()));
+				}).start();
+			}
+		});
 	}
 	
 	@Override
@@ -149,6 +202,14 @@ public class RenderProxy_Client extends RenderProxy_Common
 		}
 		HammerCore.LOG.info("Registered " + tesrs.size() + " TESRs.");
 		
+		try
+		{
+			HCClientOptions.options.load((JSONObject) IOUtils.jsonparse(new File("hc_options.txt")));
+		} catch(JSONException e)
+		{
+			e.printStackTrace();
+		}
+		
 		// try
 		// {
 		// JSONObject obj = (JSONObject) new JSONTokener(new
@@ -180,6 +241,7 @@ public class RenderProxy_Client extends RenderProxy_Common
 	private static final int DELETION_ID = 0x16F7F6;
 	private static int lastAdded;
 	
+	@Override
 	public void sendNoSpamMessages(ITextComponent[] messages)
 	{
 		GuiNewChat chat = Minecraft.getMinecraft().ingameGUI.getChatGUI();

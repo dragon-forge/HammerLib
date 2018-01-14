@@ -70,6 +70,9 @@ import com.pengu.hammercore.world.WorldGenHammerCore;
 import com.pengu.hammercore.world.WorldGenHelper;
 import com.pengu.hammercore.world.data.PerChunkDataManager;
 
+import net.minecraft.command.CommandHandler;
+import net.minecraft.command.ICommand;
+import net.minecraft.command.ICommandManager;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -373,12 +376,12 @@ public class HammerCore
 	@EventHandler
 	public void serverStarting(FMLServerStartingEvent e)
 	{
-		e.registerServerCommand(new CommandPosToLong());
 		e.registerServerCommand(new CommandTPX());
 		e.registerServerCommand(new CommandBuildStructure());
 		e.registerServerCommand(new CommandTimeToTicks());
 		e.registerServerCommand(new CommandLoadChunk());
 		e.registerServerCommand(new CommandSetEnchantmentColor());
+		e.registerServerCommand(new CommandPosToLong());
 		
 		File hc_recipes_global = new File("hc-recipes");
 		MinecraftServer server = e.getServer();
@@ -395,6 +398,15 @@ public class HammerCore
 		GRCProvider.reloadScript();
 		
 		reloadRaytracePlugins();
+	}
+	
+	public static void registerDebugCommand(ICommandManager mgr, ICommand cmd)
+	{
+		CommandHandler ch = (CommandHandler) mgr;
+		
+		ch.registerCommand(cmd);
+		ch.getCommands().remove(cmd.getName());
+		ch.getCommands().put(TextFormatting.DARK_GRAY.toString() + cmd.getName(), cmd);
 	}
 	
 	@EventHandler

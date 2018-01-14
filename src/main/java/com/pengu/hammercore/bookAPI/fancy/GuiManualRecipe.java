@@ -11,9 +11,11 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 import com.pengu.hammercore.bookAPI.fancy.HCFontRenderer.iTooltipContext;
+import com.pengu.hammercore.client.texture.gui.theme.GuiTheme;
 import com.pengu.hammercore.client.utils.UtilsFX;
 import com.pengu.hammercore.common.InterItemStack;
 import com.pengu.hammercore.common.utils.InventoryUtils;
+import com.pengu.hammercore.utils.ColorHelper;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -152,7 +154,8 @@ public class GuiManualRecipe extends GuiScreen implements iTooltipContext
 		int sh = (height - paneHeight) / 2;
 		float var10 = (width - paneWidth * 1.3F) / 2F;
 		float var11 = (height - paneHeight * 1.3F) / 2F;
-		GL11.glColor4f(1, 1, 1, 1);
+		int rgb = GuiTheme.CURRENT_THEME.bodyColor;
+		GL11.glColor4f(ColorHelper.getRed(rgb), ColorHelper.getGreen(rgb), ColorHelper.getBlue(rgb), 1F);
 		UtilsFX.bindTexture(this.tex1);
 		GL11.glPushMatrix();
 		GL11.glTranslatef(var10, var11, 0F);
@@ -229,14 +232,14 @@ public class GuiManualRecipe extends GuiScreen implements iTooltipContext
 			drawTexturedModalRect(x + 4, y + 4, 24, 184, 96, 4);
 			int offset = fontRenderer.getStringWidth(entry.getName());
 			if(offset <= 130)
-				fontRenderer.drawString(entry.getName(), x + 52 - offset / 2, y - 6, 3158064);
+				fontRenderer.drawString(entry.getName(), x + 52 - offset / 2, y - 6, GuiTheme.CURRENT_THEME.textColor);
 			else
 			{
 				float vv = 130F / offset;
 				GL11.glPushMatrix();
 				GL11.glTranslatef((float) ((float) (x + 52) - (float) (offset / 2) * vv), (float) ((float) y - 6.0f * vv), (float) 0.0f);
 				GL11.glScalef(vv, vv, vv);
-				fontRenderer.drawString(entry.getName(), 0, 0, 3158064);
+				fontRenderer.drawString(entry.getName(), 0, 0, GuiTheme.CURRENT_THEME.textColor);
 				GL11.glPopMatrix();
 			}
 			y += 25;
@@ -423,7 +426,7 @@ public class GuiManualRecipe extends GuiScreen implements iTooltipContext
 			int j;
 			text = I18n.format("recipe.type.workbench");
 			offset = this.fontRenderer.getStringWidth(text);
-			this.fontRenderer.drawString(text, x + start + 56 - offset / 2, y, 5263440);
+			this.fontRenderer.drawString(text, x + start + 56 - offset / 2, y, GuiTheme.CURRENT_THEME.textColor);
 			int rw = 0;
 			int rh = 0;
 			
@@ -487,7 +490,7 @@ public class GuiManualRecipe extends GuiScreen implements iTooltipContext
 			int i;
 			text = I18n.format("recipe.type.workbenchshapeless");
 			offset = fontRenderer.getStringWidth(text);
-			fontRenderer.drawString(text, x + start + 56 - offset / 2, y, 5263440);
+			fontRenderer.drawString(text, x + start + 56 - offset / 2, y, GuiTheme.CURRENT_THEME.textColor);
 			for(i = 0; i < items.size() && i < 9; ++i)
 			{
 				if(items.get(i) == null)
@@ -534,7 +537,7 @@ public class GuiManualRecipe extends GuiScreen implements iTooltipContext
 			int start = side * 152;
 			String text = I18n.format("recipe.type.smelting");
 			int offset = fontRenderer.getStringWidth(text);
-			fontRenderer.drawString(text, x + start + 56 - offset / 2, y, 5263440);
+			fontRenderer.drawString(text, x + start + 56 - offset / 2, y, GuiTheme.CURRENT_THEME.textColor);
 			UtilsFX.bindTexture(this.tex2);
 			GL11.glPushMatrix();
 			GL11.glColor4f(1, 1, 1, 1);
@@ -591,7 +594,7 @@ public class GuiManualRecipe extends GuiScreen implements iTooltipContext
 		RenderHelper.enableGUIStandardItemLighting();
 		GL11.glEnable(3042);
 		
-		List tip = fr.drawSplitString(text, x - 15 + side * 152, y, 139, 0, this, this);
+		List tip = fr.drawSplitString(text, x - 15 + side * 152, y, 139, GuiTheme.CURRENT_THEME.textColor, this, this);
 		
 		if(tip != null && !tip.isEmpty())
 		{

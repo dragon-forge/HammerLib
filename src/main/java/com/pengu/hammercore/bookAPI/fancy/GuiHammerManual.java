@@ -12,6 +12,7 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 import com.pengu.hammercore.bookAPI.fancy.ManualEntry.eEntryShape;
+import com.pengu.hammercore.client.texture.gui.theme.GuiTheme;
 import com.pengu.hammercore.client.utils.RenderUtil;
 import com.pengu.hammercore.client.utils.UtilsFX;
 import com.pengu.hammercore.common.utils.InventoryUtils;
@@ -161,6 +162,8 @@ public class GuiHammerManual extends GuiScreen
 		float scale = MathHelper.clamp(ManualScale.get(), .3F, 1.5F);
 		int sz = (int) (24 * scale);
 		
+		int rgb = GuiTheme.CURRENT_THEME.bodyColor;
+		
 		long t = System.nanoTime() / 50000000L;
 		int var4 = MathHelper.floor(this.field_74117_m + (this.guiMapX - this.field_74117_m) * (double) par3);
 		int var5 = MathHelper.floor(this.field_74115_n + (this.guiMapY - this.field_74115_n) * (double) par3);
@@ -275,6 +278,8 @@ public class GuiHammerManual extends GuiScreen
 				float var47;
 				
 				int col = var45.getColor();
+				if(col == 0xFFFFFF)
+					col = rgb;
 				
 				float r = ColorHelper.getRed(col), g = ColorHelper.getGreen(col), b = ColorHelper.getBlue(col);
 				
@@ -407,7 +412,7 @@ public class GuiHammerManual extends GuiScreen
 				
 				UtilsFX.bindTexture("textures/gui/gui_manual.png");
 				
-				GL11.glColor4f(1, 1, 1, 1);
+				GL11.glColor4f(ColorHelper.getRed(rgb), ColorHelper.getGreen(rgb), ColorHelper.getBlue(rgb), 1F);
 				if(var50)
 					this.drawTexturedModalRectReversed(var8 + var39 - 8, var9 + 2 + var49 * 24, 176 + primary, 232, 24, 24);
 				else
@@ -425,14 +430,14 @@ public class GuiHammerManual extends GuiScreen
 				
 				GL11.glPushMatrix();
 				this.mc.renderEngine.bindTexture(fr.icon);
-				GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+				GL11.glColor4f(1, 1, 1, 1);
 				UtilsFX.drawTexturedQuadFull(var8 - 19 + warp + var39, var9 + 6 + var49 * 24, -80.0D);
 				GL11.glPopMatrix();
 				
 				if(!selectedCategory.equals(var99))
 				{
 					UtilsFX.bindTexture("textures/gui/gui_manual.png");
-					GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+					GL11.glColor4f(ColorHelper.getRed(rgb), ColorHelper.getGreen(rgb), ColorHelper.getBlue(rgb), 1F);
 					if(var50)
 						drawTexturedModalRectReversed(var8 + var39 - 8, var9 + 2 + var49 * 24, 224, 232, 24, 24);
 					else
@@ -445,8 +450,8 @@ public class GuiHammerManual extends GuiScreen
 		}
 		
 		UtilsFX.bindTexture("textures/gui/gui_manual.png");
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-		this.drawTexturedModalRect(var8, var9, 0, 0, this.paneWidth, this.paneHeight);
+		GL11.glColor4f(ColorHelper.getRed(rgb), ColorHelper.getGreen(rgb), ColorHelper.getBlue(rgb), 1F);
+		drawTexturedModalRect(var8, var9, 0, 0, this.paneWidth, this.paneHeight);
 		GL11.glPopMatrix();
 		this.zLevel = 0.0F;
 		GL11.glDepthFunc(515);
@@ -472,20 +477,6 @@ public class GuiHammerManual extends GuiScreen
 			GL11.glScalef(0.5F, 0.5F, 0.5F);
 			this.fontRenderer.drawStringWithShadow(this.currentHighlight.getText(), 0, 0, -7302913);
 			GL11.glPopMatrix();
-			
-			// GL11.glPushMatrix();
-			// var42 = (int) Math.max((float) var53.getStringWidth(var51),
-			// (float) var53.getStringWidth(I18n.format("lt.researchmissing")) /
-			// 1.5F);
-			// String var55 = I18n.format("lt.researchmissing");
-			// int var421 = var53.getWordWrappedHeight(var55, var42 * 2);
-			// this.drawGradientRect(var26 - 3, var27 - 3, var26 + var42 + 3,
-			// var27 + var421 + 10, -1073741824, -1073741824);
-			// GL11.glTranslatef((float) var26, (float) (var27 + 12), 0.0F);
-			// GL11.glScalef(0.5F, 0.5F, 0.5F);
-			// this.fontRenderer.drawSplitString(var55, 0, 0, var42 * 2,
-			// -9416624);
-			// GL11.glPopMatrix();
 			
 			var53.drawStringWithShadow(var51, var26, var27, this.currentHighlight.isSpecial() ? -128 : -1);
 		}
@@ -651,6 +642,7 @@ public class GuiHammerManual extends GuiScreen
 		GL11.glPopMatrix();
 	}
 	
+	@Override
 	public void drawScreen(int mx, int my, float par3)
 	{
 		float scale = MathHelper.clamp(ManualScale.get(), .3F, 1.5F);
@@ -730,6 +722,6 @@ public class GuiHammerManual extends GuiScreen
 		}
 		
 		String cat = ManualCategories.getCategoryName(selectedCategory);
-		fontRenderer.drawStringWithShadow(cat, var4 + (paneWidth - fontRenderer.getStringWidth(cat)) / 2, var5 + 5, 0xEEEEEE);
+		fontRenderer.drawStringWithShadow(cat, var4 + (paneWidth - fontRenderer.getStringWidth(cat)) / 2, var5 + 5, GuiTheme.CURRENT_THEME.textColor);
 	}
 }

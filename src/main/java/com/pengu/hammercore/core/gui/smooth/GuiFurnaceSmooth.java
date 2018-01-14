@@ -1,11 +1,18 @@
 package com.pengu.hammercore.core.gui.smooth;
 
+import org.lwjgl.opengl.GL11;
+
+import com.pengu.hammercore.client.texture.gui.GuiTexBakery;
+import com.pengu.hammercore.client.texture.gui.theme.GuiTheme;
 import com.pengu.hammercore.client.utils.RenderUtil;
+import com.pengu.hammercore.client.utils.UtilsFX;
+import com.pengu.hammercore.utils.ColorHelper;
 
 import net.minecraft.client.gui.inventory.GuiFurnace;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.Slot;
 import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraft.util.ResourceLocation;
 
@@ -25,19 +32,40 @@ public class GuiFurnaceSmooth extends GuiFurnace
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY)
 	{
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-		mc.getTextureManager().bindTexture(FURNACE_GUI_TEXTURE);
+		UtilsFX.bindTexture("textures/gui/def_widgets.png");
 		int i = (width - xSize) / 2;
 		int j = (height - ySize) / 2;
-		drawTexturedModalRect(i, j, 0, 0, xSize, ySize);
+		
+		GuiTexBakery b = GuiTexBakery.start().body(0, 0, xSize, ySize);
+		for(int k = 0; k < inventorySlots.inventorySlots.size(); ++k)
+		{
+			Slot s = inventorySlots.inventorySlots.get(k);
+			b.slot(s.xPos - 1, s.yPos - 1);
+		}
+		b.bake().render(i, j);
+		
+		int col = GuiTheme.CURRENT_THEME.slotColor;
+		GL11.glColor4f(ColorHelper.getRed(col), ColorHelper.getGreen(col), ColorHelper.getBlue(col), 1);
+		RenderUtil.drawTexturedModalRect(i + 57, j + 37, 43, 0, 13, 13);
 		
 		if(TileEntityFurnace.isBurning(furn))
 		{
 			double k = burnLeftScaled(13);
-			RenderUtil.drawTexturedModalRect(i + 56, j + 36 + 12 - k, 176, 12 - k, 14, k + 1);
+			
+			RenderUtil.drawTexturedModalRect(i + 57, j + 36, 14, 0, 14, 14);
+			
+			GL11.glColor4f(1, 1, 1, 1);
+			RenderUtil.drawTexturedModalRect(i + 56, j + 37 + 12 - k, 0, 12 - k, 14, k + 1);
 		}
 		
+		GL11.glColor4f(ColorHelper.getRed(col), ColorHelper.getGreen(col), ColorHelper.getBlue(col), 1);
+		RenderUtil.drawTexturedModalRect(i + 81, j + 34, 0, 14, 22, 16);
+		
 		double l = cookProgressScaled(24);
-		RenderUtil.drawTexturedModalRect(i + 79, j + 34, 176, 14, l + 1, 16);
+		RenderUtil.drawTexturedModalRect(i + 81, j + 34, 0, 30, l, 16);
+		col = GuiTheme.CURRENT_THEME.getColor(1);
+		GL11.glColor4f(ColorHelper.getRed(col), ColorHelper.getGreen(col), ColorHelper.getBlue(col), 1);
+		RenderUtil.drawTexturedModalRect(i + 81, j + 34, 0, 14, l, 16);
 	}
 	
 	private double cookProgressScaled(double pixels)

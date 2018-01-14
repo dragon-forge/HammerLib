@@ -1,0 +1,9 @@
+Vanilla
+TheEnd
+Red
+Blue
+Green
+DarkGray
+Gold
+Iron
+Diamond
