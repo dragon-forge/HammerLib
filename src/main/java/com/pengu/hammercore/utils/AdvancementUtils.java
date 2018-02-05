@@ -37,7 +37,8 @@ public class AdvancementUtils
 			boolean done = mp.getAdvancements().getProgress(adv).isDone();
 			for(String criteria : mp.getAdvancements().getProgress(adv).getRemaningCriteria())
 				mp.getAdvancements().getProgress(adv).grantCriterion(criteria);
-			if(!done)
+			/** Possible fix to infinite advancement toasts? */
+			if(!done && mp.getAdvancements().getProgress(adv).isDone())
 				HCNetwork.manager.sendTo(new PacketAdvancementToast(advancement), mp);
 		}
 	}

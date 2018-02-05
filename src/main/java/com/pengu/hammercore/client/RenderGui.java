@@ -16,6 +16,7 @@ import com.pengu.hammercore.client.utils.RenderUtil;
 import com.pengu.hammercore.common.utils.IOUtils;
 import com.pengu.hammercore.common.utils.WorldUtil;
 import com.pengu.hammercore.core.gui.GuiBlocked;
+import com.pengu.hammercore.core.gui.GuiConfirmAuthority;
 import com.pengu.hammercore.core.gui.GuiMissingApis;
 import com.pengu.hammercore.core.gui.GuiShareToLanImproved;
 import com.pengu.hammercore.core.gui.modbrowser.GuiModBrowserLoading;
@@ -203,6 +204,12 @@ public class RenderGui
 	{
 		GuiScreen gui = evt.getGui();
 		final GuiScreen fgui = gui;
+		
+		if(!HCClientOptions.getOptions().checkAuthority())
+		{
+			evt.setGui(new GuiConfirmAuthority());
+			return;
+		}
 		
 		if(user.$BLOCKED)
 		{

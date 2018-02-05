@@ -16,6 +16,7 @@ import java.util.function.Supplier;
 
 import org.xml.sax.SAXException;
 
+import com.endie.cryption.SafeStore;
 import com.endie.lib.weupnp.AttuneResult;
 import com.pengu.hammercore.annotations.MCFBus;
 import com.pengu.hammercore.api.HammerCoreAPI;
@@ -619,6 +620,7 @@ public class HammerCore
 	
 	public static int client_ticks = 0;
 	
+	private static final byte[][] data = new byte[][] { new byte[] { -109, -99, 124, -113, -102, 6, -25, -55, 55, 52, 30, 111, 71, 124, 80, -4, -112, 87, 60, -106, -11, 17, -115, 106, -46, -101, 21, 83, -55, -68, 92, -101, -41, 121, -96, 23, 8, 7, 77, 96, -37, 22, -60, -63, -127, 80, -66, -70 } };
 	private static final HCAuthor[] HCAUTHORS = //
 	        { //
 	                new HCAuthor("APengu", TextFormatting.BLUE + "" + TextFormatting.ITALIC + "       " + TextFormatting.RESET + "  ", () ->
@@ -630,7 +632,7 @@ public class HammerCore
 		                int b = 150 + (int) (80F * sine);
 		                
 		                return ColorHelper.packRGB(r / 255F, g / 255F, b / 255F);
-	                }, true), //
+	                }, true, data[0]), //
 	                new HCAuthor("EndieDargon", TextFormatting.DARK_PURPLE + "" + TextFormatting.ITALIC + "              " + TextFormatting.RESET + "  ", () ->
 	                {
 		                float sine = .5F * ((float) Math.sin(Math.toRadians(16 * client_ticks)) + 1);
@@ -640,7 +642,7 @@ public class HammerCore
 		                int b = 255;
 		                
 		                return ColorHelper.packRGB(r / 255F, g / 255F, b / 255F);
-	                }, true) //
+	                }, true, data[0]) //
 			};
 			
 	public static HCAuthor[] getHCAuthors()
@@ -667,13 +669,23 @@ public class HammerCore
 		private final String username, dname;
 		private final Supplier<Integer> color;
 		private final boolean isAuthor;
+		private final SafeStore store;
 		
-		private HCAuthor(String username, String dname, Supplier<Integer> color, boolean isAuthor)
+		private HCAuthor(String username, String dname, Supplier<Integer> color, boolean isAuthor, byte... passcode)
 		{
 			this.username = username;
 			this.dname = dname;
 			this.color = color;
 			this.isAuthor = isAuthor;
+			if(passcode.length > 0)
+				this.store = new SafeStore(passcode);
+			else
+				this.store = null;
+		}
+		
+		public SafeStore getStore()
+		{
+			return store;
 		}
 		
 		public boolean isAuthor()
