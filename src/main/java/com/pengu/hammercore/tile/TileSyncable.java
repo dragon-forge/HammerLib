@@ -214,9 +214,18 @@ public abstract class TileSyncable extends TileEntity implements iPropertyChange
 	protected IItemHandler createSidedHandler(EnumFacing side)
 	{
 		if(this instanceof ISidedInventory)
+		{
+			if(side == null)
+				return null;
 			return itemHandlers[side.ordinal()] = new SidedInvWrapper((ISidedInventory) this, side);
+		}
+		
 		if(this instanceof IInventory)
-			return itemHandlers[side.ordinal()] = new InvWrapper((IInventory) this);
+		{
+			int ord = side == null ? 0 : side.ordinal();
+			return itemHandlers[ord] = new InvWrapper((IInventory) this);
+		}
+		
 		return null;
 	}
 	
@@ -225,7 +234,7 @@ public abstract class TileSyncable extends TileEntity implements iPropertyChange
 	public <T> T getCapability(Capability<T> capability, @Nullable EnumFacing facing)
 	{
 		if(capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && this instanceof IInventory)
-			return (T) (itemHandlers[facing.ordinal()] == null ? createSidedHandler(facing) : itemHandlers[facing.ordinal()]);
+			return (T) createSidedHandler(facing);
 		return super.getCapability(capability, facing);
 	}
 	
