@@ -31,9 +31,11 @@ import com.pengu.hammercore.cfg.ConfigHolder;
 import com.pengu.hammercore.cfg.HCModConfigurations;
 import com.pengu.hammercore.cfg.iConfigReloadListener;
 import com.pengu.hammercore.command.CommandBuildStructure;
+import com.pengu.hammercore.command.CommandExportStructure;
 import com.pengu.hammercore.command.CommandLoadChunk;
 import com.pengu.hammercore.command.CommandPosToLong;
 import com.pengu.hammercore.command.CommandSetEnchantmentColor;
+import com.pengu.hammercore.command.CommandSetLootTable;
 import com.pengu.hammercore.command.CommandTPX;
 import com.pengu.hammercore.command.CommandTimeToTicks;
 import com.pengu.hammercore.common.SimpleRegistration;
@@ -383,6 +385,8 @@ public class HammerCore
 		e.registerServerCommand(new CommandLoadChunk());
 		e.registerServerCommand(new CommandSetEnchantmentColor());
 		e.registerServerCommand(new CommandPosToLong());
+		e.registerServerCommand(new CommandSetLootTable());
+		e.registerServerCommand(new CommandExportStructure());
 		
 		File hc_recipes_global = new File("hc-recipes");
 		MinecraftServer server = e.getServer();

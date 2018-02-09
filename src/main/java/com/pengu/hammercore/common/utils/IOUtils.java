@@ -295,4 +295,42 @@ public class IOUtils
 		String u = conn.getHeaderField("Location");
 		return u != null ? u : url;
 	}
+	
+	/**
+	 * Picks the file that doesn't exist by appending "(n)" at the end of the
+	 * name
+	 */
+	public static File pickFile(File f)
+	{
+		if(f.isFile())
+		{
+			String ext = f.getName().contains(".") ? f.getName().substring(f.getName().lastIndexOf(".")) : "";
+			String name = f.getName().contains(".") ? f.getAbsolutePath().substring(0, f.getAbsolutePath().lastIndexOf(".")) : f.getAbsolutePath();
+			
+			int i = 1;
+			while(true)
+			{
+				File nf = new File(name + " (" + i + ")" + ext);
+				if(!nf.isFile())
+					return nf;
+				
+				++i;
+			}
+		} else if(f.isDirectory())
+		{
+			String name = f.getAbsolutePath();
+			
+			int i = 1;
+			while(true)
+			{
+				File nf = new File(name + " (" + i + ")");
+				if(!nf.isDirectory())
+					return nf;
+				
+				++i;
+			}
+		}
+		
+		return f;
+	}
 }
