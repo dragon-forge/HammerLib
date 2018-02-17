@@ -40,23 +40,10 @@ public class PacketCustomNBT implements IMessage, IMessageHandler<PacketCustomNB
 			iPacketListener listener = null;
 			
 			if(packet instanceof iPacketListener)
-				listener = (iPacketListener) packet; // New: handle packets if
-				                                     // they are their own
-				                                     // listeners. No packet
-				                                     // registration will be
-				                                     // required.
+				listener = (iPacketListener) packet;
 			else
-				mgr.stringClassRegistry.get(packetClass.getName()); // Otherwise
-				                                                    // lookup
-				                                                    // for
-				                                                    // listener
-				                                                    // in the
-				                                                    // registry.
-				                                                    // Packet
-				                                                    // registration
-				                                                    // will be
-				                                                    // required.
-				
+				mgr.stringClassRegistry.get(packetClass.getName());
+			
 			packet.readFromNBT(nbt.getCompoundTag("PacketData"));
 			iPacket pkt = listener.onArrived(packet, ctx);
 			if(pkt != null)
@@ -64,6 +51,34 @@ public class PacketCustomNBT implements IMessage, IMessageHandler<PacketCustomNB
 		} catch(Throwable err)
 		{
 			System.out.println("Can't handle packet for class " + message.nbt.getString("PacketClass"));
+			err.printStackTrace();
+		}
+		return null;
+	}
+	
+	iPacket handle(MessageContext ctx)
+	{
+		try
+		{
+			PacketManager1122 mgr = PacketManager1122.getManagerByChannel(nbt.getString("Channel"));
+			Class<iPacket> packetClass = (Class<iPacket>) Class.forName(nbt.getString("PacketClass"));
+			Constructor<iPacket> contr = packetClass.getConstructor();
+			contr.setAccessible(true);
+			iPacket packet = contr.newInstance();
+			iPacketListener listener = null;
+			
+			if(packet instanceof iPacketListener)
+				listener = (iPacketListener) packet;
+			else
+				mgr.stringClassRegistry.get(packetClass.getName());
+			
+			packet.readFromNBT(nbt.getCompoundTag("PacketData"));
+			iPacket pkt = listener.onArrived(packet, ctx);
+			if(pkt != null)
+				return pkt;
+		} catch(Throwable err)
+		{
+			System.out.println("Can't handle packet for class " + nbt.getString("PacketClass"));
 			err.printStackTrace();
 		}
 		return null;

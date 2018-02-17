@@ -1,6 +1,6 @@
 package com.pengu.hammercore.net;
 
-import com.pengu.hammercore.net.packetAPI.PacketManager;
+import com.pengu.hammercore.net.packetAPI.PacketManager1122;
 import com.pengu.hammercore.net.packetAPI.p2p.P2PManager;
 import com.pengu.hammercore.net.pkt.PacketParticle;
 import com.pengu.hammercore.net.pkt.PacketSwingArm;
@@ -15,10 +15,19 @@ import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
 
 public class HCNetwork
 {
-	public static final PacketManager manager = new PacketManager("hammercore");
-	public static final P2PManager p2p = new P2PManager(manager);
+	public static iPacketManager manager;
+	public static P2PManager p2p;
 	
-	public static PacketManager getManager(String name)
+	public static void preInit()
+	{
+		if(manager == null)
+		{
+			manager = new PacketManager1122("hammercore");
+			p2p = new P2PManager(manager);
+		}
+	}
+	
+	public static iPacketManager getManager(String name)
 	{
 		return manager;
 	}

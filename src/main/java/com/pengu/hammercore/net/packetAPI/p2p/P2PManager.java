@@ -2,16 +2,16 @@ package com.pengu.hammercore.net.packetAPI.p2p;
 
 import java.util.UUID;
 
-import com.pengu.hammercore.net.packetAPI.PacketManager;
+import com.pengu.hammercore.net.iPacketManager;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class P2PManager
 {
-	public final PacketManager mgr;
+	public final iPacketManager mgr;
 	
-	public P2PManager(PacketManager mgr)
+	public P2PManager(iPacketManager mgr)
 	{
 		this.mgr = mgr;
 	}
