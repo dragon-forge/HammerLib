@@ -39,7 +39,17 @@ public class HCNetwork
 	
 	public static void spawnParticle(World world, EnumParticleTypes particle, double x, double y, double z, double motionX, double motionY, double motionZ, int... args)
 	{
-		manager.sendToAllAround(new PacketParticle(world, particle, new Vec3d(x, y, z), new Vec3d(motionX, motionY, motionZ), args), new TargetPoint(world.provider.getDimension(), x, y, z, 64));
+		PacketParticle pp = new PacketParticle(world, particle, new Vec3d(x, y, z), new Vec3d(motionX, motionY, motionZ), args);
+		if(!world.isRemote)
+			manager.sendToAllAround(pp, new TargetPoint(world.provider.getDimension(), x, y, z, 64));
+		else
+			try
+			{
+				pp.client();
+			} catch(Throwable err)
+			{
+				// Is this possible to throw an error?
+			}
 	}
 	
 	/** Swings the player's arms on server AND client if called from server. */

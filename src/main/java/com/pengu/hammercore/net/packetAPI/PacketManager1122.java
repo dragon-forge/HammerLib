@@ -54,6 +54,7 @@ public class PacketManager1122 implements iPacketManager
 	 * 
 	 * @return A {@link String} representation of channel.
 	 */
+	@Override
 	public String getChannel()
 	{
 		return channel;
@@ -80,12 +81,14 @@ public class PacketManager1122 implements iPacketManager
 	 * @param listener
 	 *            The listener instance that will listen for packet events
 	 */
+	@Override
 	public <PKT extends iPacket, REPLY extends iPacket> void registerPacket(Class<PKT> packet, iPacketListener<PKT, REPLY> listener)
 	{
 		registry.put(packet, listener);
 		stringClassRegistry.put(packet.getName(), listener);
 	}
-	
+
+	@Override
 	public <PKT extends iPacket> iPacketListener<PKT, ?> getListener(Class<PKT> packet)
 	{
 		return (iPacketListener<PKT, ?>) stringClassRegistry.get(packet.getName());
@@ -98,6 +101,7 @@ public class PacketManager1122 implements iPacketManager
 	 * @param packet
 	 *            The packet to send
 	 */
+	@Override
 	public void sendToAll(iPacket packet)
 	{
 		wrapper.sendToAll(wrap(packet));
@@ -112,6 +116,7 @@ public class PacketManager1122 implements iPacketManager
 	 * @param player
 	 *            The player to send it to
 	 */
+	@Override
 	public void sendTo(iPacket packet, EntityPlayerMP player)
 	{
 		wrapper.sendTo(wrap(packet), player);
@@ -127,6 +132,7 @@ public class PacketManager1122 implements iPacketManager
 	 * @param point
 	 *            The {@link TargetPoint} around which to send
 	 */
+	@Override
 	public void sendToAllAround(iPacket packet, TargetPoint point)
 	{
 		wrapper.sendToAllAround(wrap(packet), point);
@@ -142,6 +148,7 @@ public class PacketManager1122 implements iPacketManager
 	 * @param dimensionId
 	 *            The dimension id to target
 	 */
+	@Override
 	public void sendToDimension(iPacket packet, int dimensionId)
 	{
 		wrapper.sendToDimension(wrap(packet), dimensionId);
@@ -154,6 +161,7 @@ public class PacketManager1122 implements iPacketManager
 	 * @param packet
 	 *            The packet to send
 	 */
+	@Override
 	public void sendToServer(iPacket packet)
 	{
 		wrapper.sendToServer(wrap(packet));
@@ -171,6 +179,7 @@ public class PacketManager1122 implements iPacketManager
 		PacketBuffer payload = new PacketBuffer(p.payload());
 		PacketCustomNBT n = new PacketCustomNBT();
 		n.nbt = ByteBufUtils.readTag(payload);
+		payload.release();
 		return n.handle(ctx(h, s));
 	}
 	

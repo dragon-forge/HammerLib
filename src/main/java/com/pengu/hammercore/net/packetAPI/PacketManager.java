@@ -11,6 +11,7 @@ import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
 
+@Deprecated
 public class PacketManager implements iPacketManager
 {
 	private static final Map<String, PacketManager> managers = new HashMap<String, PacketManager>();
@@ -45,6 +46,7 @@ public class PacketManager implements iPacketManager
 	 * 
 	 * @return A {@link String} representation of channel.
 	 */
+	@Override
 	public String getChannel()
 	{
 		return channel;
@@ -71,12 +73,14 @@ public class PacketManager implements iPacketManager
 	 * @param listener
 	 *            The listener instance that will listen for packet events
 	 */
+	@Override
 	public <PKT extends iPacket, REPLY extends iPacket> void registerPacket(Class<PKT> packet, iPacketListener<PKT, REPLY> listener)
 	{
 		registry.put(packet, listener);
 		stringClassRegistry.put(packet.getName(), listener);
 	}
-	
+
+	@Override
 	public <PKT extends iPacket> iPacketListener<PKT, ?> getListener(Class<PKT> packet)
 	{
 		return (iPacketListener<PKT, ?>) stringClassRegistry.get(packet.getName());
@@ -89,6 +93,7 @@ public class PacketManager implements iPacketManager
 	 * @param packet
 	 *            The packet to send
 	 */
+	@Override
 	public void sendToAll(iPacket packet)
 	{
 		wrapper.sendToAll(new PacketCustomNBT(packet, channel));
@@ -103,6 +108,7 @@ public class PacketManager implements iPacketManager
 	 * @param player
 	 *            The player to send it to
 	 */
+	@Override
 	public void sendTo(iPacket packet, EntityPlayerMP player)
 	{
 		wrapper.sendTo(new PacketCustomNBT(packet, channel), player);
@@ -118,6 +124,7 @@ public class PacketManager implements iPacketManager
 	 * @param point
 	 *            The {@link TargetPoint} around which to send
 	 */
+	@Override
 	public void sendToAllAround(iPacket packet, TargetPoint point)
 	{
 		wrapper.sendToAllAround(new PacketCustomNBT(packet, channel), point);
@@ -133,6 +140,7 @@ public class PacketManager implements iPacketManager
 	 * @param dimensionId
 	 *            The dimension id to target
 	 */
+	@Override
 	public void sendToDimension(iPacket packet, int dimensionId)
 	{
 		wrapper.sendToDimension(new PacketCustomNBT(packet, channel), dimensionId);
@@ -145,6 +153,7 @@ public class PacketManager implements iPacketManager
 	 * @param packet
 	 *            The packet to send
 	 */
+	@Override
 	public void sendToServer(iPacket packet)
 	{
 		wrapper.sendToServer(new PacketCustomNBT(packet, channel));
