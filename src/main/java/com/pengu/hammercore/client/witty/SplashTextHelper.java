@@ -54,6 +54,8 @@ public class SplashTextHelper
 					break;
 				else
 					sp.add(f);
+				
+				++t;
 			}
 			
 			for(String modid : SplashModPool.modIds())

@@ -1,5 +1,7 @@
 package com.pengu.hammercore.client.witty;
 
+import net.minecraft.client.resources.I18n;
+
 public interface iWittyComment
 {
 	String get();
@@ -7,6 +9,11 @@ public interface iWittyComment
 	public static iWittyComment ofStatic(String text)
 	{
 		return () -> text;
+	}
+	
+	public static iWittyComment translated(String text, Object... parameters)
+	{
+		return () -> I18n.format(text, parameters);
 	}
 	
 	public static iWittyComment delayed(long ms, String... lines)
