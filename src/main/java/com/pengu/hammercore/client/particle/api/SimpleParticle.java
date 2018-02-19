@@ -17,6 +17,7 @@ public abstract class SimpleParticle extends Particle implements iRenderedPartic
 		super(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn);
 	}
 	
+	@Override
 	public void setMaxAge(int age)
 	{
 		particleMaxAge = age;

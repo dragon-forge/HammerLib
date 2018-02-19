@@ -20,7 +20,7 @@ public class ShaderRenderTimeOperation implements iShaderOperation
 	@Override
 	public void operate(ShaderProgram program)
 	{
-		float renderTime = (float) Minecraft.getSystemTime();
+		float renderTime = Minecraft.getSystemTime();
 		if(renderTime != shaderRenderTimeCache.get(program))
 		{
 			int location = program.getAttribLoc("time");

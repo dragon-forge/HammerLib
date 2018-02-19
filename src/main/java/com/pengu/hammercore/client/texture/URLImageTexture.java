@@ -26,6 +26,7 @@ public class URLImageTexture extends AbstractTexture
 		this.url = url;
 	}
 	
+	@Override
 	public void loadTexture(IResourceManager resourceManager) throws IOException
 	{
 		this.deleteGlTexture();

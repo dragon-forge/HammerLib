@@ -51,7 +51,7 @@ public class MD5
 			int i = 0;
 			while(i < paths.size())
 			{
-				String p = (String) paths.get(i);
+				String p = paths.get(i);
 				File f = new File(p);
 				if(f.isDirectory())
 				{

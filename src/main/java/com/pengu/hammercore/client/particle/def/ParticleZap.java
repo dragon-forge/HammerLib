@@ -64,6 +64,7 @@ public class ParticleZap extends SimpleParticle implements iOldParticle
 		seed = rand.nextInt(1000);
 	}
 	
+	@Override
 	public void setMaxAge(int age)
 	{
 		particleMaxAge = age;
@@ -88,6 +89,7 @@ public class ParticleZap extends SimpleParticle implements iOldParticle
 	
 	Random rr = new Random(seed);
 	
+	@Override
 	public void onUpdate()
 	{
 		prevPosX = posX;
@@ -158,10 +160,10 @@ public class ParticleZap extends SimpleParticle implements iOldParticle
 		
 		for(int c = 0; c < points.size(); c++)
 		{
-			float size = 0.15F * ((Float) pointsWidth.get(c)).floatValue();
+			float size = 0.15F * pointsWidth.get(c).floatValue();
 			
 			float f13 = c / length;
-			Vec3d vc = (Vec3d) points.get(c);
+			Vec3d vc = points.get(c);
 			Vec3d vp = c == 0 ? (Vec3d) points.get(c) : (Vec3d) points.get(c - 1);
 			Vec3d vn = c == points.size() - 1 ? (Vec3d) points.get(c) : (Vec3d) points.get(c + 1);
 			Vec3d v1 = vp.subtract(vc);
@@ -179,9 +181,9 @@ public class ParticleZap extends SimpleParticle implements iOldParticle
 		
 		for(int c = 0; c < points.size(); c++)
 		{
-			float size = 0.15F * ((Float) pointsWidth.get(c)).floatValue();
+			float size = 0.15F * pointsWidth.get(c).floatValue();
 			float f13 = c / length;
-			Vec3d vc = (Vec3d) points.get(c);
+			Vec3d vc = points.get(c);
 			Vec3d vp = c == 0 ? (Vec3d) points.get(c) : (Vec3d) points.get(c - 1);
 			Vec3d vn = c == points.size() - 1 ? (Vec3d) points.get(c) : (Vec3d) points.get(c + 1);
 			Vec3d v1 = vp.subtract(vc);
@@ -224,6 +226,7 @@ public class ParticleZap extends SimpleParticle implements iOldParticle
 		}
 	}
 	
+	@Override
 	public void spawn()
 	{
 		spawnAt(posX, posY, posZ);

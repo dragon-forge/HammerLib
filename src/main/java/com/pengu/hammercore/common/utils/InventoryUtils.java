@@ -31,14 +31,14 @@ public class InventoryUtils
 				it.getItem().getSubItems(it.getItem().getCreativeTab(), q2);
 				if(q2 != null && q2.size() > 0)
 				{
-					int md = (int) (System.currentTimeMillis() / 1000 % (long) q2.size());
+					int md = (int) (System.currentTimeMillis() / 1000 % q2.size());
 					ItemStack it2 = new ItemStack(it.getItem(), 1, md);
 					it2.setTagCompound(it.getTagCompound());
 					it = it2;
 				}
 			} else if(it.getMetadata() == OreDictionary.WILDCARD_VALUE && it.isItemStackDamageable())
 			{
-				int md = (int) (System.currentTimeMillis() / 10 % (long) it.getMaxDamage());
+				int md = (int) (System.currentTimeMillis() / 10 % it.getMaxDamage());
 				ItemStack it2 = new ItemStack(it.getItem(), 1, md);
 				it2.setTagCompound(it.getTagCompound());
 				it = it2;
@@ -51,7 +51,7 @@ public class InventoryUtils
 			ItemStack[] q3 = (ItemStack[]) input;
 			if(q3 != null && q3.length > 0)
 			{
-				int idx = (int) (System.currentTimeMillis() / 1000L % (long) q3.length);
+				int idx = (int) (System.currentTimeMillis() / 1000L % q3.length);
 				it = InventoryUtils.cycleItemStack(q3[idx]);
 			}
 		} else if(input instanceof Ingredient)
@@ -61,12 +61,12 @@ public class InventoryUtils
 			List q3 = (List) input;
 			if(q3 != null && q3.size() > 0)
 			{
-				int idx = (int) (System.currentTimeMillis() / 1000L % (long) q3.size());
+				int idx = (int) (System.currentTimeMillis() / 1000L % q3.size());
 				it = InventoryUtils.cycleItemStack(q3.get(idx));
 			}
 		} else if(input instanceof String && !(q = OreDictionary.getOres(input + "")).isEmpty())
 		{
-			int idx = (int) (System.currentTimeMillis() / 1000L % (long) q.size());
+			int idx = (int) (System.currentTimeMillis() / 1000L % q.size());
 			it = InventoryUtils.cycleItemStack(q.get(idx));
 		}
 		

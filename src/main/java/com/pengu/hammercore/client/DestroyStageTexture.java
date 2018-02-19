@@ -16,7 +16,7 @@ public class DestroyStageTexture
 	{
 		if(progress == 0)
 			return null;
-		return DESTROY_STAGES[(int) Math.round(progress * (DESTROY_STAGES.length - 1))];
+		return DESTROY_STAGES[Math.round(progress * (DESTROY_STAGES.length - 1))];
 	}
 	
 	@Nullable
@@ -24,6 +24,6 @@ public class DestroyStageTexture
 	{
 		if(progress == 0)
 			return null;
-		return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(DESTROY_STAGES_SPRITED[(int) Math.round(progress * (DESTROY_STAGES_SPRITED.length - 1))].toString());
+		return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(DESTROY_STAGES_SPRITED[Math.round(progress * (DESTROY_STAGES_SPRITED.length - 1))].toString());
 	}
 }

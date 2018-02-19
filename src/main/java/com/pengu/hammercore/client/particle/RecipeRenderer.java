@@ -98,7 +98,7 @@ public class RecipeRenderer
 	
 	public static int getInRange(int delayMillis, int min, int max)
 	{
-		int sys = (int) (System.currentTimeMillis() % ((long) (max * delayMillis))) / delayMillis;
+		int sys = (int) (System.currentTimeMillis() % (max * delayMillis)) / delayMillis;
 		return sys;
 	}
 }

@@ -49,9 +49,9 @@ public class GuiModBrowserLoading extends GuiScreen
 		String splashText = "this is a WIP mod browser for Pengu's mods";
 		
 		GlStateManager.pushMatrix();
-		GlStateManager.translate((float) (this.width / 2), 70.0F, 0.0F);
-		float f = 1.8F - MathHelper.abs(MathHelper.sin((float) ((Minecraft.getSystemTime() + splashText.hashCode()) % 1000L) / 1000.0F * ((float) Math.PI * 2F)) * 0.1F);
-		f = f * 100.0F / (float) (this.fontRenderer.getStringWidth(splashText) + 32);
+		GlStateManager.translate(this.width / 2, 70.0F, 0.0F);
+		float f = 1.8F - MathHelper.abs(MathHelper.sin((Minecraft.getSystemTime() + splashText.hashCode()) % 1000L / 1000.0F * ((float) Math.PI * 2F)) * 0.1F);
+		f = f * 100.0F / (this.fontRenderer.getStringWidth(splashText) + 32);
 		GlStateManager.scale(f, f, f);
 		this.drawCenteredString(this.fontRenderer, splashText, 0, -8, splashText.hashCode());
 		GlStateManager.popMatrix();
@@ -59,9 +59,9 @@ public class GuiModBrowserLoading extends GuiScreen
 		splashText = status.get();
 		
 		GlStateManager.pushMatrix();
-		GlStateManager.translate((float) (this.width / 2), 90.0F, 0.0F);
-		f = 1.8F - MathHelper.abs(MathHelper.sin((float) ((Minecraft.getSystemTime() + splashText.hashCode()) % 1000L) / 1000.0F * ((float) Math.PI * 2F)) * 0.1F);
-		f = f * 100.0F / (float) (this.fontRenderer.getStringWidth(splashText) + 32);
+		GlStateManager.translate(this.width / 2, 90.0F, 0.0F);
+		f = 1.8F - MathHelper.abs(MathHelper.sin((Minecraft.getSystemTime() + splashText.hashCode()) % 1000L / 1000.0F * ((float) Math.PI * 2F)) * 0.1F);
+		f = f * 100.0F / (this.fontRenderer.getStringWidth(splashText) + 32);
 		GlStateManager.scale(f, f, f);
 		this.drawCenteredString(this.fontRenderer, splashText, 0, -8, splashText.hashCode());
 		GlStateManager.popMatrix();
@@ -69,9 +69,9 @@ public class GuiModBrowserLoading extends GuiScreen
 		splashText = "press ESC to exit this menu";
 		
 		GlStateManager.pushMatrix();
-		GlStateManager.translate((float) (this.width / 2), 110.0F, 0.0F);
-		f = 1.8F - MathHelper.abs(MathHelper.sin((float) ((Minecraft.getSystemTime() + splashText.hashCode()) % 1000L) / 1000.0F * ((float) Math.PI * 2F)) * 0.1F);
-		f = f * 100.0F / (float) (this.fontRenderer.getStringWidth(splashText) + 32);
+		GlStateManager.translate(this.width / 2, 110.0F, 0.0F);
+		f = 1.8F - MathHelper.abs(MathHelper.sin((Minecraft.getSystemTime() + splashText.hashCode()) % 1000L / 1000.0F * ((float) Math.PI * 2F)) * 0.1F);
+		f = f * 100.0F / (this.fontRenderer.getStringWidth(splashText) + 32);
 		GlStateManager.scale(f, f, f);
 		this.drawCenteredString(this.fontRenderer, splashText, 0, -8, splashText.hashCode());
 		GlStateManager.popMatrix();
@@ -79,9 +79,9 @@ public class GuiModBrowserLoading extends GuiScreen
 		splashText = HolidayTrigger.isAprilFools() ? "U mad bro?" : HolidayTrigger.isChristmas() ? "Mery Christmas!" : HolidayTrigger.isHalloween() ? "Ooo! Spooky!" : HolidayTrigger.isNewYear() ? "Happy New Year!" : "Loading? Not really.";
 		
 		GlStateManager.pushMatrix();
-		GlStateManager.translate((float) (this.width / 2), 130.0F, 0.0F);
-		f = 1.8F - MathHelper.abs(MathHelper.sin((float) ((Minecraft.getSystemTime() + splashText.hashCode()) % 1000L) / 1000.0F * ((float) Math.PI * 2F)) * 0.1F);
-		f = f * 100.0F / (float) (this.fontRenderer.getStringWidth(splashText) + 32);
+		GlStateManager.translate(this.width / 2, 130.0F, 0.0F);
+		f = 1.8F - MathHelper.abs(MathHelper.sin((Minecraft.getSystemTime() + splashText.hashCode()) % 1000L / 1000.0F * ((float) Math.PI * 2F)) * 0.1F);
+		f = f * 100.0F / (this.fontRenderer.getStringWidth(splashText) + 32);
 		GlStateManager.scale(f, f, f);
 		this.drawCenteredString(this.fontRenderer, splashText, 0, -8, splashText.hashCode());
 		GlStateManager.popMatrix();
@@ -174,12 +174,12 @@ public class GuiModBrowserLoading extends GuiScreen
 		for(int j = 0; j < 64; ++j)
 		{
 			GlStateManager.pushMatrix();
-			float f = ((float) (j % 8) / 8.0F - 0.5F) / 64.0F;
-			float f1 = ((float) (j / 8) / 8.0F - 0.5F) / 64.0F;
+			float f = (j % 8 / 8.0F - 0.5F) / 64.0F;
+			float f1 = (j / 8 / 8.0F - 0.5F) / 64.0F;
 			float f2 = 0.0F;
 			GlStateManager.translate(f, f1, 0.0F);
-			GlStateManager.rotate(MathHelper.sin(((float) this.panoramaTimer + partialTicks) / 400.0F) * 25.0F + 20.0F, 1.0F, 0.0F, 0.0F);
-			GlStateManager.rotate(-((float) this.panoramaTimer + partialTicks) * 0.1F, 0.0F, 1.0F, 0.0F);
+			GlStateManager.rotate(MathHelper.sin((this.panoramaTimer + partialTicks) / 400.0F) * 25.0F + 20.0F, 1.0F, 0.0F, 0.0F);
+			GlStateManager.rotate(-(this.panoramaTimer + partialTicks) * 0.1F, 0.0F, 1.0F, 0.0F);
 			
 			for(int k = 0; k < 6; ++k)
 			{
@@ -254,14 +254,14 @@ public class GuiModBrowserLoading extends GuiScreen
 		
 		for(int j = 0; j < 3; ++j)
 		{
-			float f = 1.0F / (float) (j + 1);
+			float f = 1.0F / (j + 1);
 			int k = this.width;
 			int l = this.height;
-			float f1 = (float) (j - 1) / 256.0F;
-			vertexbuffer.pos((double) k, (double) l, (double) this.zLevel).tex((double) (0.0F + f1), 1.0D).color(1.0F, 1.0F, 1.0F, f).endVertex();
-			vertexbuffer.pos((double) k, 0.0D, (double) this.zLevel).tex((double) (1.0F + f1), 1.0D).color(1.0F, 1.0F, 1.0F, f).endVertex();
-			vertexbuffer.pos(0.0D, 0.0D, (double) this.zLevel).tex((double) (1.0F + f1), 0.0D).color(1.0F, 1.0F, 1.0F, f).endVertex();
-			vertexbuffer.pos(0.0D, (double) l, (double) this.zLevel).tex((double) (0.0F + f1), 0.0D).color(1.0F, 1.0F, 1.0F, f).endVertex();
+			float f1 = (j - 1) / 256.0F;
+			vertexbuffer.pos(k, l, this.zLevel).tex(0.0F + f1, 1.0D).color(1.0F, 1.0F, 1.0F, f).endVertex();
+			vertexbuffer.pos(k, 0.0D, this.zLevel).tex(1.0F + f1, 1.0D).color(1.0F, 1.0F, 1.0F, f).endVertex();
+			vertexbuffer.pos(0.0D, 0.0D, this.zLevel).tex(1.0F + f1, 0.0D).color(1.0F, 1.0F, 1.0F, f).endVertex();
+			vertexbuffer.pos(0.0D, l, this.zLevel).tex(0.0F + f1, 0.0D).color(1.0F, 1.0F, 1.0F, f).endVertex();
 		}
 		
 		tessellator.draw();
@@ -283,18 +283,18 @@ public class GuiModBrowserLoading extends GuiScreen
 		this.rotateAndBlurSkybox(partialTicks);
 		this.mc.getFramebuffer().bindFramebuffer(true);
 		GlStateManager.viewport(0, 0, this.mc.displayWidth, this.mc.displayHeight);
-		float f = 120.0F / (float) (this.width > this.height ? this.width : this.height);
-		float f1 = (float) this.height * f / 256.0F;
-		float f2 = (float) this.width * f / 256.0F;
+		float f = 120.0F / (this.width > this.height ? this.width : this.height);
+		float f1 = this.height * f / 256.0F;
+		float f2 = this.width * f / 256.0F;
 		int i = this.width;
 		int j = this.height;
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder vertexbuffer = tessellator.getBuffer();
 		vertexbuffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-		vertexbuffer.pos(0.0D, (double) j, (double) this.zLevel).tex((double) (0.5F - f1), (double) (0.5F + f2)).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
-		vertexbuffer.pos((double) i, (double) j, (double) this.zLevel).tex((double) (0.5F - f1), (double) (0.5F - f2)).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
-		vertexbuffer.pos((double) i, 0.0D, (double) this.zLevel).tex((double) (0.5F + f1), (double) (0.5F - f2)).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
-		vertexbuffer.pos(0.0D, 0.0D, (double) this.zLevel).tex((double) (0.5F + f1), (double) (0.5F + f2)).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
+		vertexbuffer.pos(0.0D, j, this.zLevel).tex(0.5F - f1, 0.5F + f2).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
+		vertexbuffer.pos(i, j, this.zLevel).tex(0.5F - f1, 0.5F - f2).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
+		vertexbuffer.pos(i, 0.0D, this.zLevel).tex(0.5F + f1, 0.5F - f2).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
+		vertexbuffer.pos(0.0D, 0.0D, this.zLevel).tex(0.5F + f1, 0.5F + f2).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
 		tessellator.draw();
 	}
 }

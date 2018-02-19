@@ -33,6 +33,7 @@ import com.pengu.hammercore.cfg.iConfigReloadListener;
 import com.pengu.hammercore.command.CommandBuildStructure;
 import com.pengu.hammercore.command.CommandExportStructure;
 import com.pengu.hammercore.command.CommandLoadChunk;
+import com.pengu.hammercore.command.CommandLyingItem;
 import com.pengu.hammercore.command.CommandPosToLong;
 import com.pengu.hammercore.command.CommandSetEnchantmentColor;
 import com.pengu.hammercore.command.CommandSetLootTable;
@@ -83,6 +84,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.brewing.BrewingRecipeRegistry;
 import net.minecraftforge.common.config.Configuration;
@@ -190,6 +192,8 @@ public class HammerCore
 		//
 		// FIELD_CSV = f;
 		// METHODS_CSV = m;
+		
+		Class c = ForgeHooksClient.class;
 	}
 	
 	@EventHandler
@@ -389,6 +393,7 @@ public class HammerCore
 		e.registerServerCommand(new CommandPosToLong());
 		e.registerServerCommand(new CommandSetLootTable());
 		e.registerServerCommand(new CommandExportStructure());
+		e.registerServerCommand(new CommandLyingItem());
 		
 		File hc_recipes_global = new File("hc-recipes");
 		MinecraftServer server = e.getServer();

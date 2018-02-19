@@ -67,7 +67,8 @@ public interface Icon
 	
 	default Icon round(int arcX, int arcY)
 	{
-		BufferedImage buf = buffer(), out = new BufferedImage(width(), height(), BufferedImage.TYPE_INT_ARGB /* add transparency */);
+		BufferedImage buf = buffer(), out = new BufferedImage(width(), height(), BufferedImage.TYPE_INT_ARGB /* add
+		                                                                                                      * transparency */);
 		out.createGraphics().drawImage(buf, 0, 0, null);
 		
 		BufferedImage round = new BufferedImage(width(), height(), BufferedImage.TYPE_INT_ARGB);
@@ -79,7 +80,7 @@ public interface Icon
 			for(int y = 0; y < height(); ++y)
 				if((round.getRGB(x, y) >> 88 & 0xFF) < 5)
 					out.getRaster().setPixel(x, y, INVISIBLE_PIX);
-		
+				
 		return of(out);
 	}
 	

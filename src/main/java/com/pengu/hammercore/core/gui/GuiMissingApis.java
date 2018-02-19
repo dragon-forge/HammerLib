@@ -86,14 +86,14 @@ public class GuiMissingApis extends GuiScreen
 		
 		for(int j = 0; j < 3; ++j)
 		{
-			float f = 1.0F / (float) (j + 1);
+			float f = 1.0F / (j + 1);
 			int k = this.width;
 			int l = this.height;
-			float f1 = (float) (j - 1) / 256.0F;
-			vertexbuffer.pos((double) k, (double) l, (double) this.zLevel).tex((double) (0.0F + f1), 1.0D).color(1.0F, 1.0F, 1.0F, f).endVertex();
-			vertexbuffer.pos((double) k, 0.0D, (double) this.zLevel).tex((double) (1.0F + f1), 1.0D).color(1.0F, 1.0F, 1.0F, f).endVertex();
-			vertexbuffer.pos(0.0D, 0.0D, (double) this.zLevel).tex((double) (1.0F + f1), 0.0D).color(1.0F, 1.0F, 1.0F, f).endVertex();
-			vertexbuffer.pos(0.0D, (double) l, (double) this.zLevel).tex((double) (0.0F + f1), 0.0D).color(1.0F, 1.0F, 1.0F, f).endVertex();
+			float f1 = (j - 1) / 256.0F;
+			vertexbuffer.pos(k, l, this.zLevel).tex(0.0F + f1, 1.0D).color(1.0F, 1.0F, 1.0F, f).endVertex();
+			vertexbuffer.pos(k, 0.0D, this.zLevel).tex(1.0F + f1, 1.0D).color(1.0F, 1.0F, 1.0F, f).endVertex();
+			vertexbuffer.pos(0.0D, 0.0D, this.zLevel).tex(1.0F + f1, 0.0D).color(1.0F, 1.0F, 1.0F, f).endVertex();
+			vertexbuffer.pos(0.0D, l, this.zLevel).tex(0.0F + f1, 0.0D).color(1.0F, 1.0F, 1.0F, f).endVertex();
 		}
 		
 		tessellator.draw();
@@ -115,18 +115,18 @@ public class GuiMissingApis extends GuiScreen
 		rotateAndBlurSkybox(partialTicks);
 		mc.getFramebuffer().bindFramebuffer(true);
 		GlStateManager.viewport(0, 0, mc.displayWidth, mc.displayHeight);
-		float f = 120.0F / (float) (width > height ? width : height);
-		float f1 = (float) height * f / 256F;
-		float f2 = (float) width * f / 256F;
+		float f = 120.0F / (width > height ? width : height);
+		float f1 = height * f / 256F;
+		float f2 = width * f / 256F;
 		int i = width;
 		int j = height;
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder vertexbuffer = tessellator.getBuffer();
 		vertexbuffer.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
-		vertexbuffer.pos(0.0D, (double) j, (double) this.zLevel).tex((double) (0.5F - f1), (double) (0.5F + f2)).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
-		vertexbuffer.pos((double) i, (double) j, (double) this.zLevel).tex((double) (0.5F - f1), (double) (0.5F - f2)).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
-		vertexbuffer.pos((double) i, 0.0D, (double) this.zLevel).tex((double) (0.5F + f1), (double) (0.5F - f2)).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
-		vertexbuffer.pos(0.0D, 0.0D, (double) this.zLevel).tex((double) (0.5F + f1), (double) (0.5F + f2)).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
+		vertexbuffer.pos(0.0D, j, this.zLevel).tex(0.5F - f1, 0.5F + f2).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
+		vertexbuffer.pos(i, j, this.zLevel).tex(0.5F - f1, 0.5F - f2).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
+		vertexbuffer.pos(i, 0.0D, this.zLevel).tex(0.5F + f1, 0.5F - f2).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
+		vertexbuffer.pos(0.0D, 0.0D, this.zLevel).tex(0.5F + f1, 0.5F + f2).color(1.0F, 1.0F, 1.0F, 1.0F).endVertex();
 		tessellator.draw();
 	}
 	
@@ -154,12 +154,12 @@ public class GuiMissingApis extends GuiScreen
 		for(int j = 0; j < 64; ++j)
 		{
 			GlStateManager.pushMatrix();
-			float f = ((float) (j % 8) / 8.0F - 0.5F) / 64.0F;
-			float f1 = ((float) (j / 8) / 8.0F - 0.5F) / 64.0F;
+			float f = (j % 8 / 8.0F - 0.5F) / 64.0F;
+			float f1 = (j / 8 / 8.0F - 0.5F) / 64.0F;
 			float f2 = 0.0F;
 			GlStateManager.translate(f, f1, 0.0F);
-			GlStateManager.rotate(MathHelper.sin(((float) panoramaTimer + partialTicks) / 400.0F) * 25.0F + 20.0F, 1.0F, 0.0F, 0.0F);
-			GlStateManager.rotate(-((float) panoramaTimer + partialTicks) * 0.1F, 0.0F, 1.0F, 0.0F);
+			GlStateManager.rotate(MathHelper.sin((panoramaTimer + partialTicks) / 400.0F) * 25.0F + 20.0F, 1.0F, 0.0F, 0.0F);
+			GlStateManager.rotate(-(panoramaTimer + partialTicks) * 0.1F, 0.0F, 1.0F, 0.0F);
 			
 			for(int k = 0; k < 6; ++k)
 			{

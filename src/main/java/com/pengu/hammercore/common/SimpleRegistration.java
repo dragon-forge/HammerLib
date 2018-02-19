@@ -46,7 +46,7 @@ public class SimpleRegistration
 		
 		if(recipeComponents[i] instanceof String[])
 		{
-			String[] astring = (String[]) ((String[]) recipeComponents[i++]);
+			String[] astring = ((String[]) recipeComponents[i++]);
 			
 			for(String s2 : astring)
 			{

@@ -44,6 +44,7 @@ public class TextureAtlasSpriteResource extends TextureAtlasSprite
 	/**
 	 * Returns the minimum U coordinate to use when rendering with this icon.
 	 */
+	@Override
 	public float getMinU()
 	{
 		return 0;
@@ -52,6 +53,7 @@ public class TextureAtlasSpriteResource extends TextureAtlasSprite
 	/**
 	 * Returns the maximum U coordinate to use when rendering with this icon.
 	 */
+	@Override
 	public float getMaxU()
 	{
 		return 1;
@@ -60,6 +62,7 @@ public class TextureAtlasSpriteResource extends TextureAtlasSprite
 	/**
 	 * Returns the minimum V coordinate to use when rendering with this icon.
 	 */
+	@Override
 	public float getMinV()
 	{
 		return 0;
@@ -68,6 +71,7 @@ public class TextureAtlasSpriteResource extends TextureAtlasSprite
 	/**
 	 * Returns the maximum V coordinate to use when rendering with this icon.
 	 */
+	@Override
 	public float getMaxV()
 	{
 		return 1;
@@ -77,6 +81,7 @@ public class TextureAtlasSpriteResource extends TextureAtlasSprite
 	 * Gets a U coordinate on the icon. 0 returns uMin and 16 returns uMax.
 	 * Other arguments return in-between values.
 	 */
+	@Override
 	public float getInterpolatedU(double u)
 	{
 		float f = getMaxU() - getMinU();
@@ -87,6 +92,7 @@ public class TextureAtlasSpriteResource extends TextureAtlasSprite
 	 * The opposite of getInterpolatedU. Takes the return value of that method
 	 * and returns the input to it.
 	 */
+	@Override
 	public float getUnInterpolatedU(float u)
 	{
 		float f = getMaxU() - getMinU();
@@ -97,6 +103,7 @@ public class TextureAtlasSpriteResource extends TextureAtlasSprite
 	 * Gets a V coordinate on the icon. 0 returns vMin and 16 returns vMax.
 	 * Other arguments return in-between values.
 	 */
+	@Override
 	public float getInterpolatedV(double v)
 	{
 		float f = getMaxV() - getMinV();
@@ -107,6 +114,7 @@ public class TextureAtlasSpriteResource extends TextureAtlasSprite
 	 * The opposite of getInterpolatedV. Takes the return value of that method
 	 * and returns the input to it.
 	 */
+	@Override
 	public float getUnInterpolatedV(float p_188536_1_)
 	{
 		float f = getMaxV() - getMinV();

@@ -23,13 +23,7 @@ public abstract class TileSyncableTickable extends TileSyncable implements ITick
 	{
 		/** Make unique random for each position */
 		if(rand == null)
-			rand = new Random(positionedRandom && world != null && pos != null ? (world.getSeed() + pos.toLong() + world.provider.getDimension() * 3L - getClass().getName().hashCode() /* Make
-			                                                                                                                                                                             * random
-			                                                                                                                                                                             * different
-			                                                                                                                                                                             * based
-			                                                                                                                                                                             * on
-			                                                                                                                                                                             * tile
-			                                                                                                                                                                             * class */) : world.rand.nextLong());
+			rand = new Random(positionedRandom && world != null && pos != null ? (world.getSeed() + pos.toLong() + world.provider.getDimension() * 3L - getClass().getName().hashCode()) : world.rand.nextLong());
 		return rand;
 	}
 	

@@ -79,7 +79,7 @@ public class PacketManager implements iPacketManager
 		registry.put(packet, listener);
 		stringClassRegistry.put(packet.getName(), listener);
 	}
-
+	
 	@Override
 	public <PKT extends iPacket> iPacketListener<PKT, ?> getListener(Class<PKT> packet)
 	{

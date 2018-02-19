@@ -49,6 +49,7 @@ public class Cuboid6 implements Copyable<Cuboid6>
 		return new AxisAlignedBB(min.x, min.y, min.z, max.x, max.y, max.z);
 	}
 	
+	@Override
 	public Cuboid6 copy()
 	{
 		return new Cuboid6(this);
@@ -121,6 +122,7 @@ public class Cuboid6 implements Copyable<Cuboid6>
 		return a != null && b != null && a.intersects(b);
 	}
 	
+	@Override
 	public String toString()
 	{
 		MathContext cont = new MathContext(4, RoundingMode.HALF_UP);

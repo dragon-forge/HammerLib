@@ -176,7 +176,7 @@ public class IOUtils
 		try
 		{
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			DeflaterOutputStream o = new DeflaterOutputStream((OutputStream) baos, new Deflater(9));
+			DeflaterOutputStream o = new DeflaterOutputStream(baos, new Deflater(9));
 			o.write(data);
 			o.close();
 			return baos.toByteArray();

@@ -21,7 +21,10 @@ public class WorldGenHammerCore implements IWorldGenerator
 		ChunkPos cp = new ChunkPos(chunkX, chunkZ);
 		Chunk c = world.getChunkFromChunkCoords(chunkX, chunkZ);
 		
-		/** Handle default retro-gen stuff. This means that chunks that didn't have X mod will generate later, when player comes by */
+		/**
+		 * Handle default retro-gen stuff. This means that chunks that didn't
+		 * have X mod will generate later, when player comes by
+		 */
 		WorldRetroGen.generateChunk(c);
 		
 		for(iWorldGenFeature feature : WorldGenRegistry.listFeatures())

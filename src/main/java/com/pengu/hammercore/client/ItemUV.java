@@ -21,6 +21,7 @@ public class ItemUV extends UV
 		this.icon = icon;
 	}
 	
+	@Override
 	public void render(double x, double y)
 	{
 		BLEND.captureState();

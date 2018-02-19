@@ -9,6 +9,7 @@ import com.pengu.hammercore.proxy.ParticleProxy_Client;
 import com.pengu.hammercore.utils.ColorHelper;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.particle.Particle;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -133,12 +134,12 @@ public class LightningBolt extends SimpleParticle
 				final LBVector3 diff2 = LBVector3.crossProduct(playervec, rendersegment.nextdiff).scale(width / rendersegment.sinnext);
 				final LBVector3 startvec = rendersegment.startpoint.point;
 				final LBVector3 endvec = rendersegment.endpoint.point;
-				final float rx1 = (float) (startvec.x - LightningBolt.interpPosX);
-				final float ry1 = (float) (startvec.y - LightningBolt.interpPosY);
-				final float rz1 = (float) (startvec.z - LightningBolt.interpPosZ);
-				final float rx2 = (float) (endvec.x - LightningBolt.interpPosX);
-				final float ry2 = (float) (endvec.y - LightningBolt.interpPosY);
-				final float rz2 = (float) (endvec.z - LightningBolt.interpPosZ);
+				final float rx1 = (float) (startvec.x - Particle.interpPosX);
+				final float ry1 = (float) (startvec.y - Particle.interpPosY);
+				final float rz1 = (float) (startvec.z - Particle.interpPosZ);
+				final float rx2 = (float) (endvec.x - Particle.interpPosX);
+				final float ry2 = (float) (endvec.y - Particle.interpPosY);
+				final float rz2 = (float) (endvec.z - Particle.interpPosZ);
 				
 				b.pos(rx2 - diff2.x, ry2 - diff2.y, rz2 - diff2.z).tex(.5, 0).color(particleRed, particleGreen, particleBlue, mainalpha * rendersegment.light).endVertex();
 				b.pos(rx1 - diff1.x, ry1 - diff1.y, rz1 - diff1.z).tex(.5, 0).color(particleRed, particleGreen, particleBlue, mainalpha * rendersegment.light).endVertex();

@@ -7,6 +7,8 @@ import net.minecraft.item.ItemStack;
 
 public interface iTooltipTile
 {
+	static ProgressBar[] NO_BARS = new ProgressBar[0];
+	
 	void getTextTooltip(List<String> list, EntityPlayer player);
 	
 	default boolean isEngineSupported(eTooltipEngine engine)
@@ -22,7 +24,7 @@ public interface iTooltipTile
 	
 	default ProgressBar[] getProgressBars(EntityPlayer player)
 	{
-		return null;
+		return NO_BARS;
 	}
 	
 	default boolean hasItemIconOverride()

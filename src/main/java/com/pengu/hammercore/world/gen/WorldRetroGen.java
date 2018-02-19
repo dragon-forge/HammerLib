@@ -9,7 +9,6 @@ import java.util.Random;
 import java.util.Set;
 
 import com.pengu.hammercore.annotations.MCFBus;
-import com.pengu.hammercore.event.WorldEventsHC;
 import com.pengu.hammercore.world.data.PerChunkDataManager;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -19,7 +18,6 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.IChunkGenerator;
 import net.minecraftforge.fml.common.IWorldGenerator;
 import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @MCFBus
 public class WorldRetroGen

@@ -148,6 +148,7 @@ public abstract class Color implements Copyable<Color>
 		return this;
 	}
 	
+	@Override
 	public abstract Color copy();
 	
 	public int rgb()

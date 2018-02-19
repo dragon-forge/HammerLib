@@ -23,6 +23,7 @@ public class GlobalRecipeScript extends SimpleRecipeScript
 				s.add();
 	}
 	
+	@Override
 	public void remove()
 	{
 		for(SimpleRecipeScript s : scripts)

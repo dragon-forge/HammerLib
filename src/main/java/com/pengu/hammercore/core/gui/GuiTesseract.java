@@ -105,7 +105,7 @@ public class GuiTesseract extends GuiCentered
 			
 			Color.glColourRGB(0xFFFFFF);
 			
-			itemRender.renderItemAndEffectIntoGUI(TileTesseract.getCapIcon(TileTesseract.getAllowedCapabilities().get(i)), (int) guiLeft + x + 7, (int) guiTop - 15);
+			itemRender.renderItemAndEffectIntoGUI(TileTesseract.getCapIcon(TileTesseract.getAllowedCapabilities().get(i)), guiLeft + x + 7, guiTop - 15);
 		}
 		
 		freq.drawTextBox();

@@ -1,12 +1,9 @@
 package com.pengu.hammercore.proxy;
 
 import java.io.File;
-import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
-
-import javax.imageio.ImageIO;
 
 import com.pengu.hammercore.HammerCore;
 import com.pengu.hammercore.TooltipAPI;

@@ -41,7 +41,7 @@ public class VirtualWorld implements IBlockAccess
 	@SideOnly(Side.CLIENT)
 	public int getCombinedLight(BlockPos pos, int light)
 	{
-		Integer actual = (Integer) this.colors.getOnPos(pos);
+		Integer actual = this.colors.getOnPos(pos);
 		if(actual == null)
 			this.colors.setOnPos(pos, actual = Integer.valueOf(15728880));
 		return actual.intValue();
@@ -55,7 +55,7 @@ public class VirtualWorld implements IBlockAccess
 	@Override
 	public IBlockState getBlockState(BlockPos pos)
 	{
-		IBlockState actual = (IBlockState) this.states.getOnPos(pos);
+		IBlockState actual = this.states.getOnPos(pos);
 		if(actual == null)
 			this.states.setOnPos(pos, actual = Blocks.AIR.getDefaultState());
 		return actual;

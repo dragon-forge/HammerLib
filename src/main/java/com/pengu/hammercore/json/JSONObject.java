@@ -37,7 +37,7 @@ public class JSONObject
 	public JSONObject(Map<?, ?> copyFrom)
 	{
 		this();
-		Map<?, ?> contentsTyped = (Map<?, ?>) copyFrom;
+		Map<?, ?> contentsTyped = copyFrom;
 		for(Entry<?, ?> entry : contentsTyped.entrySet())
 		{
 			String key = (String) entry.getKey();
@@ -481,7 +481,7 @@ public class JSONObject
 		if(number.equals(NEGATIVE_ZERO))
 			return "-0";
 		long longValue = number.longValue();
-		if(doubleValue == (double) longValue)
+		if(doubleValue == longValue)
 			return Long.toString(longValue);
 		return number.toString();
 	}

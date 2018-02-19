@@ -10,7 +10,6 @@ import java.util.Scanner;
 import javax.imageio.ImageIO;
 
 import com.pengu.hammercore.HammerCore;
-import com.pengu.hammercore.common.utils.IOUtils;
 import com.pengu.hammercore.json.io.Jsonable;
 
 public class GuiTheme implements Jsonable

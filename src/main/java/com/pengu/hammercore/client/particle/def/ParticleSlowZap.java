@@ -48,6 +48,7 @@ public class ParticleSlowZap extends SimpleParticle implements iOldParticle
 		seed = rand.nextLong();
 	}
 	
+	@Override
 	public void setMaxAge(int age)
 	{
 		particleMaxAge = age;
@@ -72,6 +73,7 @@ public class ParticleSlowZap extends SimpleParticle implements iOldParticle
 	
 	Random rr = new Random(seed);
 	
+	@Override
 	public void onUpdate()
 	{
 		rr.setSeed(seed);
@@ -87,7 +89,7 @@ public class ParticleSlowZap extends SimpleParticle implements iOldParticle
 		Vec3d vs = new Vec3d(0.0D, 0.0D, 0.0D);
 		Vec3d ve = new Vec3d(tX, tY, tZ);
 		int steps = (int) length;
-		int curSteps = (int) Math.round((particleAge / (float) particleMaxAge) * length);
+		int curSteps = Math.round((particleAge / (float) particleMaxAge) * length);
 		points.add(vs);
 		pointsWidth.add(1F);
 		int i = 0;
@@ -146,10 +148,10 @@ public class ParticleSlowZap extends SimpleParticle implements iOldParticle
 		
 		for(int c = 0; c < points.size(); c++)
 		{
-			float size = 0.15F * ((Float) pointsWidth.get(c)).floatValue();
+			float size = 0.15F * pointsWidth.get(c).floatValue();
 			
 			float f13 = c / length;
-			Vec3d vc = (Vec3d) points.get(c);
+			Vec3d vc = points.get(c);
 			Vec3d vp = c == 0 ? (Vec3d) points.get(c) : (Vec3d) points.get(c - 1);
 			Vec3d vn = c == points.size() - 1 ? (Vec3d) points.get(c) : (Vec3d) points.get(c + 1);
 			Vec3d v1 = vp.subtract(vc);
@@ -167,9 +169,9 @@ public class ParticleSlowZap extends SimpleParticle implements iOldParticle
 		
 		for(int c = 0; c < points.size(); c++)
 		{
-			float size = 0.15F * ((Float) pointsWidth.get(c)).floatValue();
+			float size = 0.15F * pointsWidth.get(c).floatValue();
 			float f13 = c / length;
-			Vec3d vc = (Vec3d) points.get(c);
+			Vec3d vc = points.get(c);
 			Vec3d vp = c == 0 ? (Vec3d) points.get(c) : (Vec3d) points.get(c - 1);
 			Vec3d vn = c == points.size() - 1 ? (Vec3d) points.get(c) : (Vec3d) points.get(c + 1);
 			Vec3d v1 = vp.subtract(vc);
@@ -212,6 +214,7 @@ public class ParticleSlowZap extends SimpleParticle implements iOldParticle
 		}
 	}
 	
+	@Override
 	public void spawn()
 	{
 		spawnAt(posX, posY, posZ);

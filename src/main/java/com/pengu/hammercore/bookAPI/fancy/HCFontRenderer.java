@@ -166,16 +166,16 @@ public class HCFontRenderer
 		float f1 = par1 / 16 * 8;
 		float f2 = par2 ? 1.0f : 0.0f;
 		this.renderEngine.bindTexture(this.locationFontTexture);
-		float f3 = (float) this.charWidth[par1] - 0.01f;
-		GL11.glBegin((int) 5);
-		GL11.glTexCoord2f((float) (f / 128.0f), (float) (f1 / 128.0f));
-		GL11.glVertex3f((float) (this.posX + f2), (float) this.posY, (float) 0.0f);
-		GL11.glTexCoord2f((float) (f / 128.0f), (float) ((f1 + 7.99f) / 128.0f));
-		GL11.glVertex3f((float) (this.posX - f2), (float) (this.posY + 7.99f), (float) 0.0f);
-		GL11.glTexCoord2f((float) ((f + f3) / 128.0f), (float) (f1 / 128.0f));
-		GL11.glVertex3f((float) (this.posX + f3 + f2), (float) this.posY, (float) 0.0f);
-		GL11.glTexCoord2f((float) ((f + f3) / 128.0f), (float) ((f1 + 7.99f) / 128.0f));
-		GL11.glVertex3f((float) (this.posX + f3 - f2), (float) (this.posY + 7.99f), (float) 0.0f);
+		float f3 = this.charWidth[par1] - 0.01f;
+		GL11.glBegin(5);
+		GL11.glTexCoord2f(f / 128.0f, f1 / 128.0f);
+		GL11.glVertex3f(this.posX + f2, this.posY, 0.0f);
+		GL11.glTexCoord2f(f / 128.0f, (f1 + 7.99f) / 128.0f);
+		GL11.glVertex3f(this.posX - f2, this.posY + 7.99f, 0.0f);
+		GL11.glTexCoord2f((f + f3) / 128.0f, f1 / 128.0f);
+		GL11.glVertex3f(this.posX + f3 + f2, this.posY, 0.0f);
+		GL11.glTexCoord2f((f + f3) / 128.0f, (f1 + 7.99f) / 128.0f);
+		GL11.glVertex3f(this.posX + f3 - f2, this.posY + 7.99f, 0.0f);
 		GL11.glEnd();
 		return this.charWidth[par1];
 	}
@@ -202,19 +202,19 @@ public class HCFontRenderer
 		int k = this.glyphWidth[par1] & 15;
 		float f = j;
 		float f1 = k + 1;
-		float f2 = (float) (par1 % 16 * 16) + f;
+		float f2 = par1 % 16 * 16 + f;
 		float f3 = (par1 & 255) / 16 * 16;
 		float f4 = f1 - f - 0.02f;
 		float f5 = par2 ? 1.0f : 0.0f;
-		GL11.glBegin((int) 5);
-		GL11.glTexCoord2f((float) (f2 / 256.0f), (float) (f3 / 256.0f));
-		GL11.glVertex3f((float) (this.posX + f5), (float) this.posY, (float) 0.0f);
-		GL11.glTexCoord2f((float) (f2 / 256.0f), (float) ((f3 + 15.98f) / 256.0f));
-		GL11.glVertex3f((float) (this.posX - f5), (float) (this.posY + 7.99f), (float) 0.0f);
-		GL11.glTexCoord2f((float) ((f2 + f4) / 256.0f), (float) (f3 / 256.0f));
-		GL11.glVertex3f((float) (this.posX + f4 / 2.0f + f5), (float) this.posY, (float) 0.0f);
-		GL11.glTexCoord2f((float) ((f2 + f4) / 256.0f), (float) ((f3 + 15.98f) / 256.0f));
-		GL11.glVertex3f((float) (this.posX + f4 / 2.0f - f5), (float) (this.posY + 7.99f), (float) 0.0f);
+		GL11.glBegin(5);
+		GL11.glTexCoord2f(f2 / 256.0f, f3 / 256.0f);
+		GL11.glVertex3f(this.posX + f5, this.posY, 0.0f);
+		GL11.glTexCoord2f(f2 / 256.0f, (f3 + 15.98f) / 256.0f);
+		GL11.glVertex3f(this.posX - f5, this.posY + 7.99f, 0.0f);
+		GL11.glTexCoord2f((f2 + f4) / 256.0f, f3 / 256.0f);
+		GL11.glVertex3f(this.posX + f4 / 2.0f + f5, this.posY, 0.0f);
+		GL11.glTexCoord2f((f2 + f4) / 256.0f, (f3 + 15.98f) / 256.0f);
+		GL11.glVertex3f(this.posX + f4 / 2.0f - f5, this.posY + 7.99f, 0.0f);
 		GL11.glEnd();
 		return (f1 - f) / 2.0f + 1.0f;
 	}
@@ -337,7 +337,7 @@ public class HCFontRenderer
 						j += 16;
 					}
 					this.textColor = k = this.colorCode[j];
-					GL11.glColor4f((float) ((float) (k >> 16) / 255.0f), (float) ((float) (k >> 8 & 255) / 255.0f), (float) ((float) (k & 255) / 255.0f), (float) this.alpha);
+					GL11.glColor4f((k >> 16) / 255.0f, (k >> 8 & 255) / 255.0f, (k & 255) / 255.0f, this.alpha);
 				} else if(j == 16)
 				{
 					this.randomStyle = true;
@@ -360,7 +360,7 @@ public class HCFontRenderer
 					this.strikethroughStyle = false;
 					this.underlineStyle = false;
 					this.italicStyle = false;
-					GL11.glColor4f((float) this.red, (float) this.blue, (float) this.green, (float) this.alpha);
+					GL11.glColor4f(this.red, this.blue, this.green, this.alpha);
 				}
 				++i;
 				continue;
@@ -406,31 +406,31 @@ public class HCFontRenderer
 			if(this.strikethroughStyle)
 			{
 				tessellator = Tessellator.getInstance();
-				GL11.glDisable((int) 3553);
+				GL11.glDisable(3553);
 				BufferBuilder b = tessellator.getBuffer();
 				b.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
-				b.pos((double) this.posX, (double) (this.posY + (float) (this.FONT_HEIGHT / 2)), 0.0).endVertex();
-				b.pos((double) (this.posX + f1), (double) (this.posY + (float) (this.FONT_HEIGHT / 2)), 0.0).endVertex();
-				b.pos((double) (this.posX + f1), (double) (this.posY + (float) (this.FONT_HEIGHT / 2) - 1.0f), 0.0).endVertex();
-				b.pos((double) this.posX, (double) (this.posY + (float) (this.FONT_HEIGHT / 2) - 1.0f), 0.0).endVertex();
+				b.pos(this.posX, this.posY + this.FONT_HEIGHT / 2, 0.0).endVertex();
+				b.pos(this.posX + f1, this.posY + this.FONT_HEIGHT / 2, 0.0).endVertex();
+				b.pos(this.posX + f1, this.posY + this.FONT_HEIGHT / 2 - 1.0f, 0.0).endVertex();
+				b.pos(this.posX, this.posY + this.FONT_HEIGHT / 2 - 1.0f, 0.0).endVertex();
 				tessellator.draw();
-				GL11.glEnable((int) 3553);
+				GL11.glEnable(3553);
 			}
 			if(this.underlineStyle)
 			{
 				tessellator = Tessellator.getInstance();
-				GL11.glDisable((int) 3553);
+				GL11.glDisable(3553);
 				BufferBuilder b = tessellator.getBuffer();
 				b.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
 				int l = this.underlineStyle ? -1 : 0;
-				b.pos((double) (this.posX + (float) l), (double) (this.posY + (float) this.FONT_HEIGHT), 0.0).endVertex();
-				b.pos((double) (this.posX + f1), (double) (this.posY + (float) this.FONT_HEIGHT), 0.0).endVertex();
-				b.pos((double) (this.posX + f1), (double) (this.posY + (float) this.FONT_HEIGHT - 1.0f), 0.0).endVertex();
-				b.pos((double) (this.posX + (float) l), (double) (this.posY + (float) this.FONT_HEIGHT - 1.0f), 0.0).endVertex();
+				b.pos(this.posX + l, this.posY + this.FONT_HEIGHT, 0.0).endVertex();
+				b.pos(this.posX + f1, this.posY + this.FONT_HEIGHT, 0.0).endVertex();
+				b.pos(this.posX + f1, this.posY + this.FONT_HEIGHT - 1.0f, 0.0).endVertex();
+				b.pos(this.posX + l, this.posY + this.FONT_HEIGHT - 1.0f, 0.0).endVertex();
 				tessellator.draw();
-				GL11.glEnable((int) 3553);
+				GL11.glEnable(3553);
 			}
-			this.posX += (float) ((int) f1);
+			this.posX += ((int) f1);
 		}
 	}
 	
@@ -453,11 +453,11 @@ public class HCFontRenderer
 			par4 |= -16777216;
 		if(par5)
 			par4 = (par4 & 16579836) >> 2 | par4 & -16777216;
-		this.red = (float) (par4 >> 16 & 255) / 255.0f;
-		this.blue = (float) (par4 >> 8 & 255) / 255.0f;
-		this.green = (float) (par4 & 255) / 255.0f;
-		this.alpha = (float) (par4 >> 24 & 255) / 255.0f;
-		GL11.glColor4f((float) this.red, (float) this.blue, (float) this.green, (float) this.alpha);
+		this.red = (par4 >> 16 & 255) / 255.0f;
+		this.blue = (par4 >> 8 & 255) / 255.0f;
+		this.green = (par4 & 255) / 255.0f;
+		this.alpha = (par4 >> 24 & 255) / 255.0f;
+		GL11.glColor4f(this.red, this.blue, this.green, this.alpha);
 		this.posX = par2;
 		this.posY = par3;
 		this.renderStringAtPos(par1Str, par5);
@@ -639,12 +639,12 @@ public class HCFontRenderer
 							UtilsFX.bindTexture(scont[0], scont[1]);
 							float scale = Float.parseFloat(scont[6]);
 							GL11.glPushMatrix();
-							GL11.glColor4f((float) 1.0f, (float) 1.0f, (float) 1.0f, (float) 1.0f);
-							GL11.glTranslatef((float) ((float) (par2 - 3 + par4 / 2) - (float) (Integer.parseInt(scont[4]) / 2) * scale), (float) par3, (float) 0.0f);
-							GL11.glScalef((float) scale, (float) scale, (float) scale);
+							GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+							GL11.glTranslatef(par2 - 3 + par4 / 2 - Integer.parseInt(scont[4]) / 2 * scale, par3, 0.0f);
+							GL11.glScalef(scale, scale, scale);
 							gui.drawTexturedModalRect(0, 0, Integer.parseInt(scont[2]), Integer.parseInt(scont[3]), Integer.parseInt(scont[4]), Integer.parseInt(scont[5]));
 							GL11.glPopMatrix();
-							par3 = (int) ((float) par3 + ((float) Integer.parseInt(scont[5]) * scale - (float) this.FONT_HEIGHT));
+							par3 = (int) (par3 + (Integer.parseInt(scont[5]) * scale - this.FONT_HEIGHT));
 						}
 					}
 				}

@@ -170,32 +170,32 @@ public abstract class MultipartSignature implements iPropertyChangeHandler
 			
 			if(side == EnumFacing.DOWN)
 			{
-				d1 = (double) j + axisalignedbb.minY - 0.10000000149011612D;
+				d1 = j + axisalignedbb.minY - 0.10000000149011612D;
 			}
 			
 			if(side == EnumFacing.UP)
 			{
-				d1 = (double) j + axisalignedbb.maxY + 0.10000000149011612D;
+				d1 = j + axisalignedbb.maxY + 0.10000000149011612D;
 			}
 			
 			if(side == EnumFacing.NORTH)
 			{
-				d2 = (double) k + axisalignedbb.minZ - 0.10000000149011612D;
+				d2 = k + axisalignedbb.minZ - 0.10000000149011612D;
 			}
 			
 			if(side == EnumFacing.SOUTH)
 			{
-				d2 = (double) k + axisalignedbb.maxZ + 0.10000000149011612D;
+				d2 = k + axisalignedbb.maxZ + 0.10000000149011612D;
 			}
 			
 			if(side == EnumFacing.WEST)
 			{
-				d0 = (double) i + axisalignedbb.minX - 0.10000000149011612D;
+				d0 = i + axisalignedbb.minX - 0.10000000149011612D;
 			}
 			
 			if(side == EnumFacing.EAST)
 			{
-				d0 = (double) i + axisalignedbb.maxX + 0.10000000149011612D;
+				d0 = i + axisalignedbb.maxX + 0.10000000149011612D;
 			}
 			
 			ParticleProxy_Client.queueParticleSpawn(new ParticleDiggingState(worldObj, d0, d1, d2, 0.0D, 0.0D, 0.0D, state).setBlockPos(pos).multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F));
@@ -227,11 +227,11 @@ public abstract class MultipartSignature implements iPropertyChangeHandler
 				{
 					for(int l = 0; l < i; ++l)
 					{
-						double d0 = ((double) j + .5D) / 4D;
-						double d1 = ((double) k + .5D) / 4D;
-						double d2 = ((double) l + .5D) / 4D;
+						double d0 = (j + .5D) / 4D;
+						double d1 = (k + .5D) / 4D;
+						double d2 = (l + .5D) / 4D;
 						
-						ParticleProxy_Client.queueParticleSpawn(new ParticleDiggingState(world, (double) pos.getX() + d0, (double) pos.getY() + d1, (double) pos.getZ() + d2, d0 - 0.5D, d1 - 0.5D, d2 - 0.5D, getState()).setBlockPos(pos));
+						ParticleProxy_Client.queueParticleSpawn(new ParticleDiggingState(world, pos.getX() + d0, pos.getY() + d1, pos.getZ() + d2, d0 - 0.5D, d1 - 0.5D, d2 - 0.5D, getState()).setBlockPos(pos));
 					}
 				}
 			}
@@ -411,6 +411,7 @@ public abstract class MultipartSignature implements iPropertyChangeHandler
 			properties.get(id).readFromNBT(nbt);
 	}
 	
+	@Override
 	public void notifyOfChange(NetPropertyAbstract prop)
 	{
 	}

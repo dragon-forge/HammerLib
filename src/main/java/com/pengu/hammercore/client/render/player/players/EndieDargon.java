@@ -79,7 +79,7 @@ public class EndieDargon implements iPlayerModel
 			GlStateManager.translate(0, player.isSneaking() ? .2 : 0, 0);
 			GlStateManager.rotate(f, 0.0F, 1.0F, 0.0F);
 			GlStateManager.rotate(f1, 1.0F, 0.0F, 0.0F);
-			GlStateManager.translate(0, 0, .135F * (float) (i * 2 - 1) - .02F);
+			GlStateManager.translate(0, 0, .135F * (i * 2 - 1) - .02F);
 			GlStateManager.translate(0, -.32F, 0);
 			GlStateManager.rotate(-f1, 1.0F, 0.0F, 0.0F);
 			GlStateManager.rotate(-f, 0.0F, 1.0F, 0.0F);

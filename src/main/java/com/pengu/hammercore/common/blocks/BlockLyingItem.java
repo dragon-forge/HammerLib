@@ -105,6 +105,7 @@ public class BlockLyingItem extends Block implements ITileEntityProvider, iTileB
 		return false;
 	}
 	
+	@Override
 	public boolean isFullCube(IBlockState state)
 	{
 		return false;

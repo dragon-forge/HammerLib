@@ -65,7 +65,7 @@ public enum RenderHelperImpl implements iRenderHelper
 		{
 			GlStateManager.pushMatrix();
 			
-			float colorFactor = 2.0F / (float) (18 - i);
+			float colorFactor = 2.0F / (18 - i);
 			
 			if(i == 0)
 			{
@@ -99,8 +99,8 @@ public enum RenderHelperImpl implements iRenderHelper
 			GlStateManager.loadIdentity();
 			GlStateManager.translate(0.5F, 0.5F, 0.0F);
 			GlStateManager.scale(0.5F, 0.5F, 1.0F);
-			float RNT = (float) (i + 1);
-			GlStateManager.translate(17.0F / RNT, (2.0F + RNT / 1.5F) * ((float) Minecraft.getSystemTime() % 800000.0F / 800000.0F), 0.0F);
+			float RNT = i + 1;
+			GlStateManager.translate(17.0F / RNT, (2.0F + RNT / 1.5F) * (Minecraft.getSystemTime() % 800000.0F / 800000.0F), 0.0F);
 			GlStateManager.rotate((RNT * RNT * 4321.0F + RNT * 9.0F) * 2.0F, 0.0F, 0.0F, 1.0F);
 			GlStateManager.scale(4.5F - RNT / 4.0F, 4.5F - RNT / 4.0F, 1.0F);
 			GlStateManager.multMatrix(ENDFX_PROJECTION);

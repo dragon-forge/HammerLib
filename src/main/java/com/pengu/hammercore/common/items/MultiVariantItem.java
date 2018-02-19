@@ -28,6 +28,7 @@ public abstract class MultiVariantItem extends Item
 			names[i] = names[i] + postfix;
 	}
 	
+	@Override
 	public String getUnlocalizedName(ItemStack stack)
 	{
 		return "item." + (stack.getItemDamage() < names.length ? names[stack.getItemDamage()] : "unnamed");

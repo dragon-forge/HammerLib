@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.zip.GZIPOutputStream;
 
-import net.minecraft.nbt.NBTTagCompound;
-
 public class StructureOutputStream implements Closeable, AutoCloseable, Flushable
 {
 	public final DataOutputStream out;

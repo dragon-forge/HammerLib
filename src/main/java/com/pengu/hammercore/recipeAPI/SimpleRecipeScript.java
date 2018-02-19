@@ -50,6 +50,7 @@ public class SimpleRecipeScript implements iRecipeScript
 		}
 	}
 	
+	@Override
 	public void remove()
 	{
 		if(iJeiRecipeModifier.Instance.JEIModifier != null)

@@ -69,7 +69,7 @@ public class RenderProxy_Common
 	{
 		
 	}
-
+	
 	public void postInit()
 	{
 	}

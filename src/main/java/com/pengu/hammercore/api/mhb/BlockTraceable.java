@@ -58,6 +58,7 @@ public abstract class BlockTraceable extends Block
 		return true;
 	}
 	
+	@Override
 	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess world, BlockPos pos)
 	{
 		return getFullBoundingBox(world, pos, state);
@@ -77,7 +78,7 @@ public abstract class BlockTraceable extends Block
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
 	{
 		registry = iRayCubeGetter.Instance.getter;
-		RayTraceResult hit = RayTracer.retraceBlock(worldIn, playerIn, pos);
+		RayTraceResult hit = com.pengu.hammercore.raytracer.RayTracer.retraceBlock(worldIn, playerIn, pos);
 		return onBoxActivated(hit != null ? Math.max(0, hit.subHit) : 0, registry.getBoundCubes6(this) != null && registry.getBoundCubes6(this).length > 0 ? registry.getBoundCubes6(this)[hit != null ? Math.max(0, hit.subHit) : 0] : null, worldIn, pos, state, playerIn, hand, facing, hitX, hitY, hitZ);
 	}
 	
@@ -95,7 +96,7 @@ public abstract class BlockTraceable extends Block
 		registry = iRayCubeGetter.Instance.getter;
 		if(player == null)
 			return getFullBoundingBox(w, p, s);
-		RayTraceResult hit = RayTracer.retraceBlock(w, player, p);
+		RayTraceResult hit = com.pengu.hammercore.raytracer.RayTracer.retraceBlock(w, player, p);
 		
 		AxisAlignedBB aabb = getFullBoundingBox(w, p, s);
 		
@@ -151,6 +152,7 @@ public abstract class BlockTraceable extends Block
 		maxZ = z2;
 	}
 	
+	@Override
 	public final RayTraceResult collisionRayTrace(IBlockState s, World world, BlockPos p, Vec3d start, Vec3d end)
 	{
 		registry = iRayCubeGetter.Instance.getter;
@@ -183,12 +185,12 @@ public abstract class BlockTraceable extends Block
 		exited = true;
 		
 		// @since 1.5.5
-		return RayTracer.rayTraceCuboidsClosest(new Vector3(start), new Vector3(end), p, cuboids);
+		return com.pengu.hammercore.raytracer.RayTracer.rayTraceCuboidsClosest(new Vector3(start), new Vector3(end), p, cuboids);
 	}
 	
 	public Cuboid6 getCuboidFromPlayer(EntityPlayer player, BlockPos pos)
 	{
-		RayTraceResult hit = RayTracer.retraceBlock(player.world, player, pos);
+		RayTraceResult hit = com.pengu.hammercore.raytracer.RayTracer.retraceBlock(player.world, player, pos);
 		
 		if(registry == null)
 			return null;

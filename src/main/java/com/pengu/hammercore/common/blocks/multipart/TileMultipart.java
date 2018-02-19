@@ -213,6 +213,7 @@ public class TileMultipart extends TileSyncableTickable implements iHandlerProvi
 			sync();
 	}
 	
+	@SuppressWarnings("unlikely-arg-type")
 	public void removeMultipart(MultipartSignature signature, boolean spawnDrop)
 	{
 		if(!signatures.contains(signature))
@@ -228,7 +229,7 @@ public class TileMultipart extends TileSyncableTickable implements iHandlerProvi
 		if(signature instanceof iRandomDisplayTick)
 		{
 			Set<iRandomDisplayTick> ticks = new HashSet<>(displayTickable);
-			ticks.remove((iRandomDisplayTick) signature);
+			ticks.remove(signature);
 			displayTickable = ticks;
 		}
 		lastBaked = null;

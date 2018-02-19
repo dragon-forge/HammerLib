@@ -16,6 +16,7 @@ public class PriorityList<T> extends AbstractList<T>
 		prio = i;
 	}
 	
+	@Override
 	public boolean add(T elem)
 	{
 		int p = prio.applyAsInt(elem);

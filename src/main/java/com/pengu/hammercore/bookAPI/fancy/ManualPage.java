@@ -224,7 +224,7 @@ public class ManualPage
 			{
 				try
 				{
-					render = (iManualPageRender) Class.forName(renderClass).newInstance();
+					render = Class.forName(renderClass).newInstance();
 				} catch(Throwable err)
 				{
 					System.err.println("Unable to construct iRenderExtension");

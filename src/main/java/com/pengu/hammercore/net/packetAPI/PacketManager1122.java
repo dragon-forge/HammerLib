@@ -1,10 +1,14 @@
 package com.pengu.hammercore.net.packetAPI;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
+import com.pengu.hammercore.HammerCore;
 import com.pengu.hammercore.net.iPacketManager;
 
 import io.netty.buffer.Unpooled;
@@ -12,7 +16,6 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.INetHandler;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.FMLEventChannel;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
@@ -87,7 +90,7 @@ public class PacketManager1122 implements iPacketManager
 		registry.put(packet, listener);
 		stringClassRegistry.put(packet.getName(), listener);
 	}
-
+	
 	@Override
 	public <PKT extends iPacket> iPacketListener<PKT, ?> getListener(Class<PKT> packet)
 	{
@@ -170,15 +173,28 @@ public class PacketManager1122 implements iPacketManager
 	private FMLProxyPacket wrap(iPacket pkt)
 	{
 		PacketBuffer buf = new PacketBuffer(Unpooled.buffer());
-		ByteBufUtils.writeTag(buf, new PacketCustomNBT(pkt, channel).nbt);
+		buf.writeCompoundTag(new PacketCustomNBT(pkt, channel).nbt);
 		return new FMLProxyPacket(buf, channel);
 	}
 	
+	/**
+	 * This method reads the FMLProxyPacket, executes whatever should be
+	 * executed, releases the payload and gets the response back to caller.
+	 */
 	private iPacket unwrap(FMLProxyPacket p, INetHandler h, Side s)
 	{
 		PacketBuffer payload = new PacketBuffer(p.payload());
 		PacketCustomNBT n = new PacketCustomNBT();
-		n.nbt = ByteBufUtils.readTag(payload);
+		try
+		{
+			n.nbt = payload.readCompoundTag();
+		} catch(IOException e)
+		{
+			// Corrupted NBT tag? BAD stuff...
+			payload.release();
+			return null;
+		}
+		/* Prevent memory leaks */
 		payload.release();
 		return n.handle(ctx(h, s));
 	}
@@ -201,8 +217,16 @@ public class PacketManager1122 implements iPacketManager
 			e.setReply(wrap(p));
 	}
 	
+	/**
+	 * Creates a forge MessageContext using reflections. I'm going to move to my
+	 * own contexts if forge wouldn't make the constructor public in 1.13 (or
+	 * sooner?)
+	 */
+	@Nullable
 	private static final MessageContext ctx(INetHandler h, Side s)
 	{
+		if(h == null)
+			return null;
 		try
 		{
 			Constructor<MessageContext> ctr = MessageContext.class.getConstructor(INetHandler.class, Side.class);
@@ -210,7 +234,7 @@ public class PacketManager1122 implements iPacketManager
 			return ctr.newInstance(h, s);
 		} catch(NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
 		{
-			e.printStackTrace();
+			HammerCore.LOG.error("We can't construct a new message context for handler " + h.getClass() + " " + e.getClass().getName() + ": " + e.getMessage());
 			return null;
 		}
 	}

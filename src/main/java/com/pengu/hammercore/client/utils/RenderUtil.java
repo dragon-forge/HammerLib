@@ -72,23 +72,23 @@ public class RenderUtil
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder vertexbuffer = tessellator.getBuffer();
 		vertexbuffer.begin(7, DefaultVertexFormats.POSITION_TEX);
-		vertexbuffer.pos(xCoord, yCoord + heightIn, 0).tex((double) textureSprite.getMinU(), (double) textureSprite.getMaxV()).endVertex();
-		vertexbuffer.pos(xCoord + widthIn, yCoord + heightIn, 0).tex((double) textureSprite.getMaxU(), (double) textureSprite.getMaxV()).endVertex();
-		vertexbuffer.pos(xCoord + widthIn, yCoord, 0).tex((double) textureSprite.getMaxU(), (double) textureSprite.getMinV()).endVertex();
-		vertexbuffer.pos(xCoord, yCoord, 0).tex((double) textureSprite.getMinU(), (double) textureSprite.getMinV()).endVertex();
+		vertexbuffer.pos(xCoord, yCoord + heightIn, 0).tex(textureSprite.getMinU(), textureSprite.getMaxV()).endVertex();
+		vertexbuffer.pos(xCoord + widthIn, yCoord + heightIn, 0).tex(textureSprite.getMaxU(), textureSprite.getMaxV()).endVertex();
+		vertexbuffer.pos(xCoord + widthIn, yCoord, 0).tex(textureSprite.getMaxU(), textureSprite.getMinV()).endVertex();
+		vertexbuffer.pos(xCoord, yCoord, 0).tex(textureSprite.getMinU(), textureSprite.getMinV()).endVertex();
 		tessellator.draw();
 	}
 	
 	public static void drawGradientRect(double left, double top, double width, double height, int startColor, int endColor)
 	{
-		float f = (float) (startColor >> 24 & 255) / 255F;
-		float f1 = (float) (startColor >> 16 & 255) / 255F;
-		float f2 = (float) (startColor >> 8 & 255) / 255F;
-		float f3 = (float) (startColor & 255) / 255F;
-		float f4 = (float) (endColor >> 24 & 255) / 255F;
-		float f5 = (float) (endColor >> 16 & 255) / 255F;
-		float f6 = (float) (endColor >> 8 & 255) / 255F;
-		float f7 = (float) (endColor & 255) / 255F;
+		float f = (startColor >> 24 & 255) / 255F;
+		float f1 = (startColor >> 16 & 255) / 255F;
+		float f2 = (startColor >> 8 & 255) / 255F;
+		float f3 = (startColor & 255) / 255F;
+		float f4 = (endColor >> 24 & 255) / 255F;
+		float f5 = (endColor >> 16 & 255) / 255F;
+		float f6 = (endColor >> 8 & 255) / 255F;
+		float f7 = (endColor & 255) / 255F;
 		GlStateManager.disableTexture2D();
 		GlStateManager.enableBlend();
 		GlStateManager.disableAlpha();
@@ -110,14 +110,14 @@ public class RenderUtil
 	
 	public static void drawGradientRect(double left, double top, double width, double height, int startColor, int endColor, double zLevel)
 	{
-		float f = (float) (startColor >> 24 & 255) / 255F;
-		float f1 = (float) (startColor >> 16 & 255) / 255F;
-		float f2 = (float) (startColor >> 8 & 255) / 255F;
-		float f3 = (float) (startColor & 255) / 255F;
-		float f4 = (float) (endColor >> 24 & 255) / 255F;
-		float f5 = (float) (endColor >> 16 & 255) / 255F;
-		float f6 = (float) (endColor >> 8 & 255) / 255F;
-		float f7 = (float) (endColor & 255) / 255F;
+		float f = (startColor >> 24 & 255) / 255F;
+		float f1 = (startColor >> 16 & 255) / 255F;
+		float f2 = (startColor >> 8 & 255) / 255F;
+		float f3 = (startColor & 255) / 255F;
+		float f4 = (endColor >> 24 & 255) / 255F;
+		float f5 = (endColor >> 16 & 255) / 255F;
+		float f6 = (endColor >> 8 & 255) / 255F;
+		float f7 = (endColor & 255) / 255F;
 		GlStateManager.disableTexture2D();
 		GlStateManager.enableBlend();
 		GlStateManager.disableAlpha();
@@ -147,7 +147,7 @@ public class RenderUtil
 		GlStateManager.enableAlpha();
 		GlStateManager.enableBlend();
 		GlStateManager.disableTexture2D();
-		ColorARGB.glColourRGBA(color);
+		Color.glColourRGBA(color);
 		GL11.glPushMatrix();
 		GL11.glLineWidth(size);
 		GL11.glBegin(GL11.GL_LINES);
@@ -156,7 +156,7 @@ public class RenderUtil
 		GL11.glEnd();
 		GL11.glPopMatrix();
 		GlStateManager.enableTexture2D();
-		ColorARGB.glColourRGBA(0xFFFFFFFF);
+		Color.glColourRGBA(0xFFFFFFFF);
 	}
 	
 	public static void drawBrokenLine(int color, float size, Vector3... points)
@@ -164,7 +164,7 @@ public class RenderUtil
 		GlStateManager.enableAlpha();
 		GlStateManager.enableBlend();
 		GlStateManager.disableTexture2D();
-		ColorARGB.glColourRGBA(color);
+		Color.glColourRGBA(color);
 		GL11.glPushMatrix();
 		GL11.glLineWidth(size);
 		GL11.glBegin(GL11.GL_LINES);
@@ -173,7 +173,7 @@ public class RenderUtil
 		GL11.glEnd();
 		GL11.glPopMatrix();
 		GlStateManager.enableTexture2D();
-		ColorARGB.glColourRGBA(0xFFFFFFFF);
+		Color.glColourRGBA(0xFFFFFFFF);
 	}
 	
 	private static final Random rand = new Random();

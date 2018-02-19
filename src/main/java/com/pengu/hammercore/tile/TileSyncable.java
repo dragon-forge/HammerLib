@@ -295,6 +295,7 @@ public abstract class TileSyncable extends TileEntity implements iPropertyChange
 			properties.get(id).readFromNBT(nbt);
 	}
 	
+	@Override
 	public void notifyOfChange(NetPropertyAbstract prop)
 	{
 	}

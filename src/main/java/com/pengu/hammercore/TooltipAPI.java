@@ -26,8 +26,8 @@ public class TooltipAPI
 		{
 			List<String> tooltip = evt.getToolTip();
 			
-			Map<String, String> currentVars = this.currentVars.get();
-			Map<String, String> results = this.results.get();
+			Map<String, String> currentVars = TooltipAPI.currentVars.get();
+			Map<String, String> results = TooltipAPI.results.get();
 			
 			currentVars.clear();
 			

@@ -254,16 +254,19 @@ public class HttpRequest
 			final TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager()
 			{
 				
+				@Override
 				public X509Certificate[] getAcceptedIssuers()
 				{
 					return new X509Certificate[0];
 				}
 				
+				@Override
 				public void checkClientTrusted(X509Certificate[] chain, String authType)
 				{
 					// Intentionally left blank
 				}
 				
+				@Override
 				public void checkServerTrusted(X509Certificate[] chain, String authType)
 				{
 					// Intentionally left blank
@@ -291,6 +294,7 @@ public class HttpRequest
 			TRUSTED_VERIFIER = new HostnameVerifier()
 			{
 				
+				@Override
 				public boolean verify(String hostname, SSLSession session)
 				{
 					return true;
@@ -378,11 +382,13 @@ public class HttpRequest
 		 */
 		ConnectionFactory DEFAULT = new ConnectionFactory()
 		{
+			@Override
 			public HttpURLConnection create(URL url) throws IOException
 			{
 				return (HttpURLConnection) url.openConnection();
 			}
 			
+			@Override
 			public HttpURLConnection create(URL url, Proxy proxy) throws IOException
 			{
 				return (HttpURLConnection) url.openConnection(proxy);
@@ -421,6 +427,7 @@ public class HttpRequest
 		
 		UploadProgress DEFAULT = new UploadProgress()
 		{
+			@Override
 			public void onUpload(long uploaded, long total)
 			{
 			}
@@ -705,6 +712,7 @@ public class HttpRequest
 		 */
 		protected abstract void done() throws IOException;
 		
+		@Override
 		public V call() throws HttpRequestException
 		{
 			boolean thrown = false;
@@ -1468,6 +1476,7 @@ public class HttpRequest
 			action = new PrivilegedAction<String>()
 			{
 				
+				@Override
 				public String run()
 				{
 					return System.setProperty(name, value);
@@ -1477,6 +1486,7 @@ public class HttpRequest
 			action = new PrivilegedAction<String>()
 			{
 				
+				@Override
 				public String run()
 				{
 					return System.clearProperty(name);

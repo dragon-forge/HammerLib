@@ -44,7 +44,7 @@ public class CommandBuildStructure implements ICommand
 		if(args.length == 1)
 			startPos = sender.getPosition();
 		if(args.length == 4)
-			startPos = CommandBase.parseBlockPos(sender, args, 1, false);
+			startPos = CommandBase.parseBlockPos(sender, args, 0, false);
 		
 		if(!StructureAPI.GetAllStructures().contains(args[0]))
 		{
@@ -71,25 +71,25 @@ public class CommandBuildStructure implements ICommand
 	{
 		return args.length == 1 ? new ArrayList<>(StructureAPI.GetAllStructures()) : args.length > 1 && args.length < 5 ? CommandBase.getTabCompletionCoordinate(args, 1, targetPos) : new ArrayList<>();
 	}
-
+	
 	@Override
 	public int compareTo(ICommand o)
 	{
 		return -1;
 	}
-
+	
 	@Override
 	public List<String> getAliases()
 	{
 		return Collections.emptyList();
 	}
-
+	
 	@Override
 	public boolean checkPermission(MinecraftServer server, ICommandSender sender)
 	{
 		return sender.canUseCommand(2, "gamemode");
 	}
-
+	
 	@Override
 	public boolean isUsernameIndex(String[] args, int index)
 	{

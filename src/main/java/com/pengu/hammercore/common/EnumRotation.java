@@ -20,11 +20,13 @@ public enum EnumRotation implements IStringSerializable
 	{
 	}
 	
+	@Override
 	public String getName()
 	{
 		return name().toLowerCase();
 	}
 	
+	@Override
 	public String toString()
 	{
 		return getName();

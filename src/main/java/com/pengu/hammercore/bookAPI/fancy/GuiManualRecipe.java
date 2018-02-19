@@ -99,13 +99,13 @@ public class GuiManualRecipe extends GuiScreen implements iTooltipContext
 			--page;
 		this.page = page;
 	}
-
+	
 	@Override
 	public void initGui()
 	{
 		
 	}
-
+	
 	@Override
 	protected void keyTyped(char par1, int par2) throws IOException
 	{
@@ -237,7 +237,7 @@ public class GuiManualRecipe extends GuiScreen implements iTooltipContext
 			{
 				float vv = 130F / offset;
 				GL11.glPushMatrix();
-				GL11.glTranslatef((float) ((float) (x + 52) - (float) (offset / 2) * vv), (float) ((float) y - 6.0f * vv), (float) 0.0f);
+				GL11.glTranslatef(x + 52 - offset / 2 * vv, y - 6.0f * vv, 0.0f);
 				GL11.glScalef(vv, vv, vv);
 				fontRenderer.drawString(entry.getName(), 0, 0, GuiTheme.CURRENT_THEME.textColor);
 				GL11.glPopMatrix();
@@ -290,16 +290,16 @@ public class GuiManualRecipe extends GuiScreen implements iTooltipContext
 			float sz = 0.0f;
 			if(dy > 3)
 			{
-				sz = (float) (dy - 3) * 0.2f;
-				GL11.glTranslatef((float) ((float) (x + start) + (float) xoff * (1.0f + sz)), (float) ((float) (y + 108) + (float) yoff * (1.0f - sz)), (float) 0.0f);
-				GL11.glScalef((float) (1.0f - sz), (float) (1.0f - sz), (float) (1.0f - sz));
+				sz = (dy - 3) * 0.2f;
+				GL11.glTranslatef(x + start + xoff * (1.0f + sz), y + 108 + yoff * (1.0f - sz), 0.0f);
+				GL11.glScalef(1.0f - sz, 1.0f - sz, 1.0f - sz);
 			} else
-				GL11.glTranslatef((float) (x + start + xoff), (float) (y + 108 + yoff), (float) 0.0f);
+				GL11.glTranslatef(x + start + xoff, y + 108 + yoff, 0.0f);
 			GL11.glPushMatrix();
-			GL11.glColor4f((float) 1.0f, (float) 1.0f, (float) 1.0f, (float) 0.5f);
+			GL11.glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
 			GL11.glEnable(3042);
-			GL11.glTranslatef((float) (-8 - xoff), (float) (-119 + Math.max(3 - dx, 3 - dz) * 8 + dx * 4 + dz * 4 + dy * 50), (float) 0.0f);
-			GL11.glScalef((float) 2.0f, (float) 2.0f, (float) 1.0f);
+			GL11.glTranslatef(-8 - xoff, -119 + Math.max(3 - dx, 3 - dz) * 8 + dx * 4 + dz * 4 + dy * 50, 0.0f);
+			GL11.glScalef(2.0f, 2.0f, 1.0f);
 			this.drawTexturedModalRect(0, 0, 0, 72, 64, 44);
 			GL11.glPopMatrix();
 			int count = 0;
@@ -334,9 +334,9 @@ public class GuiManualRecipe extends GuiScreen implements iTooltipContext
 				{
 					for(int i = dx - 1; i >= 0; --i)
 					{
-						px = (int) ((float) (x + start) + (float) xoff * (1.0f + sz) + (float) (i * 16) * (1.0f - sz) + (float) (k * 16) * (1.0f - sz));
-						py = (int) ((float) (y + 108) + (float) yoff * (1.0f - sz) - (float) (i * 8) * (1.0f - sz) + (float) (k * 8) * (1.0f - sz) + (float) (j * 50) * (1.0f - sz));
-						if(items.get(count) != null && mposx >= px && mposy >= py && (float) mposx < (float) px + 16.0f * (1.0f - sz) && (float) mposy < (float) py + 16.0f * (1.0f - sz))
+						px = (int) (x + start + xoff * (1.0f + sz) + i * 16 * (1.0f - sz) + k * 16 * (1.0f - sz));
+						py = (int) (y + 108 + yoff * (1.0f - sz) - i * 8 * (1.0f - sz) + k * 8 * (1.0f - sz) + j * 50 * (1.0f - sz));
+						if(items.get(count) != null && mposx >= px && mposy >= py && mposx < px + 16.0f * (1.0f - sz) && mposy < py + 16.0f * (1.0f - sz))
 						{
 							ItemStack stack = InventoryUtils.cycleItemStack(items.get(count));
 							List addtext = stack.getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL);
@@ -391,9 +391,9 @@ public class GuiManualRecipe extends GuiScreen implements iTooltipContext
 		GL11.glPushMatrix();
 		int start = side * 152;
 		GL11.glPushMatrix();
-		GL11.glEnable((int) 3042);
-		GL11.glTranslatef((float) (x + start), (float) y, (float) 0.0f);
-		GL11.glScalef((float) 2.0f, (float) 2.0f, (float) 1.0f);
+		GL11.glEnable(3042);
+		GL11.glTranslatef(x + start, y, 0.0f);
+		GL11.glScalef(2.0f, 2.0f, 1.0f);
 		GlStateManager.enableAlpha();
 		GlStateManager.enableBlend();
 		UtilsFX.bindTexture(this.tex2);
@@ -662,7 +662,7 @@ public class GuiManualRecipe extends GuiScreen implements iTooltipContext
 		sx -= x + 8 + side * 152;
 		sy -= y + 59;
 	}
-
+	
 	@Override
 	protected void mouseClicked(int par1, int par2, int par3) throws IOException
 	{
@@ -698,7 +698,7 @@ public class GuiManualRecipe extends GuiScreen implements iTooltipContext
 			{
 				mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1));
 				Object[] o = history.pop();
-				this.mc.displayGuiScreen((GuiScreen) new GuiManualRecipe(ManualCategories.getEntry((String) o[0]), (Integer) o[1], this.guiMapX, this.guiMapY));
+				this.mc.displayGuiScreen(new GuiManualRecipe(ManualCategories.getEntry((String) o[0]), (Integer) o[1], this.guiMapX, this.guiMapY));
 			}
 		}
 		
@@ -710,13 +710,13 @@ public class GuiManualRecipe extends GuiScreen implements iTooltipContext
 					continue;
 				mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1));
 				history.push(new Object[] { this.entry.key, this.page });
-				mc.displayGuiScreen((GuiScreen) new GuiManualRecipe(ManualCategories.getEntry((String) coords.get(2)), (Integer) coords.get(3), this.guiMapX, this.guiMapY));
+				mc.displayGuiScreen(new GuiManualRecipe(ManualCategories.getEntry((String) coords.get(2)), (Integer) coords.get(3), this.guiMapX, this.guiMapY));
 			}
 		}
 		
 		super.mouseClicked(par1, par2, par3);
 	}
-
+	
 	@Override
 	public boolean doesGuiPauseGame()
 	{
@@ -734,14 +734,14 @@ public class GuiManualRecipe extends GuiScreen implements iTooltipContext
 		float var7 = 0.00390625f;
 		float var8 = 0.00390625f;
 		Tessellator var9 = Tessellator.getInstance();
-		GL11.glTranslatef((float) ((float) par1 + (float) par5 / 2.0f), (float) ((float) par2 + (float) par6 / 2.0f), (float) 0.0f);
-		GL11.glScalef((float) (1.0f + scale), (float) (1.0f + scale), (float) 1.0f);
+		GL11.glTranslatef(par1 + par5 / 2.0f, par2 + par6 / 2.0f, 0.0f);
+		GL11.glScalef(1.0f + scale, 1.0f + scale, 1.0f);
 		BufferBuilder b = var9.getBuffer();
 		b.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-		b.pos((double) ((float) (-par5) / 2.0f), (double) ((float) par6 / 2.0f), (double) this.zLevel).tex((double) ((float) (par3 + 0) * var7), (double) ((float) (par4 + par6) * var8)).endVertex();
-		b.pos((double) ((float) par5 / 2.0f), (double) ((float) par6 / 2.0f), (double) this.zLevel).tex((double) ((float) (par3 + par5) * var7), (double) ((float) (par4 + par6) * var8)).endVertex();
-		b.pos((double) ((float) par5 / 2.0f), (double) ((float) (-par6) / 2.0f), (double) this.zLevel).tex((double) ((float) (par3 + par5) * var7), (double) ((float) (par4 + 0) * var8)).endVertex();
-		b.pos((double) ((float) (-par5) / 2.0f), (double) ((float) (-par6) / 2.0f), (double) this.zLevel).tex((double) ((float) (par3 + 0) * var7), (double) ((float) (par4 + 0) * var8)).endVertex();
+		b.pos((-par5) / 2.0f, par6 / 2.0f, this.zLevel).tex((par3 + 0) * var7, (par4 + par6) * var8).endVertex();
+		b.pos(par5 / 2.0f, par6 / 2.0f, this.zLevel).tex((par3 + par5) * var7, (par4 + par6) * var8).endVertex();
+		b.pos(par5 / 2.0f, (-par6) / 2.0f, this.zLevel).tex((par3 + par5) * var7, (par4 + 0) * var8).endVertex();
+		b.pos((-par5) / 2.0f, (-par6) / 2.0f, this.zLevel).tex((par3 + 0) * var7, (par4 + 0) * var8).endVertex();
 		var9.draw();
 		GL11.glPopMatrix();
 	}

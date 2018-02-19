@@ -50,7 +50,7 @@ public class TileIWrenchGhost extends TileSyncableTickable implements iTooltipTi
 		timeLeft = nbt.getInteger("Left");
 		timeTotal = nbt.getInteger("Max");
 	}
-
+	
 	@Override
 	public void getTextTooltip(List<String> list, EntityPlayer player)
 	{

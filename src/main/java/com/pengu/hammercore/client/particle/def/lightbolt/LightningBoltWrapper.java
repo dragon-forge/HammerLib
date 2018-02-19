@@ -49,7 +49,7 @@ public class LightningBoltWrapper
 		particleMaxAge = 3 + rand.nextInt(3) - 1;
 		multiplier = 1.0f;
 		particleAge = -(int) (length * 3.0f);
-		boundingBox = new AxisAlignedBB((double) Math.min(start.x, end.x), (double) Math.min(start.y, end.y), (double) Math.min(start.z, end.z), (double) Math.max(start.x, end.x), (double) Math.max(start.y, end.y), (double) Math.max(start.z, end.z)).offset((double) (length / 2.0f), (double) (length / 2.0f), (double) (length / 2.0f));
+		boundingBox = new AxisAlignedBB(Math.min(start.x, end.x), Math.min(start.y, end.y), Math.min(start.z, end.z), Math.max(start.x, end.x), Math.max(start.y, end.y), Math.max(start.z, end.z)).offset(length / 2.0f, length / 2.0f, length / 2.0f);
 		segments.add(new Segment(start, end));
 	}
 	

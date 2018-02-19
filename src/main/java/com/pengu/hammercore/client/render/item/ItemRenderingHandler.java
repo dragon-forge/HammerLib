@@ -25,6 +25,7 @@ public enum ItemRenderingHandler
 	 *             remove in 1.13 This method changes the look of the item. It
 	 *             must be called at {@link FMLInitializationEvent}.
 	 */
+	@Deprecated
 	public void bindItemRender(Item item, iItemRender render)
 	{
 		renders.put(item, render);

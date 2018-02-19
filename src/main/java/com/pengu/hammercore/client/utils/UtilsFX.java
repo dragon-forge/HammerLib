@@ -51,17 +51,17 @@ public class UtilsFX
 		Tessellator var9 = Tessellator.getInstance();
 		BufferBuilder b = var9.getBuffer();
 		b.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-		b.pos((double) (par1 + 0), (double) (par2 + 16), zLevel).tex(0.0, 1.0).endVertex();
-		b.pos((double) (par1 + 16), (double) (par2 + 16), zLevel).tex(1.0, 1.0).endVertex();
-		b.pos((double) (par1 + 16), (double) (par2 + 0), zLevel).tex(1.0, 0.0).endVertex();
-		b.pos((double) (par1 + 0), (double) (par2 + 0), zLevel).tex(0.0, 0.0).endVertex();
+		b.pos(par1 + 0, par2 + 16, zLevel).tex(0.0, 1.0).endVertex();
+		b.pos(par1 + 16, par2 + 16, zLevel).tex(1.0, 1.0).endVertex();
+		b.pos(par1 + 16, par2 + 0, zLevel).tex(1.0, 0.0).endVertex();
+		b.pos(par1 + 0, par2 + 0, zLevel).tex(0.0, 0.0).endVertex();
 		var9.draw();
 	}
 	
 	public static void drawCustomTooltip(GuiScreen gui, RenderItem itemRenderer, FontRenderer fr, List<String> var4, int par2, int par3, int subTipColor)
 	{
-		GL11.glDisable((int) 32826);
-		GL11.glDisable((int) 2929);
+		GL11.glDisable(32826);
+		GL11.glDisable(2929);
 		GlStateManager.enableBlend();
 		
 		if(!var4.isEmpty())
@@ -97,7 +97,7 @@ public class UtilsFX
 			
 			for(int var13 = 0; var13 < var4.size(); ++var13)
 			{
-				String var14 = (String) var4.get(var13);
+				String var14 = var4.get(var13);
 				var14 = var13 == 0 ? "\u00a7" + Integer.toHexString(subTipColor) + var14 : "\u00a77" + var14;
 				fr.drawStringWithShadow(var14, var15, var16, -1);
 				if(var13 == 0)
@@ -107,7 +107,7 @@ public class UtilsFX
 		}
 		
 		itemRenderer.zLevel = 0.0f;
-		GL11.glEnable((int) 2929);
+		GL11.glEnable(2929);
 		GlStateManager.enableBlend();
 	}
 	
@@ -182,33 +182,33 @@ public class UtilsFX
 			float arXY = ActiveRenderInfo.getRotationXY();
 			float arXZ = ActiveRenderInfo.getRotationXZ();
 			EntityPlayer player = (EntityPlayer) Minecraft.getMinecraft().getRenderViewEntity();
-			double iPX = player.prevPosX + (player.posX - player.prevPosX) * (double) partialTicks;
-			double iPY = player.prevPosY + (player.posY - player.prevPosY) * (double) partialTicks;
-			double iPZ = player.prevPosZ + (player.posZ - player.prevPosZ) * (double) partialTicks;
+			double iPX = player.prevPosX + (player.posX - player.prevPosX) * partialTicks;
+			double iPY = player.prevPosY + (player.posY - player.prevPosY) * partialTicks;
+			double iPZ = player.prevPosZ + (player.posZ - player.prevPosZ) * partialTicks;
 			BufferBuilder buf = tessellator.getBuffer();
 			buf.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
-			Vector3 v1 = new Vector3((double) (-arX * scale - arYZ * scale), (double) (-arXZ * scale), (double) (-arZ * scale - arXY * scale));
-			Vector3 v2 = new Vector3((double) (-arX * scale + arYZ * scale), (double) (arXZ * scale), (double) (-arZ * scale + arXY * scale));
-			Vector3 v3 = new Vector3((double) (arX * scale + arYZ * scale), (double) (arXZ * scale), (double) (arZ * scale + arXY * scale));
-			Vector3 v4 = new Vector3((double) (arX * scale - arYZ * scale), (double) (-arXZ * scale), (double) (arZ * scale - arXY * scale));
+			Vector3 v1 = new Vector3(-arX * scale - arYZ * scale, -arXZ * scale, -arZ * scale - arXY * scale);
+			Vector3 v2 = new Vector3(-arX * scale + arYZ * scale, arXZ * scale, -arZ * scale + arXY * scale);
+			Vector3 v3 = new Vector3(arX * scale + arYZ * scale, arXZ * scale, arZ * scale + arXY * scale);
+			Vector3 v4 = new Vector3(arX * scale - arYZ * scale, -arXZ * scale, arZ * scale - arXY * scale);
 			if(angle != 0.0F)
 			{
 				Vector3 f2 = new Vector3(iPX, iPY, iPZ);
 				Vector3 f3 = new Vector3(px, py, pz);
 				Vector3 f4 = f2.subtract(f3).normalize();
-				QuadHelper.setAxis(f4, (double) angle).rotate(v1);
-				QuadHelper.setAxis(f4, (double) angle).rotate(v2);
-				QuadHelper.setAxis(f4, (double) angle).rotate(v3);
-				QuadHelper.setAxis(f4, (double) angle).rotate(v4);
+				QuadHelper.setAxis(f4, angle).rotate(v1);
+				QuadHelper.setAxis(f4, angle).rotate(v2);
+				QuadHelper.setAxis(f4, angle).rotate(v3);
+				QuadHelper.setAxis(f4, angle).rotate(v4);
 			}
 			float f21 = (float) frame / (float) frames;
 			float f31 = (float) (frame + 1) / (float) frames;
 			float f41 = (float) strip / (float) frames;
-			float f5 = ((float) strip + 1.0F) / (float) frames;
-			buf.pos(px + v1.x, py + v1.y, pz + v1.z).tex((double) f31, (double) f5).color(ColorHelper.getRed(color), ColorHelper.getGreen(color), ColorHelper.getBlue(color), alpha).endVertex();
-			buf.pos(px + v2.x, py + v2.y, pz + v2.z).tex((double) f31, (double) f41).color(ColorHelper.getRed(color), ColorHelper.getGreen(color), ColorHelper.getBlue(color), alpha).endVertex();
-			buf.pos(px + v3.x, py + v3.y, pz + v3.z).tex((double) f21, (double) f41).color(ColorHelper.getRed(color), ColorHelper.getGreen(color), ColorHelper.getBlue(color), alpha).endVertex();
-			buf.pos(px + v4.x, py + v4.y, pz + v4.z).tex((double) f21, (double) f5).color(ColorHelper.getRed(color), ColorHelper.getGreen(color), ColorHelper.getBlue(color), alpha).endVertex();
+			float f5 = (strip + 1.0F) / frames;
+			buf.pos(px + v1.x, py + v1.y, pz + v1.z).tex(f31, f5).color(ColorHelper.getRed(color), ColorHelper.getGreen(color), ColorHelper.getBlue(color), alpha).endVertex();
+			buf.pos(px + v2.x, py + v2.y, pz + v2.z).tex(f31, f41).color(ColorHelper.getRed(color), ColorHelper.getGreen(color), ColorHelper.getBlue(color), alpha).endVertex();
+			buf.pos(px + v3.x, py + v3.y, pz + v3.z).tex(f21, f41).color(ColorHelper.getRed(color), ColorHelper.getGreen(color), ColorHelper.getBlue(color), alpha).endVertex();
+			buf.pos(px + v4.x, py + v4.y, pz + v4.z).tex(f21, f5).color(ColorHelper.getRed(color), ColorHelper.getGreen(color), ColorHelper.getBlue(color), alpha).endVertex();
 			tessellator.draw();
 		}
 	}

@@ -106,7 +106,7 @@ public class RenderGui
 				
 				GL11.glColor4d(1, 1, 1, 1);
 				
-				float f = 1F - net.minecraft.util.math.MathHelper.abs(net.minecraft.util.math.MathHelper.sin((float) ((Minecraft.getSystemTime() + 47647L) % 10000L) / 10000.0F * ((float) Math.PI * 2F)) * 0.1F);
+				float f = 1F - net.minecraft.util.math.MathHelper.abs(net.minecraft.util.math.MathHelper.sin((Minecraft.getSystemTime() + 47647L) % 10000L / 10000.0F * ((float) Math.PI * 2F)) * 0.1F);
 				
 				GL11.glPushMatrix();
 				GL11.glTranslated(14 - (f * 8) + 8, modListHoverTip - 3 - (f * 8) + 8, 0);

@@ -278,7 +278,7 @@ public class TrueTypeFont
 		
 		i = startIndex;
 		
-		GL11.glBindTexture((int) 3553, (int) this.fontTextureID);
+		GL11.glBindTexture(3553, this.fontTextureID);
 		Tessellator t = Tessellator.getInstance();
 		t.getBuffer().begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR);
 		while(i >= startIndex && i <= endIndex)

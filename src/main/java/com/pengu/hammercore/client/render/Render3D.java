@@ -174,9 +174,9 @@ public class Render3D
 		GlStateManager.disableTexture2D();
 		GlStateManager.depthMask(false);
 		
-		double d0 = player.lastTickPosX + (player.posX - player.lastTickPosX) * (double) partialTicks;
-		double d1 = player.lastTickPosY + (player.posY - player.lastTickPosY) * (double) partialTicks;
-		double d2 = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * (double) partialTicks;
+		double d0 = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks;
+		double d1 = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks;
+		double d2 = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks;
 		RenderGlobal.renderFilledBox(aabb.offset(-d0, -d1, -d2), ColorHelper.getRed(argb), ColorHelper.getGreen(argb), ColorHelper.getBlue(argb), ColorHelper.getAlpha(argb));
 		
 		GlStateManager.depthMask(true);
@@ -196,9 +196,9 @@ public class Render3D
 		GlStateManager.disableTexture2D();
 		GlStateManager.depthMask(false);
 		
-		double d0 = player.lastTickPosX + (player.posX - player.lastTickPosX) * (double) partialTicks;
-		double d1 = player.lastTickPosY + (player.posY - player.lastTickPosY) * (double) partialTicks;
-		double d2 = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * (double) partialTicks;
+		double d0 = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks;
+		double d1 = player.lastTickPosY + (player.posY - player.lastTickPosY) * partialTicks;
+		double d2 = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * partialTicks;
 		RenderGlobal.renderFilledBox(aabb.offset(-d0, -d1, -d2), ColorHelper.getRed(argb), ColorHelper.getGreen(argb), ColorHelper.getBlue(argb), ColorHelper.getAlpha(argb));
 		
 		GlStateManager.depthMask(true);
@@ -287,7 +287,7 @@ public class Render3D
 								int j1 = updateCounter - l.getUpdatedCounter();
 								if(j1 < 200 || c.getChatOpen())
 								{
-									double d0 = (double) j1 / 200.0D;
+									double d0 = j1 / 200.0D;
 									d0 = 1.0D - d0;
 									d0 = d0 * 10.0D;
 									d0 = MathHelper.clamp(d0, 0, 1);
@@ -297,7 +297,7 @@ public class Render3D
 									if(c.getChatOpen())
 										l1 = 255;
 									
-									l1 = (int) ((float) l1 * f);
+									l1 = (int) (l1 * f);
 									if((20 * l1) / 255 > 3)
 									{
 										GlStateManager.enableAlpha();

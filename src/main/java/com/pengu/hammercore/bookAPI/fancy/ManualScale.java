@@ -12,7 +12,7 @@ public class ManualScale
 		
 		float curr = target;
 		if(System.currentTimeMillis() - start < maxTransition)
-			curr = prev + (target - prev) * ((System.currentTimeMillis() - start) % maxTransition) / (float) maxTransition;
+			curr = prev + (target - prev) * ((System.currentTimeMillis() - start) % maxTransition) / maxTransition;
 		
 		return curr;
 	}

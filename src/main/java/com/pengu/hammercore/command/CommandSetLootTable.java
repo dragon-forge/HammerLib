@@ -45,8 +45,7 @@ public class CommandSetLootTable extends CommandBase
 			sender.sendMessage(new TextComponentString(TextFormatting.GREEN + "Loot table applied!"));
 			loot.clear();
 			loot.setLootTable(table, 0);
-		}
-		else
+		} else
 			sender.sendMessage(new TextComponentString(TextFormatting.RED + "Tile Entity at " + x + "," + y + "," + z + " is not a lootable tile!"));
 	}
 	

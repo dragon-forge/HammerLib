@@ -134,6 +134,7 @@ public class GuiShareToLanImproved extends GuiShareToLan
 		fontRenderer.drawString("Max. Players:", width / 2 - 155, 170, 16777215, false);
 	}
 	
+	@Override
 	protected void keyTyped(char par1, int par2) throws IOException
 	{
 		if(txtPort.isFocused())
@@ -162,7 +163,7 @@ public class GuiShareToLanImproved extends GuiShareToLan
 			LanUtil.maxPlayers = maxPlayers;
 		}
 		
-		GuiButton b = ((GuiButton) buttonList.get(0));
+		GuiButton b = (buttonList.get(0));
 		b.enabled = (LanUtil.port >= 1000 && LanUtil.port <= 65535 || LanUtil.port == 0) && LanUtil.maxPlayers > 0;
 	}
 }

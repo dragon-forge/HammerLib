@@ -33,6 +33,7 @@ public class HammerCoreUtils
 	{
 		return new CreativeTabs(name)
 		{
+			@Override
 			public ItemStack getIconItemStack()
 			{
 				NonNullList<ItemStack> items = NonNullList.create();

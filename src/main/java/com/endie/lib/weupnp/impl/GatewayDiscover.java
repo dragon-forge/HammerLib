@@ -235,6 +235,7 @@ public class GatewayDiscover
 			this.searchMessage = searchMessage;
 		}
 		
+		@Override
 		public void run()
 		{
 			DatagramSocket ssdp = null;

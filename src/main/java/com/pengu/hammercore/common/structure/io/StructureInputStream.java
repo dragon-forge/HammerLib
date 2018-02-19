@@ -42,7 +42,7 @@ public class StructureInputStream implements Closeable, AutoCloseable
 		in.read(buf);
 		return new String(buf);
 	}
-
+	
 	@Override
 	public void close() throws IOException
 	{

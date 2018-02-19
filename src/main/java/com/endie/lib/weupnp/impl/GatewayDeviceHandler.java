@@ -16,6 +16,7 @@ public class GatewayDeviceHandler extends DefaultHandler
 		this.device = device;
 	}
 	
+	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException
 	{
 		this.currentElement = localName;
@@ -27,6 +28,7 @@ public class GatewayDeviceHandler extends DefaultHandler
 		
 	}
 	
+	@Override
 	public void endElement(String uri, String localName, String qName) throws SAXException
 	{
 		this.currentElement = "";
@@ -46,6 +48,7 @@ public class GatewayDeviceHandler extends DefaultHandler
 		
 	}
 	
+	@Override
 	public void characters(char[] ch, int start, int length) throws SAXException
 	{
 		if(this.currentElement.compareTo("URLBase") == 0)

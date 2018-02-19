@@ -32,7 +32,7 @@ public class ItemInsertionUtil
 		{
 			for(EnumFacing f : EnumFacing.VALUES)
 			{
-				IItemHandler handler = (IItemHandler) tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, f);
+				IItemHandler handler = tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, f);
 				
 				for(int i = 0; i < exportFrom.getSizeInventory(); ++i)
 				{

@@ -30,6 +30,7 @@ public class GuiBrewingStandSmooth extends GuiBrewingStand
 		this.bs = bs;
 	}
 	
+	@Override
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY)
 	{
 		GlStateManager.color(1F, 1F, 1F, 1F);
@@ -90,7 +91,7 @@ public class GuiBrewingStandSmooth extends GuiBrewingStand
 		
 		if(i1 > 0)
 		{
-			double j1 = (28.0F * (1.0F - (float) i1 / 400.0F));
+			double j1 = (28.0F * (1.0F - i1 / 400.0F));
 			if(j1 > 0)
 			{
 				rgb = GuiTheme.CURRENT_THEME.bodyLayerLU;

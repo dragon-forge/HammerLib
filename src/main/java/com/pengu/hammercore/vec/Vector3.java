@@ -79,6 +79,7 @@ public class Vector3 implements Copyable<Vector3>
 		z = entity.posZ;
 	}
 	
+	@Override
 	public Vector3 copy()
 	{
 		return new Vector3(this);
@@ -279,6 +280,7 @@ public class Vector3 implements Copyable<Vector3>
 		return this;
 	}
 	
+	@Override
 	public String toString()
 	{
 		MathContext cont = new MathContext(4, RoundingMode.HALF_UP);

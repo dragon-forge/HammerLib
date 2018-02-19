@@ -3,15 +3,12 @@ package com.pengu.hammercore.world.data;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.pengu.hammercore.HammerCore;
 import com.pengu.hammercore.annotations.MCFBus;
 import com.pengu.hammercore.utils.NPEUtils;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.event.world.ChunkDataEvent;
-import net.minecraftforge.event.world.ChunkEvent;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @MCFBus

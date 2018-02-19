@@ -26,13 +26,13 @@ public class DynamicObject<OBJ>
 		if(Short.class.isAssignableFrom(type))
 			this.obj = (OBJ) Short.valueOf((short) 0);
 		if(Integer.class.isAssignableFrom(type))
-			this.obj = (OBJ) Integer.valueOf((int) 0);
+			this.obj = (OBJ) Integer.valueOf(0);
 		if(Long.class.isAssignableFrom(type))
-			this.obj = (OBJ) Long.valueOf((long) 0);
+			this.obj = (OBJ) Long.valueOf(0);
 		if(Float.class.isAssignableFrom(type))
-			this.obj = (OBJ) Float.valueOf((float) 0);
+			this.obj = (OBJ) Float.valueOf(0);
 		if(Double.class.isAssignableFrom(type))
-			this.obj = (OBJ) Double.valueOf((double) 0);
+			this.obj = (OBJ) Double.valueOf(0);
 		if(Boolean.class.isAssignableFrom(type))
 			this.obj = (OBJ) Boolean.valueOf(false);
 	}

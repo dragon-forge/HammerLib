@@ -1,5 +1,6 @@
 package com.pengu.hammercore.asm;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.ListIterator;
@@ -9,6 +10,7 @@ import java.util.function.Predicate;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.LdcInsnNode;
@@ -244,6 +246,32 @@ public class HammerCoreTransformer implements IClassTransformer
 				}
 			}
 		}, "Patching XVLib (TooltipApi)", cv("xmrvizzy.xvlib.api.TooltipApi"));
+		
+		hook((node, obf) ->
+		{
+			for(int i = 0; i < node.methods.size(); ++i)
+			{
+				MethodNode mn = node.methods.get(i);
+				/* Prevent duplicate */
+				if(mn.name.equalsIgnoreCase("renderMainMenu"))
+				{
+					InsnList list = mn.instructions;
+					AbstractInsnNode n = list.get(list.size() - 2);
+					
+					//Handle custom splash text
+					list.insertBefore(n, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/pengu/hammercore/client/witty/SplashTextHelper", "handle", "(Ljava/lang/String;)Ljava/lang/String;", false));
+					
+//					for(int j = 0; j < list.size(); ++j)
+//					{
+//						String a = "";
+//						AbstractInsnNode n = list.get(j);
+//						if(n instanceof FieldInsnNode)
+//							a = ((FieldInsnNode) n).name + " " + n.getOpcode();
+//						asm.info(j + " - " + n + " |" + opcodeName(n.getOpcode()) + "| " + a);
+//					}
+				}
+			}
+		}, "Patching ForgeHooksClient", cv("net.minecraftforge.client.ForgeHooksClient"));
 	}
 	
 	@Override
@@ -289,6 +317,22 @@ public class HammerCoreTransformer implements IClassTransformer
 		// }
 		
 		return asm.transform(name, transformedName, basicClass);
+	}
+	
+	private static String opcodeName(int ops)
+	{
+		Field[] f = Opcodes.class.getDeclaredFields();
+		
+		for(Field g : f)
+			try
+			{
+				if(g.getInt(null) == ops)
+					return g.getName();
+			} catch(Throwable err)
+			{
+			}
+		
+		return "?";
 	}
 	
 	public static Predicate<String> cv(String c)
@@ -353,6 +397,7 @@ public class HammerCoreTransformer implements IClassTransformer
 			this.obfDesc = MethodSignature.obfuscate(funcDesc);
 		}
 		
+		@Override
 		public String toString()
 		{
 			return "Names [" + this.funcName + ", " + this.srgName + ", " + this.obfName + "] Descriptor " + this.funcDesc + " / " + this.obfDesc;

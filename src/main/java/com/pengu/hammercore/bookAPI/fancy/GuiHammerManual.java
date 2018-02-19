@@ -65,8 +65,8 @@ public class GuiHammerManual extends GuiScreen
 	{
 		short var2 = 141;
 		short var3 = 141;
-		this.field_74117_m = this.guiMapX = this.field_74124_q = (double) (lastX * 24 - var2 / 2 - 12);
-		this.field_74115_n = this.guiMapY = this.field_74123_r = (double) (lastY * 24 - var3 / 2);
+		this.field_74117_m = this.guiMapX = this.field_74124_q = lastX * 24 - var2 / 2 - 12;
+		this.field_74115_n = this.guiMapY = this.field_74123_r = lastY * 24 - var3 / 2;
 		this.player = Minecraft.getMinecraft().player.getName();
 		this.updateManual();
 		this.galFontRenderer = Minecraft.getMinecraft().standardGalacticFontRenderer;
@@ -113,8 +113,8 @@ public class GuiHammerManual extends GuiScreen
 	{
 		short var2 = 141;
 		short var3 = 141;
-		lastX = (int) ((this.guiMapX + (double) (var2 / 2D) + 12.0D) / 24.0D);
-		lastY = (int) ((this.guiMapY + (double) (var3 / 2D)) / 24.0D);
+		lastX = (int) ((this.guiMapX + var2 / 2D + 12.0D) / 24.0D);
+		lastY = (int) ((this.guiMapY + var3 / 2D) / 24.0D);
 		super.onGuiClosed();
 	}
 	
@@ -140,6 +140,7 @@ public class GuiHammerManual extends GuiScreen
 		}
 	}
 	
+	@Override
 	public void updateScreen()
 	{
 		this.field_74117_m = this.guiMapX;
@@ -165,8 +166,8 @@ public class GuiHammerManual extends GuiScreen
 		int rgb = GuiTheme.CURRENT_THEME.bodyColor;
 		
 		long t = System.nanoTime() / 50000000L;
-		int var4 = MathHelper.floor(this.field_74117_m + (this.guiMapX - this.field_74117_m) * (double) par3);
-		int var5 = MathHelper.floor(this.field_74115_n + (this.guiMapY - this.field_74115_n) * (double) par3);
+		int var4 = MathHelper.floor(this.field_74117_m + (this.guiMapX - this.field_74117_m) * par3);
+		int var5 = MathHelper.floor(this.field_74115_n + (this.guiMapY - this.field_74115_n) * par3);
 		if(var4 < guiMapTop)
 			var4 = guiMapTop;
 		
@@ -213,7 +214,7 @@ public class GuiHammerManual extends GuiScreen
 		
 		for(int var22 = 0; var22 < entries.size(); ++var22)
 		{
-			ManualEntry entry = (ManualEntry) entries.get(var22);
+			ManualEntry entry = entries.get(var22);
 			int var25;
 			ManualEntry parent;
 			if(entry.parents != null && entry.parents.length > 0)
@@ -228,7 +229,7 @@ public class GuiHammerManual extends GuiScreen
 						var25 = entry.displayRow * sz - var5 + sz / 2 + var11;
 						var26 = parent.displayColumn * sz - var4 + sz / 2 + var10;
 						var27 = parent.displayRow * sz - var5 + sz / 2 + var11;
-						boolean var30 = Math.sin((double) (Minecraft.getSystemTime() % 600L) / 600.0D * 3.141592653589793D * 2.0D) > 0.6D ? true : true;
+						boolean var30 = Math.sin(Minecraft.getSystemTime() % 600L / 600.0D * 3.141592653589793D * 2.0D) > 0.6D ? true : true;
 						
 						int altcol = entry.getColor();
 						drawLine(var24, var25, var26, var27, 0.1F, 0.1F, 0.1F, ColorHelper.getRed(altcol), ColorHelper.getGreen(altcol), ColorHelper.getBlue(altcol), par3, false, 3);
@@ -267,7 +268,7 @@ public class GuiHammerManual extends GuiScreen
 		
 		for(var24 = 0; var24 < this.entries.size(); ++var24)
 		{
-			ManualEntry var45 = (ManualEntry) this.entries.get(var24);
+			ManualEntry var45 = this.entries.get(var24);
 			var26 = var45.displayColumn * sz - var4;
 			var27 = var45.displayRow * sz - var5;
 			
@@ -322,7 +323,7 @@ public class GuiHammerManual extends GuiScreen
 					GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 					this.mc.renderEngine.bindTexture(com.pengu.hammercore.client.utils.UtilsFX.getMCParticleTexture());
 					int var48 = (int) (t % 16L) * 16;
-					GL11.glTranslatef((float) (var42 - 5), (float) (var44 - 5), 0.0F);
+					GL11.glTranslatef(var42 - 5, var44 - 5, 0.0F);
 					RenderUtil.drawTexturedModalRect(0, 0, var48, 80, 16, 16, 0.0D);
 					GL11.glDisable(3042);
 					GL11.glPopMatrix();
@@ -364,7 +365,7 @@ public class GuiHammerManual extends GuiScreen
 					mc.renderEngine.bindTexture(var45.icon_resource);
 					if(!renderWithColor)
 						GL11.glColor4f(0.2F, 0.2F, 0.2F, 1.0F);
-					UtilsFX.drawTexturedQuadFull(0, 0, (double) this.zLevel);
+					UtilsFX.drawTexturedQuadFull(0, 0, this.zLevel);
 					GL11.glPopMatrix();
 				}
 				
@@ -468,12 +469,12 @@ public class GuiHammerManual extends GuiScreen
 			int var52 = 0;
 			FontRenderer var53 = this.fontRenderer;
 			
-			var42 = (int) Math.max((float) var53.getStringWidth(var51), (float) var53.getStringWidth(this.currentHighlight.getText()) / 1.9F);
+			var42 = (int) Math.max(var53.getStringWidth(var51), var53.getStringWidth(this.currentHighlight.getText()) / 1.9F);
 			var44 = var53.getWordWrappedHeight(var51, var42) + 5;
 			
 			this.drawGradientRect(var26 - 3, var27 - 3, var26 + var42 + 3, var27 + var44 + 6 + var52, -1073741824, -1073741824);
 			GL11.glPushMatrix();
-			GL11.glTranslatef((float) var26, (float) (var27 + var44 - 1), 0.0F);
+			GL11.glTranslatef(var26, var27 + var44 - 1, 0.0F);
 			GL11.glScalef(0.5F, 0.5F, 0.5F);
 			this.fontRenderer.drawStringWithShadow(this.currentHighlight.getText(), 0, 0, -7302913);
 			GL11.glPopMatrix();
@@ -492,6 +493,7 @@ public class GuiHammerManual extends GuiScreen
 		return false;
 	}
 	
+	@Override
 	protected void mouseClicked(int par1, int par2, int par3) throws IOException
 	{
 		this.popuptime = System.currentTimeMillis() - 1L;
@@ -547,10 +549,10 @@ public class GuiHammerManual extends GuiScreen
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder b = tessellator.getBuffer();
 		b.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-		b.pos((double) (par1 + 0), (double) (par2 + par6), (double) this.zLevel).tex((double) ((float) (par3 + 0) * f), (double) ((float) (par4 + par6) * f1)).endVertex();
-		b.pos((double) (par1 + par5), (double) (par2 + par6), (double) this.zLevel).tex((double) ((float) (par3 - par5) * f), (double) ((float) (par4 + par6) * f1)).endVertex();
-		b.pos((double) (par1 + par5), (double) (par2 + 0), (double) this.zLevel).tex((double) ((float) (par3 - par5) * f), (double) ((float) (par4 + 0) * f1)).endVertex();
-		b.pos((double) (par1 + 0), (double) (par2 + 0), (double) this.zLevel).tex((double) ((float) (par3 + 0) * f), (double) ((float) (par4 + 0) * f1)).endVertex();
+		b.pos(par1 + 0, par2 + par6, this.zLevel).tex((par3 + 0) * f, (par4 + par6) * f1).endVertex();
+		b.pos(par1 + par5, par2 + par6, this.zLevel).tex((par3 - par5) * f, (par4 + par6) * f1).endVertex();
+		b.pos(par1 + par5, par2 + 0, this.zLevel).tex((par3 - par5) * f, (par4 + 0) * f1).endVertex();
+		b.pos(par1 + 0, par2 + 0, this.zLevel).tex((par3 + 0) * f, (par4 + 0) * f1).endVertex();
 		tessellator.draw();
 	}
 	
@@ -561,7 +563,7 @@ public class GuiHammerManual extends GuiScreen
 	
 	private void drawLine(int x, int y, int x2, int y2, float r, float g, float b, float rLn, float gLn, float bLn, float te, boolean wiggle, int maxAlts)
 	{
-		float count = (float) Minecraft.getMinecraft().player.ticksExisted + te;
+		float count = Minecraft.getMinecraft().player.ticksExisted + te;
 		double milli = System.currentTimeMillis() + te * 50L;
 		Tessellator var12 = Tessellator.getInstance();
 		GL11.glPushMatrix();
@@ -569,12 +571,12 @@ public class GuiHammerManual extends GuiScreen
 		GL11.glDisable(3553);
 		GL11.glEnable(3042);
 		GL11.glBlendFunc(770, 771);
-		double d3 = (double) (x - x2);
-		double d4 = (double) (y - y2);
+		double d3 = x - x2;
+		double d4 = y - y2;
 		float dist = MathHelper.sqrt(d3 * d3 + d4 * d4);
 		int inc = (int) (dist / 2F);
-		float dx = (float) (d3 / (double) inc);
-		float dy = (float) (d4 / (double) inc);
+		float dx = (float) (d3 / inc);
+		float dy = (float) (d4 / inc);
 		
 		if(Math.abs(d3) > Math.abs(d4))
 			dx *= 2.0F;
@@ -609,16 +611,16 @@ public class GuiHammerManual extends GuiScreen
 			if(wiggle)
 			{
 				float phase = (float) a / (float) inc;
-				mx = MathHelper.sin((count + (float) a) / 7.0F) * 5.0F * scale * (1.0F - phase);
-				my = MathHelper.sin((count + (float) a) / 5.0F) * 5.0F * scale * (1.0F - phase);
+				mx = MathHelper.sin((count + a) / 7.0F) * 5.0F * scale * (1.0F - phase);
+				my = MathHelper.sin((count + a) / 5.0F) * 5.0F * scale * (1.0F - phase);
 				r2 = r * (1.0F - phase);
 				g2 = g * (1.0F - phase);
 				b2 = b * (1.0F - phase);
 				op *= phase;
 			}
 			
-			float x0 = (float) x - dx * (float) a + mx;
-			float y0 = (float) y - dy * (float) a + my;
+			float x0 = x - dx * a + mx;
+			float y0 = y - dy * a + my;
 			
 			float r3 = alt ? rLn : r2;
 			float g3 = alt ? gLn : g2;
@@ -627,9 +629,9 @@ public class GuiHammerManual extends GuiScreen
 			bb.pos(x0, y0, 0.0D).color(r3, g3, b3, op).endVertex();
 			
 			if(Math.abs(d3) > Math.abs(d4))
-				dx *= 1.0F - 1.0F / ((float) inc * 3.0F / 2.0F);
+				dx *= 1.0F - 1.0F / (inc * 3.0F / 2.0F);
 			else
-				dy *= 1.0F - 1.0F / ((float) inc * 3.0F / 2.0F);
+				dy *= 1.0F - 1.0F / (inc * 3.0F / 2.0F);
 		}
 		
 		var12.draw();
@@ -668,13 +670,13 @@ public class GuiHammerManual extends GuiScreen
 				this.mouseX = mx;
 				this.mouseY = my;
 			}
-			if(this.field_74124_q < (double) guiMapTop)
+			if(this.field_74124_q < guiMapTop)
 				this.field_74124_q = guiMapTop;
-			if(this.field_74123_r < (double) guiMapLeft)
+			if(this.field_74123_r < guiMapLeft)
 				this.field_74123_r = guiMapLeft;
-			if(this.field_74124_q > (double) guiMapBottom)
+			if(this.field_74124_q > guiMapBottom)
 				this.field_74124_q = guiMapBottom;
-			if(this.field_74123_r > (double) guiMapRight)
+			if(this.field_74123_r > guiMapRight)
 				this.field_74123_r = guiMapRight;
 		} else
 			this.isMouseButtonDown = 0;
