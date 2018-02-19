@@ -95,3 +95,12 @@ recipe.clickthrough=Click to View Recipe
 recipe.return=Back
 
 ##########
+
+##SPLASH TEXTS##
+
+hc.splash.mod=Also try mod %s!
+
+hc.splash.1=Now with mods!
+hc.splash.2=A certain penguin comes to mind...
+
+################

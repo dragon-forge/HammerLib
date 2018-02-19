@@ -6,6 +6,7 @@ import java.util.List;
 import com.pengu.hammercore.annotations.MCFBus;
 
 import net.minecraft.client.gui.GuiMainMenu;
+import net.minecraft.client.resources.I18n;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Loader;
@@ -39,25 +40,26 @@ public class SplashTextHelper
 	@SubscribeEvent
 	public void addSplashes(WittyCommentChooseEvent e)
 	{
-		if(!e.isCustomWittyComment() && e.rand.nextFloat() < .2F)
+		if(!e.isCustomWittyComment() && e.rand.nextFloat() < .05F)
 		{
 			List<String> sp = new ArrayList<>();
 			
-			sp.add("Now with mods!");
-			sp.add(":thonking:");
+			int t = 1;
+			while(true)
+			{
+				String raw = "hc.splash." + t;
+				String f = I18n.format(raw);
+				
+				if(raw.equals(f))
+					break;
+				else
+					sp.add(f);
+			}
 			
-			if(!Loader.isModLoaded("botania"))
-				sp.add("Also try mod Botania!");
-			
-			if(!Loader.isModLoaded("jei"))
-				sp.add("Also try mod Just Enough Items!");
-			
-			if(!Loader.isModLoaded("waila"))
-				sp.add("Also try mod WAILA!");
-			
-			if(!Loader.isModLoaded("solarfluxreborn"))
-				sp.add("Also try mod Solar Flux Reborn!");
-			
+			for(String modid : SplashModPool.modIds())
+				if(!Loader.isModLoaded(modid))
+					sp.add(I18n.format("hc.splash.mod", SplashModPool.getName(modid)));
+				
 			e.setWittyComment(iWittyComment.ofStatic(sp.get(e.rand.nextInt(sp.size()))));
 		}
 	}
