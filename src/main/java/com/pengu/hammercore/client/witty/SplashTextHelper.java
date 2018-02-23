@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.pengu.hammercore.annotations.MCFBus;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.resources.I18n;
 import net.minecraftforge.client.event.GuiOpenEvent;
@@ -58,11 +59,22 @@ public class SplashTextHelper
 				++t;
 			}
 			
+			if(Loader.isModLoaded("lostthaumaturgy") || Loader.isModLoaded("thaumcraft"))
+			{
+				sp.add(I18n.format("hc.splash.lt.1"));
+			}
+			
 			for(String modid : SplashModPool.modIds())
 				if(!Loader.isModLoaded(modid))
 					sp.add(I18n.format("hc.splash.mod", SplashModPool.getName(modid)));
 				
-			e.setWittyComment(iWittyComment.ofStatic(sp.get(e.rand.nextInt(sp.size()))));
+			e.setWittyComment(iWittyComment.ofStatic(replaceVars(sp.get(e.rand.nextInt(sp.size())))));
 		}
+	}
+	
+	private String replaceVars(String str)
+	{
+		str = str.replaceAll("%player%", Minecraft.getMinecraft().getSession().getUsername());
+		return str;
 	}
 }

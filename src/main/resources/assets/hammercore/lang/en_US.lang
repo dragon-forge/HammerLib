@@ -100,7 +100,10 @@ recipe.return=Back
 
 hc.splash.mod=Also try mod %s!
 
+hc.splash.lt.1=%player% you spilled taint all over the floor!
+
 hc.splash.1=Now with mods!
 hc.splash.2=A certain penguin comes to mind...
+hc.splash.3="It's been a long time. How have you been?"
 
 ################
