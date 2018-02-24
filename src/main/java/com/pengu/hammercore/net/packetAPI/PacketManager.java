@@ -11,7 +11,6 @@ import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
 
-@Deprecated
 public class PacketManager implements iPacketManager
 {
 	private static final Map<String, PacketManager> managers = new HashMap<String, PacketManager>();

@@ -8,8 +8,11 @@ import com.pengu.hammercore.client.OpnodeLoader;
 import com.pengu.hammercore.client.particle.api.ParticleList;
 import com.pengu.hammercore.client.particle.def.ParticleSlowZap;
 import com.pengu.hammercore.client.particle.def.ParticleZap;
+import com.pengu.hammercore.client.particle.def.thunder.ThunderHelper;
 import com.pengu.hammercore.client.particle.old.iOldParticle;
 import com.pengu.hammercore.client.render.Render3D;
+import com.pengu.hammercore.net.pkt.thunder.Thunder;
+import com.pengu.hammercore.net.pkt.thunder.Thunder.Layer;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -80,6 +83,15 @@ public class ParticleProxy_Client extends ParticleProxy_Common
 			zap.spawn();
 		}
 		return zap;
+	}
+	
+	@Override
+	public void spawnSimpleThunder(World world, Vec3d start, Vec3d end, long seed, int age, float fractMod, Layer core, Layer aura)
+	{
+		if(world.isRemote)
+			ThunderHelper.thunder(world, start, end, new Thunder(seed, age, fractMod), core, aura, Thunder.Fractal.DEFAULT_FRACTAL);
+		else
+			super.spawnSimpleThunder(world, start, end, seed, age, fractMod, core, aura);
 	}
 	
 	@Override

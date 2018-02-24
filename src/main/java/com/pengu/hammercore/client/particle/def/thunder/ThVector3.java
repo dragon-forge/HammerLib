@@ -1,35 +1,35 @@
-package com.pengu.hammercore.client.particle.def.lightbolt;
+package com.pengu.hammercore.client.particle.def.thunder;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
-public class LBVector3
+public class ThVector3
 {
 	public float x;
 	public float y;
 	public float z;
 	
-	public LBVector3(final double x, final double y, final double z)
+	public ThVector3(final double x, final double y, final double z)
 	{
 		this.x = (float) x;
 		this.y = (float) y;
 		this.z = (float) z;
 	}
 	
-	public LBVector3(BlockPos pos)
+	public ThVector3(BlockPos pos)
 	{
 		this.x = pos.getX() + 0.5f;
 		this.y = pos.getY() + 0.5f;
 		this.z = pos.getZ() + 0.5f;
 	}
 	
-	public LBVector3(Entity entity)
+	public ThVector3(Entity entity)
 	{
 		this(entity.posX, entity.posY, entity.posZ);
 	}
 	
-	public LBVector3 add(final LBVector3 vec)
+	public ThVector3 add(final ThVector3 vec)
 	{
 		this.x += vec.x;
 		this.y += vec.y;
@@ -37,7 +37,7 @@ public class LBVector3
 		return this;
 	}
 	
-	public LBVector3 sub(final LBVector3 vec)
+	public ThVector3 sub(final ThVector3 vec)
 	{
 		this.x -= vec.x;
 		this.y -= vec.y;
@@ -45,7 +45,7 @@ public class LBVector3
 		return this;
 	}
 	
-	public LBVector3 scale(final float scale)
+	public ThVector3 scale(final float scale)
 	{
 		this.x *= scale;
 		this.y *= scale;
@@ -53,7 +53,7 @@ public class LBVector3
 		return this;
 	}
 	
-	public LBVector3 scale(final float scalex, final float scaley, final float scalez)
+	public ThVector3 scale(final float scalex, final float scaley, final float scalez)
 	{
 		this.x *= scalex;
 		this.y *= scaley;
@@ -61,7 +61,7 @@ public class LBVector3
 		return this;
 	}
 	
-	public LBVector3 normalize()
+	public ThVector3 normalize()
 	{
 		final float length = this.length();
 		this.x /= length;
@@ -80,44 +80,44 @@ public class LBVector3
 		return this.x * this.x + this.y * this.y + this.z * this.z;
 	}
 	
-	public LBVector3 copy()
+	public ThVector3 copy()
 	{
-		return new LBVector3(this.x, this.y, this.z);
+		return new ThVector3(this.x, this.y, this.z);
 	}
 	
-	public static LBVector3 crossProduct(final LBVector3 vec1, final LBVector3 vec2)
+	public static ThVector3 crossProduct(final ThVector3 vec1, final ThVector3 vec2)
 	{
-		return new LBVector3(vec1.y * vec2.z - vec1.z * vec2.y, vec1.z * vec2.x - vec1.x * vec2.z, vec1.x * vec2.y - vec1.y * vec2.x);
+		return new ThVector3(vec1.y * vec2.z - vec1.z * vec2.y, vec1.z * vec2.x - vec1.x * vec2.z, vec1.x * vec2.y - vec1.y * vec2.x);
 	}
 	
-	public static LBVector3 xCrossProduct(final LBVector3 vec)
+	public static ThVector3 xCrossProduct(final ThVector3 vec)
 	{
-		return new LBVector3(0.0, vec.z, -vec.y);
+		return new ThVector3(0.0, vec.z, -vec.y);
 	}
 	
-	public static LBVector3 zCrossProduct(final LBVector3 vec)
+	public static ThVector3 zCrossProduct(final ThVector3 vec)
 	{
-		return new LBVector3(-vec.y, vec.x, 0.0);
+		return new ThVector3(-vec.y, vec.x, 0.0);
 	}
 	
-	public static float dotProduct(final LBVector3 vec1, final LBVector3 vec2)
+	public static float dotProduct(final ThVector3 vec1, final ThVector3 vec2)
 	{
 		return vec1.x * vec2.x + vec1.y * vec2.y + vec1.z * vec2.z;
 	}
 	
-	public static float angle(final LBVector3 vec1, final LBVector3 vec2)
+	public static float angle(final ThVector3 vec1, final ThVector3 vec2)
 	{
 		return anglePreNorm(vec1.copy().normalize(), vec2.copy().normalize());
 	}
 	
-	public static float anglePreNorm(final LBVector3 vec1, final LBVector3 vec2)
+	public static float anglePreNorm(final ThVector3 vec1, final ThVector3 vec2)
 	{
 		return (float) Math.acos(dotProduct(vec1, vec2));
 	}
 	
-	public LBVector3 rotate(final float angle, final LBVector3 axis)
+	public ThVector3 rotate(final float angle, final ThVector3 axis)
 	{
-		return LBMat4.rotationMat(angle, axis).translate(this);
+		return ThMat4.rotationMat(angle, axis).translate(this);
 	}
 	
 	@Override
@@ -131,7 +131,7 @@ public class LBVector3
 		return new Vec3d(x, y, z);
 	}
 	
-	public static LBVector3 getPerpendicular(final LBVector3 vec)
+	public static ThVector3 getPerpendicular(final ThVector3 vec)
 	{
 		if(vec.z == 0.0f)
 			return zCrossProduct(vec);

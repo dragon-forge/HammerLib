@@ -1,15 +1,15 @@
-package com.pengu.hammercore.client.particle.def.lightbolt;
+package com.pengu.hammercore.client.particle.def.thunder;
 
-public class LBMat4
+public class ThMat4
 {
 	float[] mat;
 	
-	public LBMat4()
+	public ThMat4()
 	{
 		this.loadIdentity();
 	}
 	
-	public LBMat4 loadIdentity()
+	public ThMat4 loadIdentity()
 	{
 		this.mat = new float[16];
 		final float[] mat = this.mat;
@@ -26,7 +26,7 @@ public class LBMat4
 		return this;
 	}
 	
-	public LBVector3 translate(final LBVector3 vec)
+	public ThVector3 translate(final ThVector3 vec)
 	{
 		final float x = vec.x * this.mat[0] + vec.y * this.mat[1] + vec.z * this.mat[2] + this.mat[3];
 		final float y = vec.x * this.mat[4] + vec.y * this.mat[5] + vec.z * this.mat[6] + this.mat[7];
@@ -37,7 +37,7 @@ public class LBMat4
 		return vec;
 	}
 	
-	public static LBMat4 rotationMat(double angle, LBVector3 axis)
+	public static ThMat4 rotationMat(double angle, ThVector3 axis)
 	{
 		axis = axis.copy().normalize();
 		final float x = axis.x;
@@ -47,7 +47,7 @@ public class LBMat4
 		final float cos = (float) Math.cos(angle);
 		final float ocos = 1.0f - cos;
 		final float sin = (float) Math.sin(angle);
-		final LBMat4 rotmat = new LBMat4();
+		final ThMat4 rotmat = new ThMat4();
 		rotmat.mat[0] = x * x * ocos + cos;
 		rotmat.mat[1] = y * x * ocos + z * sin;
 		rotmat.mat[2] = x * z * ocos - y * sin;

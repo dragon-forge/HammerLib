@@ -8,6 +8,7 @@ import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentString;
 
 public class CommandPosToLong extends CommandBase
@@ -27,14 +28,12 @@ public class CommandPosToLong extends CommandBase
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
 	{
+		BlockPos pos = parseBlockPos(sender, args, 0, true);
+		Vec3d e = sender.getPositionVector();
+		
 		if(args.length == 3)
-		{
-			int x = parseInt(args[0], -30_000_0000, 30_000_0000);
-			int y = parseInt(args[1], 0, 256);
-			int z = parseInt(args[2], -30_000_0000, 30_000_0000);
-			
-			sender.sendMessage(new TextComponentString("Position: " + new BlockPos(x, y, z).toLong()));
-		} else
+			sender.sendMessage(new TextComponentString("Position: " + pos.toLong()));
+		else
 			sender.sendMessage(new TextComponentString("Invalid length of " + args.length + ". Expected 3."));
 	}
 	

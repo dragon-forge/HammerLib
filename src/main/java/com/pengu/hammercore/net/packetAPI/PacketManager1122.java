@@ -15,6 +15,7 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.INetHandler;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.play.INetHandlerPlayServer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLEventChannel;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
@@ -216,6 +217,27 @@ public class PacketManager1122 implements iPacketManager
 		if(p != null)
 			e.setReply(wrap(p));
 	}
+	
+	/***************** FIX START *******************/
+	
+	@SubscribeEvent
+	public void networkEvent(FMLNetworkEvent.CustomNetworkEvent e)
+	{
+		System.out.println("Custom net event " + e);
+	}
+	
+	@SubscribeEvent
+	public void packetAccepted_Server(FMLNetworkEvent.CustomPacketEvent e)
+	{
+		System.out.println("Custom packet event " + e);
+		
+		iPacket p = unwrap(e.getPacket(), e.getHandler(), e.getHandler() instanceof INetHandlerPlayServer ? Side.SERVER : Side.CLIENT);
+		
+		if(p != null)
+			e.setReply(wrap(p));
+	}
+	
+	/***************** FIX END *******************/
 	
 	/**
 	 * Creates a forge MessageContext using reflections. I'm going to move to my

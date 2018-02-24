@@ -51,6 +51,7 @@ public class HCClientOptions implements Jsonable
 	public void load(JSONObject j)
 	{
 		setTheme(j.optString("Theme"), false);
+		authority = j.optString("Authority", "0");
 		data = j;
 	}
 	

@@ -44,7 +44,7 @@ public class CommandBuildStructure implements ICommand
 		if(args.length == 1)
 			startPos = sender.getPosition();
 		if(args.length == 4)
-			startPos = CommandBase.parseBlockPos(sender, args, 0, false);
+			startPos = CommandBase.parseBlockPos(sender, args, 1, false);
 		
 		if(!StructureAPI.GetAllStructures().contains(args[0]))
 		{

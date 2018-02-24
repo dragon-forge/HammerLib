@@ -1,5 +1,7 @@
 package com.pengu.hammercore.client.particle.api;
 
+import com.pengu.hammercore.proxy.ParticleProxy_Client;
+
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.entity.Entity;
@@ -15,6 +17,11 @@ public abstract class SimpleParticle extends Particle implements iRenderedPartic
 	public SimpleParticle(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn, double ySpeedIn, double zSpeedIn)
 	{
 		super(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn);
+	}
+	
+	public void spawn()
+	{
+		ParticleProxy_Client.queueParticleSpawn(this);
 	}
 	
 	@Override

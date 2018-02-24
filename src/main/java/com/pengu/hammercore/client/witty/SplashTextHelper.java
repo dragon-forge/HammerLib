@@ -41,35 +41,33 @@ public class SplashTextHelper
 	@SubscribeEvent
 	public void addSplashes(WittyCommentChooseEvent e)
 	{
-		if(!e.isCustomWittyComment() && e.rand.nextFloat() < .05F)
+		List<String> sp = new ArrayList<>();
+		
+		int t = 1;
+		while(true)
 		{
-			List<String> sp = new ArrayList<>();
+			String raw = "hc.splash." + t;
+			String f = I18n.format(raw);
 			
-			int t = 1;
-			while(true)
-			{
-				String raw = "hc.splash." + t;
-				String f = I18n.format(raw);
-				
-				if(raw.equals(f))
-					break;
-				else
-					sp.add(f);
-				
-				++t;
-			}
+			if(raw.equals(f))
+				break;
+			else
+				sp.add(f);
 			
-			if(Loader.isModLoaded("lostthaumaturgy") || Loader.isModLoaded("thaumcraft"))
-			{
-				sp.add(I18n.format("hc.splash.lt.1"));
-			}
-			
-			for(String modid : SplashModPool.modIds())
-				if(!Loader.isModLoaded(modid))
-					sp.add(I18n.format("hc.splash.mod", SplashModPool.getName(modid)));
-				
-			e.setWittyComment(iWittyComment.ofStatic(replaceVars(sp.get(e.rand.nextInt(sp.size())))));
+			++t;
 		}
+		
+		if(Loader.isModLoaded("lostthaumaturgy") || Loader.isModLoaded("thaumcraft"))
+		{
+			sp.add(I18n.format("hc.splash.lt.1"));
+		}
+		
+		for(String modid : SplashModPool.modIds())
+			if(!Loader.isModLoaded(modid))
+				sp.add(I18n.format("hc.splash.mod", SplashModPool.getName(modid)));
+		
+		if(!e.isCustomWittyComment() && e.rand.nextFloat() < .05F * sp.size() / 4F)
+			e.setWittyComment(iWittyComment.ofStatic(replaceVars(sp.get(e.rand.nextInt(sp.size())))));
 	}
 	
 	private String replaceVars(String str)

@@ -254,8 +254,6 @@ public class HammerCore
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent e)
 	{
-		HCNetwork.preInit();
-		
 		List<iHammerCoreAPI> apis = AnnotatedInstanceUtil.getInstances(e.getAsmData(), HammerCoreAPI.class, iHammerCoreAPI.class);
 		List<Object> toRegister = AnnotatedInstanceUtil.getInstances(e.getAsmData(), MCFBus.class, Object.class);
 		List<iConfigReloadListener> listeners = AnnotatedInstanceUtil.getInstances(e.getAsmData(), HCModConfigurations.class, iConfigReloadListener.class);
