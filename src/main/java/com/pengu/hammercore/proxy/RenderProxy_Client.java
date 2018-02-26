@@ -21,6 +21,7 @@ import com.pengu.hammercore.client.render.tesr.TESR;
 import com.pengu.hammercore.client.texture.TextureFXManager;
 import com.pengu.hammercore.client.texture.gui.theme.GuiTheme;
 import com.pengu.hammercore.client.utils.iEnchantmentColorManager;
+import com.pengu.hammercore.client.witty.SplashTextHelper;
 import com.pengu.hammercore.common.items.MultiVariantItem;
 import com.pengu.hammercore.common.utils.AnnotatedInstanceUtil;
 import com.pengu.hammercore.common.utils.IOUtils;
@@ -70,6 +71,7 @@ public class RenderProxy_Client extends RenderProxy_Common
 		MinecraftForge.EVENT_BUS.register(this);
 		MinecraftForge.EVENT_BUS.register(new TooltipAPI());
 		MinecraftForge.EVENT_BUS.register(new TexturePixelGetter());
+		MinecraftForge.EVENT_BUS.register(new SplashTextHelper());
 		TextureFXManager.INSTANCE.preInit();
 	}
 	

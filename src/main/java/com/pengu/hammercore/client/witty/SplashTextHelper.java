@@ -3,8 +3,6 @@ package com.pengu.hammercore.client.witty;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.pengu.hammercore.annotations.MCFBus;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.resources.I18n;
@@ -13,7 +11,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-@MCFBus
 public class SplashTextHelper
 {
 	public static iWittyComment splash;
@@ -65,7 +62,7 @@ public class SplashTextHelper
 		for(String modid : SplashModPool.modIds())
 			if(!Loader.isModLoaded(modid))
 				sp.add(I18n.format("hc.splash.mod", SplashModPool.getName(modid)));
-		
+			
 		if(!e.isCustomWittyComment() && e.rand.nextFloat() < .05F * sp.size() / 4F)
 			e.setWittyComment(iWittyComment.ofStatic(replaceVars(sp.get(e.rand.nextInt(sp.size())))));
 	}
