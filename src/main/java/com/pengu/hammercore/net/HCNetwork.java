@@ -55,7 +55,6 @@ public class HCNetwork
 		if(!world.isRemote)
 		{
 			manager.sendToAllAround(pp, new TargetPoint(world.provider.getDimension(), x, y, z, 64));
-			System.out.println("send " + pp + " via " + manager + ". Expecting event message...");
 		} else
 			try
 			{
