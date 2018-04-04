@@ -1,0 +1,5 @@
+{
+	"variants": {
+		"normal": { "model": "hammercore:compound_crafting_table" }
+	}
+}

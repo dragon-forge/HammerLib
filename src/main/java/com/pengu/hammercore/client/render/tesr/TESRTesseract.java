@@ -11,8 +11,8 @@ import com.pengu.hammercore.client.render.shader.impl.ShaderEnderField;
 import com.pengu.hammercore.client.render.vertex.SimpleBlockRendering;
 import com.pengu.hammercore.client.utils.RenderBlocks;
 import com.pengu.hammercore.client.utils.UtilsFX;
-import com.pengu.hammercore.common.blocks.tesseract.BlockTesseract;
-import com.pengu.hammercore.common.blocks.tesseract.TileTesseract;
+import com.pengu.hammercore.core.blocks.tesseract.BlockTesseract;
+import com.pengu.hammercore.core.blocks.tesseract.TileTesseract;
 import com.pengu.hammercore.core.init.BlocksHC;
 
 import net.minecraft.block.state.IBlockState;

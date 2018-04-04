@@ -1,11 +1,12 @@
 package com.pengu.hammercore.core.init;
 
-import com.pengu.hammercore.common.blocks.BlockChunkLoader;
 import com.pengu.hammercore.common.blocks.BlockIWrenchGhost;
 import com.pengu.hammercore.common.blocks.BlockInfiRF;
 import com.pengu.hammercore.common.blocks.BlockLyingItem;
 import com.pengu.hammercore.common.blocks.multipart.BlockMultipart;
-import com.pengu.hammercore.common.blocks.tesseract.BlockTesseract;
+import com.pengu.hammercore.core.blocks.BlockCCT;
+import com.pengu.hammercore.core.blocks.BlockChunkLoader;
+import com.pengu.hammercore.core.blocks.tesseract.BlockTesseract;
 
 import net.minecraft.block.Block;
 
@@ -17,5 +18,6 @@ public class BlocksHC
 	        TESSERACT = new BlockTesseract(), //
 	        CHUNK_LOADER = new BlockChunkLoader(), //
 	        LYING_ITEM = new BlockLyingItem(), //
-	        IWRENCH_GHOST = new BlockIWrenchGhost();
+	        IWRENCH_GHOST = new BlockIWrenchGhost(), //
+	        COMPOUND_CRAFTING_TABLE = new BlockCCT();
 }

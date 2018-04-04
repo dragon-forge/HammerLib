@@ -5,8 +5,8 @@ import java.util.Arrays;
 
 import com.pengu.hammercore.client.utils.RenderUtil;
 import com.pengu.hammercore.color.Color;
-import com.pengu.hammercore.common.blocks.tesseract.TileTesseract;
-import com.pengu.hammercore.common.blocks.tesseract.TransferMode;
+import com.pengu.hammercore.core.blocks.tesseract.TileTesseract;
+import com.pengu.hammercore.core.blocks.tesseract.TransferMode;
 import com.pengu.hammercore.net.HCNetwork;
 import com.pengu.hammercore.net.pkt.PacketSetProperty;
 import com.pengu.hammercore.net.pkt.PacketSyncSyncableTile;

@@ -1,4 +1,4 @@
-package com.pengu.hammercore.common.blocks.tesseract;
+package com.pengu.hammercore.core.blocks.tesseract;
 
 public enum TransferMode
 {

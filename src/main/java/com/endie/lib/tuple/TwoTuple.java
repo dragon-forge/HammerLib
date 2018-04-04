@@ -52,5 +52,15 @@ public class TwoTuple<P1, P2>
 			this.p1 = p1;
 			this.p2 = p2;
 		}
+		
+		public void set1(P1 p1)
+		{
+			this.p1 = p1;
+		}
+		
+		public void set2(P2 p2)
+		{
+			this.p2 = p2;
+		}
 	}
 }

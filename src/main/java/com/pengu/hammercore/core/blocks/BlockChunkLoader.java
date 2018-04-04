@@ -1,4 +1,4 @@
-package com.pengu.hammercore.common.blocks;
+package com.pengu.hammercore.core.blocks;
 
 import java.util.ArrayList;
 import java.util.List;

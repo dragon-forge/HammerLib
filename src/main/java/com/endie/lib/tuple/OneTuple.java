@@ -44,5 +44,10 @@ public class OneTuple<P1>
 		{
 			this.p1 = p1;
 		}
+		
+		public void set1(P1 p1)
+		{
+			this.p1 = p1;
+		}
 	}
 }

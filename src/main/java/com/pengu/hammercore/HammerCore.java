@@ -60,6 +60,7 @@ import com.pengu.hammercore.net.pkt.script.PacketSendGlobalRecipeScriptsWithRemo
 import com.pengu.hammercore.proxy.AudioProxy_Common;
 import com.pengu.hammercore.proxy.BookProxy_Common;
 import com.pengu.hammercore.proxy.LightProxy_Common;
+import com.pengu.hammercore.proxy.NativeProxy_Common;
 import com.pengu.hammercore.proxy.ParticleProxy_Common;
 import com.pengu.hammercore.proxy.PipelineProxy_Common;
 import com.pengu.hammercore.proxy.RenderProxy_Common;
@@ -162,6 +163,9 @@ public class HammerCore
 	
 	@SidedProxy(modId = "hammercore", clientSide = "com.pengu.hammercore.proxy.PipelineProxy_Client", serverSide = "com.pengu.hammercore.proxy.PipelineProxy_Common")
 	public static PipelineProxy_Common pipelineProxy;
+	
+	@SidedProxy(modId = "hammercore", clientSide = "com.pengu.hammercore.proxy.NativeProxy_Client", serverSide = "com.pengu.hammercore.proxy.NativeProxy_Common")
+	public static NativeProxy_Common nativeProxy;
 	
 	/**
 	 * An instance of {@link HammerCore} class

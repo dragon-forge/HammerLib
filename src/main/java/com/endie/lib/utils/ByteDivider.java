@@ -4,6 +4,10 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @deprecated Use {@link ByteHelper} instead
+ */
+@Deprecated
 public class ByteDivider
 {
 	public static byte[][] divide(int max, byte[] data)

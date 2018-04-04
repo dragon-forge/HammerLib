@@ -60,5 +60,20 @@ public class ThreeTuple<P1, P2, P3>
 			this.p2 = p2;
 			this.p3 = p3;
 		}
+		
+		public void set1(P1 p1)
+		{
+			this.p1 = p1;
+		}
+		
+		public void set2(P2 p2)
+		{
+			this.p2 = p2;
+		}
+		
+		public void set3(P3 p3)
+		{
+			this.p3 = p3;
+		}
 	}
 }
