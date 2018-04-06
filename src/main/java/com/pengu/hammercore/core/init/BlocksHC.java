@@ -18,6 +18,6 @@ public class BlocksHC
 	        TESSERACT = new BlockTesseract(), //
 	        CHUNK_LOADER = new BlockChunkLoader(), //
 	        LYING_ITEM = new BlockLyingItem(), //
-	        IWRENCH_GHOST = new BlockIWrenchGhost(), //
-	        COMPOUND_CRAFTING_TABLE = new BlockCCT();
+	        IWRENCH_GHOST = new BlockIWrenchGhost(); //
+	// COMPOUND_CRAFTING_TABLE = new BlockCCT();
 }

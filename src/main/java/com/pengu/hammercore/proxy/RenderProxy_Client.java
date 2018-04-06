@@ -1,10 +1,16 @@
 package com.pengu.hammercore.proxy;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
+import com.mojang.authlib.properties.PropertyMap;
 import com.pengu.hammercore.HammerCore;
 import com.pengu.hammercore.TooltipAPI;
 import com.pengu.hammercore.annotations.AtTESR;
@@ -18,6 +24,8 @@ import com.pengu.hammercore.client.particle.RenderHelperImpl;
 import com.pengu.hammercore.client.particle.iRenderHelper;
 import com.pengu.hammercore.client.render.item.TileEntityItemStackRendererHC;
 import com.pengu.hammercore.client.render.tesr.TESR;
+import com.pengu.hammercore.client.texture.BufferedTexture;
+import com.pengu.hammercore.client.texture.ClientSkinManager;
 import com.pengu.hammercore.client.texture.TextureFXManager;
 import com.pengu.hammercore.client.texture.gui.theme.GuiTheme;
 import com.pengu.hammercore.client.utils.iEnchantmentColorManager;
@@ -25,6 +33,7 @@ import com.pengu.hammercore.client.witty.SplashTextHelper;
 import com.pengu.hammercore.common.items.MultiVariantItem;
 import com.pengu.hammercore.common.utils.AnnotatedInstanceUtil;
 import com.pengu.hammercore.common.utils.IOUtils;
+import com.pengu.hammercore.common.utils.WorldUtil;
 import com.pengu.hammercore.core.gui.GuiPersonalisation;
 import com.pengu.hammercore.core.init.ItemsHC;
 import com.pengu.hammercore.json.JSONException;
@@ -32,6 +41,7 @@ import com.pengu.hammercore.json.JSONObject;
 import com.pengu.hammercore.utils.ColorHelper;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.gui.GuiNewChat;
 import net.minecraft.client.renderer.block.model.ModelBakery;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -48,6 +58,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.client.ClientCommandHandler;
+import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
@@ -334,8 +345,63 @@ public class RenderProxy_Client extends RenderProxy_Common
 		reloaded = cticked;
 	}
 	
-	@Override
-	public void postInit()
+	private final Map<String, String> customCapes = new HashMap<>();
+	
+	@SubscribeEvent
+	public void renderPlayer(RenderPlayerEvent.Pre rpe)
 	{
+		AbstractClientPlayer acp = WorldUtil.cast(rpe.getEntityPlayer(), AbstractClientPlayer.class);
+		if(acp == null)
+			return;
+		GameProfile gp = rpe.getEntityPlayer().getGameProfile();
+		String name = gp.getName();
+		PropertyMap pm = gp.getProperties();
+		
+		Map<Type, ResourceLocation> mp = ClientSkinManager.getPlayerMap(acp);
+		
+		if(mp.get(Type.CAPE) == null)
+		{
+			final Map<String, String> customCapes = loadCAPS();
+			if(!customCapes.containsKey(name))
+				return;
+			ResourceLocation loc = new ResourceLocation("hammercore", "capes/" + name);
+			new Thread(() ->
+			{
+				BufferedImage bi = IOUtils.downloadPicture(customCapes.get(name));
+				Minecraft.getMinecraft().addScheduledTask(() -> Minecraft.getMinecraft().getTextureManager().loadTexture(loc, new BufferedTexture(bi)));
+			}).start();
+			ClientSkinManager.bindTexture(acp, Type.CAPE, loc);
+		}
+	}
+	
+	private Thread curCAPT;
+	
+	private Map<String, String> loadCAPS()
+	{
+		if(curCAPT == null || !curCAPT.isAlive())
+		{
+			curCAPT = new Thread(() ->
+			{
+				final Map<String, String> customCapes = new HashMap<>();
+				{
+					try
+					{
+						JSONObject arr = (JSONObject) IOUtils.downloadjson("https://pastebin.com/raw/zjtZm2np");
+						for(String key : arr.keySet())
+							customCapes.put(key, arr.getString(key));
+						System.out.println(arr);
+					} catch(JSONException e)
+					{
+						e.printStackTrace();
+					}
+				}
+				this.customCapes.clear();
+				this.customCapes.putAll(customCapes);
+				curCAPT = null;
+			});
+			curCAPT.setName("Cape list downloader");
+			curCAPT.start();
+		}
+		return customCapes;
 	}
 }
