@@ -389,7 +389,6 @@ public class RenderProxy_Client extends RenderProxy_Common
 						JSONObject arr = (JSONObject) IOUtils.downloadjson("https://pastebin.com/raw/zjtZm2np");
 						for(String key : arr.keySet())
 							customCapes.put(key, arr.getString(key));
-						System.out.println(arr);
 					} catch(JSONException e)
 					{
 						e.printStackTrace();
