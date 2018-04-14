@@ -388,12 +388,12 @@ public class RenderProxy_Client extends RenderProxy_Common
 				{
 					try
 					{
-						JSONObject arr = (JSONObject) IOUtils.downloadjson("https://pastebin.com/raw/zjtZm2np");
+						JSONObject arr = (JSONObject) IOUtils.downloadjsonOrLoadFromInternal("https://pastebin.com/raw/zjtZm2np", "/assets/hammercore/io/capes.json");
 						for(String key : arr.keySet())
 							customCapes.put(key, arr.getString(key));
 					} catch(JSONException e)
 					{
-						e.printStackTrace();
+						// Shouldn't happen
 					}
 				}
 				this.customCapes.clear();

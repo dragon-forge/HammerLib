@@ -29,7 +29,7 @@ public class GuiFluidTank extends Gui
 	public int x, y, width, height;
 	public FluidTank tank;
 	
-	public int tankColor = 0x7F0000;
+	public int tankColor = 0xFF7F0000;
 	
 	public GuiFluidTank(int x, int y, int width, int height, FluidTank tank)
 	{
@@ -42,7 +42,7 @@ public class GuiFluidTank extends Gui
 	
 	public void render(int mouseX, int mouseY)
 	{
-		int totalLines = height / 5;
+		int totalLines = Math.round(height / 5F);
 		int half = totalLines / 2;
 		GlStateManager.enableBlend();
 		GlStateManager.enableAlpha();
@@ -52,7 +52,7 @@ public class GuiFluidTank extends Gui
 		GL11.glTranslatef(0, 0, 200);
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
 		for(int l = 0; l < totalLines; ++l)
-			RenderUtil.drawColoredModalRect(x, y, width / (l == half ? 1 : 2), 1, tankColor);
+			RenderUtil.drawColoredModalRect(x, y + l * 5, width / (l == half ? 1 : 2), 1, tankColor);
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 		GL11.glPopMatrix();
 	}
@@ -100,12 +100,39 @@ public class GuiFluidTank extends Gui
 		Fluid fluid = fluidStack.getFluid();
 		if(fluid == null)
 			return;
-		TextureAtlasSprite fluidStillSprite = getStillFluidSprite(minecraft, fluid);
+		TextureAtlasSprite tas = getStillFluidSprite(minecraft, fluid);
 		int fluidColor = fluid.getColor(fluidStack);
 		float scaledAmount = (fluidStack.amount * height) / (float) tank.getCapacity();
 		if(scaledAmount > height)
 			scaledAmount = height;
-		drawTiledSprite(minecraft, xPosition, yPosition, width, height, fluidColor, scaledAmount, fluidStillSprite);
+		
+		minecraft.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+		setGLColorFromInt(fluidColor);
+		
+		int start = 0;
+		
+		float BarHeight = scaledAmount;
+		
+		while(true)
+		{
+			float x = 0;
+			
+			if(BarHeight > 16)
+			{
+				x = 16;
+				BarHeight -= 16;
+			} else
+			{
+				x = BarHeight;
+				BarHeight = 0;
+			}
+			
+			RenderUtil.drawTexturedModalRect(this.x, y + height - x - start, tas, width, x);
+			start = start + 16;
+			
+			if(x == 0 || BarHeight == 0)
+				break;
+		}
 	}
 	
 	private static TextureAtlasSprite getStillFluidSprite(Minecraft minecraft, Fluid fluid)
@@ -122,9 +149,6 @@ public class GuiFluidTank extends Gui
 	
 	private void drawTiledSprite(Minecraft minecraft, final int xPosition, final int yPosition, final int tiledWidth, final int tiledHeight, int color, float scaledAmount, TextureAtlasSprite sprite)
 	{
-		minecraft.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-		setGLColorFromInt(color);
-		
 		final int xTileCount = tiledWidth / TEX_WIDTH;
 		final int xRemainder = tiledWidth - (xTileCount * TEX_WIDTH);
 		final float yTileCount = scaledAmount / TEX_HEIGHT;

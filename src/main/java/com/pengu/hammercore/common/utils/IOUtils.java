@@ -23,6 +23,8 @@ import com.endie.lib.io.MultiOutputStream;
 import com.endie.lib.io.cache.iCacher;
 import com.endie.lib.tuple.TwoTuple;
 import com.endie.lib.utils.Joiner;
+import com.pengu.hammercore.HammerCore;
+import com.pengu.hammercore.common.utils.classes.ClassWrapper;
 import com.pengu.hammercore.core.HammerCoreCacher;
 import com.pengu.hammercore.json.JSONException;
 import com.pengu.hammercore.json.JSONTokener;
@@ -51,6 +53,14 @@ public class IOUtils
 	public static Object downloadjson(String url) throws JSONException
 	{
 		return new JSONTokener(ioget(url)).nextValue();
+	}
+	
+	public static Object downloadjsonOrLoadFromInternal(String url, String path) throws JSONException
+	{
+		String data = ioget(url);
+		if(data.isEmpty())
+			data = new String(pipeOut(ClassWrapper.getCallerClass().getResourceAsStream(path)));
+		return data.isEmpty() ? null : new JSONTokener(data).nextValue();
 	}
 	
 	public static String ioget(File file)

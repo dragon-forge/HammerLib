@@ -13,7 +13,7 @@ public class GuiTankTexture
 	
 	public GuiTankTexture(int width, int height)
 	{
-		this(width, height, 0x7F0000);
+		this(width, height, 0xFF7F0000);
 	}
 	
 	public GuiTankTexture(int width, int height, int tankColor)
@@ -38,8 +38,8 @@ public class GuiTankTexture
 		int totalLines = height / 5;
 		int half = totalLines / 2;
 		GL11.glDisable(GL11.GL_TEXTURE_2D);
-		for(int l = 0; l < totalLines; ++l)
-			RenderUtil.drawColoredModalRect(xOffset, yOffset, width / (l == half ? 1 : 2), 1, tankColor);
+		for(int l = 1; l < totalLines; ++l)
+			RenderUtil.drawColoredModalRect(xOffset, yOffset + l * 5, width / (l == half ? 1 : 2), 1, tankColor);
 		GL11.glEnable(GL11.GL_TEXTURE_2D);
 	}
 }

@@ -54,4 +54,34 @@ public class ClassWrapper
 	{
 		return new InstanceWrapper(inst);
 	}
+	
+	public static String getCallerClassName()
+	{
+		StackTraceElement[] stElements = Thread.currentThread().getStackTrace();
+		for(int i = 1; i < stElements.length; i++)
+		{
+			StackTraceElement ste = stElements[i];
+			if(!ste.getClassName().equals(ClassWrapper.class.getName()) && ste.getClassName().indexOf("java.lang.Thread") != 0)
+				return ste.getClassName();
+		}
+		return null;
+	}
+	
+	public static Class<?> getCallerClass()
+	{
+		StackTraceElement[] stElements = Thread.currentThread().getStackTrace();
+		for(int i = 1; i < stElements.length; i++)
+		{
+			StackTraceElement ste = stElements[i];
+			if(!ste.getClassName().equals(ClassWrapper.class.getName()) && ste.getClassName().indexOf("java.lang.Thread") != 0)
+				try
+				{
+					return Class.forName(ste.getClassName());
+				} catch(ClassNotFoundException e)
+				{
+					e.printStackTrace();
+				}
+		}
+		return null;
+	}
 }
