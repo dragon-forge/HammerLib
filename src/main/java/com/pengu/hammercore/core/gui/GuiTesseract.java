@@ -3,8 +3,6 @@ package com.pengu.hammercore.core.gui;
 import java.io.IOException;
 import java.util.Arrays;
 
-import com.pengu.hammercore.client.gui.GuiFluidTank;
-import com.pengu.hammercore.client.gui.GuiTankTexture;
 import com.pengu.hammercore.client.utils.RenderUtil;
 import com.pengu.hammercore.color.Color;
 import com.pengu.hammercore.core.blocks.tesseract.TileTesseract;
@@ -18,8 +16,6 @@ import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraftforge.fluids.FluidRegistry;
-import net.minecraftforge.fluids.FluidTank;
 
 public class GuiTesseract extends GuiCentered
 {
@@ -63,11 +59,6 @@ public class GuiTesseract extends GuiCentered
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY)
 	{
-		FluidTank ft = new FluidTank(FluidRegistry.WATER, 5000 + (int) (5000 * Math.sin(Math.toRadians(mc.world.getTotalWorldTime() + partialTicks))), 10000);
-		GuiFluidTank gft = new GuiFluidTank(16, 16, 16, 58, ft);
-		
-		gft.render(mouseX, mouseY);
-		
 		int guiLeft = (int) this.guiLeft;
 		int guiTop = (int) this.guiTop;
 		
