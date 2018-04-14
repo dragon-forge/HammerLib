@@ -17,29 +17,23 @@ import net.minecraft.item.Item;
 
 public class ItemsHC
 {
-	public static final transient Set<Item> items = new HashSet<Item>();
-	public static final transient Set<Item> rendered_items = new HashSet<Item>();
-	public static final transient Set<MultiVariantItem> multiitems = new HashSet<MultiVariantItem>();
+	public static final Set<Item> items = new HashSet<Item>();
+	public static final Set<Item> rendered_items = new HashSet<Item>();
+	public static final Set<MultiVariantItem> multiitems = new HashSet<MultiVariantItem>();
 	
-	public static final Item ray_tracer, //
-	        zapper, //
-	        calculatron = new ItemCalculatron(), //
-	        manual = new ItemHammerCoreManual(), //
-	        battery = new ItemBattery(2_000_000, 25_000).setUnlocalizedName("battery"), //
-	        wrench = new ItemWrench(), //
-	        iwrench = new ItemIWrench(), //
-	        iron_gear = new Item().setMaxStackSize(16).setUnlocalizedName("iron_gear");
+	public static final Item RAY_TRACER, //
+	        ZAPPER, //
+	        CALCULATRON = new ItemCalculatron(), //
+	        MANUAL = new ItemHammerCoreManual(), //
+	        BATTERY, //
+	        WRENCH = new ItemWrench(), //
+	        IWRENCH = new ItemIWrench(), //
+	        IRON_GEAR = new Item().setMaxStackSize(16).setUnlocalizedName("iron_gear");
 	
 	static
 	{
-		if(HammerCoreConfigs.debug_addRaytracer)
-			ray_tracer = new ItemRayTracer();
-		else
-			ray_tracer = null;
-		
-		if(HammerCoreConfigs.debug_addZapper)
-			zapper = new ItemZapper();
-		else
-			zapper = null;
+		BATTERY = HammerCoreConfigs.items_addAccumulator ? new ItemBattery(200_000, 25_000).setUnlocalizedName("battery") : null;
+		RAY_TRACER = HammerCoreConfigs.debug_addRaytracer ? new ItemRayTracer() : null;
+		ZAPPER = HammerCoreConfigs.debug_addZapper ? new ItemZapper() : null;
 	}
 }

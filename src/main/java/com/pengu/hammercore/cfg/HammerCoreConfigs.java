@@ -29,6 +29,15 @@ public class HammerCoreConfigs implements iConfigReloadListener
 	@ModConfigPropertyBool(name = "Raytracer", category = "Debug", defaultValue = false, comment = "Should Hammer Core add debug ray tracer item?")
 	public static boolean debug_addRaytracer = false;
 	
+	@ModConfigPropertyBool(name = "ChunkLoader", category = "Blocks", defaultValue = true, comment = "Should Hammer Core add Chunk Loader block?")
+	public static boolean blocks_addChunkloader = true;
+
+	@ModConfigPropertyBool(name = "Tesseract", category = "Blocks", defaultValue = false, comment = "Should Hammer Core add Tesseract block?")
+	public static boolean blocks_addTesseract = false;
+	
+	@ModConfigPropertyBool(name = "Accumulator", category = "Items", defaultValue = true, comment = "Should Hammer Core add Accumulator item?")
+	public static boolean items_addAccumulator = false;
+	
 	@ModConfigPropertyBool(name = "Always Spawn Dragon Egg", category = "Vanilla Improvements", defaultValue = true, comment = "Should Hammer Core force-spawn Ender Dragon Egg on Ender Dragon death?")
 	public static boolean vanilla_alwaysSpawnDragonEggs = true;
 	

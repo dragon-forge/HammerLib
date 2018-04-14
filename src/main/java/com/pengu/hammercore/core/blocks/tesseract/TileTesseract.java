@@ -63,8 +63,8 @@ public class TileTesseract extends TileSyncableTickable implements iTileDroppabl
 	
 	static
 	{
-		registerTesseractCapability(CapabilityEnergy.ENERGY, "fe", new ItemStack(ItemsHC.battery));
-		registerTesseractCapability(CapabilityEJ.ENERGY, "ej", new ItemStack(ItemsHC.battery));
+		registerTesseractCapability(CapabilityEnergy.ENERGY, "fe", new ItemStack(ItemsHC.BATTERY));
+		registerTesseractCapability(CapabilityEJ.ENERGY, "ej", new ItemStack(ItemsHC.BATTERY));
 		registerTesseractCapability(CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, "fluid", new ItemStack(Items.BUCKET));
 		registerTesseractCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, "items", new ItemStack(Items.STICK));
 	}
