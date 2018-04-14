@@ -1,5 +1,6 @@
 package com.pengu.hammercore.client;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +24,7 @@ import net.minecraftforge.common.util.Constants.NBT;
  */
 public class ItemColorHelper
 {
-	public static final int DEFAULT_GLINT_COLOR = -8372020;
+	public static final int DEFAULT_GLINT_COLOR = 0xFF8040CC;
 	public static final Map<Item, List<iEnchantmentColorManager>> managers = new HashMap<>();
 	
 	static ItemStack target;
@@ -75,7 +76,7 @@ public class ItemColorHelper
 			{
 				Class<?> ColorRunes = Class.forName("vazkii.quark.misc.feature.ColorRunes");
 				ColorRunes.getMethod("setTargetStack", ItemStack.class).invoke(null, target);
-				int col = (int) ColorRunes.getMethod("getColor").invoke(null, DEFAULT_GLINT_COLOR);
+				int col = (int) ColorRunes.getDeclaredMethod("getColor", int.class).invoke(null, DEFAULT_GLINT_COLOR);
 				if(col != DEFAULT_GLINT_COLOR)
 					return col;
 			} catch(Throwable err)
