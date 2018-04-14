@@ -27,6 +27,7 @@ import com.pengu.hammercore.client.render.tesr.TESR;
 import com.pengu.hammercore.client.texture.BufferedTexture;
 import com.pengu.hammercore.client.texture.ClientSkinManager;
 import com.pengu.hammercore.client.texture.TextureFXManager;
+import com.pengu.hammercore.client.texture.TextureUtils;
 import com.pengu.hammercore.client.texture.gui.theme.GuiTheme;
 import com.pengu.hammercore.client.utils.iEnchantmentColorManager;
 import com.pengu.hammercore.client.witty.SplashTextHelper;
@@ -81,6 +82,7 @@ public class RenderProxy_Client extends RenderProxy_Common
 		MinecraftForge.EVENT_BUS.register(new RenderGui());
 		MinecraftForge.EVENT_BUS.register(this);
 		MinecraftForge.EVENT_BUS.register(new TooltipAPI());
+		MinecraftForge.EVENT_BUS.register(new TextureUtils());
 		MinecraftForge.EVENT_BUS.register(new TexturePixelGetter());
 		MinecraftForge.EVENT_BUS.register(new SplashTextHelper());
 		TextureFXManager.INSTANCE.preInit();
@@ -359,7 +361,7 @@ public class RenderProxy_Client extends RenderProxy_Common
 		
 		Map<Type, ResourceLocation> mp = ClientSkinManager.getPlayerMap(acp);
 		
-		if(mp.get(Type.CAPE) == null)
+		if(mp != null && mp.get(Type.CAPE) == null)
 		{
 			final Map<String, String> customCapes = loadCAPS();
 			if(!customCapes.containsKey(name))

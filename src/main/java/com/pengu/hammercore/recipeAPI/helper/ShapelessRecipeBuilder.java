@@ -14,7 +14,8 @@ import net.minecraft.util.NonNullList;
 import net.minecraftforge.oredict.OreDictionary;
 
 /**
- * A Helper class to allow shapeless recipes to stay certain items that aren't staying by default.
+ * A Helper class to allow shapeless recipes to stay certain items that aren't
+ * staying by default.
  */
 public class ShapelessRecipeBuilder
 {
@@ -152,8 +153,7 @@ public class ShapelessRecipeBuilder
 								ret.setCount(it.getCount() * ret.getCount());
 								its.set(i, ret);
 							}
-						}
-						else
+						} else
 							its.set(i, it.copy());
 						break;
 					}

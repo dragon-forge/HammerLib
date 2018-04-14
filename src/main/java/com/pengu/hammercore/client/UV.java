@@ -52,6 +52,6 @@ public class UV
 	@Override
 	public String toString()
 	{
-		return getClass().getName() + "@[path=" + path + ",x=" + posX + ",double y=" + posY + ",width=" + width + ",height=" + height + "]";
+		return getClass().getName() + "@[path=" + path + ",x=" + posX + ",y=" + posY + ",width=" + width + ",height=" + height + "]";
 	}
 }

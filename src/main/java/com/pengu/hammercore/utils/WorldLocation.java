@@ -26,8 +26,8 @@ import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
 
 public class WorldLocation
 {
-	private transient World world;
-	private transient BlockPos pos;
+	private World world;
+	private BlockPos pos;
 	
 	public WorldLocation(World world, BlockPos pos)
 	{

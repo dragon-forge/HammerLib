@@ -13,7 +13,7 @@ public interface iWittyComment
 	
 	public static iWittyComment translated(String text, Object... parameters)
 	{
-		return () -> I18n.format(text, parameters).replaceAll("@PERCENT@", "%");
+		return () -> I18n.format(text, parameters).replaceAll("<PERCENT>", "%");
 	}
 	
 	public static iWittyComment delayed(long ms, String... lines)

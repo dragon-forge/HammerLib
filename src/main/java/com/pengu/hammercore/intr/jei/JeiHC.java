@@ -2,6 +2,7 @@ package com.pengu.hammercore.intr.jei;
 
 import java.util.function.Consumer;
 
+import com.pengu.hammercore.common.utils.classes.ClassWrapper;
 import com.pengu.hammercore.core.gui.smooth.GuiBrewingStandSmooth;
 import com.pengu.hammercore.core.gui.smooth.GuiFurnaceSmooth;
 
@@ -9,15 +10,17 @@ import mezz.jei.api.IJeiRuntime;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.IModRegistry;
 import mezz.jei.api.IRecipeRegistry;
-import mezz.jei.api.ISubtypeRegistry;
 import mezz.jei.api.JEIPlugin;
-import mezz.jei.api.ingredients.IModIngredientRegistration;
+import mezz.jei.api.recipe.IFocus.Mode;
 import net.minecraft.client.Minecraft;
 
 @JEIPlugin
-public class JeiHC implements IModPlugin, iJeiRecipeModifier
+public class JeiHC implements IModPlugin, iJeiHelper
 {
+	private static Object KeyBinding_showRecipe, KeyBinding_showUses;
+	
 	IRecipeRegistry registry;
+	IJeiRuntime runtime;
 	
 	{
 		Instance.JEIModifier = this;
@@ -26,6 +29,7 @@ public class JeiHC implements IModPlugin, iJeiRecipeModifier
 	@Override
 	public void onRuntimeAvailable(IJeiRuntime runtime)
 	{
+		this.runtime = runtime;
 		registry = runtime.getRecipeRegistry();
 	}
 	
@@ -35,16 +39,10 @@ public class JeiHC implements IModPlugin, iJeiRecipeModifier
 		// Add click areas to our smooth guis
 		reg.addRecipeClickArea(GuiBrewingStandSmooth.class, 97, 16, 14, 30, "minecraft.brewing");
 		reg.addRecipeClickArea(GuiFurnaceSmooth.class, 78, 32, 28, 23, "minecraft.smelting");
-	}
-	
-	@Override
-	public void registerIngredients(IModIngredientRegistration arg0)
-	{
-	}
-	
-	@Override
-	public void registerItemSubtypes(ISubtypeRegistry arg0)
-	{
+		
+		ClassWrapper keyBindings = ClassWrapper.create("mezz.jei.config.KeyBindings");
+		KeyBinding_showRecipe = keyBindings.findField("showRecipe").get();
+		KeyBinding_showUses = keyBindings.findField("showUses").get();
 	}
 	
 	@Override
@@ -69,5 +67,29 @@ public class JeiHC implements IModPlugin, iJeiRecipeModifier
 			else
 				registry.removeRecipe(recipe);
 		});
+	}
+	
+	@Override
+	public Object getKeybind_showRecipes()
+	{
+		return KeyBinding_showRecipe;
+	}
+	
+	@Override
+	public Object getKeybind_showUses()
+	{
+		return KeyBinding_showUses;
+	}
+	
+	@Override
+	public <T> void showRecipes(T ingredient)
+	{
+		runtime.getRecipesGui().show(registry.createFocus(Mode.OUTPUT, ingredient));
+	}
+	
+	@Override
+	public <T> void showUses(T ingredient)
+	{
+		runtime.getRecipesGui().show(registry.createFocus(Mode.INPUT, ingredient));
 	}
 }

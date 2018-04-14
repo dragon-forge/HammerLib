@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -31,15 +30,10 @@ public class URLImageTexture extends AbstractTexture
 	{
 		this.deleteGlTexture();
 		
-		InputStream input = null;
-		try
+		try(InputStream input = new URL(url).openStream())
 		{
-			BufferedImage bufferedimage = TextureUtil.readBufferedImage(input = new URL(url).openStream());
+			BufferedImage bufferedimage = TextureUtil.readBufferedImage(input);
 			TextureUtil.uploadTextureImageAllocate(this.getGlTextureId(), bufferedimage, false, false);
-		} finally
-		{
-			if(input != null)
-				IOUtils.closeQuietly(input);
 		}
 	}
 }

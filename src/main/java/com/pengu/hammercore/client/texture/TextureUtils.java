@@ -29,8 +29,8 @@ import net.minecraft.client.resources.IResourceManagerReloadListener;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.TextureStitchEvent;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -42,14 +42,9 @@ public class TextureUtils
 		void registerIcons(TextureMap textureMap);
 	}
 	
-	static
-	{
-		MinecraftForge.EVENT_BUS.register(new TextureUtils());
-	}
-	
 	private static ArrayList<IIconRegister> iconRegisters = new ArrayList<>();
 	
-	public static Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter = TextureUtils::getTexture;
+	public static final Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter = TextureUtils::getTexture;
 	
 	public static void addIconRegister(IIconRegister registrar)
 	{
@@ -66,9 +61,13 @@ public class TextureUtils
 	public void textureLoad(TextureStitchEvent.Pre event)
 	{
 		for(IIconRegister reg : iconRegisters)
-		{
 			reg.registerIcons(event.getMap());
-		}
+	}
+	
+	@SubscribeEvent
+	public void clientLogoff(FMLNetworkEvent.ClientDisconnectionFromServerEvent e)
+	{
+		TexLocUploader.cleanupAll();
 	}
 	
 	/**

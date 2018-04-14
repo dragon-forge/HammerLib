@@ -1,8 +1,11 @@
 package com.pengu.hammercore.cfg;
 
+import com.pengu.hammercore.HammerCore;
 import com.pengu.hammercore.cfg.fields.ModConfigPropertyBool;
+import com.pengu.hammercore.cfg.fields.ModConfigPropertyString;
 
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.Loader;
 
 @HCModConfigurations(modid = "hammercore")
@@ -29,6 +32,8 @@ public class HammerCoreConfigs implements iConfigReloadListener
 	@ModConfigPropertyBool(name = "Always Spawn Dragon Egg", category = "Vanilla Improvements", defaultValue = true, comment = "Should Hammer Core force-spawn Ender Dragon Egg on Ender Dragon death?")
 	public static boolean vanilla_alwaysSpawnDragonEggs = true;
 	
+	public static int iwr_green, iwr_red;
+	
 	public static boolean CustomLANPortInstalled;
 	
 	public static Configuration cfg;
@@ -38,5 +43,29 @@ public class HammerCoreConfigs implements iConfigReloadListener
 	{
 		CustomLANPortInstalled = Loader.isModLoaded("customports") || "@VERSION@".contains("VERSION");
 		cfg = cfgs;
+		
+		Property prop = cfgs.get("iWrench", "Green", "22FF22");
+		prop.setComment("What is the color when the hovered block is wrenchable? (color encoded in hex form such as RRGGBB)");
+		
+		try
+		{
+			iwr_green = Integer.parseInt(prop.getString(), 16);
+		} catch(Throwable err)
+		{
+			HammerCore.LOG.warn("Unable to parse green iWrench color! Setting to default!");
+			prop.set("22FF22");
+		}
+		
+		prop = cfgs.get("iWrench", "Red", "FF2222");
+		prop.setComment("What is the color when the hovered block is NOT wrenchable? (color encoded in hex form such as RRGGBB)");
+		
+		try
+		{
+			iwr_red = Integer.parseInt(prop.getString(), 16);
+		} catch(Throwable err)
+		{
+			HammerCore.LOG.warn("Unable to parse red iWrench color! Setting to default!");
+			prop.set("FF2222");
+		}
 	}
 }

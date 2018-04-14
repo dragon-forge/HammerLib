@@ -12,6 +12,7 @@ import org.lwjgl.opengl.GL11;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.pengu.hammercore.HammerCore;
 import com.pengu.hammercore.HammerCore.HCAuthor;
+import com.pengu.hammercore.cfg.HammerCoreConfigs;
 import com.pengu.hammercore.MultiHitboxGetter;
 import com.pengu.hammercore.client.particle.api.ParticleList;
 import com.pengu.hammercore.client.render.player.PlayerRenderingManager;
@@ -82,6 +83,8 @@ public class Render3D
 			renderQueue.add(render);
 	}
 	
+	static final int alpha = 0x33 << 24;
+	
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void renderWorld(RenderWorldLastEvent evt)
 	{
@@ -113,7 +116,7 @@ public class Render3D
 				TileEntity tile = w.getTileEntity(p);
 				boolean wrenchable = tile instanceof iWrenchable || b instanceof iWrenchable;
 				
-				int col = wrenchable ? 0x3322FF22 : 0x33FF2222;
+				int col = alpha | (wrenchable ? HammerCoreConfigs.iwr_green : HammerCoreConfigs.iwr_red);
 				
 				Cuboid6[] cbs = MultiHitboxGetter.getCuboidsAt(w, p);
 				for(int i = 0; i < cbs.length; ++i)

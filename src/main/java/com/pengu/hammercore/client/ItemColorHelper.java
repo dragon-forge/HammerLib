@@ -75,7 +75,9 @@ public class ItemColorHelper
 			{
 				Class<?> ColorRunes = Class.forName("vazkii.quark.misc.feature.ColorRunes");
 				ColorRunes.getMethod("setTargetStack", ItemStack.class).invoke(null, target);
-				int col = (int) ColorRunes.getMethod("getColor").invoke(null);
+				int col = (int) ColorRunes.getMethod("getColor").invoke(null, DEFAULT_GLINT_COLOR);
+				if(col != DEFAULT_GLINT_COLOR)
+					return col;
 			} catch(Throwable err)
 			{
 			}
