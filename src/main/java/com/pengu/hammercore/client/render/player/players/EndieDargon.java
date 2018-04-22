@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.lwjgl.opengl.GL11;
 
+import com.pengu.hammercore.ServerHCClientPlayerData;
 import com.pengu.hammercore.client.render.player.iPlayerModel;
 import com.pengu.hammercore.client.utils.UtilsFX;
 
@@ -18,6 +19,7 @@ import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.client.event.RenderPlayerEvent;
+import net.minecraftforge.fml.relauncher.Side;
 
 public class EndieDargon implements iPlayerModel
 {
@@ -216,7 +218,7 @@ public class EndieDargon implements iPlayerModel
 		@Override
 		public void doRenderLayer(AbstractClientPlayer entitylivingbaseIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale)
 		{
-			if("EndieDargon".equals(entitylivingbaseIn.getName()) && entitylivingbaseIn.hasSkin() && !entitylivingbaseIn.isInvisible())
+			if("EndieDargon".equals(entitylivingbaseIn.getName()) && entitylivingbaseIn.hasSkin() && !entitylivingbaseIn.isInvisible() && ServerHCClientPlayerData.DATAS.get(Side.CLIENT).getOptionsForPlayer(entitylivingbaseIn).renderSpecial)
 				player.drawHead(entitylivingbaseIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scale);
 		}
 		

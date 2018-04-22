@@ -12,8 +12,10 @@ import org.lwjgl.opengl.GL11;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.pengu.hammercore.HammerCore;
 import com.pengu.hammercore.HammerCore.HCAuthor;
-import com.pengu.hammercore.cfg.HammerCoreConfigs;
 import com.pengu.hammercore.MultiHitboxGetter;
+import com.pengu.hammercore.ServerHCClientPlayerData;
+import com.pengu.hammercore.cfg.HammerCoreConfigs;
+import com.pengu.hammercore.client.HCClientOptions;
 import com.pengu.hammercore.client.particle.api.ParticleList;
 import com.pengu.hammercore.client.render.player.PlayerRenderingManager;
 import com.pengu.hammercore.client.render.shader.ShaderProgram;
@@ -26,8 +28,14 @@ import com.pengu.hammercore.client.utils.UtilsFX;
 import com.pengu.hammercore.color.Color;
 import com.pengu.hammercore.common.iWrenchable;
 import com.pengu.hammercore.common.items.ItemIWrench;
+import com.pengu.hammercore.common.utils.VersionCompareTool.EnumVersionLevel;
+import com.pengu.hammercore.net.HCNetwork;
+import com.pengu.hammercore.net.pkt.opts.PacketCHCOpts;
+import com.pengu.hammercore.proxy.RenderProxy_Client;
 import com.pengu.hammercore.raytracer.RayTracer;
 import com.pengu.hammercore.utils.ColorHelper;
+import com.pengu.hammercore.utils.ModVersions;
+import com.pengu.hammercore.utils.ModVersions.ModVersion;
 import com.pengu.hammercore.vec.Cuboid6;
 
 import net.minecraft.block.Block;
@@ -43,7 +51,6 @@ import net.minecraft.client.renderer.GlStateManager.DestFactor;
 import net.minecraft.client.renderer.GlStateManager.SourceFactor;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -54,16 +61,23 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.ChatType;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.event.ClickEvent;
+import net.minecraft.util.text.event.ClickEvent.Action;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
-import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import net.minecraftforge.fml.relauncher.Side;
 
 public class Render3D
@@ -85,11 +99,35 @@ public class Render3D
 	
 	static final int alpha = 0x33 << 24;
 	
+	boolean inWV;
+	
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void renderWorld(RenderWorldLastEvent evt)
 	{
 		while(!renderQueue.isEmpty())
 			renders.add(renderQueue.remove(0));
+		
+		if(!inWV)
+		{
+			inWV = true;
+			
+			ModVersions.installedUpdateableMods().forEach(mod ->
+			{
+				ModVersion ver = ModVersions.getLatestVersion(mod);
+				EnumVersionLevel ever = ver.check();
+				if(ever == EnumVersionLevel.NEWER)
+				{
+					TextComponentTranslation tct = new TextComponentTranslation("chat.hammercore:newversion.clickdwn");
+					tct.getStyle().setColor(TextFormatting.BLUE);
+					tct.getStyle().setUnderlined(true);
+					tct.getStyle().setClickEvent(new ClickEvent(Action.OPEN_URL, ver.url));
+					Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation("chat.hammercore:newversion", TextFormatting.AQUA + ver.getModName() + TextFormatting.RESET, TextFormatting.GREEN + ver.remVer + TextFormatting.RESET).appendSibling(new TextComponentString(" ")).appendSibling(tct));
+				}
+			});
+		}
+		
+		if(RenderProxy_Client.needsClConfigSync)
+			HCNetwork.manager.sendToServer(new PacketCHCOpts().setPlayer(Minecraft.getMinecraft().player).setOpts(HCClientOptions.getOptions()));
 		
 		for(int i = 0; i < renders.size(); ++i)
 		{
@@ -160,10 +198,18 @@ public class Render3D
 	}
 	
 	@SubscribeEvent
-	public void render(RenderPlayerEvent.Post e)
+	public void joined(FMLNetworkEvent.ClientDisconnectionFromServerEvent cdfse)
+	{
+		inWV = false;
+	}
+	
+	@SubscribeEvent
+	public void renderSpecial(RenderPlayerEvent.Post e)
 	{
 		EntityPlayer player = e.getEntityPlayer();
-		PlayerRenderingManager.get(player.getGameProfile().getName()).render(e);
+		HCClientOptions opts = ServerHCClientPlayerData.DATAS.get(Side.CLIENT).getOptionsForPlayer(player);
+		if(opts.renderSpecial)
+			PlayerRenderingManager.get(player.getGameProfile().getName()).render(e);
 	}
 	
 	public static void renderFilledBlockOverlay(AxisAlignedBB aabb, Vec3d pos, float partialTicks, int argb)
@@ -208,22 +254,6 @@ public class Render3D
 		GlStateManager.enableTexture2D();
 		GlStateManager.disableBlend();
 		GL11.glPopMatrix();
-	}
-	
-	@SubscribeEvent
-	public void renderLiving(RenderLivingEvent.Pre<EntityLivingBase> e)
-	{
-		if(!(e.getEntity() instanceof AbstractClientPlayer))
-			return;
-		
-		AbstractClientPlayer player = (AbstractClientPlayer) e.getEntity();
-		
-		// if(!loadedPlayers.contains(player.getGameProfile().getName()))
-		// {
-		// setPlayerTexture(player, new ResourceLocation("skins/" +
-		// player.getGameProfile().getName()));
-		// loadedPlayers.add(player.getGameProfile().getName());
-		// }
 	}
 	
 	public static int chatX = 0;

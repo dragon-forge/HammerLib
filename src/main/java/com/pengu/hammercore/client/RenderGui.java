@@ -15,8 +15,10 @@ import com.pengu.hammercore.client.utils.GLImageManager;
 import com.pengu.hammercore.client.utils.RenderUtil;
 import com.pengu.hammercore.common.utils.IOUtils;
 import com.pengu.hammercore.common.utils.WorldUtil;
+import com.pengu.hammercore.common.utils.classes.ClassWrapper;
 import com.pengu.hammercore.core.gui.GuiBlocked;
 import com.pengu.hammercore.core.gui.GuiConfirmAuthority;
+import com.pengu.hammercore.core.gui.GuiCustomizeSkinHC;
 import com.pengu.hammercore.core.gui.GuiMissingApis;
 import com.pengu.hammercore.core.gui.GuiShareToLanImproved;
 import com.pengu.hammercore.core.gui.modbrowser.GuiModBrowserLoading;
@@ -32,6 +34,7 @@ import com.pengu.hammercore.utils.IndexedMap;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
+import net.minecraft.client.gui.GuiCustomizeSkin;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiShareToLan;
@@ -209,6 +212,19 @@ public class RenderGui
 		{
 			evt.setGui(new GuiConfirmAuthority());
 			return;
+		}
+		
+		if(gui instanceof GuiCustomizeSkin)
+		{
+			Field parentScreen = GuiCustomizeSkin.class.getDeclaredFields()[0];
+			parentScreen.setAccessible(true);
+			try
+			{
+				gui = (GuiScreen) parentScreen.get(gui);
+				gui = new GuiCustomizeSkinHC(gui);
+			} catch(Throwable er)
+			{
+			}
 		}
 		
 		if(user.$BLOCKED)

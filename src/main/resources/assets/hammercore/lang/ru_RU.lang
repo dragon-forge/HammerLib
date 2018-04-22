@@ -45,6 +45,9 @@ tile.hammercore:compound_crafting_table_2.name=Компонентный краф
 
 ##GUI##
 
+options.modelPart.hammercore:renderSpecial=Отображать доп.
+options.modelPart.hammercore:overrideCape=Перезписать плащ
+
 gui.hammercore:calculatron=Калькулятрон vVERSION
 info.hammercore:energy_stored=RF Накоплено
 info.hammercore:changed_mode=Зарядка
@@ -59,6 +62,9 @@ capability.fe.name=FE
 capability.ej.name=EJ
 capability.fluid.name=Жидкости
 capability.items.name=Предметы
+
+chat.hammercore:newversion=Найдена новая версия мода %s: %s.
+chat.hammercore:newversion.clickdwn=Скачать
 
 #######
 

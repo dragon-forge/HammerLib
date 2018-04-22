@@ -151,7 +151,7 @@ public abstract class RecipeRegistry
 	protected void recipe(IRecipe recipe)
 	{
 		if(recipe.getRegistryName() == null)
-			recipe = recipe.setRegistryName(new ResourceLocation(getMod(), "recipes." + getMod() + ":" + getClass().getSimpleName() + "." + recipes.size()));
+			recipe = recipe.setRegistryName(new ResourceLocation("hammercore", "recipes." + getMod() + ":" + getClass().getSimpleName() + "." + recipes.size()));
 		recipes.add(recipe);
 	}
 }

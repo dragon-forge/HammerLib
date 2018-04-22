@@ -67,7 +67,7 @@ public class TextureUtils
 	@SubscribeEvent
 	public void clientLogoff(FMLNetworkEvent.ClientDisconnectionFromServerEvent e)
 	{
-		TexLocUploader.cleanupAll();
+		Minecraft.getMinecraft().addScheduledTask(TexLocUploader::cleanupAll);
 	}
 	
 	/**

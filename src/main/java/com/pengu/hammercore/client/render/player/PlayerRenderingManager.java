@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.pengu.hammercore.client.render.player.players.EndieDargon;
+import com.pengu.hammercore.common.utils.classes.ClassWrapper;
 
 public class PlayerRenderingManager
 {
@@ -25,6 +26,7 @@ public class PlayerRenderingManager
 	
 	public static iPlayerModel get(String username)
 	{
+//		System.out.println(ClassWrapper.getCallerClassName());
 		return RENDERS.getOrDefault(username, EMPTY);
 	}
 }

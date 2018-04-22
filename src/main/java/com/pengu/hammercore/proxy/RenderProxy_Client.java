@@ -12,6 +12,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
 import com.mojang.authlib.properties.PropertyMap;
 import com.pengu.hammercore.HammerCore;
+import com.pengu.hammercore.ServerHCClientPlayerData;
 import com.pengu.hammercore.TooltipAPI;
 import com.pengu.hammercore.annotations.AtTESR;
 import com.pengu.hammercore.cfg.HammerCoreConfigs;
@@ -66,6 +67,7 @@ import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.discovery.ASMDataTable;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
+import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -234,6 +236,8 @@ public class RenderProxy_Client extends RenderProxy_Common
 			e.printStackTrace();
 		}
 		
+		loadCAPS();
+		
 		// try
 		// {
 		// JSONObject obj = (JSONObject) new JSONTokener(new
@@ -335,6 +339,8 @@ public class RenderProxy_Client extends RenderProxy_Common
 		Minecraft.getMinecraft().getTextureManager().bindTexture(texture);
 	}
 	
+	public static boolean needsClConfigSync;
+	
 	@SubscribeEvent
 	public void ctick(ClientTickEvent e)
 	{
@@ -345,6 +351,7 @@ public class RenderProxy_Client extends RenderProxy_Common
 	public void crel(TextureStitchEvent e)
 	{
 		reloaded = cticked;
+		loadCAPS();
 	}
 	
 	private final Map<String, String> customCapes = new HashMap<>();
@@ -361,18 +368,26 @@ public class RenderProxy_Client extends RenderProxy_Common
 		
 		Map<Type, ResourceLocation> mp = ClientSkinManager.getPlayerMap(acp);
 		
-		if(mp != null && mp.get(Type.CAPE) == null)
+		if(mp != null)
 		{
-			final Map<String, String> customCapes = loadCAPS();
-			if(!customCapes.containsKey(name))
-				return;
-			ResourceLocation loc = new ResourceLocation("hammercore", "capes/" + name);
-			new Thread(() ->
+			ResourceLocation cape = mp.get(Type.CAPE);
+			
+			if(cape == null || (!cape.getResourceDomain().equals("hammercore") && ServerHCClientPlayerData.DATAS.get(Side.SERVER).getOptionsForPlayer(acp).overrideCape))
 			{
-				BufferedImage bi = IOUtils.downloadPicture(customCapes.get(name));
-				Minecraft.getMinecraft().addScheduledTask(() -> Minecraft.getMinecraft().getTextureManager().loadTexture(loc, new BufferedTexture(bi)));
-			}).start();
-			ClientSkinManager.bindTexture(acp, Type.CAPE, loc);
+				final Map<String, String> customCapes = this.customCapes;
+				
+				if(!customCapes.containsKey(name))
+					return;
+				
+				ResourceLocation loc = new ResourceLocation("hammercore", "capes/" + name);
+				mp.put(Type.CAPE, loc);
+				
+				new Thread(() ->
+				{
+					BufferedImage bi = IOUtils.downloadPicture(customCapes.get(name));
+					Minecraft.getMinecraft().addScheduledTask(() -> Minecraft.getMinecraft().getTextureManager().loadTexture(loc, new BufferedTexture(bi)));
+				}).start();
+			}
 		}
 	}
 	

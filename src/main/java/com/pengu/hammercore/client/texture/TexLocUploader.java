@@ -55,6 +55,8 @@ public class TexLocUploader
 	
 	public static void deleteGlTexture(ITextureObject tex)
 	{
+		if(tex == null)
+			return;
 		if(tex instanceof AbstractTexture)
 			((AbstractTexture) tex).deleteGlTexture();
 		else if(tex.getGlTextureId() != -1)

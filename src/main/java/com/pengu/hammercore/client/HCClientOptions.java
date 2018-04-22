@@ -8,21 +8,35 @@ import com.pengu.hammercore.HammerCore.HCAuthor;
 import com.pengu.hammercore.client.texture.gui.theme.GuiTheme;
 import com.pengu.hammercore.common.utils.MD5;
 import com.pengu.hammercore.json.JSONObject;
+import com.pengu.hammercore.json.JSONTokener;
 import com.pengu.hammercore.json.io.IgnoreSerialization;
 import com.pengu.hammercore.json.io.Jsonable;
 import com.pengu.hammercore.json.io.SerializedName;
+import com.pengu.hammercore.net.HCNetwork;
+import com.pengu.hammercore.net.pkt.opts.PacketCHCOpts;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class HCClientOptions implements Jsonable
 {
+	/** ClientOnly! */
 	public static HCClientOptions options = new HCClientOptions();
+	
+	@IgnoreSerialization
+	public boolean def = true;
 	
 	@IgnoreSerialization
 	private JSONObject data;
 	
 	@SerializedName("Authority")
 	public String authority;
+	
+	public boolean renderSpecial = true;
+	
+	public boolean overrideCape;
 	
 	private String Theme;
 	
@@ -45,13 +59,19 @@ public class HCClientOptions implements Jsonable
 	public void setDefaults()
 	{
 		setTheme("Vanilla");
+		renderSpecial = true;
+		overrideCape = true;
 		authority = null;
+		def = true;
 	}
 	
 	public void load(JSONObject j)
 	{
+		def = false;
 		setTheme(j.optString("Theme"), false);
 		authority = j.optString("Authority", "0");
+		renderSpecial = j.optBoolean("renderSpecial", true);
+		overrideCape = j.optBoolean("overrideCape", true);
 		data = j;
 	}
 	
@@ -100,5 +120,25 @@ public class HCClientOptions implements Jsonable
 		} catch(IOException e)
 		{
 		}
+	}
+	
+	public void loadFrom(HCClientOptions o)
+	{
+		try
+		{
+			JSONObject j = (JSONObject) new JSONTokener(o.serialize()).nextValue();
+			load(j);
+		} catch(Throwable er)
+		{
+		}
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public void saveAndSendToServer()
+	{
+		save();
+		EntityPlayer ep = HammerCore.renderProxy.getClientPlayer();
+		if(ep != null)
+			HCNetwork.manager.sendToServer(new PacketCHCOpts().setPlayer(ep).setOpts(this));
 	}
 }

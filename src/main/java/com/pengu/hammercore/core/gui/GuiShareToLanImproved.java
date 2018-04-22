@@ -57,19 +57,7 @@ public class GuiShareToLanImproved extends GuiShareToLan
 			MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
 			server.setAllowPvp(LanUtil.pvp);
 			server.setOnlineMode(LanUtil.online);
-			
-			boolean set = false;
-			
-			try
-			{
-				Field f = PlayerList.class.getDeclaredFields()[17];
-				f.setAccessible(true);
-				f.setInt(server.getPlayerList(), LanUtil.maxPlayers);
-				set = true;
-			} catch(Throwable err)
-			{
-				
-			}
+			server.getPlayerList().maxPlayers = LanUtil.maxPlayers;
 			
 			LanUtil.port = Integer.parseInt(txtPort.getText());
 			

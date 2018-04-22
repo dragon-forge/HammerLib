@@ -50,6 +50,7 @@ import com.pengu.hammercore.core.init.ManualHC;
 import com.pengu.hammercore.event.GetAllRequiredApisEvent;
 import com.pengu.hammercore.fluiddict.FluidDictionary;
 import com.pengu.hammercore.net.HCNetwork;
+import com.pengu.hammercore.net.pkt.opts.PacketReqOpts;
 import com.pengu.hammercore.proxy.AudioProxy_Common;
 import com.pengu.hammercore.proxy.BookProxy_Common;
 import com.pengu.hammercore.proxy.LightProxy_Common;
@@ -61,12 +62,14 @@ import com.pengu.hammercore.recipeAPI.BrewingRecipe;
 import com.pengu.hammercore.recipeAPI.helper.RecipeRegistry;
 import com.pengu.hammercore.recipeAPI.helper.RegisterRecipes;
 import com.pengu.hammercore.utils.ColorHelper;
+import com.pengu.hammercore.utils.ModVersions;
 import com.pengu.hammercore.world.WorldGenHammerCore;
 import com.pengu.hammercore.world.WorldGenHelper;
 import com.pengu.hammercore.world.data.PerChunkDataManager;
 
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
@@ -183,6 +186,8 @@ public class HammerCore
 		//
 		// FIELD_CSV = f;
 		// METHODS_CSV = m;
+		
+		ModVersions.refresh();
 		
 		Class c = ForgeHooksClient.class;
 	}
@@ -430,6 +435,9 @@ public class HammerCore
 	@SubscribeEvent
 	public void playerConnected(PlayerLoggedInEvent evt)
 	{
+		if(evt.player instanceof EntityPlayerMP)
+			HCNetwork.manager.sendTo(new PacketReqOpts(), (EntityPlayerMP) evt.player);
+		
 		EntityPlayer client = HammerCore.renderProxy.getClientPlayer();
 		if(client != null && client.getGameProfile().getId().equals(evt.player.getGameProfile().getId()))
 			return;
