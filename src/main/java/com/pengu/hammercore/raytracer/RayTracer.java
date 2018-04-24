@@ -170,16 +170,12 @@ public class RayTracer
 		CuboidRayTraceResult closestHit = null;
 		double curClosest = Double.MAX_VALUE;
 		for(CuboidRayTraceResult hit : results)
-		{
 			if(hit != null)
-			{
 				if(curClosest > hit.dist)
 				{
 					closestHit = hit;
 					curClosest = hit.dist;
 				}
-			}
-		}
 		return closestHit;
 	}
 	

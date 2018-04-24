@@ -21,6 +21,8 @@ import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.potion.PotionType;
 import net.minecraft.potion.PotionUtils;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.oredict.OreDictionary;
 
 public abstract class RecipeRegistry
@@ -142,16 +144,22 @@ public abstract class RecipeRegistry
 		recipe(SimpleRegistration.parseShapelessRecipe(new ItemStack(out), recipeComponents));
 	}
 	
+	/** Gets the modid of the registry */
 	protected String getMod()
 	{
 		RegisterRecipes a = getClass().getAnnotation(RegisterRecipes.class);
 		return a != null ? a.modid() : "unknown";
 	}
 	
+	public ModContainer getOwner()
+	{
+		return Loader.instance().getIndexedModList().get(getMod());
+	}
+	
 	protected void recipe(IRecipe recipe)
 	{
 		if(recipe.getRegistryName() == null)
-			recipe = recipe.setRegistryName(new ResourceLocation("hammercore", "recipes." + getMod() + ":" + getClass().getSimpleName() + "." + recipes.size()));
+			recipe = recipe.setRegistryName(new ResourceLocation(getMod(), getClass().getSimpleName() + "." + recipes.size()));
 		recipes.add(recipe);
 	}
 }

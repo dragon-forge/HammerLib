@@ -351,7 +351,16 @@ public class RenderProxy_Client extends RenderProxy_Common
 	public void crel(TextureStitchEvent e)
 	{
 		reloaded = cticked;
+	}
+	
+	@SubscribeEvent
+	public void clientJoined(FMLNetworkEvent.ClientConnectedToServerEvent cctse)
+	{
+		// Reload cape list
 		loadCAPS();
+		
+		// Reload plugins on join
+		HammerCore.instance.reloadPlugins();
 	}
 	
 	private final Map<String, String> customCapes = new HashMap<>();

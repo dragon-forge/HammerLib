@@ -381,7 +381,9 @@ public class HammerCore
 		e.registerServerCommand(new CommandSetLootTable());
 		e.registerServerCommand(new CommandExportStructure());
 		e.registerServerCommand(new CommandLyingItem());
-		reloadRaytracePlugins();
+		
+		// Reload plugins on server side
+		reloadPlugins();
 	}
 	
 	@EventHandler
@@ -482,7 +484,7 @@ public class HammerCore
 				holder.reload();
 	}
 	
-	public void reloadRaytracePlugins()
+	public void reloadPlugins()
 	{
 		TeslaAPI.refreshTeslaClassData();
 		

@@ -10,11 +10,10 @@ import com.pengu.hammercore.api.mhb.iRayCubeRegistry;
 import com.pengu.hammercore.vec.Cuboid6;
 
 import net.minecraft.block.Block;
-import net.minecraft.entity.player.EntityPlayer;
 
-final class RayCubeRegistry implements iRayCubeRegistry, iRayCubeGetter
+public final class RayCubeRegistry implements iRayCubeRegistry, iRayCubeGetter
 {
-	static final RayCubeRegistry instance = new RayCubeRegistry();
+	public static final RayCubeRegistry instance = new RayCubeRegistry();
 	final Map<Block, Cuboid6[]> cubes = new HashMap<Block, Cuboid6[]>();
 	final Map<Block, iCubeManager> mgrs = new HashMap<Block, iCubeManager>();
 	
@@ -45,11 +44,5 @@ final class RayCubeRegistry implements iRayCubeRegistry, iRayCubeGetter
 	public iCubeManager getBoundCubeManager(BlockTraceable target)
 	{
 		return mgrs.get(target);
-	}
-	
-	@Override
-	public EntityPlayer func_0x834823_a()
-	{
-		return HammerCore.renderProxy.getClientPlayer();
 	}
 }
