@@ -2,6 +2,7 @@ package com.pengu.hammercore.core.gui.smooth;
 
 import org.lwjgl.opengl.GL11;
 
+import com.pengu.hammercore.client.texture.gui.DynGuiTex;
 import com.pengu.hammercore.client.texture.gui.GuiTexBakery;
 import com.pengu.hammercore.client.texture.gui.theme.GuiTheme;
 import com.pengu.hammercore.client.utils.RenderUtil;
@@ -29,6 +30,22 @@ public class GuiFurnaceSmooth extends GuiFurnace
 		furn = furnaceInv;
 	}
 	
+	public DynGuiTex tex;
+	
+	@Override
+	public void initGui()
+	{
+		super.initGui();
+		
+		GuiTexBakery b = GuiTexBakery.start().body(0, 0, xSize, ySize);
+		for(int o = 0; o < inventorySlots.inventorySlots.size(); ++o)
+		{
+			Slot s = inventorySlots.inventorySlots.get(o);
+			b.slot(s.xPos - 1, s.yPos - 1);
+		}
+		tex = b.bake();
+	}
+	
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY)
 	{
@@ -37,13 +54,7 @@ public class GuiFurnaceSmooth extends GuiFurnace
 		int i = (width - xSize) / 2;
 		int j = (height - ySize) / 2;
 		
-		GuiTexBakery b = GuiTexBakery.start().body(0, 0, xSize, ySize);
-		for(int k = 0; k < inventorySlots.inventorySlots.size(); ++k)
-		{
-			Slot s = inventorySlots.inventorySlots.get(k);
-			b.slot(s.xPos - 1, s.yPos - 1);
-		}
-		b.bake().render(i, j);
+		tex.render(i, j);
 		
 		int col = GuiTheme.CURRENT_THEME.slotColor;
 		GL11.glColor4f(ColorHelper.getRed(col), ColorHelper.getGreen(col), ColorHelper.getBlue(col), 1);

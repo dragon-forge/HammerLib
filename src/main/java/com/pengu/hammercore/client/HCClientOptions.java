@@ -51,7 +51,7 @@ public class HCClientOptions implements Jsonable
 	public static boolean checkAuthority(String passcode)
 	{
 		for(HCAuthor au : HammerCore.getHCAuthors())
-			if(Minecraft.getMinecraft().getSession().getUsername().equals(au.getUsername()))
+			if(au.getStore() != null && Minecraft.getMinecraft().getSession().getUsername().equals(au.getUsername()))
 				return au.getStore().matches(MD5.encrypt(passcode));
 		return true;
 	}
@@ -68,7 +68,9 @@ public class HCClientOptions implements Jsonable
 	public void load(JSONObject j)
 	{
 		def = false;
-		setTheme(j.optString("Theme"), false);
+		// Fixed theme intersection
+		if(this == getOptions())
+			setTheme(j.optString("Theme"), false);
 		authority = j.optString("Authority", "0");
 		renderSpecial = j.optBoolean("renderSpecial", true);
 		overrideCape = j.optBoolean("overrideCape", true);

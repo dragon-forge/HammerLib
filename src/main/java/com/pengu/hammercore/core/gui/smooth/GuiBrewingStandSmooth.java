@@ -2,6 +2,7 @@ package com.pengu.hammercore.core.gui.smooth;
 
 import org.lwjgl.opengl.GL11;
 
+import com.pengu.hammercore.client.texture.gui.DynGuiTex;
 import com.pengu.hammercore.client.texture.gui.GuiTexBakery;
 import com.pengu.hammercore.client.texture.gui.theme.GuiTheme;
 import com.pengu.hammercore.client.utils.RenderUtil;
@@ -30,6 +31,22 @@ public class GuiBrewingStandSmooth extends GuiBrewingStand
 		this.bs = bs;
 	}
 	
+	public DynGuiTex tex;
+	
+	@Override
+	public void initGui()
+	{
+		super.initGui();
+		
+		GuiTexBakery b = GuiTexBakery.start().body(0, 0, xSize, ySize);
+		for(int o = 0; o < inventorySlots.inventorySlots.size(); ++o)
+		{
+			Slot s = inventorySlots.inventorySlots.get(o);
+			b.slot(s.xPos - 1, s.yPos - 1);
+		}
+		tex = b.bake();
+	}
+	
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY)
 	{
@@ -42,13 +59,7 @@ public class GuiBrewingStandSmooth extends GuiBrewingStand
 		double k = bs.getField(1);
 		double l = MathHelper.clamp((18D * k + 20D - 1D) / 20D, 0, 18);
 		
-		GuiTexBakery b = GuiTexBakery.start().body(0, 0, xSize, ySize);
-		for(int o = 0; o < inventorySlots.inventorySlots.size(); ++o)
-		{
-			Slot s = inventorySlots.inventorySlots.get(o);
-			b.slot(s.xPos - 1, s.yPos - 1);
-		}
-		b.bake().render(i, j);
+		tex.render(i, j);
 		
 		int i1 = bs.getField(0);
 		
