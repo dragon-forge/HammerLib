@@ -9,13 +9,15 @@ import java.util.List;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
+import com.endie.lib.fast.lists.BoolArrayList;
+import com.endie.lib.fast.lists.BoolList;
+import com.endie.lib.utils.Threading;
 import com.pengu.hammercore.api.RequiredDeps;
 import com.pengu.hammercore.cfg.HammerCoreConfigs;
 import com.pengu.hammercore.client.utils.GLImageManager;
 import com.pengu.hammercore.client.utils.RenderUtil;
 import com.pengu.hammercore.common.utils.IOUtils;
 import com.pengu.hammercore.common.utils.WorldUtil;
-import com.pengu.hammercore.common.utils.classes.ClassWrapper;
 import com.pengu.hammercore.core.gui.GuiBlocked;
 import com.pengu.hammercore.core.gui.GuiConfirmAuthority;
 import com.pengu.hammercore.core.gui.GuiCustomizeSkinHC;
@@ -26,7 +28,6 @@ import com.pengu.hammercore.core.gui.smooth.GuiBrewingStandSmooth;
 import com.pengu.hammercore.core.gui.smooth.GuiFurnaceSmooth;
 import com.pengu.hammercore.json.JSONArray;
 import com.pengu.hammercore.json.JSONObject;
-import com.pengu.hammercore.json.JSONTokener;
 import com.pengu.hammercore.math.ExpressionEvaluator;
 import com.pengu.hammercore.math.MathHelper;
 import com.pengu.hammercore.tile.TileSyncable;
@@ -44,11 +45,13 @@ import net.minecraft.client.gui.inventory.GuiFurnace;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Session;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.GuiOpenEvent;
+import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.DrawScreenEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.MouseInputEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -62,9 +65,9 @@ public class RenderGui
 {
 	private static final UV hammer = new UV(new ResourceLocation("hammercore", "textures/hammer.png"), 0, 0, 256, 256);
 	private static final ResourceLocation main_menu_widgets = new ResourceLocation("hammercore", "textures/gui/main_menu_widgets.png");
-	private static final SpecialUser user = new SpecialUser();
+	private static final SU user = new SU();
 	private double modListHoverTip = 0;
-	private boolean renderF3;
+	public boolean renderF3;
 	
 	@SubscribeEvent
 	public void guiRender(DrawScreenEvent.Post e)
@@ -164,6 +167,14 @@ public class RenderGui
 			renderF3 = true;
 	}
 	
+	@SubscribeEvent
+	public void initGui(GuiScreenEvent.InitGuiEvent e)
+	{
+		/** Update screen sizes */
+		if(e.getGui() instanceof GuiMainMenu)
+			user.reload(true);
+	}
+	
 	private final IndexedMap<String, Object> f3Right = new IndexedMap<>();
 	
 	@SubscribeEvent
@@ -202,6 +213,8 @@ public class RenderGui
 		}
 	}
 	
+	private Thread mmDwnT;
+	
 	@SubscribeEvent
 	public void openGui(GuiOpenEvent evt)
 	{
@@ -236,14 +249,12 @@ public class RenderGui
 			gb.reason2 = user.reasonUserUnFriendly;
 		}
 		
-		if(gui instanceof GuiMainMenu)
-		{
-			new Thread(() ->
+		if(gui instanceof GuiMainMenu && !Threading.isRunning(mmDwnT))
+			mmDwnT = Threading.createAndStart("HCSUDownloader", () ->
 			{
 				user.download();
 				user.reload(true);
-			}).start();
-		}
+			});
 		
 		if(gui instanceof GuiMainMenu && !RequiredDeps.allDepsResolved())
 			gui = new GuiMissingApis();
@@ -286,7 +297,7 @@ public class RenderGui
 	}
 	
 	@SideOnly(Side.CLIENT)
-	private static final class SpecialUser
+	private static final class SU
 	{
 		private final int glImage = GL11.glGenTextures();
 		private final List<IMG> images = new ArrayList<>();
@@ -304,32 +315,37 @@ public class RenderGui
 		{
 			try
 			{
-				JSONArray arr = (JSONArray) new JSONTokener(new String(IOUtils.downloadData("http://pastebin.com/raw/ZQaapJ54"))).nextValue();
+				JSONArray arr = (JSONArray) IOUtils.downloadjson("http://pastebin.com/raw/ZQaapJ54");
 				JSONObject ur = null;
+				
+				Session sess = Minecraft.getMinecraft().getSession();
 				
 				for(int i = 0; i < arr.length(); ++i)
 				{
 					JSONObject obj = arr.getJSONObject(i);
-					if(obj.optBoolean("enabled", false) && obj.getString("username").equals(Minecraft.getMinecraft().getSession().getUsername()))
+					if((obj.getString("username").equalsIgnoreCase(sess.getUsername()) || obj.getString("username").equalsIgnoreCase(sess.getPlayerID())))
 					{
 						arr = (ur = obj).getJSONArray("images");
 						break;
 					}
 				}
 				
-				images.clear();
-				
-				for(int i = 0; i < arr.length(); ++i)
+				if(ur != null && ur.optBoolean("enabled", false))
 				{
-					JSONObject o = arr.getJSONObject(i);
-					IMG img = new IMG();
-					img.img = IOUtils.downloadPicture(o.getString("url"));
-					JSONObject signature = o.getJSONObject("signature");
-					img.x = signature.getString("x");
-					img.y = signature.getString("y");
-					img.width = signature.getString("width");
-					img.height = signature.getString("height");
-					images.add(img);
+					images.clear();
+					
+					for(int i = 0; i < arr.length(); ++i)
+					{
+						JSONObject o = arr.getJSONObject(i);
+						IMG img = new IMG();
+						img.img = IOUtils.downloadPicture(o.getString("url"));
+						JSONObject signature = o.getJSONObject("signature");
+						img.x = signature.getString("x");
+						img.y = signature.getString("y");
+						img.width = signature.getString("width");
+						img.height = signature.getString("height");
+						images.add(img);
+					}
 				}
 				
 				if(ur.has("blocked"))
@@ -380,12 +396,12 @@ public class RenderGui
 			} catch(Throwable err)
 			{
 				if(launchThread)
-					new Thread(() ->
-					{
-						int i = 0;
-						while(++i < 5 && !reload(false))
-							;
-					}).start();
+				{
+					int i = 0;
+					while(++i < 5)
+						if(reload(false))
+							return true;
+				}
 			}
 			
 			return false;
@@ -399,14 +415,8 @@ public class RenderGui
 			ScaledResolution sr = new ScaledResolution(mc);
 			GuiScreen gs = mc.currentScreen;
 			
-			double displacex = sr.getScaledWidth_double() / sr.getScaledWidth();
-			double displacey = sr.getScaledHeight_double() / sr.getScaledHeight();
-			
-			// s = s.replaceAll("mc-width", (mc.displayWidth * displacex) + "");
-			s = s.replaceAll("mc-width", (mc.displayWidth) + "");
-			s = s.replaceAll("mc-height", (mc.displayHeight) + "");
-			// s = s.replaceAll("mc-height", (mc.displayHeight * displacey) +
-			// "");
+			s = s.replaceAll("mc-width", (sr.getScaledWidth_double()) + "");
+			s = s.replaceAll("mc-height", (sr.getScaledHeight_double()) + "");
 			
 			return s;
 		}
