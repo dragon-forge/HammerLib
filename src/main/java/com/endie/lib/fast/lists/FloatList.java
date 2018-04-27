@@ -22,7 +22,7 @@ public interface FloatList extends List<Float>
 		return add(index);
 	}
 	
-	default int findByte(float i)
+	default int findFloat(float i)
 	{
 		return indexOf(i);
 	}

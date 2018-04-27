@@ -162,7 +162,7 @@ public class HammerCoreTransformer implements IClassTransformer
 				InsnList insn = method.instructions;
 				InsnList newInstructions = new InsnList();
 				newInstructions.add(new VarInsnNode(25, 1));
-				newInstructions.add(new MethodInsnNode(184, "com/pengu/hammercore/client/ItemColorHelper", "setTargetStackAndHandleRender", "(Lnet/minecraft/item/ItemStack;)V"));
+				newInstructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/pengu/hammercore/client/ItemColorHelper", "setTargetStackAndHandleRender", "(Lnet/minecraft/item/ItemStack;)V", false));
 				insn.insertBefore(insn.get(0), newInstructions);
 				asm.info("Sending instructions to RenderItem for function renderItem");
 			}
@@ -187,7 +187,7 @@ public class HammerCoreTransformer implements IClassTransformer
 					if(n.getOpcode() == 18 && ((LdcInsnNode) n).cst.equals(-8372020))
 					{
 						InsnList newInstructions = new InsnList();
-						newInstructions.add(new MethodInsnNode(184, "com/pengu/hammercore/client/ItemColorHelper", "getCustomColor", "()I"));
+						newInstructions.add(new MethodInsnNode(184, "com/pengu/hammercore/client/ItemColorHelper", "getCustomColor", "()I", false));
 						insn.insertBefore(n, newInstructions);
 						insn.remove(n);
 						worked = true;
@@ -225,7 +225,7 @@ public class HammerCoreTransformer implements IClassTransformer
 							m.instructions.remove(toRemove);
 							
 							InsnList toInject = new InsnList();
-							toInject.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/pengu/hammercore/net/LanUtil", "getSuitableLanPort", "()I"));
+							toInject.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/pengu/hammercore/net/LanUtil", "getSuitableLanPort", "()I", false));
 							m.instructions.insertBefore(m.instructions.get(index), toInject);
 							asm.info("Sending instructions to HttpUtil for function getSuitableLanPort");
 						}
@@ -374,7 +374,7 @@ public class HammerCoreTransformer implements IClassTransformer
 		func_72853_d.name = name;
 		InsnList list = new InsnList();
 		list.add(new VarInsnNode(Opcodes.ALOAD, 0));
-		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/pengu/hammercore/asm/WorldHooks", "getMoonPhase", "(Lamu;)I"));
+		list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/pengu/hammercore/asm/WorldHooks", "getMoonPhase", "(Lamu;)I", false));
 		list.add(new InsnNode(Opcodes.IRETURN));
 		func_72853_d.instructions = list;
 		return func_72853_d;

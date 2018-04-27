@@ -64,7 +64,9 @@ capability.fluid.name=Жидкости
 capability.items.name=Предметы
 
 chat.hammercore:newversion=Найдена новая версия мода %s: %s.
+chat.hammercore:corrupt=Мод %s был поврежден!
 chat.hammercore:newversion.clickdwn=Скачать
+chat.hammercore:newversion.clickdwn.detail=Нажмите, что бы открыть браузер на оффициальной странице скачивания мода.
 
 #######
 

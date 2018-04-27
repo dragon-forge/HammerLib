@@ -5,7 +5,10 @@ import java.util.List;
 
 import org.lwjgl.opengl.GL11;
 
+import com.pengu.hammercore.client.texture.gui.theme.GuiTheme;
 import com.pengu.hammercore.client.utils.RenderUtil;
+import com.pengu.hammercore.client.utils.UtilsFX;
+import com.pengu.hammercore.utils.ColorHelper;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ResourceLocation;
@@ -36,6 +39,20 @@ public class GuiWidgets
 			return Arrays.asList(fs.getLocalizedName(), TextFormatting.GRAY + String.format("%,d / %,d mB", fs.amount, tank.getCapacity()), TextFormatting.BLUE.toString() + TextFormatting.ITALIC + mod);
 		} else
 			return Arrays.asList("Empty", TextFormatting.GRAY + String.format("%,d / %,d mB", 0, tank.getCapacity()));
+	}
+	
+	public static void drawFurnaceArrow(float x, float y, double l)
+	{
+		UtilsFX.bindTexture("textures/gui/def_widgets.png");
+		int col = GuiTheme.current().slotColor;
+		
+		GL11.glColor4f(ColorHelper.getRed(col), ColorHelper.getGreen(col), ColorHelper.getBlue(col), 1);
+		RenderUtil.drawTexturedModalRect(x, y, 0, 14, 22, 16);
+		
+		RenderUtil.drawTexturedModalRect(x, y, 0, 30, l, 16);
+		col = GuiTheme.current().getColor(1);
+		GL11.glColor4f(ColorHelper.getRed(col), ColorHelper.getGreen(col), ColorHelper.getBlue(col), 1);
+		RenderUtil.drawTexturedModalRect(x, y, 0, 14, l, 16);
 	}
 	
 	public static void drawLine(float x, float y)

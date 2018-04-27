@@ -67,12 +67,15 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.util.text.event.ClickEvent.Action;
+import net.minecraft.util.text.event.HoverEvent;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -111,6 +114,20 @@ public class Render3D
 		{
 			inWV = true;
 			
+			HammerCore.invalidCertificates.keySet().stream().forEach(mod ->
+			{
+				ModContainer mc = Loader.instance().getIndexedModList().get(mod);
+				if(mc != null)
+				{
+					TextComponentTranslation tct = new TextComponentTranslation("chat.hammercore:newversion.clickdwn");
+					tct.getStyle().setColor(TextFormatting.BLUE);
+					tct.getStyle().setUnderlined(true);
+					tct.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("chat.hammercore:newversion.clickdwn.detail")));
+					tct.getStyle().setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, HammerCore.invalidCertificates.get(mod)));
+					Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation("chat.hammercore:corrupt", TextFormatting.AQUA + mc.getName() + TextFormatting.RESET).appendText(" ").appendSibling(tct));
+				}
+			});
+			
 			ModVersions.installedUpdateableMods().forEach(mod ->
 			{
 				ModVersion ver = ModVersions.getLatestVersion(mod);
@@ -120,8 +137,9 @@ public class Render3D
 					TextComponentTranslation tct = new TextComponentTranslation("chat.hammercore:newversion.clickdwn");
 					tct.getStyle().setColor(TextFormatting.BLUE);
 					tct.getStyle().setUnderlined(true);
+					tct.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("chat.hammercore:newversion.clickdwn.detail")));
 					tct.getStyle().setClickEvent(new ClickEvent(Action.OPEN_URL, ver.url));
-					Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation("chat.hammercore:newversion", TextFormatting.AQUA + ver.getModName() + TextFormatting.RESET, TextFormatting.GREEN + ver.remVer + TextFormatting.RESET).appendSibling(new TextComponentString(" ")).appendSibling(tct));
+					Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation("chat.hammercore:newversion", TextFormatting.AQUA + ver.getModName() + TextFormatting.RESET, TextFormatting.GREEN + ver.remVer + TextFormatting.RESET).appendText(" ").appendSibling(tct));
 				}
 			});
 		}

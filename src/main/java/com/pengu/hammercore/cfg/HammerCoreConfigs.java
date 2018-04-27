@@ -11,6 +11,11 @@ import net.minecraftforge.fml.common.Loader;
 @HCModConfigurations(modid = "hammercore")
 public class HammerCoreConfigs implements iConfigReloadListener
 {
+	public static HammerCoreConfigs configInstance;
+	{
+		configInstance = this;
+	}
+	
 	@ModConfigPropertyBool(name = "Smooth Vanilla Guis", category = "Client", defaultValue = true, comment = "Replace vanilla furnace and brewing stand progress bars to use smooth rendering?")
 	public static boolean client_smoothVanillaGuis = true;
 	

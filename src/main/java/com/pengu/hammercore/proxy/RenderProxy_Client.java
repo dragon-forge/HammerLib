@@ -2,7 +2,6 @@ package com.pengu.hammercore.proxy;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -241,21 +240,6 @@ public class RenderProxy_Client extends RenderProxy_Common
 		}
 		
 		loadCAPS();
-		
-		// try
-		// {
-		// JSONObject obj = (JSONObject) new JSONTokener(new
-		// String(IOUtils.downloadData("https://raw.githubusercontent.com/APengu/HammerCore/1.11.x/hd_skins.json"))).nextValue();
-		// for(String key : obj.keySet())
-		// {
-		// HammerCore.LOG.info("HD Skin for " + key + ": Loading...");
-		// ResourceLocation path = new ResourceLocation("skins/" + key);
-		// Minecraft.getMinecraft().getTextureManager().mapTextureObjects.put(path,
-		// new URLImageTexture(path, obj.getString(key)));
-		// HammerCore.LOG.info("HD Skin for " + key + ": Imported");
-		// }
-		// }
-		// catch(Throwable err) {}
 	}
 	
 	@Override

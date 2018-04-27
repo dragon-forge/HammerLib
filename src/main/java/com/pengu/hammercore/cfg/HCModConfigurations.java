@@ -11,4 +11,8 @@ import java.lang.annotation.Target;
 public @interface HCModConfigurations
 {
 	String modid();
+	
+	String module() default "";
+	
+	boolean isModule() default false;
 }

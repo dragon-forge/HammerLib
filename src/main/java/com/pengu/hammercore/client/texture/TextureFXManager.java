@@ -35,22 +35,5 @@ public enum TextureFXManager
 			if(s instanceof TextureSpriteCustom)
 				((TextureSpriteCustom) s).resetFX(event instanceof Pre ? 0 : event instanceof Post ? 1 : 2);
 		event.getMap().mapUploadedSprites.putAll(iconMap);
-		
-		// try
-		// {
-		// Render3D.loadedPlayers.clear();
-		//
-		// JSONObject obj = (JSONObject) new JSONTokener(new
-		// String(IOUtils.downloadData("https://raw.githubusercontent.com/APengu/HammerCore/1.11.x/hd_skins.json"))).nextValue();
-		// for(String key : obj.keySet())
-		// {
-		// HammerCore.LOG.info("HD Skin for " + key + ": Loading...");
-		// ResourceLocation path = new ResourceLocation("skins/" + key);
-		// Minecraft.getMinecraft().getTextureManager().mapTextureObjects.put(path,
-		// new URLImageTexture(path, obj.getString(key)));
-		// HammerCore.LOG.info("HD Skin for " + key + ": Imported");
-		// }
-		// }
-		// catch(Throwable err) {}
 	}
 }

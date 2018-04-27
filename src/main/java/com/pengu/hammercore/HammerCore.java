@@ -80,6 +80,7 @@ import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
@@ -117,6 +118,8 @@ public class HammerCore
 	public static final List<String> initHCChannels = new ArrayList<>();
 	public static final List<AttuneResult> closeAfterLogoff = new ArrayList<>();
 	public static boolean invalidCertificate = false;
+	/** Contains all mods that require HammerCore and have invalid certificates */
+	public static Map<String, String> invalidCertificates = new HashMap<>();
 	public static final List<iProcess> updatables = new ArrayList<>(16);
 	
 	/**
@@ -190,6 +193,8 @@ public class HammerCore
 		ModVersions.refresh();
 		
 		Class c = ForgeHooksClient.class;
+		
+		FMLCommonHandler.instance().registerCrashCallable(new CrashUtil());
 	}
 	
 	@EventHandler
@@ -200,6 +205,7 @@ public class HammerCore
 		LOG.warn("It is highly recommended that you redownload mod from https://minecraft.curseforge.com/projects/247401 !");
 		LOG.warn("*****************************");
 		invalidCertificate = true;
+		invalidCertificates.put("hammercore", "https://minecraft.curseforge.com/projects/247401");
 	}
 	
 	/**
