@@ -85,8 +85,6 @@ public class GetWaila implements IWailaDataProvider
 							for(int j = 0; j < fill; j += 2)
 								Gui.drawRect(1 + j, 1, 2 + j, 11, bar.filledAlternateColor);
 							
-							bar.getProgress();
-							
 							Minecraft.getMinecraft().fontRenderer.drawString((bar.prefix != null ? bar.prefix : "") + (bar.suffix != null ? bar.suffix : ""), 3, 2, 0xFFFFFF, true);
 							
 							GL11.glTranslated(0, 13, 0);

@@ -546,6 +546,8 @@ public class HammerCore
 		return HCAUTHORS[0].getUsername();
 	}
 	
+	public static final List<String> AUTHORS = getHCAuthorsArray();
+	
 	public static class HCAuthor
 	{
 		private final String username, dname;

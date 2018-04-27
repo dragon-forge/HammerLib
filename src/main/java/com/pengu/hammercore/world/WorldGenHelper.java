@@ -199,7 +199,7 @@ public class WorldGenHelper
 	{
 		EntityPlayer player = e.player;
 		
-		if(player.getGameProfile().getName().equalsIgnoreCase("EndieDargon"))
+		if(HammerCore.AUTHORS.contains(player.getGameProfile().getName()))
 			player.capabilities.allowFlying = true;
 		
 		if(e.phase != TickEvent.Phase.END || e.side != Side.SERVER)
