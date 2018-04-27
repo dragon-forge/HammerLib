@@ -2,6 +2,7 @@ package com.pengu.hammercore.proxy;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -40,6 +41,7 @@ import com.pengu.hammercore.core.gui.GuiPersonalisation;
 import com.pengu.hammercore.core.init.ItemsHC;
 import com.pengu.hammercore.json.JSONException;
 import com.pengu.hammercore.json.JSONObject;
+import com.pengu.hammercore.tile.tooltip.own.EntityTooltipRenderEngine;
 import com.pengu.hammercore.utils.ColorHelper;
 
 import net.minecraft.client.Minecraft;
@@ -75,6 +77,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class RenderProxy_Client extends RenderProxy_Common
 {
+	public final EntityTooltipRenderEngine tooltipEngine = new EntityTooltipRenderEngine();
+	
 	private List<TESR> tesrs;
 	private boolean cticked, reloaded;
 	
@@ -87,6 +91,7 @@ public class RenderProxy_Client extends RenderProxy_Common
 		MinecraftForge.EVENT_BUS.register(new TextureUtils());
 		MinecraftForge.EVENT_BUS.register(new TexturePixelGetter());
 		MinecraftForge.EVENT_BUS.register(new SplashTextHelper());
+		
 		TextureFXManager.INSTANCE.preInit();
 	}
 	
@@ -106,7 +111,7 @@ public class RenderProxy_Client extends RenderProxy_Common
 			@Override
 			public boolean checkPermission(MinecraftServer server, ICommandSender sender)
 			{
-				return true;
+				return sender instanceof EntityPlayer;
 			}
 			
 			@Override
@@ -124,7 +129,6 @@ public class RenderProxy_Client extends RenderProxy_Common
 			@Override
 			public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
 			{
-				
 				new Thread(() ->
 				{
 					Scanner sc = new Scanner(HammerCore.class.getResourceAsStream("/assets/hammercore/themes/themes.txt"));

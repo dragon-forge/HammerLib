@@ -12,6 +12,9 @@ import javax.imageio.ImageIO;
 import com.pengu.hammercore.HammerCore;
 import com.pengu.hammercore.json.io.Jsonable;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.util.ResourceLocation;
+
 public class GuiTheme implements Jsonable
 {
 	public static final List<GuiTheme> THEMES = new ArrayList<>();
