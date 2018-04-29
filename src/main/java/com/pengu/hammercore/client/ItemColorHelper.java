@@ -1,6 +1,5 @@
 package com.pengu.hammercore.client;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,7 +10,13 @@ import com.pengu.hammercore.client.render.item.iItemRender;
 import com.pengu.hammercore.client.utils.iEnchantmentColorManager;
 import com.pengu.hammercore.common.items.iCustomEnchantColorItem;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
+import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -49,23 +54,68 @@ public class ItemColorHelper
 		mgrs.add(mgr);
 	}
 	
+	public static void renderItemModelIntoGUI(ItemStack stack, int x, int y, IBakedModel bakedmodel)
+	{
+		TextureManager txmgr = Minecraft.getMinecraft().getTextureManager();
+		GlStateManager.pushMatrix();
+		txmgr.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+		txmgr.getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
+		GlStateManager.enableRescaleNormal();
+		GlStateManager.enableAlpha();
+		GlStateManager.alphaFunc(516, 0.1F);
+		GlStateManager.enableBlend();
+		GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+		GlStateManager.translate(x, y, 450);
+		
+		if(!stack.isEmpty())
+			for(iItemRender render : ItemRenderingHandler.INSTANCE.getRenderHooks(stack.getItem()))
+				if(render != null)
+				{
+					GlStateManager.pushMatrix();
+					GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+					render.renderItem(stack, bakedmodel, TransformType.GUI);
+					GlStateManager.popMatrix();
+				}
+			
+		GlStateManager.disableAlpha();
+		GlStateManager.disableRescaleNormal();
+		GlStateManager.disableLighting();
+		GlStateManager.popMatrix();
+		txmgr.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+		txmgr.getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
+	}
+	
+	public static void renderItemModel(ItemStack stack, IBakedModel bakedmodel, ItemCameraTransforms.TransformType transform)
+	{
+		if(!stack.isEmpty())
+			for(iItemRender render : ItemRenderingHandler.INSTANCE.getRenderHooks(stack.getItem()))
+				if(render != null)
+				{
+					GlStateManager.pushMatrix();
+					GlStateManager.translate(-0.5F, -0.5F, -0.5F);
+					GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+					GlStateManager.enableRescaleNormal();
+					render.renderItem(stack, bakedmodel, transform);
+					GlStateManager.popMatrix();
+				}
+	}
+	
 	public static void setTargetStackAndHandleRender(ItemStack stack)
 	{
 		target = stack;
 		
 		if(!stack.isEmpty())
-		{
-			iItemRender render = ItemRenderingHandler.INSTANCE.getRender(stack.getItem());
-			if(render != null)
-			{
-				GlStateManager.pushMatrix();
-				GlStateManager.translate(-0.5F, -0.5F, -0.5F);
-				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-				GlStateManager.enableRescaleNormal();
-				render.renderItem(stack);
-				GlStateManager.popMatrix();
-			}
-		}
+			for(iItemRender render : ItemRenderingHandler.INSTANCE.getRenderHooks(stack.getItem()))
+				if(render != null)
+				{
+					GlStateManager.pushMatrix();
+					GlStateManager.translate(-0.5F, -0.5F, -0.5F);
+					GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+					GlStateManager.enableRescaleNormal();
+					render.renderItem(stack);
+					GlStateManager.popMatrix();
+				}
 	}
 	
 	public static int getCustomColor()

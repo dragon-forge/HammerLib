@@ -4,6 +4,8 @@ import java.lang.reflect.Constructor;
 
 import javax.annotation.Nullable;
 
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.network.Packet;
 import net.minecraftforge.fml.relauncher.Side;
 
 public class PipelineProxy_Common
@@ -11,6 +13,16 @@ public class PipelineProxy_Common
 	public Side getGameSide()
 	{
 		return Side.SERVER;
+	}
+	
+	public void sendToServer(Packet packet)
+	{
+		
+	}
+	
+	public void sendTo(Packet packet, EntityPlayerMP player)
+	{
+		player.connection.sendPacket(packet);
 	}
 	
 	@Nullable

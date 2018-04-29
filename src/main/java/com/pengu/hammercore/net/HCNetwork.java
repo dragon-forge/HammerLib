@@ -1,19 +1,29 @@
 package com.pengu.hammercore.net;
 
+import com.pengu.hammercore.HammerCore;
 import com.pengu.hammercore.net.packetAPI.PacketManager;
 import com.pengu.hammercore.net.packetAPI.p2p.P2PManager;
 import com.pengu.hammercore.net.pkt.PacketParticle;
 import com.pengu.hammercore.net.pkt.PacketSwingArm;
 import com.pengu.hammercore.net.pkt.PacketSyncMouseStack;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.Packet;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.util.FakePlayer;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class HCNetwork
 {
@@ -22,6 +32,28 @@ public class HCNetwork
 	
 	public static void preInit()
 	{
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public static void c_sendToServer(Packet<?> packet)
+	{
+		HammerCore.pipelineProxy.sendToServer(packet);
+	}
+	
+	public static void s_sendTo(Packet<?> packet, EntityPlayerMP player)
+	{
+		HammerCore.pipelineProxy.sendTo(packet, player);
+	}
+	
+	public static void s_sendToDimension(Packet<?> packet, int dim)
+	{
+		MinecraftServer mcs = FMLCommonHandler.instance().getMinecraftServerInstance();
+		if(mcs != null)
+		{
+			WorldServer sw = mcs.getWorld(dim);
+			if(sw != null)
+				sw.getPlayers(EntityPlayerMP.class, p -> !(p instanceof FakePlayer)).forEach(player -> s_sendTo(packet, player));
+		}
 	}
 	
 	public static iPacketManager getManager(String name)

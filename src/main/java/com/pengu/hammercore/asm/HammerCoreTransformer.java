@@ -10,7 +10,6 @@ import java.util.function.Predicate;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.LdcInsnNode;
@@ -27,7 +26,7 @@ import net.minecraft.launchwrapper.IClassTransformer;
  */
 public class HammerCoreTransformer implements IClassTransformer
 {
-	public static final ClassnameMap CLASS_MAPPINGS = new ClassnameMap("net/minecraft/entity/Entity", "vg", "net/minecraft/item/ItemStack", "aip", "net/minecraft/client/renderer/block/model/IBakedModel", "cfy", "net/minecraft/entity/EntityLivingBase", "vp", "net/minecraft/inventory/EntityEquipmentSlot", "vl", "net/minecraft/client/renderer/entity/RenderLivingBase", "caa", "net/minecraft/client/model/ModelBase", "bqf", "net/minecraft/util/DamageSource", "ur", "net/minecraft/entity/item/EntityBoat", "afd", "net/minecraft/world/World", "amu", "net/minecraft/util/math/BlockPos", "et", "net/minecraft/util/EnumFacing", "fa", "net/minecraft/entity/player/EntityPlayer", "aed", "net/minecraft/block/state/IBlockState", "awt", "net/minecraft/client/renderer/BufferBuilder", "buk", "net/minecraft/world/IBlockAccess", "amy", "net/minecraft/client/renderer/block/model/BakedQuad", "bvp");
+	public static final ClassnameMap CLASS_MAPPINGS = new ClassnameMap("net/minecraft/entity/Entity", "vg", "net/minecraft/item/ItemStack", "aip", "net/minecraft/client/renderer/block/model/IBakedModel", "cfy", "net/minecraft/entity/EntityLivingBase", "vp", "net/minecraft/inventory/EntityEquipmentSlot", "vl", "net/minecraft/client/renderer/entity/RenderLivingBase", "caa", "net/minecraft/client/model/ModelBase", "bqf", "net/minecraft/util/DamageSource", "ur", "net/minecraft/entity/item/EntityBoat", "afd", "net/minecraft/world/World", "amu", "net/minecraft/util/math/BlockPos", "et", "net/minecraft/util/EnumFacing", "fa", "net/minecraft/entity/player/EntityPlayer", "aed", "net/minecraft/block/state/IBlockState", "awt", "net/minecraft/client/renderer/BufferBuilder", "buk", "net/minecraft/world/IBlockAccess", "amy", "net/minecraft/client/renderer/block/model/BakedQuad", "bvp", "net/minecraft/client/renderer/block/model/ItemCameraTransforms$TransformType", "bwa$b");
 	
 	/* (Lnet/minecraft/util/BlockPos;Lnet/minecraft/world/EnumSkyBlock;)I /
 	 * func_175638_a */
@@ -149,6 +148,8 @@ public class HammerCoreTransformer implements IClassTransformer
 		{
 			MethodSignature sig1 = new MethodSignature("renderItem", "func_180454_a", "a", "(Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/renderer/block/model/IBakedModel;)V");
 			MethodSignature sig2 = new MethodSignature("renderEffect", "func_191966_a", "a", "(Lnet/minecraft/client/renderer/block/model/IBakedModel;)V");
+			MethodSignature sig3 = new MethodSignature("renderItemModel", "func_184394_a", "a", "(Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/renderer/block/model/IBakedModel;Lnet/minecraft/client/renderer/block/model/ItemCameraTransforms$TransformType;Z)V");
+			MethodSignature sig4 = new MethodSignature("renderItemModelIntoGUI", "func_191962_a", "a", "(Lnet/minecraft/item/ItemStack;IILnet/minecraft/client/renderer/block/model/IBakedModel;)V");
 			
 			String funcName = sig1.funcName;
 			if(HammerCoreCore.runtimeDeobfEnabled)
@@ -161,7 +162,7 @@ public class HammerCoreTransformer implements IClassTransformer
 				
 				InsnList insn = method.instructions;
 				InsnList newInstructions = new InsnList();
-				newInstructions.add(new VarInsnNode(25, 1));
+				newInstructions.add(new VarInsnNode(Opcodes.ALOAD, 1));
 				newInstructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/pengu/hammercore/client/ItemColorHelper", "setTargetStackAndHandleRender", "(Lnet/minecraft/item/ItemStack;)V", false));
 				insn.insertBefore(insn.get(0), newInstructions);
 				asm.info("Sending instructions to RenderItem for function renderItem");
@@ -187,7 +188,7 @@ public class HammerCoreTransformer implements IClassTransformer
 					if(n.getOpcode() == 18 && ((LdcInsnNode) n).cst.equals(-8372020))
 					{
 						InsnList newInstructions = new InsnList();
-						newInstructions.add(new MethodInsnNode(184, "com/pengu/hammercore/client/ItemColorHelper", "getCustomColor", "()I", false));
+						newInstructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/pengu/hammercore/client/ItemColorHelper", "getCustomColor", "()I", false));
 						insn.insertBefore(n, newInstructions);
 						insn.remove(n);
 						worked = true;
@@ -196,6 +197,48 @@ public class HammerCoreTransformer implements IClassTransformer
 				
 				if(worked)
 					asm.info("Sending instructions to RenderItem for function renderEffect");
+			}
+			
+			funcName = sig3.funcName;
+			if(HammerCoreCore.runtimeDeobfEnabled)
+				funcName = sig3.srgName;
+			
+			for(MethodNode method : node.methods)
+			{
+				if(!method.name.equals(funcName) && !method.name.equals(sig3.obfName) && !method.name.equals(sig3.srgName) || !method.desc.equals(sig3.funcDesc) && !method.desc.equals(sig3.obfDesc))
+					continue;
+				
+				MethodSignature sigRet = new MethodSignature("renderItemModel", "func_184394_a", "a", "(Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/renderer/block/model/IBakedModel;Lnet/minecraft/client/renderer/block/model/ItemCameraTransforms$TransformType;)V");
+				String desc = method.desc.equals(sig3.obfDesc) ? sigRet.obfDesc : sigRet.funcDesc;
+				
+				InsnList insn = method.instructions;
+				InsnList newInstructions = new InsnList();
+				newInstructions.add(new VarInsnNode(Opcodes.ALOAD, 1));
+				newInstructions.add(new VarInsnNode(Opcodes.ALOAD, 2));
+				newInstructions.add(new VarInsnNode(Opcodes.ALOAD, 3));
+				newInstructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/pengu/hammercore/client/ItemColorHelper", "renderItemModel", desc, false));
+				insn.insertBefore(insn.get(0), newInstructions);
+				asm.info("Sending instructions to RenderItem for function renderItemModel");
+			}
+			
+			funcName = sig4.funcName;
+			if(HammerCoreCore.runtimeDeobfEnabled)
+				funcName = sig4.srgName;
+			
+			for(MethodNode method : node.methods)
+			{
+				if(!method.name.equals(funcName) && !method.name.equals(sig4.obfName) && !method.name.equals(sig4.srgName) || !method.desc.equals(sig4.funcDesc) && !method.desc.equals(sig4.obfDesc))
+					continue;
+				
+				InsnList insn = method.instructions;
+				InsnList newInstructions = new InsnList();
+				newInstructions.add(new VarInsnNode(Opcodes.ALOAD, 1));
+				newInstructions.add(new VarInsnNode(Opcodes.ILOAD, 2));
+				newInstructions.add(new VarInsnNode(Opcodes.ILOAD, 3));
+				newInstructions.add(new VarInsnNode(Opcodes.ALOAD, 4));
+				newInstructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/pengu/hammercore/client/ItemColorHelper", "renderItemModelIntoGUI", method.desc, false));
+				insn.insertBefore(insn.get(0), newInstructions);
+				asm.info("Sending instructions to RenderItem for function renderItemModelIntoGUI");
 			}
 		}, "Coloring Item Glint...", cv("net.minecraft.client.renderer.RenderItem"));
 		
@@ -258,17 +301,18 @@ public class HammerCoreTransformer implements IClassTransformer
 					InsnList list = mn.instructions;
 					AbstractInsnNode n = list.get(list.size() - 2);
 					
-					//Handle custom splash text
+					// Handle custom splash text
 					list.insertBefore(n, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/pengu/hammercore/client/witty/SplashTextHelper", "handle", "(Ljava/lang/String;)Ljava/lang/String;", false));
 					
-//					for(int j = 0; j < list.size(); ++j)
-//					{
-//						String a = "";
-//						AbstractInsnNode n = list.get(j);
-//						if(n instanceof FieldInsnNode)
-//							a = ((FieldInsnNode) n).name + " " + n.getOpcode();
-//						asm.info(j + " - " + n + " |" + opcodeName(n.getOpcode()) + "| " + a);
-//					}
+					// for(int j = 0; j < list.size(); ++j)
+					// {
+					// String a = "";
+					// AbstractInsnNode n = list.get(j);
+					// if(n instanceof FieldInsnNode)
+					// a = ((FieldInsnNode) n).name + " " + n.getOpcode();
+					// asm.info(j + " - " + n + " |" + opcodeName(n.getOpcode())
+					// + "| " + a);
+					// }
 				}
 			}
 		}, "Patching ForgeHooksClient", cv("net.minecraftforge.client.ForgeHooksClient"));
