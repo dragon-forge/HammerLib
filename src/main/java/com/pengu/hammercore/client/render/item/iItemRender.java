@@ -11,8 +11,8 @@ public interface iItemRender
 {
 	void renderItem(ItemStack item);
 	
+	/** New way of rendering an item. */
 	default void renderItem(ItemStack stack, IBakedModel bakedmodel, ItemCameraTransforms.TransformType transform)
 	{
-		renderItem(stack);
 	}
 }

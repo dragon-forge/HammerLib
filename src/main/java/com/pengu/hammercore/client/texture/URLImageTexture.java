@@ -8,6 +8,8 @@ import java.net.URL;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.pengu.hammercore.common.utils.IOUtils;
+
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.resources.IResourceManager;
@@ -30,7 +32,7 @@ public class URLImageTexture extends AbstractTexture
 	{
 		this.deleteGlTexture();
 		
-		try(InputStream input = new URL(url).openStream())
+		try(InputStream input = IOUtils.getInput(url).get1())
 		{
 			BufferedImage bufferedimage = TextureUtil.readBufferedImage(input);
 			TextureUtil.uploadTextureImageAllocate(this.getGlTextureId(), bufferedimage, false, false);

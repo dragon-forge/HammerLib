@@ -46,6 +46,9 @@ public class HammerCoreConfigs implements iConfigReloadListener
 	@ModConfigPropertyBool(name = "Always Spawn Dragon Egg", category = "Vanilla Improvements", defaultValue = true, comment = "Should Hammer Core force-spawn Ender Dragon Egg on Ender Dragon death?")
 	public static boolean vanilla_alwaysSpawnDragonEggs = true;
 	
+	@ModConfigPropertyBool(name = "Old Network", category = "Networking", defaultValue = false, comment = "Should HammerCore use old networking instead of the new (event-driven) one?")
+	public static boolean networking_old = false;
+	
 	public static int iwr_green, iwr_red;
 	
 	public static boolean CustomLANPortInstalled;

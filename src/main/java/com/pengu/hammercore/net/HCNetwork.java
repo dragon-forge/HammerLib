@@ -1,7 +1,9 @@
 package com.pengu.hammercore.net;
 
 import com.pengu.hammercore.HammerCore;
+import com.pengu.hammercore.cfg.HammerCoreConfigs;
 import com.pengu.hammercore.net.packetAPI.PacketManager;
+import com.pengu.hammercore.net.packetAPI.PacketManagerExperimental;
 import com.pengu.hammercore.net.packetAPI.p2p.P2PManager;
 import com.pengu.hammercore.net.pkt.PacketParticle;
 import com.pengu.hammercore.net.pkt.PacketSwingArm;
@@ -27,12 +29,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class HCNetwork
 {
-	public static iPacketManager manager = new PacketManager("hammercore");
-	public static P2PManager p2p = new P2PManager(manager);
+	public static iPacketManager manager = HammerCoreConfigs.networking_old ? new PacketManager("hammercore") : new PacketManagerExperimental("");
 	
-	public static void preInit()
-	{
-	}
+	public static P2PManager p2p = new P2PManager(manager);
 	
 	@SideOnly(Side.CLIENT)
 	public static void c_sendToServer(Packet<?> packet)
@@ -105,7 +104,9 @@ public class HCNetwork
 			manager.sendTo(new PacketSwingArm(hand), (EntityPlayerMP) player);
 	}
 	
-	public static void clinit()
+	public static void preInit()
 	{
+		if(HammerCoreConfigs.networking_old)
+			HammerCore.LOG.bigWarn("USING OLD NETWORKING! I ASSUME YOU KNOW WHAT YOU ARE DOING!");
 	}
 }

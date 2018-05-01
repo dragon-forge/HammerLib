@@ -268,7 +268,7 @@ public class HammerCore
 			// Add compiled codes
 			code.addMCFObjects(toRegister);
 		
-		ProgressBar bar = ProgressManager.push("Loading", 3 + apis.size() + toRegister.size() + listeners.size());
+		ProgressBar bar = ProgressManager.push("Loading", 4 + apis.size() + toRegister.size() + listeners.size());
 		
 		bar.step("Registering EJ");
 		CapabilityEJ.register();
@@ -325,6 +325,9 @@ public class HammerCore
 		bar.step("Registering Items");
 		SimpleRegistration.registerFieldItemsFrom(ItemsHC.class, "hammercore", HammerCore.tab);
 		
+		bar.step("Setup Network");
+		HCNetwork.preInit();
+		
 		OreDictionary.registerOre("gearIron", ItemsHC.IRON_GEAR);
 		
 		ModMetadata meta = e.getModMetadata();
@@ -344,7 +347,6 @@ public class HammerCore
 	{
 		renderProxy.init();
 		bookProxy.init();
-		HCNetwork.clinit();
 		ManualHC.register();
 		
 		for(RecipeRegistry r : recipeRegistries)

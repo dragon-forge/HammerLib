@@ -60,7 +60,7 @@ public class PacketCustomNBT implements IMessage, IMessageHandler<PacketCustomNB
 	{
 		try
 		{
-			PacketManager1122 mgr = PacketManager1122.getManagerByChannel(nbt.getString("Channel"));
+			PacketManagerExperimental mgr = PacketManagerExperimental.getManagerByChannel(nbt.getString("Channel"));
 			Class<iPacket> packetClass = (Class<iPacket>) Class.forName(nbt.getString("PacketClass"));
 			Constructor<iPacket> contr = packetClass.getConstructor();
 			contr.setAccessible(true);

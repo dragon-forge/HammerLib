@@ -1,9 +1,18 @@
 package com.pengu.hammercore.asm;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.MethodNode;
+
+import com.endie.lib.utils.TaskedThread;
 
 public class TransformerSystem
 {
@@ -19,6 +28,50 @@ public class TransformerSystem
 	private String indentstr = "";
 	private int indents = 0;
 	private final List<iASMHook> hooks = new ArrayList<>();
+	
+	private final TaskedThread SAVE_THREAD = new TaskedThread();
+	private final File CLASS_SAVE_DIR = new File("HammerCore", "asm_classes");
+	
+	private void saveClass(byte[] original, byte[] modified, String clazz)
+	{
+		final byte[] o = original.clone();
+		final byte[] m = modified.clone();
+		
+		SAVE_THREAD.addTask(() ->
+		{
+			if(!CLASS_SAVE_DIR.isDirectory())
+				CLASS_SAVE_DIR.mkdirs();
+			try
+			{
+				ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(new File(CLASS_SAVE_DIR, clazz.replaceAll("/", "_").replaceAll("[.]", "_") + ".zip")));
+				
+				zos.putNextEntry(new ZipEntry("origin.class"));
+				zos.write(original);
+				zos.closeEntry();
+				
+				if(!Arrays.equals(modified, original))
+				{
+					zos.putNextEntry(new ZipEntry("modified.class"));
+					zos.write(modified);
+					zos.closeEntry();
+				}
+				
+				zos.putNextEntry(new ZipEntry("methods.txt"));
+				{
+					ClassNode cn = ObjectWebUtils.loadClass(m);
+					for(MethodNode mn : cn.methods)
+						zos.write((mn.name + " " + mn.desc + "\n").getBytes());
+				}
+				zos.closeEntry();
+				
+				zos.close();
+			} catch(IOException e)
+			{
+				info("Failed to save ASM class for " + clazz);
+				e.printStackTrace();
+			}
+		});
+	}
 	
 	public void push()
 	{
@@ -53,6 +106,7 @@ public class TransformerSystem
 	
 	public byte[] transform(String name, String transformedName, byte[] data)
 	{
+		byte[] origin = data;
 		boolean l = false;
 		for(iASMHook h : hooks)
 			if(h.accepts(transformedName) || h.accepts(name))
@@ -79,6 +133,10 @@ public class TransformerSystem
 				
 				pop();
 			}
+		
+		/** Save classes that we are interested in. */
+		if(l || HammerCoreTransformer.CLASS_MAPPINGS.containsKey("L" + transformedName.replaceAll("[.]", "/") + ";"))
+			saveClass(origin, data, transformedName);
 		
 		return data;
 	}

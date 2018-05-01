@@ -31,7 +31,7 @@ import com.pengu.hammercore.json.JSONTokener;
 
 public class IOUtils
 {
-	public static iCacher cache = new HammerCoreCacher();
+	public static final iCacher cache = new HammerCoreCacher();
 	public static final DecimalFormat lenform = new DecimalFormat("#0.00");
 	public static int heapLimit = 4096;
 	public static final byte[] ZERO_ARRAY = new byte[0];

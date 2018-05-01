@@ -15,7 +15,7 @@ import com.pengu.hammercore.common.utils.MD5;
 
 public class HammerCoreCacher implements iCacher
 {
-	public static File cacheDir = new File("HammerCore/web_cache");
+	public static File cacheDir = new File("HammerCore", "web_cache");
 	
 	static
 	{

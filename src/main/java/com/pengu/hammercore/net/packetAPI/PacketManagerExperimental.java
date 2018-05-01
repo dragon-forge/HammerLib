@@ -15,19 +15,24 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.INetHandler;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.INetHandlerPlayServer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.FMLEventChannel;
-import net.minecraftforge.fml.common.network.FMLNetworkEvent;
+import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientCustomPacketEvent;
+import net.minecraftforge.fml.common.network.FMLNetworkEvent.ServerCustomPacketEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
 import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
-public class PacketManager1122 implements iPacketManager
+/**
+ * The experimental packet manager. Apparently should be better in a way? (from
+ * what I know this may be because old packet system didn't cleanup payloads
+ * thus leaving large byte[] in memory)
+ */
+public class PacketManagerExperimental implements iPacketManager
 {
-	private static final Map<String, PacketManager1122> managers = new HashMap<String, PacketManager1122>();
+	private static final Map<String, PacketManagerExperimental> managers = new HashMap<String, PacketManagerExperimental>();
 	
 	final Map<Class<? extends iPacket>, iPacketListener<?, ?>> registry = new HashMap<Class<? extends iPacket>, iPacketListener<?, ?>>();
 	final Map<String, iPacketListener<?, ?>> stringClassRegistry = new HashMap<String, iPacketListener<?, ?>>();
@@ -35,26 +40,29 @@ public class PacketManager1122 implements iPacketManager
 	final String channel;
 	
 	/**
-	 * Creates a new {@link PacketManager1122} with passed string as a channel
-	 * ID or name. <br>
+	 * Creates a new {@link PacketManagerExperimental} with passed string as a
+	 * channel ID or name. <br>
 	 * MUST be constructed under FML initialization event, if you want it to
 	 * work properly.
 	 * 
 	 * @param channel
 	 *            A channel that this manager is working on.
 	 */
-	public PacketManager1122(String channel)
+	public PacketManagerExperimental(String channel)
 	{
 		if(getManagerByChannel(channel) != null)
 			throw new RuntimeException("Duplicate channel ID for " + channel + " (" + this + ") and (" + getManagerByChannel(channel) + ")!!!");
+		
 		managers.put(channel, this);
+		
 		this.channel = channel;
+		
 		this.wrapper = NetworkRegistry.INSTANCE.newEventDrivenChannel("hammercore" + channel);
 		this.wrapper.register(this);
 	}
 	
 	/**
-	 * Gets a channel for {@link PacketManager1122}.
+	 * Gets a channel for {@link PacketManagerExperimental}.
 	 * 
 	 * @return A {@link String} representation of channel.
 	 */
@@ -69,10 +77,10 @@ public class PacketManager1122 implements iPacketManager
 	 * 
 	 * @param channel
 	 *            A channel to lookup with.
-	 * @return A {@link PacketManager1122} or null, if not exists for passed
-	 *         channel.
+	 * @return A {@link PacketManagerExperimental} or null, if not exists for
+	 *         passed channel.
 	 */
-	public static PacketManager1122 getManagerByChannel(String channel)
+	public static PacketManagerExperimental getManagerByChannel(String channel)
 	{
 		return managers.get(channel);
 	}
@@ -175,7 +183,7 @@ public class PacketManager1122 implements iPacketManager
 	{
 		PacketBuffer buf = new PacketBuffer(Unpooled.buffer());
 		buf.writeCompoundTag(new PacketCustomNBT(pkt, channel).nbt);
-		return new FMLProxyPacket(buf, channel);
+		return new FMLProxyPacket(buf, "hammercore" + channel);
 	}
 	
 	/**
@@ -195,49 +203,25 @@ public class PacketManager1122 implements iPacketManager
 			payload.release();
 			return null;
 		}
-		/* Prevent memory leaks */
 		payload.release();
 		return n.handle(ctx(h, s));
 	}
 	
 	@SubscribeEvent
-	public void packetToClient(FMLNetworkEvent.ClientCustomPacketEvent e)
+	public void packetToClient(ClientCustomPacketEvent e)
 	{
 		iPacket p = unwrap(e.getPacket(), e.getHandler(), Side.CLIENT);
-		
 		if(p != null)
 			e.setReply(wrap(p));
 	}
 	
 	@SubscribeEvent
-	public void packetToServer(FMLNetworkEvent.ServerCustomPacketEvent e)
+	public void packetToServer(ServerCustomPacketEvent e)
 	{
 		iPacket p = unwrap(e.getPacket(), e.getHandler(), Side.SERVER);
-		
 		if(p != null)
 			e.setReply(wrap(p));
 	}
-	
-	/***************** FIX START *******************/
-	
-	@SubscribeEvent
-	public void networkEvent(FMLNetworkEvent.CustomNetworkEvent e)
-	{
-		System.out.println("Custom net event " + e);
-	}
-	
-	@SubscribeEvent
-	public void packetAccepted_Server(FMLNetworkEvent.CustomPacketEvent e)
-	{
-		System.out.println("Custom packet event " + e);
-		
-		iPacket p = unwrap(e.getPacket(), e.getHandler(), e.getHandler() instanceof INetHandlerPlayServer ? Side.SERVER : Side.CLIENT);
-		
-		if(p != null)
-			e.setReply(wrap(p));
-	}
-	
-	/***************** FIX END *******************/
 	
 	/**
 	 * Creates a forge MessageContext using reflections. I'm going to move to my
@@ -251,7 +235,7 @@ public class PacketManager1122 implements iPacketManager
 			return null;
 		try
 		{
-			Constructor<MessageContext> ctr = MessageContext.class.getConstructor(INetHandler.class, Side.class);
+			Constructor<MessageContext> ctr = MessageContext.class.getDeclaredConstructor(INetHandler.class, Side.class);
 			ctr.setAccessible(true);
 			return ctr.newInstance(h, s);
 		} catch(NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
