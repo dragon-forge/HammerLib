@@ -116,7 +116,7 @@ public class PacketManagerExperimental implements iPacketManager
 	@Override
 	public void sendToAll(iPacket packet)
 	{
-		wrapper.sendToAll(wrap(packet));
+		wrapper.sendToAll(wrap(packet, null));
 	}
 	
 	/**
@@ -131,7 +131,7 @@ public class PacketManagerExperimental implements iPacketManager
 	@Override
 	public void sendTo(iPacket packet, EntityPlayerMP player)
 	{
-		wrapper.sendTo(wrap(packet), player);
+		wrapper.sendTo(wrap(packet, null), player);
 	}
 	
 	/**
@@ -147,7 +147,7 @@ public class PacketManagerExperimental implements iPacketManager
 	@Override
 	public void sendToAllAround(iPacket packet, TargetPoint point)
 	{
-		wrapper.sendToAllAround(wrap(packet), point);
+		wrapper.sendToAllAround(wrap(packet, null), point);
 	}
 	
 	/**
@@ -163,7 +163,7 @@ public class PacketManagerExperimental implements iPacketManager
 	@Override
 	public void sendToDimension(iPacket packet, int dimensionId)
 	{
-		wrapper.sendToDimension(wrap(packet), dimensionId);
+		wrapper.sendToDimension(wrap(packet, null), dimensionId);
 	}
 	
 	/**
@@ -176,14 +176,24 @@ public class PacketManagerExperimental implements iPacketManager
 	@Override
 	public void sendToServer(iPacket packet)
 	{
-		wrapper.sendToServer(wrap(packet));
+		wrapper.sendToServer(wrap(packet, null));
 	}
 	
-	private FMLProxyPacket wrap(iPacket pkt)
+	private FMLProxyPacket wrap(iPacket pkt, @Nullable FMLProxyPacket origin)
 	{
 		PacketBuffer buf = new PacketBuffer(Unpooled.buffer());
 		buf.writeCompoundTag(new PacketCustomNBT(pkt, channel).nbt);
-		return new FMLProxyPacket(buf, "hammercore" + channel);
+		FMLProxyPacket fmlpp = new FMLProxyPacket(buf, "hammercore" + channel);
+		/**
+		 * Fixes #56. This may not be the best way to do this, but hey! It
+		 * seems to work, so I'll leave it as-is.
+		 */
+		if(origin != null)
+		{
+			fmlpp.setDispatcher(origin.getDispatcher());
+			fmlpp.setTarget(origin.getTarget() == Side.CLIENT ? Side.SERVER : Side.CLIENT);
+		}
+		return fmlpp;
 	}
 	
 	/**
@@ -212,7 +222,7 @@ public class PacketManagerExperimental implements iPacketManager
 	{
 		iPacket p = unwrap(e.getPacket(), e.getHandler(), Side.CLIENT);
 		if(p != null)
-			e.setReply(wrap(p));
+			e.setReply(wrap(p, e.getPacket()));
 	}
 	
 	@SubscribeEvent
@@ -220,7 +230,7 @@ public class PacketManagerExperimental implements iPacketManager
 	{
 		iPacket p = unwrap(e.getPacket(), e.getHandler(), Side.SERVER);
 		if(p != null)
-			e.setReply(wrap(p));
+			e.setReply(wrap(p, e.getPacket()));
 	}
 	
 	/**
