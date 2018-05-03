@@ -7,3 +7,4 @@ release_type=release
 jei_version=4.8.5.138
 
 project_id=247401
+startGitRev=b217e3536846d7db87c62ebb360fec605fb59afa

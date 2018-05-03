@@ -168,7 +168,7 @@ task signSrcJar(type: SignJar, dependsOn: srcJar) {
 task makeChangelog(type: se.bjurr.gitchangelog.plugin.gradle.GitChangelogTask) {
     file = new File("changelog.html")
     untaggedName = "Version ${project.version}"
-    fromCommit = startGitRev
+    fromCommit = config.startGitRev
     toRef =  "HEAD"
     gitHubIssuePattern = "nonada123";
     templateContent = """
