@@ -6,19 +6,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import com.pengu.hammercore.common.iWrenchable;
 import com.pengu.hammercore.common.capabilities.CapabilityEJ;
 import com.pengu.hammercore.core.ext.TeslaAPI;
 import com.pengu.hammercore.energy.iPowerStorage;
+import com.pengu.hammercore.utils.WorldLocation;
 
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 
-public class TileInfiRF extends TileSyncableTickable implements IEnergyStorage, iPowerStorage
+public class TileInfiRF extends TileSyncableTickable implements IEnergyStorage, iPowerStorage, iWrenchable
 {
 	/**
 	 * Allows mods to make custom creative providers.
@@ -132,5 +137,19 @@ public class TileInfiRF extends TileSyncableTickable implements IEnergyStorage, 
 		{
 		}
 		return super.getCapability(capability, facing);
+	}
+	
+	@Override
+	public boolean onWrenchUsed(WorldLocation loc, EntityPlayer player, EnumHand hand)
+	{
+		if(player.isSneaking())
+		{
+			loc.dropItem(new ItemStack(getBlockType()));
+			loc.setAir();
+			
+			return true;
+		}
+		
+		return false;
 	}
 }

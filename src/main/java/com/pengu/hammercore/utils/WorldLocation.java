@@ -1,5 +1,7 @@
 package com.pengu.hammercore.utils;
 
+import javax.annotation.Nullable;
+
 import com.pengu.hammercore.HammerCore;
 import com.pengu.hammercore.common.utils.WorldUtil;
 import com.pengu.hammercore.net.HCNetwork;
@@ -11,8 +13,10 @@ import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.SoundCategory;
@@ -264,5 +268,32 @@ public class WorldLocation
 	public void playSound(String sound, float volume, float pitch, SoundCategory cat)
 	{
 		HammerCore.audioProxy.playSoundAt(world, sound, pos, volume, pitch, cat);
+	}
+	
+	@Nullable
+	public EntityItem dropItem(ItemStack stack)
+	{
+		if(!world.isRemote)
+		{
+			EntityItem ei = new EntityItem(world, pos.getX() + .5, pos.getY() + .5, pos.getZ() + .5, stack);
+			world.spawnEntity(ei);
+			return ei;
+		}
+		return null;
+	}
+	
+	@Nullable
+	public EntityItem dropItem(ItemStack stack, double xOffset, double yOffset, double zOffset, double velX, double velY, double velZ)
+	{
+		if(!world.isRemote)
+		{
+			EntityItem ei = new EntityItem(world, pos.getX() + xOffset, pos.getY() + yOffset, pos.getZ() + zOffset, stack);
+			ei.motionX = velX;
+			ei.motionY = velY;
+			ei.motionZ = velZ;
+			world.spawnEntity(ei);
+			return ei;
+		}
+		return null;
 	}
 }
