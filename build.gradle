@@ -110,7 +110,7 @@ artifacts {
 }
 
 curseforge {
-	apiKey = System.env.CURSEFORGE_API_KEY
+	apiKey = System.env.CURSEFORGE_API_KEY != null ? System.env.CURSEFORGE_API_KEY : '0'
 	project {
 		id = "${config.project_id}"
 		changelogType = 'html'
