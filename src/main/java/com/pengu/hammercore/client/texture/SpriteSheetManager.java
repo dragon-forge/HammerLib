@@ -13,7 +13,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class SpriteSheetManager
 {
-	
 	@SideOnly(Side.CLIENT)
 	public static class SpriteSheet implements IIconRegister
 	{

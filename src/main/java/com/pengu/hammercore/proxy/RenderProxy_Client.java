@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import com.endie.lib.utils.Threading;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
 import com.mojang.authlib.properties.PropertyMap;
@@ -74,7 +75,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class RenderProxy_Client extends RenderProxy_Common
+public class RenderProxy_Client extends RenderProxy_Common implements iEnchantmentColorManager
 {
 	public final EntityTooltipRenderEngine tooltipEngine = new EntityTooltipRenderEngine();
 	
@@ -156,53 +157,11 @@ public class RenderProxy_Client extends RenderProxy_Common
 		// "builtin/animation_fx")).addTextureFX(new
 		// TextureSpriteAnimationFX(16));
 		
-		ItemColorHelper.addManager(new iEnchantmentColorManager()
-		{
-			@Override
-			public int apply(ItemStack stack, int prev)
-			{
-				/** Skip this color manager */
-				if(!HammerCoreConfigs.client_customDefEnchCols)
-					return prev;
-				
-				Item i = stack.getItem();
-				
-				if(i == Items.EXPERIENCE_BOTTLE)
-				{
-					float f9 = (float) (System.currentTimeMillis() % 5000L / 1000D) * 5F;
-					float l = (float) ((Math.sin(f9 + 0.0F) + 1.0F) * 0.5F);
-					float j1 = (float) ((Math.sin(f9 + 4.1887903F) + 1.0F) * 0.1F);
-					return 255 << 24 | ColorHelper.packRGB(l * .75F, .75F, j1 * .75F);
-				}
-				
-				if(i == Items.GOLDEN_APPLE && stack.getItemDamage() == 1)
-					return 0xFFAF9600;
-				
-				if(i == Items.NETHER_STAR)
-					return 0x66770066;
-				
-				return prev;
-			}
-			
-			@Override
-			public boolean applies(ItemStack stack)
-			{
-				return true;
-			}
-			
-			@Override
-			public boolean shouldTruncateColorBrightness(ItemStack stack)
-			{
-				return true;
-			}
-		}, Items.EXPERIENCE_BOTTLE, Items.GOLDEN_APPLE, Items.NETHER_STAR);
+		ItemColorHelper.addManager(this, Items.EXPERIENCE_BOTTLE, Items.GOLDEN_APPLE, Items.NETHER_STAR);
 		
 		new TileEntityItemStackRendererHC();
 		
 		registerRenders(ItemsHC.items);
-		
-		for(Item i : ItemsHC.rendered_items)
-			Minecraft.getMinecraft().getRenderItem().registerItem(i, 0, "chest");
 		
 		for(MultiVariantItem multi : ItemsHC.multiitems)
 		{
@@ -218,6 +177,9 @@ public class RenderProxy_Client extends RenderProxy_Common
 			Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(multi, stack -> (reloaded ? varsReloaded : vars)[stack.getItemDamage()]);
 			ModelBakery.registerItemVariants(multi, variants);
 		}
+		
+		for(Item i : ItemsHC.rendered_items)
+			Minecraft.getMinecraft().getRenderItem().registerItem(i, 0, "chest");
 		
 		HammerCore.LOG.info("Registering TESRs...");
 		for(TESR t : tesrs)
@@ -379,13 +341,51 @@ public class RenderProxy_Client extends RenderProxy_Common
 				ResourceLocation loc = new ResourceLocation("hammercore", "capes/" + name);
 				mp.put(Type.CAPE, loc);
 				
-				new Thread(() ->
+				Threading.createAndStart(() ->
 				{
 					BufferedImage bi = IOUtils.downloadPicture(customCapes.get(name));
 					Minecraft.getMinecraft().addScheduledTask(() -> Minecraft.getMinecraft().getTextureManager().loadTexture(loc, new BufferedTexture(bi)));
-				}).start();
+				});
 			}
 		}
+	}
+	
+	@Override
+	public int apply(ItemStack stack, int prev)
+	{
+		/** Skip this color manager */
+		if(!HammerCoreConfigs.client_customDefEnchCols)
+			return prev;
+		
+		Item i = stack.getItem();
+		
+		if(i == Items.EXPERIENCE_BOTTLE)
+		{
+			float f9 = (float) (System.currentTimeMillis() % 5000L / 1000D) * 5F;
+			float l = (float) ((Math.sin(f9 + 0.0F) + 1.0F) * 0.5F);
+			float j1 = (float) ((Math.sin(f9 + 4.1887903F) + 1.0F) * 0.1F);
+			return 255 << 24 | ColorHelper.packRGB(l * .75F, .75F, j1 * .75F);
+		}
+		
+		if(i == Items.GOLDEN_APPLE && stack.getItemDamage() == 1)
+			return 0xFFAF9600;
+		
+		if(i == Items.NETHER_STAR)
+			return 0x66770066;
+		
+		return prev;
+	}
+	
+	@Override
+	public boolean applies(ItemStack stack)
+	{
+		return true;
+	}
+	
+	@Override
+	public boolean shouldTruncateColorBrightness(ItemStack stack)
+	{
+		return true;
 	}
 	
 	private Thread curCAPT;

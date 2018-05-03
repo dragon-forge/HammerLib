@@ -55,7 +55,6 @@ public enum ItemRenderingHandler
 		ItemsHC.items.remove(item);
 		if(item instanceof MultiVariantItem)
 			ItemsHC.multiitems.remove(item);
-		Minecraft.getMinecraft().getRenderItem().registerItem(item, 0, "chest");
 	}
 	
 	/**
