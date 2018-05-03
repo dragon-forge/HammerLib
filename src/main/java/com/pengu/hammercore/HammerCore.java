@@ -15,6 +15,9 @@ import org.xml.sax.SAXException;
 import com.endie.cryption.SafeStore;
 import com.endie.lib.weupnp.AttuneResult;
 import com.pengu.hammercore.annotations.MCFBus;
+import com.pengu.hammercore.api.GameRules;
+import com.pengu.hammercore.api.GameRules.GameRuleEntry;
+import com.pengu.hammercore.api.GameRules.ValueType;
 import com.pengu.hammercore.api.HammerCoreAPI;
 import com.pengu.hammercore.api.RequiredDeps;
 import com.pengu.hammercore.api.WrappedFMLLog;
@@ -94,6 +97,8 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLInterModComms;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerAboutToStartEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
@@ -118,7 +123,9 @@ public class HammerCore
 	public static final List<String> initHCChannels = new ArrayList<>();
 	public static final List<AttuneResult> closeAfterLogoff = new ArrayList<>();
 	public static boolean invalidCertificate = false;
-	/** Contains all mods that require HammerCore and have invalid certificates */
+	/**
+	 * Contains all mods that require HammerCore and have invalid certificates
+	 */
 	public static Map<String, String> invalidCertificates = new HashMap<>();
 	public static final List<iProcess> updatables = new ArrayList<>(16);
 	
@@ -268,7 +275,7 @@ public class HammerCore
 			// Add compiled codes
 			code.addMCFObjects(toRegister);
 		
-		ProgressBar bar = ProgressManager.push("Loading", 4 + apis.size() + toRegister.size() + listeners.size());
+		ProgressBar bar = ProgressManager.push("Loading", 5 + apis.size() + toRegister.size() + listeners.size());
 		
 		bar.step("Registering EJ");
 		CapabilityEJ.register();
@@ -325,8 +332,13 @@ public class HammerCore
 		bar.step("Registering Items");
 		SimpleRegistration.registerFieldItemsFrom(ItemsHC.class, "hammercore", HammerCore.tab);
 		
-		bar.step("Setup Network");
+		bar.step("Setting up Network");
 		HCNetwork.preInit();
+		
+		bar.step("Registering GameRules");
+		GameRules.registerGameRule(new GameRuleEntry("hc_rainfall", "true", "gamerules.hc_rainfall", ValueType.BOOLEAN_VALUE));
+		GameRules.registerGameRule(new GameRuleEntry("hc_falldamagemult", "1.0", "gamerules.hc_falldamagemult", ValueType.DECIMAL_VALUE));
+//		GameRules.registerGameRule(new GameRuleEntry("hc_flightspeed", "1.0", "gamerules.hc_flightspeed", ValueType.DECIMAL_VALUE));
 		
 		OreDictionary.registerOre("gearIron", ItemsHC.IRON_GEAR);
 		
@@ -395,9 +407,24 @@ public class HammerCore
 	}
 	
 	@EventHandler
+	public void serverAboutToStart(FMLServerAboutToStartEvent e)
+	{
+//		// Add custom game rules
+//		GameRules.load(e.getServer());
+	}
+	
+	@EventHandler
+	public void serverStarted(FMLServerStartedEvent e)
+	{
+		// Add custom game rules
+		GameRules.load(FMLCommonHandler.instance().getMinecraftServerInstance());
+	}
+	
+	@EventHandler
 	public void serverStop(FMLServerStoppingEvent evt)
 	{
 		ChunkLoaderHC.INSTANCE.isAlive();
+		GameRules.cleanup();
 		
 		closeAfterLogoff.forEach(r ->
 		{

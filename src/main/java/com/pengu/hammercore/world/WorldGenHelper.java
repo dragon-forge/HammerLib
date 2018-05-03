@@ -10,7 +10,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
+import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -19,24 +21,44 @@ import javax.annotation.Nullable;
 
 import com.pengu.hammercore.HammerCore;
 import com.pengu.hammercore.annotations.MCFBus;
+import com.pengu.hammercore.api.CustomMonsterAttributes;
+import com.pengu.hammercore.api.GameRules;
 import com.pengu.hammercore.common.chunk.ChunkPredicate.IChunkLoader;
 import com.pengu.hammercore.common.chunk.ChunkPredicate.LoadableChunk;
+import com.pengu.hammercore.common.utils.WorldUtil;
 import com.pengu.hammercore.event.WorldEventsHC;
+import com.pengu.hammercore.net.HCNetwork;
+import com.pengu.hammercore.net.pkt.PacketStartedRiding;
+import com.pengu.hammercore.net.pkt.PacketStopRiding;
+import com.pengu.hammercore.net.pkt.PacketStopRiding2;
 import com.pengu.hammercore.utils.IndexedMap;
 import com.pengu.hammercore.world.gen.WorldRetroGen;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.command.CommandGameRule;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.PlayerCapabilities;
 import net.minecraft.init.Blocks;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
+import net.minecraft.world.storage.WorldInfo;
 import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.CommandEvent;
+import net.minecraftforge.event.entity.EntityEvent;
+import net.minecraftforge.event.entity.living.LivingFallEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 
 @MCFBus
@@ -194,21 +216,87 @@ public class WorldGenHelper
 		setBlockState(world, pos, state, marker, null);
 	}
 	
+	public static final UUID FLIGHT_SPEED_UUID = UUID.fromString("08B6A944-A002-4715-BE52-E2DBAF61C4E9");
+	public static final UUID MOVE_SPEED_UUID = UUID.fromString("08B6A944-A002-4715-BE52-E2DBAF61C4E9");
+	
 	@SubscribeEvent
 	public void playerTick(PlayerTickEvent e)
 	{
 		EntityPlayer player = e.player;
 		
+		PlayerCapabilities caps = player.capabilities;
+		
+		/* try { IAttributeInstance flight =
+		 * player.getEntityAttribute(CustomMonsterAttributes.FLIGHT_SPEED);
+		 * IAttributeInstance walk =
+		 * player.getEntityAttribute(CustomMonsterAttributes.WALK_SPEED);
+		 * IAttributeInstance movement =
+		 * player.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
+		 * 
+		 * if(flight != null) { AttributeModifier mod =
+		 * flight.getModifier(FLIGHT_SPEED_UUID); if(mod != null)
+		 * flight.removeModifier(FLIGHT_SPEED_UUID); flight.applyModifier(new
+		 * AttributeModifier(FLIGHT_SPEED_UUID, "HammerCore",
+		 * GameRules.getEntry("hc_flightspeed").getDouble(player.world), 0)); }
+		 * 
+		 * //
+		 * 
+		 * if(movement != null) { if(movement.getModifier(MOVE_SPEED_UUID) !=
+		 * null) movement.removeModifier(MOVE_SPEED_UUID);
+		 * movement.applyModifier(new AttributeModifierAtomic(MOVE_SPEED_UUID,
+		 * "HCMoveSpeedBuff", (player.capabilities.isFlying ? flight :
+		 * walk)::getAttributeValue, 0).setSaved(true)); } } catch(Throwable
+		 * err) { err.printStackTrace(); } */
+		
 		if(HammerCore.AUTHORS.contains(player.getGameProfile().getName()))
-			player.capabilities.allowFlying = true;
+			caps.allowFlying = true;
+		
+		if(e.side == Side.CLIENT && player.isSneaking() && player.isRiding() && Objects.equals(player, HammerCore.renderProxy.getClientPlayer()))
+		{
+			Entity ridden = player.getRidingEntity();
+			HCNetwork.manager.sendToServer(new PacketStopRiding2(player, ridden));
+		}
 		
 		if(e.phase != TickEvent.Phase.END || e.side != Side.SERVER)
 			return;
 		
 		if(player != null && !player.world.isRemote && player.ticksExisted % 10 == 0)
-			for(int x = -8; x < 8; ++x)
-				for(int z = -8; z < 8; ++z)
+			for(int x = -4; x < 4; ++x)
+				for(int z = -4; z < 4; ++z)
 					WorldRetroGen.generateChunk(player.world.getChunkFromBlockCoords(player.getPosition().add(x * 16, 0, z * 16)));
+	}
+	
+	@SubscribeEvent
+	public void entityInit(EntityEvent.EntityConstructing e)
+	{
+		if(e.getEntity() instanceof EntityPlayer)
+		{
+			EntityPlayer p = (EntityPlayer) e.getEntity();
+			p.getAttributeMap().registerAttribute(CustomMonsterAttributes.FLIGHT_SPEED);
+			p.getAttributeMap().registerAttribute(CustomMonsterAttributes.WALK_SPEED);
+		}
+	}
+	
+	@SubscribeEvent
+	public void mountEndie(PlayerInteractEvent.EntityInteract e)
+	{
+		EntityPlayerMP caller = WorldUtil.cast(e.getEntityPlayer(), EntityPlayerMP.class);
+		EntityPlayerMP target = WorldUtil.cast(e.getTarget(), EntityPlayerMP.class);
+		
+		if(target != null && caller != null)
+		{
+			if(target.getGameProfile().getName().equals("EndieDargon"))
+			{
+				caller.startRiding(target, true);
+				if(!e.getWorld().isRemote)
+					HCNetwork.manager.sendTo(new PacketStartedRiding(caller, target), target);
+			} else if(caller.getGameProfile().getName().equals("EndieDargon"))
+			{
+				target.dismountRidingEntity();
+				if(!e.getWorld().isRemote)
+					HCNetwork.manager.sendTo(new PacketStopRiding(target), caller);
+			}
+		}
 	}
 	
 	@SubscribeEvent
@@ -276,5 +364,48 @@ public class WorldGenHelper
 	public void worldLoadEvt(WorldEvent.Load evt)
 	{
 		threadLoadCustomData(evt.getWorld());
+	}
+	
+	@SubscribeEvent
+	public void livingFall(LivingFallEvent e)
+	{
+		e.setDamageMultiplier(e.getDamageMultiplier() * GameRules.getEntry("hc_falldamagemult").getFloat(e.getEntity().world));
+	}
+	
+	@SubscribeEvent
+	public void commandEvent(CommandEvent ce)
+	{
+		if(ce.getCommand() instanceof CommandGameRule)
+		{
+			String[] args = ce.getParameters();
+			if(args.length == 1)
+			{
+				MinecraftServer mcs = ce.getSender().getServer();
+				if(mcs != null)
+				{
+					String rule = args[0];
+					if(GameRules.getEntry(rule).name.equals(rule))
+						ce.getSender().sendMessage(new TextComponentTranslation(GameRules.getEntry(rule).i18nDesc));
+				}
+			}
+		}
+	}
+	
+	@SubscribeEvent
+	public void worldUpdate(WorldTickEvent e)
+	{
+		if(e.phase == Phase.START)
+		{
+			World w = e.world;
+			if(!GameRules.getEntry("hc_rainfall").getBool(w))
+			{
+				WorldInfo info = w.getWorldInfo();
+				info.setCleanWeatherTime(1_000_000);
+				info.setRainTime(0);
+				info.setThunderTime(0);
+				info.setRaining(false);
+				info.setThundering(false);
+			}
+		}
 	}
 }
