@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import com.pengu.hammercore.common.items.MultiVariantItem;
 import com.pengu.hammercore.core.init.ItemsHC;
@@ -13,6 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.item.Item;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -68,6 +70,15 @@ public enum ItemRenderingHandler
 		if(hk == null)
 			renderHooks.put(item, hk = new ArrayList<>());
 		hk.add(render);
+	}
+	
+	public void applyItemRender(iItemRender render, Predicate<Item> applier)
+	{
+		GameRegistry.findRegistry(Item.class) //
+		        .getValuesCollection() //
+		        .stream() //
+		        .filter(applier) //
+		        .forEach(it -> appendItemRender(it, render));
 	}
 	
 	public boolean canRender(Item item)

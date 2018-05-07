@@ -301,6 +301,7 @@ public class HammerCoreTransformer implements IClassTransformer
 			}
 		}, "Patching ForgeHooksClient", cv("net.minecraftforge.client.ForgeHooksClient"));
 		
+		// Apparently Forge now has this feature. I'll leave this here just in case users use old Forge (that didn't add this feature)
 		hook((node, obf) ->
 		{
 			MethodSignature fillWithLoot = new MethodSignature("fillWithLoot", "func_184281_d", "d", "(Lnet/minecraft/entity/player/EntityPlayer;)V");

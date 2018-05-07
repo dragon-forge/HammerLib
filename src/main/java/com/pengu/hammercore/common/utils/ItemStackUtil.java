@@ -2,7 +2,9 @@ package com.pengu.hammercore.common.utils;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
+import com.endie.lib.fast.lists.IntList;
 import com.pengu.hammercore.common.InterItemStack;
 
 import net.minecraft.entity.item.EntityItem;
@@ -12,14 +14,32 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
 
 /**
  * Contains some utilities to make life with {@link ItemStack}s easier
  */
 public class ItemStackUtil
 {
+	public static ItemStack compact(IInventory inv, ItemStack stack, IntList founds)
+	{
+		int count = 0;
+		for(int i = 0; i < inv.getSizeInventory(); ++i)
+			if(inv.getStackInSlot(i).isItemEqual(stack))
+			{
+				int j = inv.getStackInSlot(i).getCount();
+				count += j;
+				founds.addInt(i);
+			}
+		ItemStack st = stack.copy();
+		st.setCount(count);
+		return st;
+	}
+	
 	public static boolean tagsEqual(NBTTagCompound a, NBTTagCompound b)
 	{
 		if(a == b)
@@ -48,10 +68,57 @@ public class ItemStackUtil
 		return false;
 	}
 	
+	public static void dropStack(ItemStack stack, World world, BlockPos pos)
+	{
+		Random rand = world.rand;
+		if(!stack.isEmpty() && !world.isRemote)
+		{
+			AxisAlignedBB aabb = world.getBlockState(pos).getCollisionBoundingBox(world, pos);
+			if(aabb == null)
+				aabb = new AxisAlignedBB(pos);
+			
+			EntityItem ei = new EntityItem(world, pos.getX() + (aabb.maxX - aabb.minY) / 2, pos.getY() + aabb.maxY, pos.getZ() + (aabb.maxZ - aabb.minZ) / 2, stack.copy());
+			
+			ei.motionX = (rand.nextDouble() - rand.nextDouble()) * 0.045;
+			ei.motionY = rand.nextDouble() * 0.25;
+			ei.motionZ = (rand.nextDouble() - rand.nextDouble()) * 0.045;
+			
+			world.spawnEntity(ei);
+		}
+	}
+	
+	public static void ejectOrDrop(ItemStack stack, TileEntity from)
+	{
+		if(stack.isEmpty())
+			return;
+		
+		for(EnumFacing face : EnumFacing.VALUES)
+		{
+			TileEntity tile = from.getWorld().getTileEntity(from.getPos().offset(face));
+			stack = inject(stack, tile, face.getOpposite());
+			if(stack.isEmpty())
+				break;
+		}
+		
+		if(!stack.isEmpty())
+			dropStack(stack, from.getWorld(), from.getPos());
+	}
+	
+	public static ItemStack inject(ItemStack item, TileEntity tile, EnumFacing capFace)
+	{
+		return tile != null && tile.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, capFace) ? inject(item, tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, capFace)) : item;
+	}
+	
+	public static ItemStack inject(ItemStack item, IItemHandler h)
+	{
+		for(int i = 0; h != null && i < h.getSlots() && !item.isEmpty(); ++i)
+			if(!item.isEmpty())
+				item = h.insertItem(i, item, false);
+		return item;
+	}
+	
 	public static final class ItemDropData
 	{
-		public static final ItemDropData QUARRY_DROP_DATA = new ItemDropData(2, 12000);
-		
 		public ItemDropData(int pickupDelayMode, int despawnTime)
 		{
 			this.pickupDelayMode = pickupDelayMode;
