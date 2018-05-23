@@ -5,14 +5,18 @@ import java.io.File;
 import com.pengu.hammercore.HammerCore;
 import com.pengu.hammercore.utils.WorldLocation;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.network.play.server.SPacketBlockBreakAnim;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
@@ -71,6 +75,26 @@ public class WorldUtil
 		return entityItem;
 	}
 	
+	public static EnumFacing getFacing(int meta)
+	{
+		return EnumFacing.getFront(meta & 7);
+	}
+	
+	public static boolean isEnabled(int meta)
+	{
+		return (meta & 8) != 8;
+	}
+	
+	public static EnumFacing getFacing(IBlockState state)
+	{
+		return getFacing(state.getBlock().getMetaFromState(state));
+	}
+	
+	public static boolean isEnabled(IBlockState state)
+	{
+		return isEnabled(state.getBlock().getMetaFromState(state));
+	}
+	
 	public static EntityItem spawnItemStack(World worldIn, BlockPos pos, ItemStack stackIn)
 	{
 		return spawnItemStack(worldIn, pos.getX() + .5, pos.getY() + .5, pos.getZ() + .5, stackIn);
@@ -79,6 +103,16 @@ public class WorldUtil
 	public static EntityItem spawnItemStack(WorldLocation loc, ItemStack stackIn)
 	{
 		return spawnItemStack(loc.getWorld(), loc.getPos(), stackIn);
+	}
+	
+	public static void breakBlockPartially(World world, int breakerId, BlockPos pos, int progress)
+	{
+		for(EntityPlayer entityplayer : world.playerEntities)
+		{
+			if(entityplayer == null || !(entityplayer instanceof EntityPlayerMP) || entityplayer.world != FMLCommonHandler.instance().getMinecraftServerInstance().getEntityWorld() || entityplayer.getEntityId() == breakerId || entityplayer.getDistanceSq(pos) >= 1024.0)
+				continue;
+			((EntityPlayerMP) entityplayer).connection.sendPacket(new SPacketBlockBreakAnim(breakerId, pos, progress));
+		}
 	}
 	
 	public static void teleportPlayer(EntityPlayerMP mp, int dim, double x, double y, double z)

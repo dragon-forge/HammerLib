@@ -1,10 +1,13 @@
 package com.pengu.hammercore.utils;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.apache.commons.lang3.ArrayUtils;
 
 public class ArrayHelper
 {
@@ -26,5 +29,22 @@ public class ArrayHelper
 	public static <T> T[] collect(Stream<T> str)
 	{
 		return (T[]) str.collect(Collectors.toList()).toArray();
+	}
+	
+	public static <T> T[] newArray(Class<T> type, int length)
+	{
+		return (T[]) Array.newInstance(type, length);
+	}
+	
+	public static <T> T[] merge(T[] a, T... ts)
+	{
+		return ArrayUtils.addAll(a, ts);
+	}
+	
+	public static <T> T[] merge(T[] a, T[]... tmat)
+	{
+		for(T[] ts : tmat)
+			a = merge(a, ts);
+		return a;
 	}
 }

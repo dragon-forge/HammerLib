@@ -301,7 +301,8 @@ public class HammerCoreTransformer implements IClassTransformer
 			}
 		}, "Patching ForgeHooksClient", cv("net.minecraftforge.client.ForgeHooksClient"));
 		
-		// Apparently Forge now has this feature. I'll leave this here just in case users use old Forge (that didn't add this feature)
+		// Apparently Forge now has this feature. I'll leave this here just in
+		// case users use old Forge (that didn't add this feature)
 		hook((node, obf) ->
 		{
 			MethodSignature fillWithLoot = new MethodSignature("fillWithLoot", "func_184281_d", "d", "(Lnet/minecraft/entity/player/EntityPlayer;)V");
@@ -337,6 +338,25 @@ public class HammerCoreTransformer implements IClassTransformer
 				}
 			}
 		}, "Patching TileEntityLockableLoot", cv("net.minecraft.tileentity.TileEntityLockableLoot"));
+		
+		hook((node, obf) ->
+		{
+			MethodSignature onItemUseFinish = new MethodSignature("onItemUseFinish", "func_71036_o", "v", "()V");
+			
+			for(int i = 0; i < node.methods.size(); ++i)
+			{
+				MethodNode mn = node.methods.get(i);
+				
+				if(onItemUseFinish.isThisMethod(mn))
+				{
+					InsnList l = new InsnList();
+					l.add(new VarInsnNode(Opcodes.ALOAD, 0));
+					l.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/pengu/hammercore/asm/hooks/EntityHooks", "onItemUseFinish", "(L" + node.name + ";)V", false));
+					mn.instructions.insert(l);
+					asm.info("Modified method 'onItemUseFinish': added event call.");
+				}
+			}
+		}, "Patching EntityLivingBase", cv("net.minecraft.entity.EntityLivingBase"));
 	}
 	
 	@Override
@@ -409,7 +429,6 @@ public class HammerCoreTransformer implements IClassTransformer
 	{
 		asm.addHook(new iASMHook()
 		{
-			
 			@Override
 			public void transform(ClassNode node, boolean obf)
 			{

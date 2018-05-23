@@ -104,8 +104,23 @@ public class TransformerSystem
 		hooks.add(hook);
 	}
 	
+	String currentClass, transformedCurrentClass;
+	
+	public String getCurrentClass()
+	{
+		return currentClass;
+	}
+	
+	public String getTransformedCurrentClass()
+	{
+		return transformedCurrentClass;
+	}
+	
 	public byte[] transform(String name, String transformedName, byte[] data)
 	{
+		currentClass = name;
+		transformedCurrentClass = transformedName;
+		
 		byte[] origin = data;
 		boolean l = false;
 		for(iASMHook h : hooks)
@@ -125,6 +140,9 @@ public class TransformerSystem
 				boolean obf = !name.equals(transformedName);
 				ClassNode node = ObjectWebUtils.loadClass(data);
 				
+				currentClass = name;
+				transformedCurrentClass = transformedName;
+				
 				push();
 				h.transform(node, obf);
 				pop();
@@ -137,6 +155,9 @@ public class TransformerSystem
 		/** Save classes that we are interested in. */
 		if(l || HammerCoreTransformer.CLASS_MAPPINGS.containsKey("L" + transformedName.replaceAll("[.]", "/") + ";"))
 			saveClass(origin, data, transformedName);
+		
+		currentClass = null;
+		transformedCurrentClass = null;
 		
 		return data;
 	}

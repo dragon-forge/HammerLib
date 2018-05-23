@@ -1,9 +1,19 @@
 package com.pengu.hammercore.utils;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.UUID;
+
+import org.apache.commons.lang3.ArrayUtils;
 
 import com.pengu.hammercore.utils.NumberUtils.EnumNumberType;
 
+import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class NBTUtils
@@ -48,5 +58,40 @@ public class NBTUtils
 		for(int i = 0; i < $.length; ++i)
 			$[i] = nbt.getUniqueId(key + i);
 		return $;
+	}
+	
+	public static int[] toIA(NBTTagCompound comp)
+	{
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		try
+		{
+			CompressedStreamTools.write(comp, new DataOutputStream(baos));
+		} catch(IOException e)
+		{
+			// Shouldn't happen, be silent.
+		}
+		byte[] data = baos.toByteArray();
+		while(data.length % 4 != 0)
+			data = ArrayUtils.add(data, (byte) 0);
+		ByteBuffer buffer = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
+		int[] ret = new int[data.length / 4];
+		buffer.asIntBuffer().get(ret);
+		return ret;
+	}
+	
+	public static NBTTagCompound toNBT(int[] ia)
+	{
+		ByteBuffer buffer = ByteBuffer.allocate(ia.length * 4).order(ByteOrder.LITTLE_ENDIAN);
+		buffer.asIntBuffer().put(ia);
+		buffer.flip();
+		byte[] data = buffer.array();
+		try
+		{
+			return CompressedStreamTools.read(new DataInputStream(new ByteArrayInputStream(data)));
+		} catch(IOException e)
+		{
+			// Shouldn't happen, but return new tag compound.
+			return new NBTTagCompound();
+		}
 	}
 }

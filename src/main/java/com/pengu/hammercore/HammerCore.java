@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.xml.sax.SAXException;
 
 import com.endie.cryption.SafeStore;
@@ -179,6 +181,7 @@ public class HammerCore
 	public static final Set<iJavaCode> COMPILED_CODES = new HashSet<>();
 	
 	public static final WrappedLog LOG = new WrappedLog("Hammer Core");
+	public static final Logger LOGGER = LogManager.getLogger("HammerCore");
 	
 	// public static final CSVFile FIELD_CSV, METHODS_CSV;
 	
@@ -550,13 +553,13 @@ public class HammerCore
 		                
 		                return ColorHelper.packRGB(r / 255F, g / 255F, b / 255F);
 	                }, true, data[0]), //
-	                new HCAuthor("EndieDargon", TextFormatting.DARK_PURPLE + "" + TextFormatting.ITALIC + "              " + TextFormatting.RESET + "  ", () ->
+	                new HCAuthor("Zeitheron", TextFormatting.DARK_PURPLE + "" + TextFormatting.ITALIC + "              " + TextFormatting.RESET + "  ", () ->
 	                {
 		                float sine = .5F * ((float) Math.sin(Math.toRadians(16 * client_ticks)) + 1);
 		                
-		                int r = 140 + (int) (sine * 60);
-		                int g = 0;
-		                int b = 255;
+		                int r = 16;
+		                int g = 180;
+		                int b = 255 + (int) (sine * 100);
 		                
 		                return ColorHelper.packRGB(r / 255F, g / 255F, b / 255F);
 	                }, true, data[0]) //

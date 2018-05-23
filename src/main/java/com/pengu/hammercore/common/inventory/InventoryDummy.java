@@ -241,21 +241,6 @@ public class InventoryDummy implements IInventory
 		readFromNBT(boundCompound);
 	}
 	
-	public void drop(World world, BlockPos pos)
-	{
-		if(!world.isRemote)
-		{
-			for(ItemStack s : inventory)
-			{
-				if(InterItemStack.isStackNull(s))
-					continue;
-				WorldUtil.spawnItemStack(world, pos, s);
-			}
-		}
-		
-		clear();
-	}
-	
 	@Override
 	public ItemStack removeStackFromSlot(int slot)
 	{
@@ -281,5 +266,27 @@ public class InventoryDummy implements IInventory
 	public boolean isUsableByPlayer(EntityPlayer player)
 	{
 		return false;
+	}
+	
+	public void drop(World world, BlockPos pos)
+	{
+		drop(this, world, pos);
+	}
+	
+	public static void drop(IInventory inv, World world, BlockPos pos)
+	{
+		if(inv == null || world == null || pos == null)
+			return;
+		
+		if(!world.isRemote)
+			for(int i = 0; i < inv.getSizeInventory(); ++i)
+			{
+				ItemStack s = inv.getStackInSlot(i);
+				if(InterItemStack.isStackNull(s))
+					continue;
+				WorldUtil.spawnItemStack(world, pos, s);
+			}
+		
+		inv.clear();
 	}
 }

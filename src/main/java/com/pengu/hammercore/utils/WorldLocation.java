@@ -176,13 +176,26 @@ public class WorldLocation
 			int i = pos.getX() & 15;
 			int j = pos.getZ() & 15;
 			int id = j << 4 | i;
-			byte[] blockBiomeArray = world.getChunkFromBlockCoords(pos).getBiomeArray();
+			Chunk c = world.getChunkFromBlockCoords(pos);
+			byte[] blockBiomeArray = c.getBiomeArray();
 			blockBiomeArray[id] = (byte) (Biome.getIdForBiome(biome) & 255);
+			c.setBiomeArray(blockBiomeArray);
 			
 			// update on client side
 			if(!world.isRemote)
 				HCNetwork.manager.sendToAllAround(new PacketSetBiome(i, j, id, blockBiomeArray[id]), getPointWithRad(296));
 		}
+	}
+	
+	public boolean resetBiome()
+	{
+		Biome[] bfg = world.getBiomeProvider().getBiomesForGeneration(null, pos.getX(), pos.getZ(), 1, 1);
+		if(bfg != null && bfg[0] != null && world.getBiome(pos) != bfg[0])
+		{
+			setBiome(bfg[0]);
+			return true;
+		}
+		return false;
 	}
 	
 	public TargetPoint getPointWithRad(int radius)
