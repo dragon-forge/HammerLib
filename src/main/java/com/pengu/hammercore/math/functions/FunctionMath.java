@@ -44,6 +44,9 @@ public class FunctionMath extends ExpressionFunction
 		if(functionName.equals("rand"))
 			return (((double) rand.nextInt(Integer.MAX_VALUE)) / ((double) Integer.MAX_VALUE)) * x;
 		
+		if(functionName.equals("sin") || functionName.equals("cos") || functionName.equals("tan"))
+			x = Math.toRadians(x);
+		
 		try
 		{
 			return (Double) Math.class.getMethod(functionName, double.class).invoke(null, x);

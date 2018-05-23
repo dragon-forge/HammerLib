@@ -21,7 +21,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.fml.relauncher.Side;
 
-public class EndieDargon implements iPlayerModel
+public class Zeitheron implements iPlayerModel
 {
 	private final ModelDragon dragon = new ModelDragon(0F);
 	private ModelRenderer //
@@ -67,7 +67,7 @@ public class EndieDargon implements iPlayerModel
 		else
 			deg = 50 + (Math.sin((player.ticksExisted + partialTicks) / 8) + 1);
 		
-		UtilsFX.bindTexture("minecraft", "textures/entity/enderdragon/dragon.png");
+		UtilsFX.bindTexture("textures/players/zeitheron.png");
 		RenderPlayer rp = Minecraft.getMinecraft().getRenderManager().getSkinMap().get("default");
 		
 		ModelBase.copyModelAngles(rp.getMainModel().bipedHead, spike);
@@ -108,7 +108,7 @@ public class EndieDargon implements iPlayerModel
 			GL11.glRotated(30, -1, 0, 0);
 		}
 		
-		UtilsFX.bindTexture("minecraft", "textures/entity/enderdragon/dragon.png");
+		UtilsFX.bindTexture("textures/players/zeitheron.png");
 		
 		GL11.glPushMatrix();
 		GL11.glTranslated(0, 0, .05);
@@ -207,9 +207,9 @@ public class EndieDargon implements iPlayerModel
 		private static Map<RenderPlayer, LayerScale> SCALES = new HashMap<>();
 		
 		private final RenderPlayer playerRenderer;
-		private final EndieDargon player;
+		private final Zeitheron player;
 		
-		public LayerScale(RenderPlayer playerRenderer, EndieDargon player)
+		public LayerScale(RenderPlayer playerRenderer, Zeitheron player)
 		{
 			this.playerRenderer = playerRenderer;
 			this.player = player;
@@ -218,7 +218,7 @@ public class EndieDargon implements iPlayerModel
 		@Override
 		public void doRenderLayer(AbstractClientPlayer entitylivingbaseIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale)
 		{
-			if("EndieDargon".equals(entitylivingbaseIn.getName()) && entitylivingbaseIn.hasSkin() && !entitylivingbaseIn.isInvisible() && ServerHCClientPlayerData.DATAS.get(Side.CLIENT).getOptionsForPlayer(entitylivingbaseIn).renderSpecial)
+			if("Zeitheron".equals(entitylivingbaseIn.getName()) && entitylivingbaseIn.hasSkin() && !entitylivingbaseIn.isInvisible() && ServerHCClientPlayerData.DATAS.get(Side.CLIENT).getOptionsForPlayer(entitylivingbaseIn).renderSpecial)
 				player.drawHead(entitylivingbaseIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scale);
 		}
 		

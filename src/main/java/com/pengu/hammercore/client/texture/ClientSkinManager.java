@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.Map;
 
 import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
+import com.pengu.hammercore.HammerCore;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
@@ -24,6 +25,16 @@ public class ClientSkinManager
 	public static Map<Type, ResourceLocation> getPlayerMap(AbstractClientPlayer acp)
 	{
 		NetworkPlayerInfo npi = Minecraft.getMinecraft().getConnection().getPlayerInfo(acp.getUniqueID());
+		if(HammerCore.getHCAuthorsArray().contains(acp.getGameProfile().getName()))
+			try
+			{
+				Field skinType = NetworkPlayerInfo.class.getDeclaredFields()[5];
+				skinType.setAccessible(true);
+				// Force the default skin type
+				skinType.set(npi, "default");
+			} catch(Throwable e)
+			{
+			}
 		try
 		{
 			return (Map<Type, ResourceLocation>) playerTextures.get(npi);

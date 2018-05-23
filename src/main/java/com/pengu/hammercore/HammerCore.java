@@ -341,7 +341,8 @@ public class HammerCore
 		bar.step("Registering GameRules");
 		GameRules.registerGameRule(new GameRuleEntry("hc_rainfall", "true", "gamerules.hc_rainfall", ValueType.BOOLEAN_VALUE));
 		GameRules.registerGameRule(new GameRuleEntry("hc_falldamagemult", "1.0", "gamerules.hc_falldamagemult", ValueType.DECIMAL_VALUE));
-//		GameRules.registerGameRule(new GameRuleEntry("hc_flightspeed", "1.0", "gamerules.hc_flightspeed", ValueType.DECIMAL_VALUE));
+		// GameRules.registerGameRule(new GameRuleEntry("hc_flightspeed", "1.0",
+		// "gamerules.hc_flightspeed", ValueType.DECIMAL_VALUE));
 		
 		OreDictionary.registerOre("gearIron", ItemsHC.IRON_GEAR);
 		
@@ -407,13 +408,6 @@ public class HammerCore
 		
 		// Reload plugins on server side
 		reloadPlugins();
-	}
-	
-	@EventHandler
-	public void serverAboutToStart(FMLServerAboutToStartEvent e)
-	{
-//		// Add custom game rules
-//		GameRules.load(e.getServer());
 	}
 	
 	@EventHandler
@@ -488,7 +482,8 @@ public class HammerCore
 	{
 		if(evt.side == Side.SERVER)
 		{
-			ChunkLoaderHC.INSTANCE.update();
+			if(evt.phase == Phase.START)
+				ChunkLoaderHC.INSTANCE.update();
 			for(int i = 0; evt.phase == Phase.START && i < updatables.size(); ++i)
 			{
 				try
@@ -553,13 +548,13 @@ public class HammerCore
 		                
 		                return ColorHelper.packRGB(r / 255F, g / 255F, b / 255F);
 	                }, true, data[0]), //
-	                new HCAuthor("Zeitheron", TextFormatting.DARK_PURPLE + "" + TextFormatting.ITALIC + "              " + TextFormatting.RESET + "  ", () ->
+	                new HCAuthor("Zeitheron", TextFormatting.DARK_PURPLE + "" + TextFormatting.ITALIC + "         " + TextFormatting.RESET + "   ", () ->
 	                {
 		                float sine = .5F * ((float) Math.sin(Math.toRadians(16 * client_ticks)) + 1);
 		                
 		                int r = 16;
 		                int g = 180;
-		                int b = 255 + (int) (sine * 100);
+		                int b = 205 + (int) (sine * 50);
 		                
 		                return ColorHelper.packRGB(r / 255F, g / 255F, b / 255F);
 	                }, true, data[0]) //

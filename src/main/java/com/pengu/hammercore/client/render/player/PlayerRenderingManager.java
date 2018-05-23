@@ -3,8 +3,7 @@ package com.pengu.hammercore.client.render.player;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.pengu.hammercore.client.render.player.players.EndieDargon;
-import com.pengu.hammercore.common.utils.classes.ClassWrapper;
+import com.pengu.hammercore.client.render.player.players.Zeitheron;
 
 public class PlayerRenderingManager
 {
@@ -16,7 +15,7 @@ public class PlayerRenderingManager
 	
 	static
 	{
-		bind(new EndieDargon(), "EndieDargon");
+		bind(new Zeitheron(), "Zeitheron");
 	}
 	
 	public static void bind(iPlayerModel type, String username)
@@ -26,7 +25,6 @@ public class PlayerRenderingManager
 	
 	public static iPlayerModel get(String username)
 	{
-//		System.out.println(ClassWrapper.getCallerClassName());
 		return RENDERS.getOrDefault(username, EMPTY);
 	}
 }

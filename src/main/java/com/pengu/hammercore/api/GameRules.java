@@ -38,7 +38,7 @@ public class GameRules
 		
 		HammerCore.LOG.info("Injecting GameRules...");
 		
-		// Loads rules if they are not present alredy
+		// Loads rules if they are not present already
 		entries.values().forEach(e ->
 		{
 			String val = e.defVal;
