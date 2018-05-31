@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 import com.pengu.hammercore.client.UV;
@@ -289,6 +290,16 @@ public class GuiCalculator extends GuiCentered
 	@Override
 	protected void keyTyped(char typedChar, int keyCode) throws IOException
 	{
+		if(keyCode == 14 && !expression.isEmpty())
+		{
+			if(expression.endsWith("sqrt"))
+				expression = expression.substring(0, expression.length() - 4);
+			else if(expression.endsWith("sin") || expression.endsWith("cos") || expression.endsWith("tan") || expression.endsWith("log") || expression.endsWith("abs"))
+				expression = expression.substring(0, expression.length() - 3);
+			else
+				expression = expression.substring(0, expression.length() - 1);
+		}
+		
 		super.keyTyped(typedChar, keyCode);
 	}
 	

@@ -3,6 +3,7 @@ package com.pengu.hammercore.client.texture;
 import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.pengu.hammercore.HammerCore;
@@ -16,6 +17,7 @@ import net.minecraft.util.ResourceLocation;
 public class TexLocUploader
 {
 	public static final List<ResourceLocation> cleanup = new ArrayList<>();
+	public static final List<Runnable> cleanCallbacks = new ArrayList<>();
 	
 	/**
 	 * Uploads a {@link BufferedImage} to a {@link ResourceLocation}
@@ -45,12 +47,15 @@ public class TexLocUploader
 	{
 		HammerCore.LOG.info("Cleaning " + cleanup.size() + " textures from VRAM");
 		cleanup.forEach(r -> deleteGlTexture(Minecraft.getMinecraft().getTextureManager().mapTextureObjects.remove(r)));
+		cleanCallbacks.forEach(r -> r.run());
 		cleanup.clear();
+		cleanCallbacks.clear();
 	}
 	
-	public static void cleanupAfterLogoff(ResourceLocation loca)
+	public static void cleanupAfterLogoff(ResourceLocation loca, Runnable... runnables)
 	{
 		cleanup.add(loca);
+		cleanCallbacks.addAll(Arrays.asList(runnables));
 	}
 	
 	public static void deleteGlTexture(ITextureObject tex)

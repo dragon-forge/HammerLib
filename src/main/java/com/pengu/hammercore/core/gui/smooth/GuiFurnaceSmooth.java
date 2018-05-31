@@ -51,8 +51,8 @@ public class GuiFurnaceSmooth extends GuiFurnace
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
 	{
 		String s = tileFurnace.getDisplayName().getUnformattedText();
-		fontRenderer.drawString(s, xSize / 2 - fontRenderer.getStringWidth(s) / 2, 6, GuiTheme.current().textColor);
-		fontRenderer.drawString(playerInventory.getDisplayName().getUnformattedText(), 8, ySize - 96 + 2, GuiTheme.current().textColor);
+		fontRenderer.drawString(s, xSize / 2 - fontRenderer.getStringWidth(s) / 2, 6, GuiTheme.current().textShadeColor);
+		fontRenderer.drawString(playerInventory.getDisplayName().getUnformattedText(), 8, ySize - 96 + 2, GuiTheme.current().textShadeColor);
 	}
 	
 	@Override

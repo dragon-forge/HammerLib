@@ -278,19 +278,19 @@ public class WorldGenHelper
 	}
 	
 	@SubscribeEvent
-	public void mountEndie(PlayerInteractEvent.EntityInteract e)
+	public void mountDragon(PlayerInteractEvent.EntityInteract e)
 	{
 		EntityPlayerMP caller = WorldUtil.cast(e.getEntityPlayer(), EntityPlayerMP.class);
 		EntityPlayerMP target = WorldUtil.cast(e.getTarget(), EntityPlayerMP.class);
 		
 		if(target != null && caller != null)
 		{
-			if(target.getGameProfile().getName().equals("EndieDargon"))
+			if(HammerCore.DRAGONS.contains(target.getGameProfile().getName()))
 			{
 				caller.startRiding(target, true);
 				if(!e.getWorld().isRemote)
 					HCNetwork.manager.sendTo(new PacketStartedRiding(caller, target), target);
-			} else if(caller.getGameProfile().getName().equals("EndieDargon"))
+			} else if(HammerCore.DRAGONS.contains(caller.getGameProfile().getName()))
 			{
 				target.dismountRidingEntity();
 				if(!e.getWorld().isRemote)

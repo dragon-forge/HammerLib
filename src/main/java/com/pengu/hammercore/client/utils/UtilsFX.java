@@ -6,6 +6,8 @@ import java.util.Map;
 
 import org.lwjgl.opengl.GL11;
 
+import com.pengu.hammercore.client.texture.TexLocUploader;
+import com.pengu.hammercore.client.texture.TextureUtils;
 import com.pengu.hammercore.common.utils.QuadHelper;
 import com.pengu.hammercore.utils.ColorHelper;
 import com.pengu.hammercore.vec.Vector3;
@@ -29,9 +31,32 @@ public class UtilsFX
 	
 	private static Map<String, ResourceLocation> textures = new HashMap<>();
 	
+	public static void bindTextureURL(String url)
+	{
+		String withoutHTTP = url.substring(url.indexOf("://") + 3);
+		String protocol = url.substring(0, url.indexOf("://"));
+		ResourceLocation loca = new ResourceLocation("url_" + protocol, withoutHTTP);
+		if(!TexLocUploader.cleanup.contains(loca))
+		{
+			final String lpa = loca.toString();
+			TexLocUploader.upload(loca, url);
+			TexLocUploader.cleanupAfterLogoff(loca, () -> textures.remove(lpa));
+			textures.put(lpa, loca);
+		}
+		bindTexture(loca);
+	}
+	
 	public static void bindTexture(String tex)
 	{
-		bindTexture("hammercore", tex);
+		if(tex.startsWith("http"))
+			bindTextureURL(tex);
+		else
+			bindTexture("hammercore", tex);
+	}
+	
+	public static void bindTexture(ResourceLocation loca)
+	{
+		bindTexture(loca.getResourceDomain(), loca.getResourcePath());
 	}
 	
 	public static void bindTexture(String dom, String tex)

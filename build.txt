@@ -1,7 +1,7 @@
 forge_version=1.12.2-14.23.2.2619
 mappings=snapshot_20170624
 minecraft_version=1.12.2
-mod_version=1.9.9.6
+mod_version=1.9.9.8
 mod_name=Hammer Core
 release_type=release
 jei_version=4.8.5.138

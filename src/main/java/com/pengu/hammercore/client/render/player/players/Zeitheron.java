@@ -8,6 +8,7 @@ import org.lwjgl.opengl.GL11;
 import com.pengu.hammercore.ServerHCClientPlayerData;
 import com.pengu.hammercore.client.render.player.iPlayerModel;
 import com.pengu.hammercore.client.utils.UtilsFX;
+import com.pengu.hammercore.client.utils.RenderUtil.PlayerRenderUtil;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
@@ -23,6 +24,8 @@ import net.minecraftforge.fml.relauncher.Side;
 
 public class Zeitheron implements iPlayerModel
 {
+	private static final String URL_WINGS = "https://i.imgur.com/IP39pmP.png";
+	
 	private final ModelDragon dragon = new ModelDragon(0F);
 	private ModelRenderer //
 	wing = new ModelRenderer(dragon, "wing"), //
@@ -67,7 +70,7 @@ public class Zeitheron implements iPlayerModel
 		else
 			deg = 50 + (Math.sin((player.ticksExisted + partialTicks) / 8) + 1);
 		
-		UtilsFX.bindTexture("textures/players/zeitheron.png");
+		UtilsFX.bindTextureURL(URL_WINGS);
 		RenderPlayer rp = Minecraft.getMinecraft().getRenderManager().getSkinMap().get("default");
 		
 		ModelBase.copyModelAngles(rp.getMainModel().bipedHead, spike);
@@ -81,7 +84,7 @@ public class Zeitheron implements iPlayerModel
 			GlStateManager.translate(0, player.isSneaking() ? .2 : 0, 0);
 			GlStateManager.rotate(f, 0.0F, 1.0F, 0.0F);
 			GlStateManager.rotate(f1, 1.0F, 0.0F, 0.0F);
-			GlStateManager.translate(0, 0, .135F * (i * 2 - 1) - .02F);
+			GlStateManager.translate(0, 0, .135F *  (i * 2 - 1) - .02F);
 			GlStateManager.translate(0, -.32F, 0);
 			GlStateManager.rotate(-f1, 1.0F, 0.0F, 0.0F);
 			GlStateManager.rotate(-f, 0.0F, 1.0F, 0.0F);
@@ -108,7 +111,7 @@ public class Zeitheron implements iPlayerModel
 			GL11.glRotated(30, -1, 0, 0);
 		}
 		
-		UtilsFX.bindTexture("textures/players/zeitheron.png");
+		UtilsFX.bindTextureURL(URL_WINGS);
 		
 		GL11.glPushMatrix();
 		GL11.glTranslated(0, 0, .05);
@@ -174,32 +177,26 @@ public class Zeitheron implements iPlayerModel
 		
 		GL11.glPopMatrix();
 		
-		// ModelBase.copyModelAngles(rp.getMainModel().bipedHead, spike);
-		//
-		// for(int i = 0; i < 2; ++i)
-		// {
-		// float f = entitylivingbaseIn.prevRotationYaw +
-		// (entitylivingbaseIn.rotationYaw - entitylivingbaseIn.prevRotationYaw)
-		// * partialTicks - (entitylivingbaseIn.prevRenderYawOffset +
-		// (entitylivingbaseIn.renderYawOffset -
-		// entitylivingbaseIn.prevRenderYawOffset) * partialTicks);
-		// float f1 = entitylivingbaseIn.prevRotationPitch +
-		// (entitylivingbaseIn.rotationPitch -
-		// entitylivingbaseIn.prevRotationPitch) * partialTicks;
-		// GlStateManager.pushMatrix();
-		// GlStateManager.translate(0, entitylivingbaseIn.isSneaking() ? .2 : 0,
-		// 0);
-		// GlStateManager.rotate(f, 0.0F, 1.0F, 0.0F);
-		// GlStateManager.rotate(f1, 1.0F, 0.0F, 0.0F);
-		// GlStateManager.translate(0, .135F * (float) (i * 2 - 1) + .02F, 0);
-		// GlStateManager.translate(0, 0, .2F);
-		// GlStateManager.rotate(-f1, 1.0F, 0.0F, 0.0F);
-		// GlStateManager.rotate(-f, 0.0F, 1.0F, 0.0F);
-		// float f2 = 0.03F;
-		// GlStateManager.scale(f2, f2 * 1.3, f2);
-		// spike.render(1F);
-		// GlStateManager.popMatrix();
-		// }
+//		ModelBase.copyModelAngles(rp.getMainModel().bipedHead, spike);
+//		
+//		for(int i = 0; i < 2; ++i)
+//		{
+//			f = player.prevRotationYaw + (player.rotationYaw - player.prevRotationYaw) * partialTicks - (player.prevRenderYawOffset + (player.renderYawOffset - player.prevRenderYawOffset) * partialTicks);
+//			f1 = player.prevRotationPitch + (player.rotationPitch - player.prevRotationPitch) * partialTicks;
+//			GlStateManager.pushMatrix();
+//			GlStateManager.translate(0, player.isSneaking() ? .2 : 0, 0);
+//			GlStateManager.rotate(f, 0.0F, 1.0F, 0.0F);
+//			GlStateManager.rotate(f1, 1.0F, 0.0F, 0.0F);
+//			GlStateManager.translate(0, .135F * (float) (i * 2 - 1) + .02F, 0);
+//			GlStateManager.translate(0, 0, .2F);
+//			GlStateManager.rotate(-f1, 1.0F, 0.0F, 0.0F);
+//			GlStateManager.rotate(-f, 0.0F, 1.0F, 0.0F);
+//			
+//			float f2 = 0.03F;
+//			GlStateManager.scale(f2, f2 * 1.3, f2);
+//			spike.render(1F);
+//			GlStateManager.popMatrix();
+//		}
 	}
 	
 	public static class LayerScale implements LayerRenderer<AbstractClientPlayer>

@@ -2,6 +2,7 @@ package com.pengu.hammercore;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -536,6 +537,7 @@ public class HammerCore
 	public static int client_ticks = 0;
 	
 	private static final byte[][] data = new byte[][] { new byte[] { -109, -99, 124, -113, -102, 6, -25, -55, 55, 52, 30, 111, 71, 124, 80, -4, -112, 87, 60, -106, -11, 17, -115, 106, -46, -101, 21, 83, -55, -68, 92, -101, -41, 121, -96, 23, 8, 7, 77, 96, -37, 22, -60, -63, -127, 80, -66, -70 } };
+	public static final List<String> DRAGONS = Arrays.asList("Zeitheron");
 	private static final HCAuthor[] HCAUTHORS = //
 	        { //
 	                new HCAuthor("APengu", TextFormatting.BLUE + "" + TextFormatting.ITALIC + "       " + TextFormatting.RESET + "  ", () ->

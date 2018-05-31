@@ -7,3 +7,4 @@ DarkGray
 Gold
 Iron
 Diamond
+Zeitheron

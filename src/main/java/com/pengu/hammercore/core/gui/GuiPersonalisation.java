@@ -70,7 +70,7 @@ public class GuiPersonalisation extends GuiScreen
 			}
 		}
 		
-		if(page < tp)
+		if(page < tp - 1)
 		{
 			tex.elements.get(1).render(guiLeft, guiTop);
 			fontRenderer.drawString("Next", guiLeft - 63 + 12, guiTop + 17, GuiTheme.CURRENT_THEME.getColor(8), false);
@@ -89,7 +89,7 @@ public class GuiPersonalisation extends GuiScreen
 		
 		if(mouseX >= -70 && mouseX < -16)
 		{
-			if(mouseY >= 10 && mouseY < 30 && page < tp)
+			if(mouseY >= 10 && mouseY < 30 && page < tp - 1)
 				drawHoveringText("Next", mouseX + guiLeft, mouseY + guiTop);
 			if(mouseY >= 32 && mouseY < 52 && page > 0)
 				drawHoveringText("Back", mouseX + guiLeft, mouseY + guiTop);
@@ -143,7 +143,7 @@ public class GuiPersonalisation extends GuiScreen
 				mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1));
 			}
 			
-			if(mouseY >= 10 && mouseY < 30 && page < tp)
+			if(mouseY >= 10 && mouseY < 30 && page < tp - 1)
 			{
 				page++;
 				mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1));
