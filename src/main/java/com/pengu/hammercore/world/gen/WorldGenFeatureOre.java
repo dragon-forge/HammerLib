@@ -13,8 +13,9 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.feature.WorldGenMinable;
+import net.minecraftforge.registries.IForgeRegistryEntry;
 
-public class WorldGenFeatureOre implements iWorldGenFeature
+public class WorldGenFeatureOre extends IForgeRegistryEntry.Impl<WorldGenFeatureOre> implements iWorldGenFeature<WorldGenFeatureOre>
 {
 	public int minY = 0, maxY = 64, maxClusters = 6, maxCusterSize = 8;
 	public boolean enableBiomeWhitelist = false, enableDimensionWhitelist = false;

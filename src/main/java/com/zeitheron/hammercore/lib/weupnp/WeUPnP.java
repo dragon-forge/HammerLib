@@ -1,4 +1,4 @@
-package com.endie.lib.weupnp;
+package com.zeitheron.hammercore.lib.weupnp;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -9,10 +9,10 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
-import com.endie.lib.weupnp.impl.GatewayDevice;
-import com.endie.lib.weupnp.impl.GatewayDiscover;
-import com.endie.lib.weupnp.impl.PortMappingEntry;
 import com.pengu.hammercore.common.utils.WrappedLog;
+import com.zeitheron.hammercore.lib.weupnp.impl.GatewayDevice;
+import com.zeitheron.hammercore.lib.weupnp.impl.GatewayDiscover;
+import com.zeitheron.hammercore.lib.weupnp.impl.PortMappingEntry;
 
 public class WeUPnP
 {

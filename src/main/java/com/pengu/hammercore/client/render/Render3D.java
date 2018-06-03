@@ -3,13 +3,11 @@ package com.pengu.hammercore.client.render;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.lwjgl.opengl.ARBShaderObjects;
 import org.lwjgl.opengl.GL11;
 
-import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.pengu.hammercore.HammerCore;
 import com.pengu.hammercore.HammerCore.HCAuthor;
 import com.pengu.hammercore.MultiHitboxGetter;
@@ -41,11 +39,9 @@ import com.pengu.hammercore.vec.Cuboid6;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.gui.ChatLine;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiNewChat;
-import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.GlStateManager.DestFactor;
 import net.minecraft.client.renderer.GlStateManager.SourceFactor;
@@ -54,15 +50,12 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.text.ChatType;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.ClickEvent;
@@ -73,10 +66,8 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -405,16 +396,5 @@ public class Render3D
 		RenderUtil.drawTextRGBA(font, s, x - 1, y - 1, r, g, b, (20 * a) / 255);
 		RenderUtil.drawTextRGBA(font, s, x + 1, y + 1, r, g, b, (20 * a) / 255);
 		GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
-	}
-	
-	private void setPlayerTexture(AbstractClientPlayer player, ResourceLocation texture)
-	{
-		NetworkPlayerInfo playerInfo = (NetworkPlayerInfo) ObfuscationReflectionHelper.getPrivateValue(AbstractClientPlayer.class, player, 0);
-		if(playerInfo == null)
-			return;
-		Map<MinecraftProfileTexture.Type, ResourceLocation> playerTextures = (Map) ObfuscationReflectionHelper.getPrivateValue(NetworkPlayerInfo.class, playerInfo, 1);
-		playerTextures.put(MinecraftProfileTexture.Type.SKIN, texture);
-		if(texture == null)
-			ObfuscationReflectionHelper.setPrivateValue(NetworkPlayerInfo.class, playerInfo, false, 4);
 	}
 }

@@ -19,10 +19,10 @@ import net.minecraftforge.oredict.OreDictionary;
  */
 public class ShapelessRecipeBuilder
 {
-	private NonNullList<ItemStack[]> inputs = NonNullList.create();
-	private NonNullList<Integer> stay = NonNullList.create();
-	private Map<Integer, ItemStack> rets = new HashMap<>();
-	private ItemStack output = ItemStack.EMPTY;
+	protected NonNullList<ItemStack[]> inputs = NonNullList.create();
+	protected NonNullList<Integer> stay = NonNullList.create();
+	protected Map<Integer, ItemStack> rets = new HashMap<>();
+	protected ItemStack output = ItemStack.EMPTY;
 	
 	public static ShapelessRecipeBuilder builder()
 	{
@@ -58,6 +58,11 @@ public class ShapelessRecipeBuilder
 			}
 		}
 		
+		return bake(ings, stay, returns);
+	}
+	
+	protected IRecipe bake(NonNullList<Ingredient> ings, NonNullList<Ingredient> stay, Map<Ingredient, ItemStack> returns)
+	{
 		return new BakedShapelessRecipe(this, output, ings, stay, returns);
 	}
 	
@@ -120,7 +125,7 @@ public class ShapelessRecipeBuilder
 		}
 	}
 	
-	static final class BakedShapelessRecipe extends ShapelessRecipes
+	protected static class BakedShapelessRecipe extends ShapelessRecipes
 	{
 		private final ShapelessRecipeBuilder builder;
 		private final NonNullList<Ingredient> stay;

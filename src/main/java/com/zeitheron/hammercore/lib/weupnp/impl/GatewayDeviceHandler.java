@@ -1,4 +1,4 @@
-package com.endie.lib.weupnp.impl;
+package com.zeitheron.hammercore.lib.weupnp.impl;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;

@@ -32,7 +32,9 @@ import com.pengu.hammercore.math.ExpressionEvaluator;
 import com.pengu.hammercore.math.MathHelper;
 import com.pengu.hammercore.tile.TileSyncable;
 import com.pengu.hammercore.utils.IndexedMap;
+import com.zeitheron.hammercore.client.HammerCoreClient;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.GuiCustomizeSkin;
@@ -44,6 +46,7 @@ import net.minecraft.client.gui.inventory.GuiBrewingStand;
 import net.minecraft.client.gui.inventory.GuiFurnace;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.init.SoundEvents;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Session;
 import net.minecraft.util.math.RayTraceResult;
@@ -185,12 +188,23 @@ public class RenderGui
 		
 		if(renderF3)
 		{
-			List<String> tip = f3.getRight();
+			List<String> tip = f3.getLeft();
+			tip.add(TextFormatting.GOLD + "[HammerCore]" + TextFormatting.RESET + " Approx. Ping: " + HammerCoreClient.ping + " ms.");
+			
+			tip = f3.getRight();
 			if(world != null && omon != null && omon.typeOfHit == Type.BLOCK)
 			{
 				TileSyncable ts = WorldUtil.cast(world.getTileEntity(omon.getBlockPos()), TileSyncable.class);
 				if(ts != null)
 				{
+					String f3r = ts.getF3Registry();
+					if(f3r != null)
+					{
+						int reg = tip.indexOf(world.getBlockState(omon.getBlockPos()).getBlock().getRegistryName().toString());
+						if(reg != -1)
+							tip.set(reg, f3r);
+					}
+					
 					f3Right.clear();
 					ts.addProperties(f3Right, omon);
 					List<String> keys = f3Right.getKeys();

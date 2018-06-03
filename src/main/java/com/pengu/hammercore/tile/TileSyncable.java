@@ -17,6 +17,7 @@ import com.pengu.hammercore.utils.WorldLocation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
@@ -24,6 +25,7 @@ import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
@@ -304,6 +306,12 @@ public abstract class TileSyncable extends TileEntity implements iPropertyChange
 	public void sendChangesToNearby()
 	{
 		sync();
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public String getF3Registry()
+	{
+		return null;
 	}
 	
 	@SideOnly(Side.CLIENT)

@@ -16,7 +16,6 @@ import org.apache.logging.log4j.Logger;
 import org.xml.sax.SAXException;
 
 import com.endie.cryption.SafeStore;
-import com.endie.lib.weupnp.AttuneResult;
 import com.pengu.hammercore.annotations.MCFBus;
 import com.pengu.hammercore.api.GameRules;
 import com.pengu.hammercore.api.GameRules.GameRuleEntry;
@@ -59,7 +58,6 @@ import com.pengu.hammercore.net.HCNetwork;
 import com.pengu.hammercore.net.pkt.opts.PacketReqOpts;
 import com.pengu.hammercore.proxy.AudioProxy_Common;
 import com.pengu.hammercore.proxy.BookProxy_Common;
-import com.pengu.hammercore.proxy.LightProxy_Common;
 import com.pengu.hammercore.proxy.NativeProxy_Common;
 import com.pengu.hammercore.proxy.ParticleProxy_Common;
 import com.pengu.hammercore.proxy.PipelineProxy_Common;
@@ -72,6 +70,8 @@ import com.pengu.hammercore.utils.ModVersions;
 import com.pengu.hammercore.world.WorldGenHammerCore;
 import com.pengu.hammercore.world.WorldGenHelper;
 import com.pengu.hammercore.world.data.PerChunkDataManager;
+import com.zeitheron.hammercore.lib.weupnp.AttuneResult;
+import com.zeitheron.hammercore.netv2.HCV2Net;
 
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
@@ -100,7 +100,6 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLInterModComms;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
@@ -155,9 +154,6 @@ public class HammerCore
 	 */
 	@SidedProxy(modId = "hammercore", clientSide = "com.pengu.hammercore.proxy.ParticleProxy_Client", serverSide = "com.pengu.hammercore.proxy.ParticleProxy_Common")
 	public static ParticleProxy_Common particleProxy;
-	
-	@SidedProxy(modId = "hammercore", clientSide = "com.pengu.hammercore.proxy.LightProxy_Client", serverSide = "com.pengu.hammercore.proxy.LightProxy_Common")
-	public static LightProxy_Common lightProxy;
 	
 	@SidedProxy(modId = "hammercore", clientSide = "com.pengu.hammercore.proxy.BookProxy_Client", serverSide = "com.pengu.hammercore.proxy.BookProxy_Common")
 	public static BookProxy_Common bookProxy;
@@ -338,6 +334,7 @@ public class HammerCore
 		
 		bar.step("Setting up Network");
 		HCNetwork.preInit();
+		HCV2Net.INSTANCE.init();
 		
 		bar.step("Registering GameRules");
 		GameRules.registerGameRule(new GameRuleEntry("hc_rainfall", "true", "gamerules.hc_rainfall", ValueType.BOOLEAN_VALUE));

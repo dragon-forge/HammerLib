@@ -28,29 +28,12 @@ public class HammerCoreTransformer implements IClassTransformer
 {
 	public static final ClassnameMap CLASS_MAPPINGS = new ClassnameMap("net/minecraft/entity/Entity", "vg", "net/minecraft/item/ItemStack", "aip", "net/minecraft/client/renderer/block/model/IBakedModel", "cfy", "net/minecraft/entity/EntityLivingBase", "vp", "net/minecraft/inventory/EntityEquipmentSlot", "vl", "net/minecraft/client/renderer/entity/RenderLivingBase", "caa", "net/minecraft/client/model/ModelBase", "bqf", "net/minecraft/util/DamageSource", "ur", "net/minecraft/entity/item/EntityBoat", "afd", "net/minecraft/world/World", "amu", "net/minecraft/util/math/BlockPos", "et", "net/minecraft/util/EnumFacing", "fa", "net/minecraft/entity/player/EntityPlayer", "aed", "net/minecraft/block/state/IBlockState", "awt", "net/minecraft/client/renderer/BufferBuilder", "buk", "net/minecraft/world/IBlockAccess", "amy", "net/minecraft/client/renderer/block/model/BakedQuad", "bvp", "net/minecraft/client/renderer/block/model/ItemCameraTransforms$TransformType", "bwc$b");
 	
-	/* (Lnet/minecraft/util/BlockPos;Lnet/minecraft/world/EnumSkyBlock;)I /
-	 * func_175638_a */
-	private static String targetMethodDesc = "(Lco;Lajw;)I";
-	
-	/* net/minecraft/world/World.getRawLight / func_175638_a */
-	private static String computeLightValueMethodName = "a";
-	
-	/* (Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/
-	 * IBlockAccess; Lnet/minecraft/util/BlockPos;)I */
-	private static String goalInvokeDesc = "(Latl;Laju;Lco;)I";
-	
 	public static final TransformerSystem asm = new TransformerSystem();
 	
 	static
 	{
 		hook((node, obf) ->
 		{
-			if(!obf)
-			{
-				computeLightValueMethodName = "getRawLight";
-				goalInvokeDesc = "(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/math/BlockPos;)I";
-			}
-			
 			String desc = "(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Z)Z";
 			if(obf)
 				desc = "(Lamu;Lco;Z)Z";
@@ -92,42 +75,6 @@ public class HammerCoreTransformer implements IClassTransformer
 				// break;
 				// }
 				// }
-				
-				if(m.name.equals(computeLightValueMethodName) && (!obf || m.desc.equals(targetMethodDesc)))
-				{
-					AbstractInsnNode targetNode = null;
-					Iterator<AbstractInsnNode> iter = m.instructions.iterator();
-					boolean found = false;
-					int index = 0;
-					while(iter.hasNext())
-					{
-						targetNode = iter.next();
-						if(targetNode.getOpcode() == Opcodes.ASTORE)
-						{
-							VarInsnNode astore = (VarInsnNode) targetNode;
-							while(targetNode.getOpcode() != Opcodes.ISTORE)
-							{
-								if(targetNode instanceof MethodInsnNode && targetNode.getOpcode() != Opcodes.INVOKEINTERFACE)
-								{
-									MethodInsnNode mNode = (MethodInsnNode) targetNode;
-									found = true;
-									iter.remove();
-									targetNode = iter.next();
-									break;
-								}
-								targetNode = iter.next();
-							}
-							break;
-						}
-						index++;
-					}
-					if(found)
-					{
-						m.instructions.insertBefore(targetNode, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/pengu/hammercore/api/dynlight/ProxiedDynlightGetter", "getLightValue", goalInvokeDesc, false));
-						asm.info("Light Patched.");
-					}
-					break;
-				}
 			}
 			
 			// if(add_func_72853_d)
@@ -142,7 +89,7 @@ public class HammerCoreTransformer implements IClassTransformer
 			// (func_72853_d) back
 			// because we are on server.");
 			// }
-		}, "Patching Light...", cv("net.minecraft.world.World"));
+		}, "Patching World...", cv("net.minecraft.world.World"));
 		
 		hook((node, obf) ->
 		{

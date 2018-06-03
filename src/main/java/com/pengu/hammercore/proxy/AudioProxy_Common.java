@@ -31,13 +31,10 @@ public class AudioProxy_Common
 	{
 		try
 		{
-			float br = volume * volume * 512F;
 			List<EntityPlayerMP> ps = world.getMinecraftServer().getPlayerList().getPlayers();
 			for(EntityPlayerMP p : ps)
 			{
 				if(p.world.provider.getDimension() != world.provider.getDimension())
-					continue;
-				if(p.getDistance(x, y, z) > br)
 					continue;
 				p.connection.sendPacket(new SPacketCustomSound(sound, SoundCategory.BLOCKS, x, y, z, volume, pitch));
 			}

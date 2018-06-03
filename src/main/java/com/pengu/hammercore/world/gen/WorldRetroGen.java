@@ -3,6 +3,7 @@ package com.pengu.hammercore.world.gen;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -12,6 +13,7 @@ import com.pengu.hammercore.annotations.MCFBus;
 import com.pengu.hammercore.world.data.PerChunkDataManager;
 
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.chunk.Chunk;
@@ -24,7 +26,7 @@ public class WorldRetroGen
 {
 	private static final List<String> mods = new ArrayList<>();
 	private static final Map<String, List<IWorldGenerator>> generators = new HashMap<>();
-	private static final Map<String, List<iWorldGenFeature>> features = new HashMap<>();
+	private static final List<iWorldGenFeature> features = new LinkedList<>();
 	private static final Set<String> populating = new HashSet<>();
 	
 	public static void addWorldGenerator(IWorldGenerator gen)
@@ -43,10 +45,9 @@ public class WorldRetroGen
 		String mod = Loader.instance().activeModContainer().getModId();
 		if(!mods.contains(mod))
 			mods.add(mod);
-		List<iWorldGenFeature> gens = features.get(mod);
-		if(gens == null)
-			features.put(mod, gens = new ArrayList<>());
-		gens.add(gen);
+		if(gen.getRegistryName() == null)
+			gen.setRegistryName(new ResourceLocation(mod, gen.getClass().getName()));
+		features.add(gen);
 	}
 	
 	public static void generateChunk(Chunk c)
@@ -69,7 +70,6 @@ public class WorldRetroGen
 		for(String mod : mods)
 		{
 			List<IWorldGenerator> gens = WorldRetroGen.generators.get(mod);
-			List<iWorldGenFeature> features = WorldRetroGen.features.get(mod);
 			
 			if(!retrogen.getBoolean(mod))
 			{
@@ -83,25 +83,27 @@ public class WorldRetroGen
 							cgen = c.getWorld().provider.createChunkGenerator();
 						igen.generate(random, c.x, c.z, c.getWorld(), cgen, c.getWorld().getChunkProvider());
 					}
-				
-				random.setSeed(chunkSeed);
-				if(features != null)
-					for(iWorldGenFeature feat : features)
-					{
-						ChunkPos cp = new ChunkPos(c.x, c.z);
-						for(int i = 0; i < random.nextInt(feat.getMaxChances(c.getWorld(), cp, random)); ++i)
-						{
-							int genX = random.nextInt(16) + c.x * 16;
-							int genZ = random.nextInt(16) + c.z * 16;
-							BlockPos pos = new BlockPos(genX, 0, genZ);
-							int minY = feat.getMinY(c.getWorld(), pos, random);
-							int yDelta = feat.getMaxY(c.getWorld(), pos, random) - minY;
-							pos = new BlockPos(genX, random.nextInt(yDelta) + minY, genZ);
-							feat.generate(c.getWorld(), pos, random);
-						}
-					}
 			}
 		}
+		
+		random.setSeed(chunkSeed);
+		for(iWorldGenFeature feat : features)
+			if(!retrogen.getBoolean(feat.getRegistryName().toString()))
+			{
+				retrogen.setBoolean(feat.getRegistryName().toString(), true);
+				
+				ChunkPos cp = new ChunkPos(c.x, c.z);
+				for(int i = 0; i < random.nextInt(feat.getMaxChances(c.getWorld(), cp, random)); ++i)
+				{
+					int genX = random.nextInt(16) + c.x * 16;
+					int genZ = random.nextInt(16) + c.z * 16;
+					BlockPos pos = new BlockPos(genX, 0, genZ);
+					int minY = feat.getMinY(c.getWorld(), pos, random);
+					int yDelta = feat.getMaxY(c.getWorld(), pos, random) - minY;
+					pos = new BlockPos(genX, random.nextInt(yDelta) + minY, genZ);
+					feat.generate(c.getWorld(), pos, random);
+				}
+			}
 		
 		populating.remove(key);
 	}

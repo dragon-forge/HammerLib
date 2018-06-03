@@ -24,6 +24,7 @@ import com.pengu.hammercore.client.TexturePixelGetter;
 import com.pengu.hammercore.client.model.HasNoModel;
 import com.pengu.hammercore.client.particle.RenderHelperImpl;
 import com.pengu.hammercore.client.particle.iRenderHelper;
+import com.pengu.hammercore.client.render.Render3D;
 import com.pengu.hammercore.client.render.item.TileEntityItemStackRendererHC;
 import com.pengu.hammercore.client.render.tesr.TESR;
 import com.pengu.hammercore.client.texture.BufferedTexture;
@@ -43,6 +44,7 @@ import com.pengu.hammercore.json.JSONException;
 import com.pengu.hammercore.json.JSONObject;
 import com.pengu.hammercore.tile.tooltip.own.EntityTooltipRenderEngine;
 import com.pengu.hammercore.utils.ColorHelper;
+import com.zeitheron.hammercore.client.HammerCoreClient;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
@@ -86,11 +88,13 @@ public class RenderProxy_Client extends RenderProxy_Common implements iEnchantme
 	public void construct()
 	{
 		MinecraftForge.EVENT_BUS.register(new RenderGui());
+		MinecraftForge.EVENT_BUS.register(new Render3D());
 		MinecraftForge.EVENT_BUS.register(this);
 		MinecraftForge.EVENT_BUS.register(new TooltipAPI());
 		MinecraftForge.EVENT_BUS.register(new TextureUtils());
 		MinecraftForge.EVENT_BUS.register(new TexturePixelGetter());
 		MinecraftForge.EVENT_BUS.register(new SplashTextHelper());
+		MinecraftForge.EVENT_BUS.register(new HammerCoreClient());
 		
 		TextureFXManager.INSTANCE.preInit();
 	}

@@ -107,9 +107,4 @@ public class ParticleProxy_Common
 		
 		HCNetwork.manager.sendToAllAround(p, new TargetPoint(world.provider.getDimension(), x, y, z, 128));
 	}
-	
-	public int getLightValue(IBlockState blockState, IBlockAccess world, BlockPos pos)
-	{
-		return 0;
-	}
 }

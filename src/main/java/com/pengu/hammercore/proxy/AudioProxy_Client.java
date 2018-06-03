@@ -27,18 +27,18 @@ public class AudioProxy_Client extends AudioProxy_Common
 	@Override
 	public void playSoundAt(World world, String sound, double x, double y, double z, float volume, float pitch, SoundCategory category)
 	{
-		try
-		{
-			float br = volume * volume * 512F;
-			EntityPlayerSP p = Minecraft.getMinecraft().player;
-			if(p.world.provider.getDimension() != world.provider.getDimension())
-				return;
-			if(p.getDistance(x, y, z) > br)
-				return;
-			p.connection.handleCustomSound(new SPacketCustomSound(sound, category, x, y, z, volume, pitch));
-		} catch(Throwable err)
-		{
-		}
+		if(!world.isRemote)
+			super.playSoundAt(world, sound, x, y, z, volume, pitch, category);
+		else
+			try
+			{
+				EntityPlayerSP p = Minecraft.getMinecraft().player;
+				if(p.world.provider.getDimension() != world.provider.getDimension())
+					return;
+				p.connection.handleCustomSound(new SPacketCustomSound(sound, category, x, y, z, volume, pitch));
+			} catch(Throwable err)
+			{
+			}
 	}
 	
 	@Override

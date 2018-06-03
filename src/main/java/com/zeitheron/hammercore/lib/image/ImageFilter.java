@@ -1,4 +1,4 @@
-package com.endie.lib.image;
+package com.zeitheron.hammercore.lib.image;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;

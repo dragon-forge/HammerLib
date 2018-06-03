@@ -1,4 +1,4 @@
-package com.endie.lib.image;
+package com.zeitheron.hammercore.lib.image;
 
 import java.awt.Color;
 import java.awt.Graphics2D;

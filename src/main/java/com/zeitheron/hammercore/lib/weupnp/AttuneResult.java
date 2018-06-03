@@ -1,4 +1,4 @@
-package com.endie.lib.weupnp;
+package com.zeitheron.hammercore.lib.weupnp;
 
 import java.io.IOException;
 import java.util.Map;

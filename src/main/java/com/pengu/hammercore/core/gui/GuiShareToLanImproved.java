@@ -3,11 +3,11 @@ package com.pengu.hammercore.core.gui;
 import java.io.IOException;
 import java.lang.reflect.Field;
 
-import com.endie.lib.weupnp.EnumProtocol;
-import com.endie.lib.weupnp.WeUPnP;
 import com.pengu.hammercore.HammerCore;
 import com.pengu.hammercore.cfg.HammerCoreConfigs;
 import com.pengu.hammercore.net.LanUtil;
+import com.zeitheron.hammercore.lib.weupnp.EnumProtocol;
+import com.zeitheron.hammercore.lib.weupnp.WeUPnP;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
