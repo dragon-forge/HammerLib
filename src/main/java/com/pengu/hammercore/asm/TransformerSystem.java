@@ -14,7 +14,7 @@ import org.objectweb.asm.tree.MethodNode;
 
 import com.endie.lib.utils.TaskedThread;
 
-public class TransformerSystem
+class TransformerSystem
 {
 	public static interface iASMHook
 	{

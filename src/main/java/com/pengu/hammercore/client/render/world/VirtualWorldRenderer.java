@@ -48,13 +48,13 @@ public class VirtualWorldRenderer
 		if(scissorAvailable && shouldCut)
 		{
 			ScaledResolution sr = new ScaledResolution(mc);
-			GL11.glEnable(3089);
+			GL11.glEnable(GL11.GL_SCISSOR_TEST);
 			GL11.glScissor((guiLeft + panel.getX()) * sr.getScaleFactor(), mc.displayHeight - (guiTop + panel.getY() + panel.getHeight()) * sr.getScaleFactor(), panel.getWidth() * sr.getScaleFactor(), panel.getHeight() * sr.getScaleFactor());
 		}
 		
 		Tessellator.getInstance().draw();
 		if(scissorAvailable && shouldCut)
-			GL11.glDisable(3089);
+			GL11.glDisable(GL11.GL_SCISSOR_TEST);
 		GlStateManager.popMatrix();
 		GlStateManager.disableDepth();
 	}

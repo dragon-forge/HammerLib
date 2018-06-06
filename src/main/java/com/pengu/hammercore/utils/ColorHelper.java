@@ -41,4 +41,15 @@ public class ColorHelper
 	{
 		return ((rgb >> 0) & 0xFF) / 255F;
 	}
+	
+	public static float getBrightnessF(int rgb)
+	{
+		return getRed(rgb) * getGreen(rgb) * getBlue(rgb);
+	}
+	
+	public static int getBrightnessRGB(int rgb)
+	{
+		int bri = (int) (getBrightnessF(rgb) * 255F);
+		return bri << 16 | bri << 8 | bri;
+	}
 }

@@ -13,7 +13,7 @@ public class V2PacketPing implements IV2Packet
 {
 	static
 	{
-		HCV2Net.INSTANCE.handle(V2PacketPing.class, () -> new V2PacketPing(0L));
+		IV2Packet.handle(V2PacketPing.class, () -> new V2PacketPing(0L));
 	}
 	
 	public V2PacketPing(long start)

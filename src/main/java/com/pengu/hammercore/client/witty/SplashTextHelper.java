@@ -29,9 +29,15 @@ public class SplashTextHelper
 	{
 		if(e.getGui() instanceof GuiMainMenu)
 		{
-			WittyCommentChooseEvent w = new WittyCommentChooseEvent();
-			MinecraftForge.EVENT_BUS.post(w);
-			splash = w.getWittyComment();
+			String birthday = DaylengthSplashes.getDaylengthSplash();
+			if(birthday != null)
+				splash = iWittyComment.ofStatic(birthday);
+			else
+			{
+				WittyCommentChooseEvent w = new WittyCommentChooseEvent();
+				MinecraftForge.EVENT_BUS.post(w);
+				splash = w.getWittyComment();
+			}
 		}
 	}
 	

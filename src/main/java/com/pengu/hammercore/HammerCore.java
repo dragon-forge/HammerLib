@@ -70,6 +70,7 @@ import com.pengu.hammercore.utils.ModVersions;
 import com.pengu.hammercore.world.WorldGenHammerCore;
 import com.pengu.hammercore.world.WorldGenHelper;
 import com.pengu.hammercore.world.data.PerChunkDataManager;
+import com.zeitheron.hammercore.command.CommandBanV6;
 import com.zeitheron.hammercore.lib.weupnp.AttuneResult;
 import com.zeitheron.hammercore.netv2.HCV2Net;
 
@@ -403,6 +404,7 @@ public class HammerCore
 		e.registerServerCommand(new CommandSetLootTable());
 		e.registerServerCommand(new CommandExportStructure());
 		e.registerServerCommand(new CommandLyingItem());
+//		e.registerServerCommand(new CommandBanV6());
 		
 		// Reload plugins on server side
 		reloadPlugins();
@@ -537,6 +539,16 @@ public class HammerCore
 	public static final List<String> DRAGONS = Arrays.asList("Zeitheron");
 	private static final HCAuthor[] HCAUTHORS = //
 	        { //
+	        	new HCAuthor("Zeitheron", TextFormatting.DARK_PURPLE + "" + TextFormatting.ITALIC + "         " + TextFormatting.RESET + "   ", () ->
+                {
+	                float sine = .5F * ((float) Math.sin(Math.toRadians(16 * client_ticks)) + 1);
+	                
+	                int r = 16;
+	                int g = 180;
+	                int b = 205 + (int) (sine * 50);
+	                
+	                return ColorHelper.packRGB(r / 255F, g / 255F, b / 255F);
+                }, true, data[0]), //
 	                new HCAuthor("APengu", TextFormatting.BLUE + "" + TextFormatting.ITALIC + "       " + TextFormatting.RESET + "  ", () ->
 	                {
 		                float sine = .5F * ((float) Math.sin(Math.toRadians(16 * client_ticks)) + 1);
@@ -547,16 +559,6 @@ public class HammerCore
 		                
 		                return ColorHelper.packRGB(r / 255F, g / 255F, b / 255F);
 	                }, true, data[0]), //
-	                new HCAuthor("Zeitheron", TextFormatting.DARK_PURPLE + "" + TextFormatting.ITALIC + "         " + TextFormatting.RESET + "   ", () ->
-	                {
-		                float sine = .5F * ((float) Math.sin(Math.toRadians(16 * client_ticks)) + 1);
-		                
-		                int r = 16;
-		                int g = 180;
-		                int b = 205 + (int) (sine * 50);
-		                
-		                return ColorHelper.packRGB(r / 255F, g / 255F, b / 255F);
-	                }, true, data[0]) //
 			};
 			
 	public static HCAuthor[] getHCAuthors()

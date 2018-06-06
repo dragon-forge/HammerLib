@@ -16,7 +16,7 @@ import org.objectweb.asm.tree.ClassNode;
 /**
  * Useful utilities to handle class IO and transformation
  */
-public class ObjectWebUtils
+class ObjectWebUtils
 {
 	public static ClassNode loadClass(byte[] data)
 	{

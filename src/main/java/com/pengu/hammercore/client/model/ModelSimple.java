@@ -9,12 +9,20 @@ import net.minecraft.util.ResourceLocation;
 public class ModelSimple<T> extends ModelBase
 {
 	protected ResourceLocation texture;
+	protected String textureURL;
 	
 	public ModelSimple(int texWidth, int texHeight, ResourceLocation texture)
 	{
 		this.textureWidth = texWidth;
 		this.textureHeight = texHeight;
 		this.texture = texture;
+	}
+	
+	public ModelSimple(int texWidth, int texHeight, String textureURL)
+	{
+		this.textureWidth = texWidth;
+		this.textureHeight = texHeight;
+		this.textureURL = textureURL;
 	}
 	
 	public void setRotateAngle(ModelRenderer modelRenderer, float x, float y, float z)
@@ -31,12 +39,20 @@ public class ModelSimple<T> extends ModelBase
 	
 	public void bindTexture(T o)
 	{
-		ResourceLocation loc = getTexture(o);
-		UtilsFX.bindTexture(loc.getResourceDomain(), loc.getResourcePath());
+		String url = getTextureURL();
+		if(url != null)
+			UtilsFX.bindTextureURL(url);
+		else
+			UtilsFX.bindTexture(getTexture(o));
 	}
 	
 	public ResourceLocation getTexture(T o)
 	{
 		return texture;
+	}
+	
+	public String getTextureURL()
+	{
+		return textureURL;
 	}
 }

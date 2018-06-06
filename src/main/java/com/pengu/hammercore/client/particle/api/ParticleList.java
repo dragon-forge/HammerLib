@@ -10,6 +10,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.zeitheron.hammercore.client.particle.FXGroupRenderer;
+import com.zeitheron.hammercore.client.particle.ParticleGrouped;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.renderer.ActiveRenderInfo;
@@ -26,6 +29,8 @@ public class ParticleList
 	private static final List<Particle> vanillaParticleList = new ArrayList<>();
 	
 	private static final List<iRenderedParticle> renderedParticleList = new ArrayList<>();
+	
+	private static final List<ParticleGrouped> groupedParticleList = new ArrayList<>();
 	
 	static
 	{
@@ -76,6 +81,8 @@ public class ParticleList
 	{
 		EntityPlayer entityIn = Minecraft.getMinecraft().player;
 		ActiveRenderInfo.updateRenderInfo(entityIn, Minecraft.getMinecraft().gameSettings.thirdPersonView == 2);
+		
+		FXGroupRenderer.INSTANCE.render(evt);
 		
 		for(int i = 0; i < renderedParticleList.size(); ++i)
 		{
@@ -132,7 +139,15 @@ public class ParticleList
 				ArrayDeque<Particle>[][] particles = Minecraft.getMinecraft().effectRenderer.fxLayers;
 				for(ArrayDeque<Particle>[] layer : particles)
 					for(ArrayDeque<Particle> deque : layer)
-						particlesSet.addAll(deque);
+						for(Particle p : deque.clone())
+							if(p instanceof ParticleGrouped)
+							{
+								// Move grouped particles to custom render engine
+								FXGroupRenderer.INSTANCE.addParticle((ParticleGrouped) p);
+								deque.remove(p);
+							}
+							else
+								particlesSet.add(p);
 			} catch(Throwable err)
 			{
 			}

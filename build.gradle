@@ -190,7 +190,7 @@ task makeChangelog(type: se.bjurr.gitchangelog.plugin.gradle.GitChangelogTask) {
 <h1>Changes:</h1>
   <ul>
     {{#commits}}
-    <li> <a href="https://github.com/APengu/HammerCore/commit/{{hash}}" target=_blank> {{{message}}}</a>
+    <li> <a href="https://github.com/Zeitheron/HammerCore/commit/{{hash}}" target=_blank> {{{message}}}</a>
 </li>
     {{/commits}}
   </ul>

@@ -15,20 +15,20 @@ import javax.imageio.ImageIO;
 
 import com.pengu.hammercore.common.utils.IOUtils;
 
-public interface Icon
+public interface IIcon
 {
-	Map<String, Icon> urlIcons = new HashMap<>();
+	Map<String, IIcon> urlIcons = new HashMap<>();
 	
-	static Icon of(BufferedImage buf)
+	static IIcon of(BufferedImage buf)
 	{
 		if(buf == null)
 			return null;
 		return () -> buf;
 	}
 	
-	static Icon of(BufferedImage buf, int delay)
+	static IIcon of(BufferedImage buf, int delay)
 	{
-		return new Icon()
+		return new IIcon()
 		{
 			@Override
 			public BufferedImage buffer()
@@ -44,7 +44,7 @@ public interface Icon
 		};
 	}
 	
-	static Icon of(String url)
+	static IIcon of(String url)
 	{
 		/* Prevent resources from being loaded again */
 		if(urlIcons.containsKey(url))
@@ -54,7 +54,7 @@ public interface Icon
 		{
 			try
 			{
-				Icon ico = of(ImageIO.read(new ByteArrayInputStream(IOUtils.downloadData(url))));
+				IIcon ico = of(ImageIO.read(new ByteArrayInputStream(IOUtils.downloadData(url))));
 				urlIcons.put(url, ico);
 				return ico;
 			} catch(IOException e)
@@ -66,7 +66,7 @@ public interface Icon
 		return of(new File(url));
 	}
 	
-	static Icon of(File file)
+	static IIcon of(File file)
 	{
 		BufferedImage buf;
 		try
@@ -96,7 +96,7 @@ public interface Icon
 		return buffer() == null ? 0 : buffer().getHeight();
 	}
 	
-	default Icon round(int arcX, int arcY)
+	default IIcon round(int arcX, int arcY)
 	{
 		BufferedImage buf = buffer(), out = new BufferedImage(width(), height(), BufferedImage.TYPE_INT_ARGB /* add
 		                                                                                                      * transparency */);
@@ -115,15 +115,15 @@ public interface Icon
 		return of(out);
 	}
 	
-	default Icon brighter(int points)
+	default IIcon brighter(int points)
 	{
-		Icon ic = copy();
+		IIcon ic = copy();
 		RescaleOp rescaleOp = new RescaleOp(1.2F, points, null);
 		rescaleOp.filter(ic.buffer(), ic.buffer());
 		return ic;
 	}
 	
-	default Icon copy()
+	default IIcon copy()
 	{
 		if(buffer() == null)
 			return this;
@@ -132,7 +132,7 @@ public interface Icon
 		return of(out);
 	}
 	
-	default Icon resize(int width, int height)
+	default IIcon resize(int width, int height)
 	{
 		/** Prevent unwanted results */
 		if(width() == width && height() == height)
@@ -143,7 +143,7 @@ public interface Icon
 		return of(scaled, delay());
 	}
 	
-	default Icon sub(int x, int y, int width, int height)
+	default IIcon sub(int x, int y, int width, int height)
 	{
 		return of(buffer().getSubimage(x, y, width, height), delay());
 	}

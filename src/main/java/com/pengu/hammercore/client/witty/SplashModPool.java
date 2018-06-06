@@ -14,6 +14,11 @@ public class SplashModPool
 		link("jei", "Just Enough Items");
 		link("waila", "WAILA");
 		link("solarfluxreborn", "Solar Flux Reborn");
+		link("thaumcraft", "Thaumcraft VI");
+		link("embers", "Embers");
+		link("astralsorcery", "Astral Sorcery");
+		link("ic2", "Industrial Craft");
+		link("actuallyadditions", "Actually Additions");
 	}
 	
 	public static void link(String modid, String name)

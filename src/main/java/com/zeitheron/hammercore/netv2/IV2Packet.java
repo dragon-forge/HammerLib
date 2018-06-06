@@ -1,5 +1,7 @@
 package com.zeitheron.hammercore.netv2;
 
+import java.util.function.Supplier;
+
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -24,4 +26,12 @@ public interface IV2Packet
 	IV2Packet executeOnClient();
 	
 	IV2Packet executeOnServer();
+	
+	/**
+	 * Use in static { } body to add handler to this packet.
+	 */
+	static <T extends IV2Packet> void handle(Class<T> t, Supplier<T> nev)
+	{
+		HCV2Net.INSTANCE.handle(t, nev);
+	}
 }

@@ -20,6 +20,39 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 public class AnnotatedInstanceUtil
 {
 	/**
+	 * Gets all classes that extend (or implement) typeClass
+	 * <strong>and</strong> have annotationClass annotation present
+	 * 
+	 * @param asmDataTable
+	 *            the ASM table with all loaded classes (get it via
+	 *            {@link FMLPreInitializationEvent#getAsmData()})
+	 * @param annotationClass
+	 *            the annotation that must be present in the class for it to be
+	 *            added to the list
+	 * @param typeClass
+	 *            the class that object must extend in order for it to be added
+	 *            to the list
+	 */
+	public static <T> List<Class<? extends T>> getTypes(@Nonnull ASMDataTable asmDataTable, Class annotationClass, Class<T> typeClass)
+	{
+		String annotationClassName = annotationClass.getCanonicalName();
+		Set<ASMData> asmDatas = asmDataTable.getAll(annotationClassName);
+		List<Class<? extends T>> instances = new ArrayList();
+		for(ASMData asmData : asmDatas)
+		{
+			try
+			{
+				Class<?> asmClass = Class.forName(asmData.getClassName());
+				if(typeClass.isAssignableFrom(asmClass))
+					instances.add(asmClass.asSubclass(typeClass));
+			} catch(Throwable e)
+			{
+			}
+		}
+		return instances;
+	}
+	
+	/**
 	 * Gets (well, creates) all scopes of classes that extend (or implement)
 	 * instanceClass <strong>and</strong> have annotationClass annotation
 	 * present
@@ -44,6 +77,8 @@ public class AnnotatedInstanceUtil
 			try
 			{
 				Class<?> asmClass = Class.forName(asmData.getClassName());
+				if(!instanceClass.isAssignableFrom(asmClass))
+					continue;
 				Class<? extends T> asmInstanceClass = asmClass.asSubclass(instanceClass);
 				T instance = asmInstanceClass.newInstance();
 				instances.add(instance);

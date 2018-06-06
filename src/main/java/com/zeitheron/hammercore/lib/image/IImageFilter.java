@@ -4,9 +4,9 @@ import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
 import java.util.Map;
 
-public interface ImageFilter
+public interface IImageFilter
 {
-	ImageFilter BLACK_AND_WHITE = (img, settings) ->
+	IImageFilter BLACK_AND_WHITE = (img, settings) ->
 	{
 		for(int x = 0; x < img.getWidth(); ++x)
 			for(int y = 0; y < img.getHeight(); ++y)
@@ -21,27 +21,27 @@ public interface ImageFilter
 		return img;
 	};
 	
-	ImageFilter BRIGHTEN = (img, settings) ->
+	IImageFilter BRIGHTEN = (img, settings) ->
 	{
 		RescaleOp rescaleOp = new RescaleOp(1.2F, settings.hasSetting("bright", EnumFilterSettingType.INT) ? settings.getInt("bright") : 15, null);
 		rescaleOp.filter(img, img);
 		return img;
 	};
 	
-	default BufferedImage applyToCopy(BufferedImage img, iFilterSettings settings)
+	default BufferedImage applyToCopy(BufferedImage img, IFilterSettings settings)
 	{
 		BufferedImage i = new BufferedImage(img.getWidth(), img.getHeight(), img.getType());
 		i.createGraphics().drawImage(img, 0, 0, null);
 		return apply(i, settings);
 	}
 	
-	BufferedImage apply(BufferedImage bi, iFilterSettings settings);
+	BufferedImage apply(BufferedImage bi, IFilterSettings settings);
 	
-	public static interface iFilterSettings
+	public static interface IFilterSettings
 	{
-		iFilterSettings NONE = id -> null;
+		IFilterSettings NONE = id -> null;
 		
-		public static iFilterSettings of(Map<String, Object> map)
+		public static IFilterSettings of(Map<String, Object> map)
 		{
 			return id -> map.get(id);
 		}
