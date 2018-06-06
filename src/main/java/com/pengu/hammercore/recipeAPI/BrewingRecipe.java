@@ -6,6 +6,7 @@ import java.util.Set;
 import com.google.common.base.Predicate;
 
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.Ingredient;
 import net.minecraftforge.common.brewing.IBrewingRecipe;
 
 public enum BrewingRecipe implements IBrewingRecipe
@@ -14,7 +15,7 @@ public enum BrewingRecipe implements IBrewingRecipe
 	
 	public final Set<BSR> recipes = new HashSet<>();
 	
-	public BSR addRecipe(Predicate<ItemStack> input, Predicate<ItemStack> ingredient, ItemStack output)
+	public BSR addRecipe(Ingredient input, Ingredient ingredient, ItemStack output)
 	{
 		BSR r = new BSR();
 		r.input = input;
@@ -53,7 +54,7 @@ public enum BrewingRecipe implements IBrewingRecipe
 	
 	public static final class BSR
 	{
-		public Predicate<ItemStack> input, ingredient;
+		public Ingredient input, ingredient;
 		public ItemStack output;
 	}
 }

@@ -1,4 +1,4 @@
-package com.pengu.hammercore.fluiddict;
+package com.zeitheron.hammercore.fluiddict;
 
 import java.util.ArrayList;
 import java.util.List;

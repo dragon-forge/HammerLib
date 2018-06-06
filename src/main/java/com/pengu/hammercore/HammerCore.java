@@ -53,7 +53,6 @@ import com.pengu.hammercore.core.init.BlocksHC;
 import com.pengu.hammercore.core.init.ItemsHC;
 import com.pengu.hammercore.core.init.ManualHC;
 import com.pengu.hammercore.event.GetAllRequiredApisEvent;
-import com.pengu.hammercore.fluiddict.FluidDictionary;
 import com.pengu.hammercore.net.HCNetwork;
 import com.pengu.hammercore.net.pkt.opts.PacketReqOpts;
 import com.pengu.hammercore.proxy.AudioProxy_Common;
@@ -71,6 +70,7 @@ import com.pengu.hammercore.world.WorldGenHammerCore;
 import com.pengu.hammercore.world.WorldGenHelper;
 import com.pengu.hammercore.world.data.PerChunkDataManager;
 import com.zeitheron.hammercore.command.CommandBanV6;
+import com.zeitheron.hammercore.fluiddict.FluidDictionary;
 import com.zeitheron.hammercore.lib.weupnp.AttuneResult;
 import com.zeitheron.hammercore.netv2.HCV2Net;
 

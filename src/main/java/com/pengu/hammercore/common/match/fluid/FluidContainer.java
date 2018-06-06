@@ -2,7 +2,7 @@ package com.pengu.hammercore.common.match.fluid;
 
 import java.util.List;
 
-import com.pengu.hammercore.fluiddict.FluidDictionary;
+import com.zeitheron.hammercore.fluiddict.FluidDictionary;
 
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;

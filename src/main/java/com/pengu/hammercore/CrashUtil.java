@@ -6,9 +6,9 @@ import java.net.URLConnection;
 import java.nio.file.Files;
 
 import com.pengu.hammercore.cfg.HammerCoreConfigs;
-import com.pengu.hammercore.fluiddict.FluidDictionary;
 import com.pengu.hammercore.web.HttpRequest;
 import com.pengu.hammercore.web.HttpRequest.Base64;
+import com.zeitheron.hammercore.fluiddict.FluidDictionary;
 
 import net.minecraftforge.fml.common.ICrashCallable;
 import net.minecraftforge.oredict.OreDictionary;
