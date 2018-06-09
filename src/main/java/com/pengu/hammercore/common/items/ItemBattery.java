@@ -7,6 +7,8 @@ import com.pengu.hammercore.common.capabilities.CapabilityEJ;
 import com.pengu.hammercore.common.utils.ChatUtil;
 import com.pengu.hammercore.energy.iPowerContainerItem;
 import com.pengu.hammercore.energy.iPowerStorage;
+import com.zeitheron.hammercore.utils.charging.ItemChargeHelper;
+import com.zeitheron.hammercore.utils.charging.fe.FECharge;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -51,13 +53,8 @@ public class ItemBattery extends ItemFEBase
 		
 		if(mode.isChargingEntireInventory() && entityIn instanceof EntityPlayer)
 		{
-			InventoryPlayer inv = ((EntityPlayer) entityIn).inventory;
-			
-			for(int i = 0; i < inv.getSizeInventory(); ++i)
-			{
-				ItemStack a = inv.getStackInSlot(i);
-				chargeItem(stack, a);
-			}
+			FECharge leftover = ItemChargeHelper.chargePlayer((EntityPlayer) entityIn, new FECharge(getEnergyStored(stack)), false);
+			setFE(stack, leftover.FE);
 		} else
 		{
 			if(mode.isChargingArmor())

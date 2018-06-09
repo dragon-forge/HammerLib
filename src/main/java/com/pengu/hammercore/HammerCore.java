@@ -73,6 +73,7 @@ import com.zeitheron.hammercore.command.CommandBanV6;
 import com.zeitheron.hammercore.fluiddict.FluidDictionary;
 import com.zeitheron.hammercore.lib.weupnp.AttuneResult;
 import com.zeitheron.hammercore.netv2.HCV2Net;
+import com.zeitheron.hammercore.utils.charging.ItemChargeHelper;
 
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
@@ -276,10 +277,13 @@ public class HammerCore
 			// Add compiled codes
 			code.addMCFObjects(toRegister);
 		
-		ProgressBar bar = ProgressManager.push("Loading", 5 + apis.size() + toRegister.size() + listeners.size());
+		ProgressBar bar = ProgressManager.push("Loading", 6 + apis.size() + toRegister.size() + listeners.size());
 		
 		bar.step("Registering EJ");
 		CapabilityEJ.register();
+		
+		bar.step("Loading ItemChargeHelper modules");
+		ItemChargeHelper.preInit(e.getAsmData());
 		
 		configListeners = new ArrayList<>();
 		int i = 0;

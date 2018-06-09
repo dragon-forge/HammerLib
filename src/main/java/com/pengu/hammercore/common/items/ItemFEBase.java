@@ -98,7 +98,7 @@ public class ItemFEBase extends Item implements iPowerContainerItem
 		return provider;
 	}
 	
-	private void setFE(ItemStack stack, int fe)
+	public void setFE(ItemStack stack, int fe)
 	{
 		if(stack.getTagCompound() == null)
 			stack.setTagCompound(new NBTTagCompound());
