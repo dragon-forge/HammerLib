@@ -75,10 +75,11 @@ public class SpawnEnderDragonEggHandler
 	private static final HCAuthor[] authors = HammerCore.getHCAuthors();
 	
 	@SubscribeEvent
+	@Deprecated
 	public void onNameFormat(PlayerEvent.NameFormat event)
 	{
-		for(HCAuthor author : authors)
-			if(event.getUsername().equals(author.getUsername()))
-				event.setDisplayname(author.getDisplayName());
+//		for(HCAuthor author : authors)
+//			if(event.getUsername().equals(author.getUsername()))
+//				event.setDisplayname(author.getDisplayName());
 	}
 }
