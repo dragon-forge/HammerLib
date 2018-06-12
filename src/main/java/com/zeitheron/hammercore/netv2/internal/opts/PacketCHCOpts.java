@@ -1,4 +1,4 @@
-package com.pengu.hammercore.net.pkt.opts;
+package com.zeitheron.hammercore.netv2.internal.opts;
 
 import java.util.UUID;
 
@@ -6,18 +6,22 @@ import com.pengu.hammercore.ServerHCClientPlayerData;
 import com.pengu.hammercore.client.HCClientOptions;
 import com.pengu.hammercore.json.JSONObject;
 import com.pengu.hammercore.json.JSONTokener;
-import com.pengu.hammercore.net.HCNetwork;
-import com.pengu.hammercore.net.packetAPI.iPacket;
-import com.pengu.hammercore.net.packetAPI.iPacketListener;
+import com.zeitheron.hammercore.netv2.HCV2Net;
+import com.zeitheron.hammercore.netv2.IV2Packet;
+import com.zeitheron.hammercore.netv2.PacketContext;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
-public class PacketCHCOpts implements iPacket, iPacketListener<PacketCHCOpts, PacketCHCOpts>
+public class PacketCHCOpts implements IV2Packet
 {
+	static
+	{
+		IV2Packet.handle(PacketCHCOpts.class, () -> new PacketCHCOpts());
+	}
+	
 	public HCClientOptions opts;
 	public String player;
 	
@@ -40,19 +44,19 @@ public class PacketCHCOpts implements iPacket, iPacketListener<PacketCHCOpts, Pa
 	}
 	
 	@Override
-	public PacketCHCOpts onArrived(PacketCHCOpts packet, MessageContext context)
+	public IV2Packet execute(Side side, PacketContext net)
 	{
-		ServerHCClientPlayerData dat = ServerHCClientPlayerData.DATAS.get(context.side);
-		if(packet.opts != null)
+		ServerHCClientPlayerData dat = ServerHCClientPlayerData.DATAS.get(side);
+		if(opts != null)
 		{
-			dat.assign(packet.player, packet.opts);
+			dat.assign(player, opts);
 			if(dat.side == Side.SERVER)
-				HCNetwork.manager.sendToAll(new PacketCHCOpts().setOpts(packet.opts).setLPlayer(packet.player));
-		} else if(packet.player != null)
+				HCV2Net.INSTANCE.sendToAll(new PacketCHCOpts().setOpts(opts).setLPlayer(player));
+		} else if(player != null && net.server != null)
 		{
-			EntityPlayerMP mp = context.getServerHandler().player.getServer().getPlayerList().getPlayerByUUID(UUID.fromString(packet.player));
+			EntityPlayerMP mp = net.server.getPlayerList().getPlayerByUUID(UUID.fromString(player));
 			if(mp != null)
-				return new PacketCHCOpts().setLPlayer(packet.player).setOpts(dat.getOptionsForPlayer(mp));
+				return new PacketCHCOpts().setLPlayer(player).setOpts(dat.getOptionsForPlayer(mp));
 		}
 		return null;
 	}

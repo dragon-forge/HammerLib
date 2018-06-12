@@ -2,6 +2,9 @@ package com.pengu.hammercore.client.witty;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BooleanSupplier;
+
+import com.endie.lib.tuple.TwoTuple;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiMainMenu;
@@ -15,6 +18,38 @@ public class SplashTextHelper
 {
 	public static iWittyComment splash;
 	private static String lastSplashText;
+	
+	private static final List<TwoTuple<BooleanSupplier, String>> mods = new ArrayList<>();
+	
+	static
+	{
+		addModSplashesIfOneModInstalled("hc.splash.thaumcraft", "thaumcraft", "lostthaumaturgy");
+		addModSplashesIfOneModInstalled("hc.splash.draconicevolution", "draconicevolution");
+		addModSplashesIfOneModInstalled("hc.splash.ae2", "appliedenergistics2");
+		addModSplashesIfOneModInstalled("hc.splash.ic2", "ic2");
+	}
+	
+	public static void addModSplashesIfOneModInstalled(String ident, String... modsOR)
+	{
+		mods.add(new TwoTuple<>(() ->
+		{
+			for(String mod : modsOR)
+				if(Loader.isModLoaded(mod))
+					return true;
+			return false;
+		}, ident));
+	}
+	
+	public static void addModSplashesIfAllModsInstalled(String ident, String... modsAND)
+	{
+		mods.add(new TwoTuple<>(() ->
+		{
+			for(String mod : modsAND)
+				if(!Loader.isModLoaded(mod))
+					return false;
+			return true;
+		}, ident));
+	}
 	
 	/** Gets the edited splash text */
 	public static String handle(String sp)
@@ -46,31 +81,36 @@ public class SplashTextHelper
 	{
 		List<String> sp = new ArrayList<>();
 		
-		int t = 1;
-		while(true)
-		{
-			String raw = "hc.splash." + t;
-			String f = I18n.format(raw);
-			
-			if(raw.equals(f))
-				break;
-			else
-				sp.add(f);
-			
-			++t;
-		}
+		addFormattedSubs("hc.splash", sp);
 		
-		if(Loader.isModLoaded("lostthaumaturgy") || Loader.isModLoaded("thaumcraft"))
-		{
-			sp.add(I18n.format("hc.splash.lt.1"));
-		}
-		
+		for(TwoTuple<BooleanSupplier, String> tt : mods)
+			if(tt.get1().getAsBoolean())
+				addFormattedSubs(tt.get2(), sp);
+			
 		for(String modid : SplashModPool.modIds())
 			if(!Loader.isModLoaded(modid))
 				sp.add(I18n.format("hc.splash.mod", SplashModPool.getName(modid)));
 			
-		if(!e.isCustomWittyComment() && e.rand.nextFloat() < .05F * sp.size() / 4F)
+		double log2 = Math.log(sp.size());
+		log2 *= log2;
+		
+		if(!e.isCustomWittyComment() && e.rand.nextFloat() * log2 < .05F * sp.size())
 			e.setWittyComment(iWittyComment.ofStatic(replaceVars(sp.get(e.rand.nextInt(sp.size())))));
+	}
+	
+	private static void addFormattedSubs(String base, List<String> list)
+	{
+		int t = 1;
+		while(true)
+		{
+			String raw = base + '.' + t;
+			String f = I18n.format(raw);
+			if(raw.equals(f))
+				break;
+			else
+				list.add(f);
+			++t;
+		}
 	}
 	
 	private String replaceVars(String str)

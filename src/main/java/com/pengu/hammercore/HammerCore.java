@@ -54,7 +54,6 @@ import com.pengu.hammercore.core.init.ItemsHC;
 import com.pengu.hammercore.core.init.ManualHC;
 import com.pengu.hammercore.event.GetAllRequiredApisEvent;
 import com.pengu.hammercore.net.HCNetwork;
-import com.pengu.hammercore.net.pkt.opts.PacketReqOpts;
 import com.pengu.hammercore.proxy.AudioProxy_Common;
 import com.pengu.hammercore.proxy.BookProxy_Common;
 import com.pengu.hammercore.proxy.NativeProxy_Common;
@@ -69,10 +68,10 @@ import com.pengu.hammercore.utils.ModVersions;
 import com.pengu.hammercore.world.WorldGenHammerCore;
 import com.pengu.hammercore.world.WorldGenHelper;
 import com.pengu.hammercore.world.data.PerChunkDataManager;
-import com.zeitheron.hammercore.command.CommandBanV6;
 import com.zeitheron.hammercore.fluiddict.FluidDictionary;
 import com.zeitheron.hammercore.lib.weupnp.AttuneResult;
 import com.zeitheron.hammercore.netv2.HCV2Net;
+import com.zeitheron.hammercore.netv2.internal.opts.PacketReqOpts;
 import com.zeitheron.hammercore.utils.charging.ItemChargeHelper;
 
 import net.minecraft.creativetab.CreativeTabs;
@@ -262,11 +261,13 @@ public class HammerCore
 		// } catch(Exception e1) { e1.printStackTrace(); }
 	}
 	
+	public List<Object> MCFBusObjects;
+	
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent e)
 	{
 		List<iHammerCoreAPI> apis = AnnotatedInstanceUtil.getInstances(e.getAsmData(), HammerCoreAPI.class, iHammerCoreAPI.class);
-		List<Object> toRegister = AnnotatedInstanceUtil.getInstances(e.getAsmData(), MCFBus.class, Object.class);
+		List<Object> toRegister = MCFBusObjects = AnnotatedInstanceUtil.getInstances(e.getAsmData(), MCFBus.class, Object.class);
 		List<iConfigReloadListener> listeners = AnnotatedInstanceUtil.getInstances(e.getAsmData(), HCModConfigurations.class, iConfigReloadListener.class);
 		
 		renderProxy.preInit(e.getAsmData());
@@ -474,7 +475,7 @@ public class HammerCore
 	public void playerConnected(PlayerLoggedInEvent evt)
 	{
 		if(evt.player instanceof EntityPlayerMP)
-			HCNetwork.manager.sendTo(new PacketReqOpts(), (EntityPlayerMP) evt.player);
+			HCV2Net.INSTANCE.sendTo(new PacketReqOpts(), (EntityPlayerMP) evt.player);
 		
 		EntityPlayer client = HammerCore.renderProxy.getClientPlayer();
 		if(client != null && client.getGameProfile().getId().equals(evt.player.getGameProfile().getId()))

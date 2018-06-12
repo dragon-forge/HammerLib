@@ -11,12 +11,20 @@ import com.pengu.hammercore.json.JSONObject;
 import com.pengu.hammercore.json.JSONTokener;
 import com.pengu.hammercore.json.io.IgnoreSerialization;
 import com.pengu.hammercore.json.io.Jsonable;
+import com.pengu.hammercore.json.io.SerializationContext;
 import com.pengu.hammercore.json.io.SerializedName;
 import com.pengu.hammercore.net.HCNetwork;
-import com.pengu.hammercore.net.pkt.opts.PacketCHCOpts;
+import com.pengu.hammercore.proxy.RenderProxy_Client;
+import com.pengu.hammercore.web.HttpRequest.Base64;
+import com.zeitheron.hammercore.client.PerUserModule;
+import com.zeitheron.hammercore.netv2.HCV2Net;
+import com.zeitheron.hammercore.netv2.internal.opts.PacketCHCOpts;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.JsonToNBT;
+import net.minecraft.nbt.NBTException;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -40,6 +48,16 @@ public class HCClientOptions implements Jsonable
 	
 	private String Theme;
 	
+	@IgnoreSerialization
+	public NBTTagCompound customData = new NBTTagCompound();
+	
+	public NBTTagCompound getCustomData()
+	{
+		if(customData == null)
+			customData = new NBTTagCompound();
+		return customData;
+	}
+	
 	public boolean checkAuthority()
 	{
 		for(HCAuthor au : HammerCore.getHCAuthors())
@@ -59,6 +77,7 @@ public class HCClientOptions implements Jsonable
 	public void setDefaults()
 	{
 		setTheme("Vanilla");
+		customData = new NBTTagCompound();
 		renderSpecial = true;
 		overrideCape = true;
 		authority = null;
@@ -74,7 +93,30 @@ public class HCClientOptions implements Jsonable
 		authority = j.optString("Authority", "0");
 		renderSpecial = j.optBoolean("renderSpecial", true);
 		overrideCape = j.optBoolean("overrideCape", true);
+		try
+		{
+			customData = JsonToNBT.getTagFromJson(j.optString("CustomData"));
+			HammerCore.renderProxy.cl_loadOpts(this, customData);
+		} catch(NBTException e)
+		{
+			e.printStackTrace();
+		}
 		data = j;
+	}
+	
+	@Override
+	public SerializationContext serializationContext()
+	{
+		SerializationContext c = new SerializationContext();
+		
+		if(customData == null)
+			customData = new NBTTagCompound();
+		
+		HammerCore.renderProxy.cl_saveOpts(this, customData);
+		
+		c.set("CustomData", customData != null ? customData.toString() : "{}");
+		
+		return c;
 	}
 	
 	public String getTheme()
@@ -141,6 +183,6 @@ public class HCClientOptions implements Jsonable
 		save();
 		EntityPlayer ep = HammerCore.renderProxy.getClientPlayer();
 		if(ep != null)
-			HCNetwork.manager.sendToServer(new PacketCHCOpts().setPlayer(ep).setOpts(this));
+			HCV2Net.INSTANCE.sendToServer(new PacketCHCOpts().setPlayer(ep).setOpts(this));
 	}
 }

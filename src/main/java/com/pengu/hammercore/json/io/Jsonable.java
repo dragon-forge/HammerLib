@@ -9,7 +9,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.pengu.hammercore.HammerCore;
@@ -36,11 +38,46 @@ public interface Jsonable
 	        .accosiate("jscfg:double", JSONConfigEntryDouble.class) //
 	        .accosiate("jscfg:json", JSONConfigEntryJsonable.class);
 	
+	default SerializationContext serializationContext()
+	{
+		return null;
+	}
+	
 	default String serialize()
 	{
+		SerializationContext ctx = serializationContext();
 		StringBuilder b = new StringBuilder();
 		
 		b.append("{");
+		
+		if(ctx != null)
+			for(Map.Entry<String, Object> kvpair : ctx.objects.entrySet())
+			{
+				String name = formatInsideString(kvpair.getKey());
+				Object val = kvpair.getValue();
+				b.append("\"" + name + "\":");
+				
+				if(val instanceof CharSequence)
+					b.append("\"" + formatInsideString(val + "") + "\"");
+				else if(val instanceof JSONObject)
+					b.append(val.toString());
+				else if(val instanceof JSONArray)
+					b.append(val.toString());
+				else if(val instanceof Jsonable)
+					b.append(((Jsonable) val).serialize());
+				else if(val instanceof Iterable<?>)
+					try
+					{
+						b.append(serializeIterable((Iterable<?>) val));
+					} catch(NotSerializableException e)
+					{
+						Errors.propagate(e);
+					}
+				else
+					b.append(val.toString());
+				
+				b.append(",");
+			}
 		
 		for(Field f : getClass().getDeclaredFields())
 		{
@@ -59,7 +96,7 @@ public interface Jsonable
 			
 			try
 			{
-				if(f.getType().isPrimitive() || String.class.isAssignableFrom(f.getType()) || Jsonable.class.isAssignableFrom(f.getType()) || Collection.class.isAssignableFrom(f.getType()))
+				if(f.getType().isPrimitive() || CharSequence.class.isAssignableFrom(f.getType()) || Jsonable.class.isAssignableFrom(f.getType()) || Collection.class.isAssignableFrom(f.getType()))
 				{
 					Object val = f.get(this);
 					String $ = formatInsideString(val + "");
@@ -67,13 +104,16 @@ public interface Jsonable
 					if(val instanceof Jsonable)
 						$ = ((Jsonable) val).serialize();
 					
-					if(val instanceof String)
+					if(val instanceof CharSequence)
 						$ = "\"" + formatInsideString(val + "") + "\"";
 					
 					if(val instanceof Collection)
 						$ = serializeIterable((Collection<?>) val);
 					
 					b.append("\"" + name + "\":" + $ + ",");
+				} else if(List.class.isAssignableFrom(f.getType()))
+				{
+					b.append("\"" + name + "\":");
 				} else
 					throw new NotSerializableException("Field " + f.getName() + " could not be serialized! Please insert @com.pengu.code.json.serapi.IgnoreSerialization !");
 			} catch(Throwable err)
@@ -125,17 +165,17 @@ public interface Jsonable
 		Set<NotSerializableException> err = new HashSet<>();
 		StringBuilder s = new StringBuilder();
 		s.append("[");
-		list.forEach(js ->
+		for(Object js : list.collect(Collectors.toList()))
 		{
 			if(js instanceof Jsonable)
 			{
 				String l = ((Jsonable) js).serialize();
 				s.append(l.substring(0, l.length() - 1) + ",\"__type\":\"" + clsWrapper.getName(js.getClass()) + "\"}" + ",");
-			} else if(js instanceof Collection)
-				s.append(((Collection<?>) js).stream() + ",");
+			} else if(js instanceof Iterable)
+				s.append(serializeIterable((Iterable<?>) js) + ",");
 			else
 				err.add(new NotSerializableException(js.getClass().getName()));
-		});
+		}
 		if(!err.isEmpty())
 			throw err.stream().findFirst().get();
 		String ss = s.toString();
@@ -149,17 +189,17 @@ public interface Jsonable
 		Set<NotSerializableException> err = new HashSet<>();
 		StringBuilder s = new StringBuilder();
 		s.append("[");
-		list.forEach(js ->
+		for(Object js : list)
 		{
 			if(js instanceof Jsonable)
 			{
 				String l = ((Jsonable) js).serialize();
 				s.append(l.substring(0, l.length() - 1) + ",\"__type\":\"" + clsWrapper.getName(js.getClass()) + "\"}" + ",");
-			} else if(js instanceof Collection)
-				s.append(((Collection<?>) js).stream() + ",");
+			} else if(js instanceof Iterable)
+				s.append(serializeIterable((Iterable<?>) js) + ",");
 			else
 				err.add(new NotSerializableException(js.getClass().getName()));
-		});
+		}
 		if(!err.isEmpty())
 			throw err.stream().findFirst().get();
 		String ss = s.toString();
@@ -195,10 +235,17 @@ public interface Jsonable
 		return (T) deserialize(js, (Class<? extends Jsonable>) clsWrapper.forName(js.getString("__type")));
 	}
 	
+	default void deserializeJson(JSONObject json) throws JSONException
+	{
+		
+	}
+	
 	public static <T extends Jsonable> T deserialize(JSONObject js, T i) throws JSONException
 	{
 		try
 		{
+			i.deserializeJson(js);
+			
 			Class<?> type = i.getClass();
 			
 			for(Field f : type.getDeclaredFields())

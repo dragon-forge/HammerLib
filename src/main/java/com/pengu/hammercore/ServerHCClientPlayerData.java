@@ -6,7 +6,8 @@ import java.util.Map;
 
 import com.pengu.hammercore.client.HCClientOptions;
 import com.pengu.hammercore.net.HCNetwork;
-import com.pengu.hammercore.net.pkt.opts.PacketCHCOpts;
+import com.zeitheron.hammercore.netv2.HCV2Net;
+import com.zeitheron.hammercore.netv2.internal.opts.PacketCHCOpts;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.relauncher.Side;
@@ -27,6 +28,14 @@ public class ServerHCClientPlayerData
 		this.side = s;
 	}
 	
+	/**
+	 * Automatically selects option map and gets client's settings 
+	 */
+	public static HCClientOptions getOptionsFor(EntityPlayer player)
+	{
+		return DATAS.get(player.world.isRemote ? Side.CLIENT : Side.SERVER).getOptionsForPlayer(player);
+	}
+	
 	public Map<String, HCClientOptions> playerMap = new HashMap<>();
 	
 	public void assign(String player, HCClientOptions opts)
@@ -42,7 +51,7 @@ public class ServerHCClientPlayerData
 		if(hc.def && side == Side.CLIENT)
 		{
 			hc.def = false;
-			HCNetwork.manager.sendToServer(new PacketCHCOpts().setLPlayer(player));
+			HCV2Net.INSTANCE.sendToServer(new PacketCHCOpts().setLPlayer(player));
 		}
 		return hc;
 	}

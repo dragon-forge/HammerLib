@@ -1,10 +1,28 @@
 package com.pengu.hammercore.utils;
 
+import net.minecraft.client.renderer.GlStateManager;
+
 public class ColorHelper
 {
 	public static String getColorName(int rgb)
 	{
 		return ColorNamePicker.getColorNameFromHex(rgb);
+	}
+	
+	public static int getColorByName(String name)
+	{
+		Integer i = ColorNamePicker.trySearchColorFor(name);
+		return i != null ? i.intValue() : 0xFFFFFF;
+	}
+	
+	public static void glColor1ia(int argb)
+	{
+		GlStateManager.color(getRed(argb), getGreen(argb), getBlue(argb), getAlpha(argb));
+	}
+	
+	public static void glColor1i(int argb)
+	{
+		GlStateManager.color(getRed(argb), getGreen(argb), getBlue(argb));
 	}
 	
 	public static int multiply(int argb, float multi)

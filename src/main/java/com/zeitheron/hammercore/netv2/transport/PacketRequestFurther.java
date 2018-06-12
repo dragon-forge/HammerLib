@@ -2,6 +2,7 @@ package com.zeitheron.hammercore.netv2.transport;
 
 import com.zeitheron.hammercore.netv2.HCV2Net;
 import com.zeitheron.hammercore.netv2.IV2Packet;
+import com.zeitheron.hammercore.netv2.PacketContext;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.Side;
@@ -37,7 +38,7 @@ public class PacketRequestFurther implements IV2Packet
 	}
 	
 	@Override
-	public IV2Packet execute(Side side)
+	public IV2Packet execute(Side side, PacketContext ctx)
 	{
 		TransportSession s = NetTransport.getSession(side, id);
 		
@@ -56,17 +57,5 @@ public class PacketRequestFurther implements IV2Packet
 		}
 		
 		return null;
-	}
-	
-	@Override
-	public IV2Packet executeOnClient()
-	{
-		return execute(Side.CLIENT);
-	}
-	
-	@Override
-	public IV2Packet executeOnServer()
-	{
-		return execute(Side.SERVER);
 	}
 }

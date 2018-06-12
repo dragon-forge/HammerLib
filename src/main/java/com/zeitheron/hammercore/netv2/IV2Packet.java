@@ -3,6 +3,9 @@ package com.zeitheron.hammercore.netv2;
 import java.util.function.Supplier;
 
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.INetHandler;
+import net.minecraft.network.play.INetHandlerPlayClient;
+import net.minecraft.network.play.INetHandlerPlayServer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -11,21 +14,38 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  */
 public interface IV2Packet
 {
-	void readFromNBT(NBTTagCompound nbt);
+	default void readFromNBT(NBTTagCompound nbt)
+	{
+		
+	}
 	
-	void writeToNBT(NBTTagCompound nbt);
+	default void writeToNBT(NBTTagCompound nbt)
+	{
+		
+	}
 	
-	default IV2Packet execute(Side side)
+	default IV2Packet execute(Side side, PacketContext ctx)
 	{
 		if(side == Side.CLIENT)
-			return executeOnClient();
-		return executeOnServer();
+			return executeOnClient(ctx);
+		return executeOnServer(ctx);
+	}
+	
+	default boolean refractSidedToUniversal()
+	{
+		return true;
 	}
 	
 	@SideOnly(Side.CLIENT)
-	IV2Packet executeOnClient();
+	default IV2Packet executeOnClient(PacketContext net)
+	{
+		return refractSidedToUniversal() ? execute(Side.CLIENT, net) : null;
+	}
 	
-	IV2Packet executeOnServer();
+	default IV2Packet executeOnServer(PacketContext net)
+	{
+		return refractSidedToUniversal() ? execute(Side.SERVER, net) : null;
+	}
 	
 	/**
 	 * Use in static { } body to add handler to this packet.

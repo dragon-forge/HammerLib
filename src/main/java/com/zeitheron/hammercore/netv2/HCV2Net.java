@@ -8,6 +8,8 @@ import java.util.function.Supplier;
 import javax.annotation.Nullable;
 
 import io.netty.buffer.Unpooled;
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
@@ -20,6 +22,7 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
 import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
 import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public enum HCV2Net
 {
@@ -58,31 +61,36 @@ public enum HCV2Net
 	
 	public void sendToAll(IV2Packet packet)
 	{
-		channel.sendToAll(wrap(packet, null));
+		channel.sendToAll(wrap(new PacketHolder(packet), null));
 	}
 	
 	public void sendTo(IV2Packet packet, EntityPlayerMP player)
 	{
-		channel.sendTo(wrap(packet, null), player);
+		channel.sendTo(wrap(new PacketHolder(packet), null), player);
 	}
 	
 	public void sendToAllAround(IV2Packet packet, TargetPoint point)
 	{
-		channel.sendToAllAround(wrap(packet, null), point);
+		channel.sendToAllAround(wrap(new PacketHolder(packet), null), point);
 	}
 	
 	public void sendToDimension(IV2Packet packet, int dimensionId)
 	{
-		channel.sendToDimension(wrap(packet, null), dimensionId);
+		channel.sendToDimension(wrap(new PacketHolder(packet), null), dimensionId);
 	}
 	
+	@SideOnly(Side.CLIENT)
 	public void sendToServer(IV2Packet packet)
 	{
-		channel.sendToServer(wrap(packet, null));
+		EntityPlayer ep = Minecraft.getMinecraft().player;
+		if(ep != null)
+			channel.sendToServer(wrap(new PacketHolder(packet, ep), null));
 	}
 	
 	public static NBTTagCompound writePacket(IV2Packet packet, NBTTagCompound nbt)
 	{
+		if(packet == null)
+			return nbt;
 		NBTTagCompound data;
 		packet.writeToNBT(data = new NBTTagCompound());
 		nbt.setTag("Data", data);
@@ -104,15 +112,15 @@ public enum HCV2Net
 		return null;
 	}
 	
-	private FMLProxyPacket wrap(IV2Packet pkt, Side target)
+	private FMLProxyPacket wrap(PacketHolder pkt, Side target)
 	{
 		return wrap(pkt, target, null);
 	}
 	
-	private FMLProxyPacket wrap(IV2Packet pkt, Side target, @Nullable FMLProxyPacket origin)
+	private FMLProxyPacket wrap(PacketHolder pkt, Side target, @Nullable FMLProxyPacket origin)
 	{
 		PacketBuffer buf = new PacketBuffer(Unpooled.buffer());
-		buf.writeCompoundTag(writePacket(pkt, new NBTTagCompound()));
+		buf.writeCompoundTag(pkt.writeToNBT(new NBTTagCompound()));
 		FMLProxyPacket fmlpp = new FMLProxyPacket(buf, ch_name);
 		if(origin != null)
 			fmlpp.setDispatcher(origin.getDispatcher());
@@ -121,7 +129,7 @@ public enum HCV2Net
 		return fmlpp;
 	}
 	
-	private IV2Packet unwrap(FMLProxyPacket pkt)
+	private PacketHolder unwrap(FMLProxyPacket pkt)
 	{
 		PacketBuffer payload = new PacketBuffer(pkt.payload());
 		NBTTagCompound nbt = null;
@@ -132,16 +140,16 @@ public enum HCV2Net
 		{
 		}
 		payload.release();
-		return nbt != null ? readPacket(nbt) : null;
+		return nbt != null ? new PacketHolder(nbt) : null;
 	}
 	
 	@SubscribeEvent
 	public void packetToClient(ClientCustomPacketEvent e)
 	{
 		FMLProxyPacket fmlpp = e.getPacket();
-		IV2Packet pkt = unwrap(fmlpp);
-		pkt = pkt.execute(e.side());
-		if(pkt != null)
+		PacketHolder pkt = unwrap(fmlpp);
+		pkt = pkt.execute(e);
+		if(pkt.packet != null)
 			e.setReply(wrap(pkt, oppositeSide(e.side()), fmlpp));
 	}
 	
@@ -149,9 +157,9 @@ public enum HCV2Net
 	public void packetToServer(ServerCustomPacketEvent e)
 	{
 		FMLProxyPacket fmlpp = e.getPacket();
-		IV2Packet pkt = unwrap(fmlpp);
-		pkt = pkt.execute(e.side());
-		if(pkt != null)
+		PacketHolder pkt = unwrap(fmlpp);
+		pkt = pkt.execute(e);
+		if(pkt.packet != null)
 			e.setReply(wrap(pkt, oppositeSide(e.side()), fmlpp));
 	}
 	

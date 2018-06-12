@@ -33,9 +33,12 @@ public class PacketStopRiding2 implements iPacket, iPacketListener<PacketStopRid
 			World wor = context.getServerHandler().player.world;
 			Entity rider = wor.getEntityByID(a);
 			Entity ridden = wor.getEntityByID(b);
-			rider.dismountRidingEntity();
-			if(ridden instanceof EntityPlayerMP)
-				HCNetwork.manager.sendTo(new PacketStopRiding(rider), (EntityPlayerMP) ridden);
+			if(rider != null && ridden != null)
+			{
+				rider.dismountRidingEntity();
+				if(ridden instanceof EntityPlayerMP)
+					HCNetwork.manager.sendTo(new PacketStopRiding(rider), (EntityPlayerMP) ridden);
+			}
 		}
 		return null;
 	}

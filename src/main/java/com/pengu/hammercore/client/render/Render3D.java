@@ -28,13 +28,14 @@ import com.pengu.hammercore.common.iWrenchable;
 import com.pengu.hammercore.common.items.ItemIWrench;
 import com.pengu.hammercore.common.utils.VersionCompareTool.EnumVersionLevel;
 import com.pengu.hammercore.net.HCNetwork;
-import com.pengu.hammercore.net.pkt.opts.PacketCHCOpts;
 import com.pengu.hammercore.proxy.RenderProxy_Client;
 import com.pengu.hammercore.raytracer.RayTracer;
 import com.pengu.hammercore.utils.ColorHelper;
 import com.pengu.hammercore.utils.ModVersions;
 import com.pengu.hammercore.utils.ModVersions.ModVersion;
 import com.pengu.hammercore.vec.Cuboid6;
+import com.zeitheron.hammercore.netv2.HCV2Net;
+import com.zeitheron.hammercore.netv2.internal.opts.PacketCHCOpts;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -136,7 +137,10 @@ public class Render3D
 		}
 		
 		if(RenderProxy_Client.needsClConfigSync)
-			HCNetwork.manager.sendToServer(new PacketCHCOpts().setPlayer(Minecraft.getMinecraft().player).setOpts(HCClientOptions.getOptions()));
+		{
+			RenderProxy_Client.needsClConfigSync = false;
+			HCV2Net.INSTANCE.sendToServer(new PacketCHCOpts().setPlayer(Minecraft.getMinecraft().player).setOpts(HCClientOptions.getOptions()));
+		}
 		
 		for(int i = 0; i < renders.size(); ++i)
 		{

@@ -6,9 +6,14 @@ import java.util.Map;
 import org.lwjgl.opengl.GL11;
 
 import com.pengu.hammercore.ServerHCClientPlayerData;
+import com.pengu.hammercore.client.HCClientOptions;
 import com.pengu.hammercore.client.render.player.iPlayerModel;
+import com.pengu.hammercore.client.utils.RenderUtil;
 import com.pengu.hammercore.client.utils.UtilsFX;
 import com.pengu.hammercore.client.utils.RenderUtil.PlayerRenderUtil;
+import com.pengu.hammercore.color.Rainbow;
+import com.pengu.hammercore.utils.ColorHelper;
+import com.zeitheron.hammercore.client.color.PlayerInterpolator;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
@@ -19,12 +24,16 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.client.event.RenderPlayerEvent;
+import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.fml.relauncher.Side;
 
 public class Zeitheron implements iPlayerModel
 {
 	private static final String URL_WINGS = "https://i.imgur.com/IP39pmP.png";
+	private static final String URL_EYES = "https://gitlab.com/Zeitheron/HammerCore/raw/1.12.2/ZeitheronEyes.png";
 	
 	private final ModelDragon dragon = new ModelDragon(0F);
 	private ModelRenderer //
@@ -70,12 +79,13 @@ public class Zeitheron implements iPlayerModel
 		else
 			deg = 50 + (Math.sin((player.ticksExisted + partialTicks) / 8) + 1);
 		
-		UtilsFX.bindTextureURL(URL_WINGS);
 		RenderPlayer rp = Minecraft.getMinecraft().getRenderManager().getSkinMap().get("default");
+		
+		UtilsFX.bindTextureURL(URL_WINGS);
 		
 		ModelBase.copyModelAngles(rp.getMainModel().bipedHead, spike);
 		
-		float f = player.prevRotationYaw + (player.rotationYaw - player.prevRotationYaw) * partialTicks - (player.prevRenderYawOffset + (player.renderYawOffset - player.prevRenderYawOffset) * partialTicks);
+		float f = player.prevRotationYawHead + (player.rotationYawHead - player.prevRotationYawHead) * partialTicks - (player.prevRenderYawOffset + (player.renderYawOffset - player.prevRenderYawOffset) * partialTicks);
 		float f1 = player.prevRotationPitch + (player.rotationPitch - player.prevRotationPitch) * partialTicks;
 		
 		for(int i = 0; i < 2; ++i)
@@ -84,7 +94,7 @@ public class Zeitheron implements iPlayerModel
 			GlStateManager.translate(0, player.isSneaking() ? .2 : 0, 0);
 			GlStateManager.rotate(f, 0.0F, 1.0F, 0.0F);
 			GlStateManager.rotate(f1, 1.0F, 0.0F, 0.0F);
-			GlStateManager.translate(0, 0, .135F *  (i * 2 - 1) - .02F);
+			GlStateManager.translate(.135F * (i * 2 - 1), 0, -.02F);
 			GlStateManager.translate(0, -.32F, 0);
 			GlStateManager.rotate(-f1, 1.0F, 0.0F, 0.0F);
 			GlStateManager.rotate(-f, 0.0F, 1.0F, 0.0F);
@@ -93,6 +103,9 @@ public class Zeitheron implements iPlayerModel
 			spike.render(1F);
 			GlStateManager.popMatrix();
 		}
+		
+		f = player.prevRotationYaw + (player.rotationYaw - player.prevRotationYaw) * partialTicks - (player.prevRenderYawOffset + (player.renderYawOffset - player.prevRenderYawOffset) * partialTicks);
+		f1 = player.prevRotationPitch + (player.rotationPitch - player.prevRotationPitch) * partialTicks;
 		
 		GL11.glPushMatrix();
 		
@@ -139,6 +152,9 @@ public class Zeitheron implements iPlayerModel
 			GL11.glTranslated(0, 0, .45);
 			GL11.glRotated(30, -1, 0, 0);
 		}
+		
+		float tailDeg = (float) (Math.cos(Math.toRadians(System.currentTimeMillis() % 36000L / 10L)) * 1);
+		
 		GL11.glTranslated(0, .24, 0);
 		GL11.glRotated(180, 1, 0, 0);
 		for(int i = 0; i < 10; ++i)
@@ -146,7 +162,7 @@ public class Zeitheron implements iPlayerModel
 			float calc = (float) Math.sin((player.ticksExisted + partialTicks - i) / 10);
 			float displace = (float) Math.sin((player.ticksExisted + partialTicks - i) / 10);
 			GL11.glTranslated(displace / 200F, calc / 200F, -.09);
-			GL11.glRotated(10, 1, 0, 0);
+			GL11.glRotated(9 + tailDeg, 1, 0, 0);
 			spine.render(.01F);
 		}
 		GL11.glPopMatrix();
@@ -177,26 +193,30 @@ public class Zeitheron implements iPlayerModel
 		
 		GL11.glPopMatrix();
 		
-//		ModelBase.copyModelAngles(rp.getMainModel().bipedHead, spike);
-//		
-//		for(int i = 0; i < 2; ++i)
-//		{
-//			f = player.prevRotationYaw + (player.rotationYaw - player.prevRotationYaw) * partialTicks - (player.prevRenderYawOffset + (player.renderYawOffset - player.prevRenderYawOffset) * partialTicks);
-//			f1 = player.prevRotationPitch + (player.rotationPitch - player.prevRotationPitch) * partialTicks;
-//			GlStateManager.pushMatrix();
-//			GlStateManager.translate(0, player.isSneaking() ? .2 : 0, 0);
-//			GlStateManager.rotate(f, 0.0F, 1.0F, 0.0F);
-//			GlStateManager.rotate(f1, 1.0F, 0.0F, 0.0F);
-//			GlStateManager.translate(0, .135F * (float) (i * 2 - 1) + .02F, 0);
-//			GlStateManager.translate(0, 0, .2F);
-//			GlStateManager.rotate(-f1, 1.0F, 0.0F, 0.0F);
-//			GlStateManager.rotate(-f, 0.0F, 1.0F, 0.0F);
-//			
-//			float f2 = 0.03F;
-//			GlStateManager.scale(f2, f2 * 1.3, f2);
-//			spike.render(1F);
-//			GlStateManager.popMatrix();
-//		}
+		// ModelBase.copyModelAngles(rp.getMainModel().bipedHead, spike);
+		//
+		// for(int i = 0; i < 2; ++i)
+		// {
+		// f = player.prevRotationYaw + (player.rotationYaw -
+		// player.prevRotationYaw) * partialTicks - (player.prevRenderYawOffset
+		// + (player.renderYawOffset - player.prevRenderYawOffset) *
+		// partialTicks);
+		// f1 = player.prevRotationPitch + (player.rotationPitch -
+		// player.prevRotationPitch) * partialTicks;
+		// GlStateManager.pushMatrix();
+		// GlStateManager.translate(0, player.isSneaking() ? .2 : 0, 0);
+		// GlStateManager.rotate(f, 0.0F, 1.0F, 0.0F);
+		// GlStateManager.rotate(f1, 1.0F, 0.0F, 0.0F);
+		// GlStateManager.translate(0, .135F * (float) (i * 2 - 1) + .02F, 0);
+		// GlStateManager.translate(0, 0, .2F);
+		// GlStateManager.rotate(-f1, 1.0F, 0.0F, 0.0F);
+		// GlStateManager.rotate(-f, 0.0F, 1.0F, 0.0F);
+		//
+		// float f2 = 0.03F;
+		// GlStateManager.scale(f2, f2 * 1.3, f2);
+		// spike.render(1F);
+		// GlStateManager.popMatrix();
+		// }
 	}
 	
 	public static class LayerScale implements LayerRenderer<AbstractClientPlayer>
@@ -215,8 +235,35 @@ public class Zeitheron implements iPlayerModel
 		@Override
 		public void doRenderLayer(AbstractClientPlayer entitylivingbaseIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale)
 		{
-			if("Zeitheron".equals(entitylivingbaseIn.getName()) && entitylivingbaseIn.hasSkin() && !entitylivingbaseIn.isInvisible() && ServerHCClientPlayerData.DATAS.get(Side.CLIENT).getOptionsForPlayer(entitylivingbaseIn).renderSpecial)
-				player.drawHead(entitylivingbaseIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scale);
+			if("Zeitheron".equals(entitylivingbaseIn.getName()) && entitylivingbaseIn.hasSkin() && !entitylivingbaseIn.isInvisible())
+			{
+				HCClientOptions clopts = ServerHCClientPlayerData.DATAS.get(Side.CLIENT).getOptionsForPlayer(entitylivingbaseIn);
+				
+				if(clopts.renderSpecial)
+					player.drawHead(entitylivingbaseIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scale);
+				
+				NBTTagCompound interp = null;
+				if(clopts.customData != null && clopts.customData.hasKey("EyeColor", NBT.TAG_COMPOUND))
+					interp = clopts.customData.getCompoundTag("EyeColor");
+				
+				int rendered = interp != null && interp.hasKey("RainbowCycle", NBT.TAG_INT) ? Rainbow.doIt(0, interp.getInteger("RainbowCycle") * 50) : PlayerInterpolator.getRendered(entitylivingbaseIn, interp);
+				
+				GlStateManager.pushMatrix();
+				
+				UtilsFX.bindTextureURL(URL_EYES);
+				
+				ColorHelper.glColor1i(rendered);
+				
+				GlStateManager.pushMatrix();
+				GlStateManager.translate(0, entitylivingbaseIn.isSneaking() ? -.75 : 0, 0);
+				GlStateManager.scale(1.01F, 1.01F, 1.01F);
+				playerRenderer.getMainModel().bipedHead.render(1F);
+				GlStateManager.popMatrix();
+				
+				GlStateManager.color(1F, 1F, 1F);
+				
+				GlStateManager.popMatrix();
+			}
 		}
 		
 		@Override

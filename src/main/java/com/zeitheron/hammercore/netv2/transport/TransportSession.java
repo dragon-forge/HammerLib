@@ -67,6 +67,8 @@ public class TransportSession
 			SidedThreadGroup stg = createSide == Side.SERVER ? SidedThreadGroups.SERVER : SidedThreadGroups.CLIENT;
 			Thread t = stg.newThread(() -> ai.read(this.pis, length));
 			t.start();
+			
+			NetTransport.indexSession(this);
 		}
 	}
 	

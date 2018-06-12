@@ -210,6 +210,20 @@ public class ColorNamePicker
 		return getColorNameFromRgb(color.getRed(), color.getGreen(), color.getBlue());
 	}
 	
+	public static Integer trySearchColorFor(String name)
+	{
+		for(Col c : colorList)
+			if(c.name.equalsIgnoreCase(name))
+				return c.getRGB();
+		try
+		{
+			return Integer.parseInt(name, 16);
+		} catch(Throwable err)
+		{
+		}
+		return null;
+	}
+	
 	public static class Col
 	{
 		public int r, g, b;
@@ -226,6 +240,11 @@ public class ColorNamePicker
 		public int computeMSE(int pixR, int pixG, int pixB)
 		{
 			return ((pixR - r) * (pixR - r) + (pixG - g) * (pixG - g) + (pixB - b) * (pixB - b)) / 3;
+		}
+		
+		public int getRGB()
+		{
+			return ColorHelper.packRGB(r / 255F, g / 255F, b / 255F);
 		}
 		
 		public int getR()

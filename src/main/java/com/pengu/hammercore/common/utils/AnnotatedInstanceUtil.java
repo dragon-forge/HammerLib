@@ -6,12 +6,18 @@ import java.util.Set;
 
 import javax.annotation.Nonnull;
 
+import com.pengu.hammercore.HammerCore;
 import com.pengu.hammercore.annotations.MCFBus;
 import com.pengu.hammercore.utils.EnumSide;
+import com.zeitheron.hammercore.client.PerUserModule;
+import com.zeitheron.hammercore.client.UserModule;
 
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.discovery.ASMDataTable;
 import net.minecraftforge.fml.common.discovery.ASMDataTable.ASMData;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
  * This class helps to gather all required scopes of needed object with
@@ -109,5 +115,30 @@ public class AnnotatedInstanceUtil
 			}
 		}
 		return instances;
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public static PerUserModule getUserModule(@Nonnull ASMDataTable asmDataTable)
+	{
+		String username = Minecraft.getMinecraft().getSession().getUsername();
+		
+		HammerCore.LOG.info("Guessing username.... You are " + username + ", aren't you?");
+		
+		String annotationClassName = UserModule.class.getCanonicalName();
+		Set<ASMData> asmDatas = asmDataTable.getAll(annotationClassName);
+		for(ASMData asmData : asmDatas)
+		{
+			try
+			{
+				Class<?> asmClass = Class.forName(asmData.getClassName());
+				if(PerUserModule.class.isAssignableFrom(asmClass) && username.equals(asmClass.getAnnotation(UserModule.class).username()))
+					return asmClass.asSubclass(PerUserModule.class).getDeclaredConstructor().newInstance();
+			} catch(Throwable e)
+			{
+				e.printStackTrace();
+			}
+		}
+		
+		return new PerUserModule();
 	}
 }

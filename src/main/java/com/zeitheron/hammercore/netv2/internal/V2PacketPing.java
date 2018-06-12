@@ -3,6 +3,7 @@ package com.zeitheron.hammercore.netv2.internal;
 import com.zeitheron.hammercore.client.HammerCoreClient;
 import com.zeitheron.hammercore.netv2.HCV2Net;
 import com.zeitheron.hammercore.netv2.IV2Packet;
+import com.zeitheron.hammercore.netv2.PacketContext;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
@@ -36,14 +37,14 @@ public class V2PacketPing implements IV2Packet
 	}
 	
 	@Override
-	public IV2Packet executeOnClient()
+	public IV2Packet executeOnClient(PacketContext ctx)
 	{
 		HammerCoreClient.ping = System.currentTimeMillis() - create;
 		return null;
 	}
 	
 	@Override
-	public IV2Packet executeOnServer()
+	public IV2Packet executeOnServer(PacketContext ctx)
 	{
 		return this;
 	}

@@ -45,6 +45,7 @@ import com.pengu.hammercore.json.JSONObject;
 import com.pengu.hammercore.tile.tooltip.own.EntityTooltipRenderEngine;
 import com.pengu.hammercore.utils.ColorHelper;
 import com.zeitheron.hammercore.client.HammerCoreClient;
+import com.zeitheron.hammercore.client.PerUserModule;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
@@ -59,6 +60,7 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
@@ -68,6 +70,7 @@ import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.discovery.ASMDataTable;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
@@ -83,6 +86,8 @@ public class RenderProxy_Client extends RenderProxy_Common implements iEnchantme
 	
 	private List<TESR> tesrs;
 	private boolean cticked, reloaded;
+	
+	public static PerUserModule module;
 	
 	@Override
 	public void construct()
@@ -103,6 +108,12 @@ public class RenderProxy_Client extends RenderProxy_Common implements iEnchantme
 	public void preInit(ASMDataTable table)
 	{
 		tesrs = AnnotatedInstanceUtil.getInstances(table, AtTESR.class, TESR.class);
+		module = AnnotatedInstanceUtil.getUserModule(table);
+		
+		HammerCore.LOG.info("Using per-user module " + module.getClass().getSimpleName());
+		
+		if(module != null)
+			module.preInit();
 		
 		ClientCommandHandler.instance.registerCommand(new CommandBase()
 		{
@@ -156,6 +167,9 @@ public class RenderProxy_Client extends RenderProxy_Common implements iEnchantme
 	@Override
 	public void init()
 	{
+		if(module != null)
+			module.init();
+			
 		// This is an example of how to make custom textures!
 		// TextureSpriteCustom.createSprite(new ResourceLocation("hammercore",
 		// "builtin/animation_fx")).addTextureFX(new
@@ -209,6 +223,13 @@ public class RenderProxy_Client extends RenderProxy_Common implements iEnchantme
 	}
 	
 	@Override
+	public void postInit()
+	{
+		if(module != null)
+			module.postInit();
+	}
+	
+	@Override
 	public iRenderHelper getRenderHelper()
 	{
 		return RenderHelperImpl.INSTANCE;
@@ -253,6 +274,20 @@ public class RenderProxy_Client extends RenderProxy_Common implements iEnchantme
 	{
 		HammerCore.LOG.info("Model definition for location " + modelName);
 		Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, meta, new ModelResourceLocation(new ResourceLocation(modelName), "inventory"));
+	}
+	
+	@Override
+	public void cl_loadOpts(HCClientOptions opts, NBTTagCompound nbt)
+	{
+		if(module != null && opts == HCClientOptions.getOptions())
+			module.loadClientOpts(nbt);
+	}
+	
+	@Override
+	public void cl_saveOpts(HCClientOptions opts, NBTTagCompound nbt)
+	{
+		if(module != null && opts == HCClientOptions.getOptions())
+			module.saveClientOpts(nbt);
 	}
 	
 	@Override

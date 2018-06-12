@@ -1,6 +1,7 @@
 package com.pengu.hammercore.core.gui;
 
 import java.io.IOException;
+import java.util.function.Supplier;
 
 import com.pengu.hammercore.client.HCClientOptions;
 
@@ -12,8 +13,11 @@ import net.minecraft.entity.player.EnumPlayerModelParts;
 
 public class GuiCustomizeSkinHC extends GuiCustomizeSkin
 {
+	public static Supplier<? extends GuiScreen> customization;
+	
 	public GuiButton renderSpecial;
 	public GuiButton overrideCape;
+	public GuiButton cbtn;
 	
 	public GuiCustomizeSkinHC(GuiScreen parentScreenIn)
 	{
@@ -37,6 +41,16 @@ public class GuiCustomizeSkinHC extends GuiCustomizeSkin
 		overrideCape.displayString = I18n.format("options.modelPart.hammercore:overrideCape") + ": " + I18n.format("options.o" + (HCClientOptions.options.overrideCape ? "n" : "ff"));
 		
 		done.y += 24;
+		
+		if(customization != null)
+		{
+			++i;
+			
+			cbtn = addButton(new GuiButton(64_001, this.width / 2 - 155 + i % 2 * 160, this.height / 6 + 24 * (i >> 1), 150, 20, ""));
+			cbtn.displayString = "Customizations...";
+			
+			done.y += 24;
+		}
 	}
 	
 	@Override
@@ -54,6 +68,9 @@ public class GuiCustomizeSkinHC extends GuiCustomizeSkin
 			overrideCape.displayString = I18n.format("options.modelPart.hammercore:overrideCape") + ": " + I18n.format("options.o" + (HCClientOptions.getOptions().overrideCape ? "n" : "ff"));
 			
 			HCClientOptions.getOptions().saveAndSendToServer();
+		} else if(cbtn != null && button == cbtn)
+		{
+			mc.displayGuiScreen(customization.get());
 		} else
 			super.actionPerformed(button);
 	}

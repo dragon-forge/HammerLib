@@ -3,8 +3,6 @@ package com.pengu.hammercore.recipeAPI;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.google.common.base.Predicate;
-
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraftforge.common.brewing.IBrewingRecipe;
