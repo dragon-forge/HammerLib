@@ -11,7 +11,6 @@ import org.lwjgl.opengl.GL11;
 import com.pengu.hammercore.HammerCore;
 import com.pengu.hammercore.HammerCore.HCAuthor;
 import com.pengu.hammercore.MultiHitboxGetter;
-import com.pengu.hammercore.ServerHCClientPlayerData;
 import com.pengu.hammercore.cfg.HammerCoreConfigs;
 import com.pengu.hammercore.client.HCClientOptions;
 import com.pengu.hammercore.client.particle.api.ParticleList;
@@ -27,7 +26,6 @@ import com.pengu.hammercore.color.Color;
 import com.pengu.hammercore.common.iWrenchable;
 import com.pengu.hammercore.common.items.ItemIWrench;
 import com.pengu.hammercore.common.utils.VersionCompareTool.EnumVersionLevel;
-import com.pengu.hammercore.net.HCNetwork;
 import com.pengu.hammercore.proxy.RenderProxy_Client;
 import com.pengu.hammercore.raytracer.RayTracer;
 import com.pengu.hammercore.utils.ColorHelper;
@@ -220,9 +218,7 @@ public class Render3D
 	public void renderSpecial(RenderPlayerEvent.Post e)
 	{
 		EntityPlayer player = e.getEntityPlayer();
-		HCClientOptions opts = ServerHCClientPlayerData.DATAS.get(Side.CLIENT).getOptionsForPlayer(player);
-		if(opts.renderSpecial)
-			PlayerRenderingManager.get(player.getGameProfile().getName()).render(e);
+		PlayerRenderingManager.get(player.getGameProfile().getName()).render(e);
 	}
 	
 	public static void renderFilledBlockOverlay(AxisAlignedBB aabb, Vec3d pos, float partialTicks, int argb)
