@@ -10,14 +10,14 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.ChatType;
 import net.minecraft.util.text.TextComponentString;
 
-public class V2PacketPing implements IV2Packet
+public class PacketPing implements IV2Packet
 {
 	static
 	{
-		IV2Packet.handle(V2PacketPing.class, () -> new V2PacketPing(0L));
+		IV2Packet.handle(PacketPing.class, () -> new PacketPing(0L));
 	}
 	
-	public V2PacketPing(long start)
+	public PacketPing(long start)
 	{
 		create = start;
 	}

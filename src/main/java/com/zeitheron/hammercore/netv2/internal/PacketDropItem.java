@@ -1,19 +1,17 @@
-package com.pengu.hammercore.net.pkt;
+package com.zeitheron.hammercore.netv2.internal;
 
-import com.pengu.hammercore.net.packetAPI.iPacket;
-import com.pengu.hammercore.net.packetAPI.iPacketListener;
+import com.zeitheron.hammercore.netv2.IV2Packet;
+import com.zeitheron.hammercore.netv2.PacketContext;
 
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import net.minecraftforge.fml.relauncher.Side;
 
 /**
  * If sent to server, creates an {@link EntityItem} at sender's position
  */
-public class PacketDropItem implements iPacket, iPacketListener<PacketDropItem, iPacket>
+public class PacketDropItem implements IV2Packet
 {
 	ItemStack stack;
 	NBTTagCompound ei;
@@ -46,17 +44,14 @@ public class PacketDropItem implements iPacket, iPacketListener<PacketDropItem, 
 	}
 	
 	@Override
-	public iPacket onArrived(PacketDropItem packet, MessageContext context)
+	public IV2Packet executeOnServer(PacketContext net)
 	{
-		if(context.side == Side.SERVER)
-		{
-			EntityPlayerMP mp = context.getServerHandler().player;
-			EntityItem ei = new EntityItem(mp.world, mp.posX, mp.posY, mp.posZ, packet.stack);
-			ei.setNoPickupDelay();
-			if(packet.ei != null)
-				ei.readFromNBT(packet.ei);
-			mp.world.spawnEntity(ei);
-		}
+		EntityPlayerMP mp = net.getSender();
+		EntityItem ei = new EntityItem(mp.world, mp.posX, mp.posY, mp.posZ, stack);
+		ei.setNoPickupDelay();
+		if(ei != null)
+			ei.readFromNBT(this.ei);
+		mp.world.spawnEntity(ei);
 		return null;
 	}
 }

@@ -1,12 +1,13 @@
 package com.zeitheron.hammercore.client;
 
+import com.zeitheron.hammercore.event.client.ClientLoadedInEvent;
 import com.zeitheron.hammercore.netv2.HCV2Net;
-import com.zeitheron.hammercore.netv2.internal.V2PacketPing;
+import com.zeitheron.hammercore.netv2.internal.PacketPing;
+import com.zeitheron.hammercore.netv2.internal.PacketPlayerReady;
 
-import net.minecraft.client.Minecraft;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 
 public class HammerCoreClient
 {
@@ -14,27 +15,27 @@ public class HammerCoreClient
 	
 	public static void runPingTest()
 	{
-		HCV2Net.INSTANCE.sendToServer(new V2PacketPing(System.currentTimeMillis()));
+		HCV2Net.INSTANCE.sendToServer(new PacketPing(System.currentTimeMillis()));
 	}
 	
 	int pingTimer = 40;
 	
+	boolean renderedWorld = false;
+	
 	@SubscribeEvent
-	public void clientTick(ClientTickEvent e)
+	public void clientTick(RenderWorldLastEvent e)
 	{
-		boolean inWorld = Minecraft.getMinecraft().world != null && !Minecraft.getMinecraft().isGamePaused();
-		
-		if(e.phase == Phase.START)
+		if(!renderedWorld)
 		{
-			if(inWorld)
-			{
-				if(pingTimer-- <= 0)
-				{
-					pingTimer = 40;
-					runPingTest();
-				}
-			} else
-				pingTimer = 40;
+			HCV2Net.INSTANCE.sendToServer(new PacketPlayerReady());
+			MinecraftForge.EVENT_BUS.post(new ClientLoadedInEvent());
+			renderedWorld = true;
+		}
+		
+		if(pingTimer-- <= 0)
+		{
+			pingTimer = 40;
+			runPingTest();
 		}
 	}
 }

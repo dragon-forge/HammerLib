@@ -9,7 +9,7 @@ import com.pengu.hammercore.core.gui.GuiManager;
 import com.pengu.hammercore.tile.TileSyncable;
 import com.pengu.hammercore.utils.WorldLocation;
 import com.zeitheron.hammercore.netv2.HCV2Net;
-import com.zeitheron.hammercore.netv2.internal.V2PacketPing;
+import com.zeitheron.hammercore.netv2.internal.PacketPing;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;

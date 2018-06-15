@@ -34,9 +34,17 @@ public class PacketHolder
 	public PacketHolder(IV2Packet packet, EntityPlayer player)
 	{
 		this.packet = packet;
-		this.playerName = player.getGameProfile().getName();
-		this.playerUUID = player.getGameProfile().getId();
-		this.playerId = player.getEntityId();
+		if(player != null)
+		{
+			this.playerName = player.getGameProfile().getName();
+			this.playerUUID = player.getGameProfile().getId();
+			this.playerId = player.getEntityId();
+		} else
+		{
+			this.playerName = "Undefined";
+			this.playerUUID = UUID.randomUUID();
+			this.playerId = -1;
+		}
 	}
 	
 	public PacketHolder(IV2Packet packet)
