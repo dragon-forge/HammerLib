@@ -29,9 +29,10 @@ import com.pengu.hammercore.common.utils.VersionCompareTool.EnumVersionLevel;
 import com.pengu.hammercore.proxy.RenderProxy_Client;
 import com.pengu.hammercore.raytracer.RayTracer;
 import com.pengu.hammercore.utils.ColorHelper;
-import com.pengu.hammercore.utils.ModVersions;
-import com.pengu.hammercore.utils.ModVersions.ModVersion;
+import com.pengu.hammercore.utils.UpdateChecker;
+import com.pengu.hammercore.utils.UpdateChecker.ModVersion;
 import com.pengu.hammercore.vec.Cuboid6;
+import com.zeitheron.hammercore.event.client.ClientLoadedInEvent;
 import com.zeitheron.hammercore.netv2.HCV2Net;
 import com.zeitheron.hammercore.netv2.internal.opts.PacketCHCOpts;
 
@@ -70,7 +71,6 @@ import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import net.minecraftforge.fml.relauncher.Side;
 
 public class Render3D
@@ -92,47 +92,44 @@ public class Render3D
 	
 	static final int alpha = 0x33 << 24;
 	
-	boolean inWV;
+	@SubscribeEvent
+	public void clientReady(ClientLoadedInEvent e)
+	{
+		HammerCore.invalidCertificates.keySet().stream().forEach(mod ->
+		{
+			ModContainer mc = Loader.instance().getIndexedModList().get(mod);
+			if(mc != null)
+			{
+				TextComponentTranslation tct = new TextComponentTranslation("chat.hammercore:newversion.clickdwn");
+				tct.getStyle().setColor(TextFormatting.BLUE);
+				tct.getStyle().setUnderlined(true);
+				tct.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("chat.hammercore:newversion.clickdwn.detail")));
+				tct.getStyle().setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, HammerCore.invalidCertificates.get(mod)));
+				Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation("chat.hammercore:corrupt", TextFormatting.AQUA + mc.getName() + TextFormatting.RESET).appendText(" ").appendSibling(tct));
+			}
+		});
+		
+		UpdateChecker.installedUpdateableMods().forEach(mod ->
+		{
+			ModVersion ver = UpdateChecker.getLatestVersion(mod);
+			EnumVersionLevel ever = ver.check();
+			if(ever == EnumVersionLevel.NEWER)
+			{
+				TextComponentTranslation tct = new TextComponentTranslation("chat.hammercore:newversion.clickdwn");
+				tct.getStyle().setColor(TextFormatting.BLUE);
+				tct.getStyle().setUnderlined(true);
+				tct.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("chat.hammercore:newversion.clickdwn.detail")));
+				tct.getStyle().setClickEvent(new ClickEvent(Action.OPEN_URL, ver.url));
+				Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation("chat.hammercore:newversion", TextFormatting.AQUA + ver.getModName() + TextFormatting.RESET, TextFormatting.GREEN + ver.remVer + TextFormatting.RESET).appendText(" ").appendSibling(tct));
+			}
+		});
+	}
 	
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void renderWorld(RenderWorldLastEvent evt)
 	{
 		while(!renderQueue.isEmpty())
 			renders.add(renderQueue.remove(0));
-		
-		if(!inWV)
-		{
-			inWV = true;
-			
-			HammerCore.invalidCertificates.keySet().stream().forEach(mod ->
-			{
-				ModContainer mc = Loader.instance().getIndexedModList().get(mod);
-				if(mc != null)
-				{
-					TextComponentTranslation tct = new TextComponentTranslation("chat.hammercore:newversion.clickdwn");
-					tct.getStyle().setColor(TextFormatting.BLUE);
-					tct.getStyle().setUnderlined(true);
-					tct.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("chat.hammercore:newversion.clickdwn.detail")));
-					tct.getStyle().setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, HammerCore.invalidCertificates.get(mod)));
-					Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation("chat.hammercore:corrupt", TextFormatting.AQUA + mc.getName() + TextFormatting.RESET).appendText(" ").appendSibling(tct));
-				}
-			});
-			
-			ModVersions.installedUpdateableMods().forEach(mod ->
-			{
-				ModVersion ver = ModVersions.getLatestVersion(mod);
-				EnumVersionLevel ever = ver.check();
-				if(ever == EnumVersionLevel.NEWER)
-				{
-					TextComponentTranslation tct = new TextComponentTranslation("chat.hammercore:newversion.clickdwn");
-					tct.getStyle().setColor(TextFormatting.BLUE);
-					tct.getStyle().setUnderlined(true);
-					tct.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("chat.hammercore:newversion.clickdwn.detail")));
-					tct.getStyle().setClickEvent(new ClickEvent(Action.OPEN_URL, ver.url));
-					Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation("chat.hammercore:newversion", TextFormatting.AQUA + ver.getModName() + TextFormatting.RESET, TextFormatting.GREEN + ver.remVer + TextFormatting.RESET).appendText(" ").appendSibling(tct));
-				}
-			});
-		}
 		
 		if(RenderProxy_Client.needsClConfigSync)
 		{
@@ -206,12 +203,6 @@ public class Render3D
 		}
 		
 		ParticleList.renderExtendedParticles(evt);
-	}
-	
-	@SubscribeEvent
-	public void joined(FMLNetworkEvent.ClientDisconnectionFromServerEvent cdfse)
-	{
-		inWV = false;
 	}
 	
 	@SubscribeEvent

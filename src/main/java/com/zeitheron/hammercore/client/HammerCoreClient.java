@@ -5,9 +5,12 @@ import com.zeitheron.hammercore.netv2.HCV2Net;
 import com.zeitheron.hammercore.netv2.internal.PacketPing;
 import com.zeitheron.hammercore.netv2.internal.PacketPlayerReady;
 
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 
 public class HammerCoreClient
 {
@@ -31,8 +34,19 @@ public class HammerCoreClient
 			MinecraftForge.EVENT_BUS.post(new ClientLoadedInEvent());
 			renderedWorld = true;
 		}
+	}
+	
+	@SubscribeEvent
+	public void clientTick(ClientTickEvent cte)
+	{
+		if(cte.phase != Phase.START)
+			return;
 		
-		if(pingTimer-- <= 0)
+		boolean inWorld = Minecraft.getMinecraft().world != null;
+		if(renderedWorld && !inWorld)
+			renderedWorld = inWorld;
+		
+		if(renderedWorld && pingTimer-- <= 0)
 		{
 			pingTimer = 40;
 			runPingTest();

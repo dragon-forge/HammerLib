@@ -16,6 +16,7 @@ import org.apache.logging.log4j.Logger;
 import org.xml.sax.SAXException;
 
 import com.endie.cryption.SafeStore;
+import com.endie.lib.utils.Threading;
 import com.pengu.hammercore.annotations.MCFBus;
 import com.pengu.hammercore.api.GameRules;
 import com.pengu.hammercore.api.GameRules.GameRuleEntry;
@@ -64,7 +65,7 @@ import com.pengu.hammercore.recipeAPI.BrewingRecipe;
 import com.pengu.hammercore.recipeAPI.helper.RecipeRegistry;
 import com.pengu.hammercore.recipeAPI.helper.RegisterRecipes;
 import com.pengu.hammercore.utils.ColorHelper;
-import com.pengu.hammercore.utils.ModVersions;
+import com.pengu.hammercore.utils.UpdateChecker;
 import com.pengu.hammercore.world.WorldGenHammerCore;
 import com.pengu.hammercore.world.WorldGenHelper;
 import com.pengu.hammercore.world.data.PerChunkDataManager;
@@ -197,8 +198,6 @@ public class HammerCore
 		//
 		// FIELD_CSV = f;
 		// METHODS_CSV = m;
-		
-		ModVersions.refresh();
 		
 		Class c = ForgeHooksClient.class;
 		
@@ -368,6 +367,8 @@ public class HammerCore
 		renderProxy.init();
 		bookProxy.init();
 		ManualHC.register();
+		
+		Threading.createAndStart("HCUpdateCheckThread", UpdateChecker::refresh);
 		
 		for(RecipeRegistry r : recipeRegistries)
 			r.oredict();
