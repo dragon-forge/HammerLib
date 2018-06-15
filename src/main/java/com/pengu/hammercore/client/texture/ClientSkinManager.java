@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
 import com.pengu.hammercore.HammerCore;
+import com.pengu.hammercore.client.HCClientOptions;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
@@ -25,16 +26,20 @@ public class ClientSkinManager
 	public static Map<Type, ResourceLocation> getPlayerMap(AbstractClientPlayer acp)
 	{
 		NetworkPlayerInfo npi = Minecraft.getMinecraft().getConnection().getPlayerInfo(acp.getUniqueID());
-		if(HammerCore.getHCAuthorsArray().contains(acp.getGameProfile().getName()))
+		
+		int skinTypei = HCClientOptions.getOptions().skinType;
+		
+		if(skinTypei > 0)
 			try
 			{
 				Field skinType = NetworkPlayerInfo.class.getDeclaredFields()[5];
 				skinType.setAccessible(true);
 				// Force the default skin type
-				skinType.set(npi, "default");
+				skinType.set(npi, skinTypei % 2 == 1 ? "default" : "slim");
 			} catch(Throwable e)
 			{
 			}
+		
 		try
 		{
 			return (Map<Type, ResourceLocation>) playerTextures.get(npi);

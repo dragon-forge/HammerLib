@@ -370,10 +370,8 @@ public class RenderProxy_Client extends RenderProxy_Common implements iEnchantme
 		{
 			ResourceLocation cape = mp.get(Type.CAPE);
 			
-			if(cape == null || (!cape.getResourceDomain().equals("hammercore") && ServerHCClientPlayerData.DATAS.get(Side.SERVER).getOptionsForPlayer(acp).overrideCape))
+			if(cape == null || (!cape.getResourceDomain().equals("hammercore") && ServerHCClientPlayerData.getOptionsFor(acp).overrideCape))
 			{
-				final Map<String, String> customCapes = this.customCapes;
-				
 				if(!customCapes.containsKey(name))
 					return;
 				

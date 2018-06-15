@@ -47,6 +47,11 @@ tile.hammercore:compound_crafting_table_2.name=Compound Crafting Table (CCT)
 
 options.modelPart.hammercore:renderSpecial=Render Special
 options.modelPart.hammercore:overrideCape=Override Cape
+options.modelPart.hammercore:skinType=Skin Type
+
+options.hammercore:skintype.0=Inherit
+options.hammercore:skintype.1=Classic
+options.hammercore:skintype.2=Slim
 
 gui.hammercore:calculatron=Rechnotron vVERSION
 info.hammercore:energy_stored=RF gespeichert

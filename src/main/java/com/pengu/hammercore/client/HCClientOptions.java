@@ -46,6 +46,8 @@ public class HCClientOptions implements Jsonable
 	
 	public boolean overrideCape;
 	
+	public int skinType;
+	
 	private String Theme;
 	
 	@IgnoreSerialization
@@ -80,6 +82,7 @@ public class HCClientOptions implements Jsonable
 		customData = new NBTTagCompound();
 		renderSpecial = true;
 		overrideCape = true;
+		skinType = 0;
 		authority = null;
 		def = true;
 	}
@@ -93,6 +96,7 @@ public class HCClientOptions implements Jsonable
 		authority = j.optString("Authority", "0");
 		renderSpecial = j.optBoolean("renderSpecial", true);
 		overrideCape = j.optBoolean("overrideCape", true);
+		skinType = j.optInt("SkinType");
 		try
 		{
 			customData = JsonToNBT.getTagFromJson(j.optString("CustomData"));

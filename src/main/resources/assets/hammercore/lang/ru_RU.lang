@@ -47,6 +47,11 @@ tile.hammercore:compound_crafting_table_2.name=Компонентный краф
 
 options.modelPart.hammercore:renderSpecial=Отображать доп.
 options.modelPart.hammercore:overrideCape=Перезписать плащ
+options.modelPart.hammercore:skinType=Тип скина
+
+options.hammercore:skintype.0=Унаследовать
+options.hammercore:skintype.1=Классический
+options.hammercore:skintype.2=Тонкий
 
 gui.hammercore:calculatron=Калькулятрон vVERSION
 info.hammercore:energy_stored=RF Накоплено

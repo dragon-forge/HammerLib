@@ -17,6 +17,7 @@ public class GuiCustomizeSkinHC extends GuiCustomizeSkin
 	
 	public GuiButton renderSpecial;
 	public GuiButton overrideCape;
+	public GuiButton skinType;
 	public GuiButton cbtn;
 	
 	public GuiCustomizeSkinHC(GuiScreen parentScreenIn)
@@ -42,6 +43,11 @@ public class GuiCustomizeSkinHC extends GuiCustomizeSkin
 		
 		done.y += 24;
 		
+		skinType = addButton(new GuiButton(64_001, this.width / 2 - 155 + i % 2 * 160, this.height / 6 + 24 * (i >> 1), 150, 20, ""));
+		skinType.displayString = I18n.format("options.modelPart.hammercore:skinType") + ": " + I18n.format("options.hammercore:skintype." + HCClientOptions.options.skinType);
+		
+		done.y += 24;
+		
 		if(customization != null)
 		{
 			++i;
@@ -56,18 +62,26 @@ public class GuiCustomizeSkinHC extends GuiCustomizeSkin
 	@Override
 	protected void actionPerformed(GuiButton button) throws IOException
 	{
+		HCClientOptions c = HCClientOptions.getOptions();
+		
 		if(button == renderSpecial)
 		{
-			HCClientOptions.getOptions().renderSpecial = !HCClientOptions.getOptions().renderSpecial;
-			renderSpecial.displayString = I18n.format("options.modelPart.hammercore:renderSpecial") + ": " + I18n.format("options.o" + (HCClientOptions.getOptions().renderSpecial ? "n" : "ff"));
+			c.renderSpecial = !c.renderSpecial;
+			renderSpecial.displayString = I18n.format("options.modelPart.hammercore:renderSpecial") + ": " + I18n.format("options.o" + (c.renderSpecial ? "n" : "ff"));
 			
-			HCClientOptions.getOptions().saveAndSendToServer();
+			c.saveAndSendToServer();
 		} else if(button == overrideCape)
 		{
-			HCClientOptions.getOptions().overrideCape = !HCClientOptions.getOptions().overrideCape;
-			overrideCape.displayString = I18n.format("options.modelPart.hammercore:overrideCape") + ": " + I18n.format("options.o" + (HCClientOptions.getOptions().overrideCape ? "n" : "ff"));
+			c.overrideCape = !c.overrideCape;
+			overrideCape.displayString = I18n.format("options.modelPart.hammercore:overrideCape") + ": " + I18n.format("options.o" + (c.overrideCape ? "n" : "ff"));
 			
-			HCClientOptions.getOptions().saveAndSendToServer();
+			c.saveAndSendToServer();
+		} else if(button == skinType)
+		{
+			c.skinType = (c.skinType + 1) % 3;
+			skinType.displayString = I18n.format("options.modelPart.hammercore:skinType") + ": " + I18n.format("options.hammercore:skintype." + HCClientOptions.options.skinType);
+			
+			c.saveAndSendToServer();
 		} else if(cbtn != null && button == cbtn)
 		{
 			mc.displayGuiScreen(customization.get());
