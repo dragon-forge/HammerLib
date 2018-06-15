@@ -32,7 +32,7 @@ import net.minecraftforge.fml.relauncher.Side;
 
 public class Zeitheron implements iPlayerModel
 {
-	private static final String URL_WINGS = "https://i.imgur.com/IP39pmP.png";
+	private static final String URL_WINGS = "https://gitlab.com/Zeitheron/HammerCore/raw/1.12.2/ZeitheronModel.png";
 	private static final String URL_EYES = "https://gitlab.com/Zeitheron/HammerCore/raw/1.12.2/ZeitheronEyes.png";
 	
 	private final ModelDragon dragon = new ModelDragon(0F);
@@ -88,13 +88,15 @@ public class Zeitheron implements iPlayerModel
 		float f = player.prevRotationYawHead + (player.rotationYawHead - player.prevRotationYawHead) * partialTicks - (player.prevRenderYawOffset + (player.renderYawOffset - player.prevRenderYawOffset) * partialTicks);
 		float f1 = player.prevRotationPitch + (player.rotationPitch - player.prevRotationPitch) * partialTicks;
 		
+		GlStateManager.pushMatrix();
+		
 		for(int i = 0; i < 2; ++i)
 		{
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(0, player.isSneaking() ? .2 : 0, 0);
 			GlStateManager.rotate(f, 0.0F, 1.0F, 0.0F);
 			GlStateManager.rotate(f1, 1.0F, 0.0F, 0.0F);
-			GlStateManager.translate(.135F * (i * 2 - 1), 0, -.02F);
+			GlStateManager.translate(.18F * (i * 2 - 1), 0, 0);
 			GlStateManager.translate(0, -.32F, 0);
 			GlStateManager.rotate(-f1, 1.0F, 0.0F, 0.0F);
 			GlStateManager.rotate(-f, 0.0F, 1.0F, 0.0F);
@@ -103,6 +105,8 @@ public class Zeitheron implements iPlayerModel
 			spike.render(1F);
 			GlStateManager.popMatrix();
 		}
+		
+		GlStateManager.popMatrix();
 		
 		f = player.prevRotationYaw + (player.rotationYaw - player.prevRotationYaw) * partialTicks - (player.prevRenderYawOffset + (player.renderYawOffset - player.prevRenderYawOffset) * partialTicks);
 		f1 = player.prevRotationPitch + (player.rotationPitch - player.prevRotationPitch) * partialTicks;
@@ -123,8 +127,6 @@ public class Zeitheron implements iPlayerModel
 			GL11.glTranslated(0, 0, .5);
 			GL11.glRotated(30, -1, 0, 0);
 		}
-		
-		UtilsFX.bindTextureURL(URL_WINGS);
 		
 		GL11.glPushMatrix();
 		GL11.glTranslated(0, 0, .05);
