@@ -179,7 +179,8 @@ public class ThunderBoltParticle extends SimpleParticle
 				b.pos(rx1 - diff1.x, ry1 - diff1.y, rz1 - diff1.z).tex(.5, 0).color(particleRed, particleGreen, particleBlue, mainalpha * rendersegment.light).endVertex();
 				b.pos(rx1 + diff1.x, ry1 + diff1.y, rz1 + diff1.z).tex(.5, 1).color(particleRed, particleGreen, particleBlue, mainalpha * rendersegment.light).endVertex();
 				b.pos(rx2 + diff2.x, ry2 + diff2.y, rz2 + diff2.z).tex(.5, 1).color(particleRed, particleGreen, particleBlue, mainalpha * rendersegment.light).endVertex();
-			}
+			} else
+				break;
 	}
 	
 	public void setMultiplier(final float m)
