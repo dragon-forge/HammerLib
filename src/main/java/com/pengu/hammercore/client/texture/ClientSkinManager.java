@@ -1,11 +1,11 @@
 package com.pengu.hammercore.client.texture;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.Map;
 
 import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
-import com.pengu.hammercore.HammerCore;
-import com.pengu.hammercore.client.HCClientOptions;
+import com.pengu.hammercore.ServerHCClientPlayerData;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
@@ -14,10 +14,14 @@ import net.minecraft.util.ResourceLocation;
 
 public class ClientSkinManager
 {
+	private static final Map<String, String> playerSTs = new HashMap<>();
+	
 	public static final Field playerTextures = NetworkPlayerInfo.class.getDeclaredFields()[1];
+	public static final Field skinType = NetworkPlayerInfo.class.getDeclaredFields()[5];
 	static
 	{
 		playerTextures.setAccessible(true);
+		skinType.setAccessible(true);
 	}
 	
 	/**
@@ -27,18 +31,24 @@ public class ClientSkinManager
 	{
 		NetworkPlayerInfo npi = Minecraft.getMinecraft().getConnection().getPlayerInfo(acp.getUniqueID());
 		
-		int skinTypei = HCClientOptions.getOptions().skinType;
-		
-		if(skinTypei > 0)
+		String uuids = acp.getUniqueID().toString();
+		if(!playerSTs.containsKey(uuids))
 			try
 			{
-				Field skinType = NetworkPlayerInfo.class.getDeclaredFields()[5];
-				skinType.setAccessible(true);
-				// Force the default skin type
-				skinType.set(npi, skinTypei % 2 == 1 ? "default" : "slim");
+				playerSTs.put(uuids, "" + skinType.get(npi));
 			} catch(Throwable e)
 			{
 			}
+		
+		int skinTypei = ServerHCClientPlayerData.getOptionsFor(acp).skinType;
+		
+		try
+		{
+			// Force the skin type
+			skinType.set(npi, skinTypei == 0 ? playerSTs.get(uuids) : skinTypei % 2 == 1 ? "default" : "slim");
+		} catch(Throwable e)
+		{
+		}
 		
 		try
 		{
