@@ -15,6 +15,6 @@ public interface iProcess
 	default void start()
 	{
 		if(isAlive())
-			HammerCore.updatables.add(this);
+			HammerCore.particleProxy.startProcess(this);
 	}
 }

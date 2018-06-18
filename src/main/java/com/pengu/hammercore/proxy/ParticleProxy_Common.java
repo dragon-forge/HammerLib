@@ -1,5 +1,7 @@
 package com.pengu.hammercore.proxy;
 
+import com.pengu.hammercore.HammerCore;
+import com.pengu.hammercore.api.iProcess;
 import com.pengu.hammercore.client.particle.old.iOldParticle;
 import com.pengu.hammercore.net.HCNetwork;
 import com.pengu.hammercore.net.pkt.PacketSpawnSlowZap;
@@ -12,10 +14,17 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
 
 public class ParticleProxy_Common
 {
+	public void startProcess(iProcess proc)
+	{
+		if(proc != null && !HammerCore.updatables.contains(proc))
+			HammerCore.updatables.add(proc);
+	}
+	
 	public iOldParticle spawnZap(World w, Vec3d start, Vec3d end, int rgb)
 	{
 		PacketSpawnZap zap = new PacketSpawnZap();

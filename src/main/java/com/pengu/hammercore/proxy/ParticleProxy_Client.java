@@ -3,6 +3,7 @@ package com.pengu.hammercore.proxy;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.pengu.hammercore.api.iProcess;
 import com.pengu.hammercore.client.OpnodeLoader;
 import com.pengu.hammercore.client.particle.api.ParticleList;
 import com.pengu.hammercore.client.particle.def.ParticleSlowZap;
@@ -18,8 +19,11 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
+import net.minecraftforge.fml.relauncher.Side;
 
 public class ParticleProxy_Client extends ParticleProxy_Common
 {
@@ -87,11 +91,44 @@ public class ParticleProxy_Client extends ParticleProxy_Common
 			super.spawnSimpleThunder(world, start, end, seed, age, fractMod, core, aura);
 	}
 	
+	public static final List<iProcess> updatables = new ArrayList<>(16);
+	
+	@Override
+	public void startProcess(iProcess proc)
+	{
+		if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
+		{
+			if(proc != null && !updatables.contains(proc))
+				updatables.add(proc);
+		} else
+			super.startProcess(proc);
+	}
+	
+	@SubscribeEvent
 	public void clientTick(ClientTickEvent evt)
 	{
+		if(evt.phase != Phase.END)
+			return;
+		
 		while(!particleQueue.isEmpty())
 			Minecraft.getMinecraft().effectRenderer.addEffect(particleQueue.remove(0));
 		ParticleList.refreshParticles();
+		
+		for(int i = 0; i < updatables.size(); ++i)
+		{
+			try
+			{
+				iProcess upd = updatables.get(i);
+				upd.update();
+				if(!upd.isAlive())
+				{
+					upd.onKill();
+					updatables.remove(i);
+				}
+			} catch(Throwable err)
+			{
+			}
+		}
 	}
 	
 	public static double getParticleMotionX(Particle part)

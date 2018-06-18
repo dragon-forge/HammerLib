@@ -272,6 +272,7 @@ public class HammerCore
 		renderProxy.preInit(e.getAsmData());
 		
 		toRegister.add(this);
+		toRegister.add(new PerChunkDataManager());
 		
 		for(iJavaCode code : COMPILED_CODES)
 			// Add compiled codes
@@ -410,7 +411,7 @@ public class HammerCore
 		e.registerServerCommand(new CommandSetLootTable());
 		e.registerServerCommand(new CommandExportStructure());
 		e.registerServerCommand(new CommandLyingItem());
-//		e.registerServerCommand(new CommandBanV6());
+		// e.registerServerCommand(new CommandBanV6());
 		
 		// Reload plugins on server side
 		reloadPlugins();
@@ -450,7 +451,6 @@ public class HammerCore
 	@EventHandler
 	public void serverStopped(FMLServerStoppedEvent e)
 	{
-		PerChunkDataManager.cleanup();
 		WorldGenHelper.CHUNKLOADERS.clear();
 	}
 	
@@ -545,16 +545,16 @@ public class HammerCore
 	public static final List<String> DRAGONS = Arrays.asList("Zeitheron");
 	private static final HCAuthor[] HCAUTHORS = //
 	        { //
-	        	new HCAuthor("Zeitheron", TextFormatting.DARK_PURPLE + "" + TextFormatting.ITALIC + "         " + TextFormatting.RESET + "   ", () ->
-                {
-	                float sine = .5F * ((float) Math.sin(Math.toRadians(16 * client_ticks)) + 1);
-	                
-	                int r = 16;
-	                int g = 180;
-	                int b = 205 + (int) (sine * 50);
-	                
-	                return ColorHelper.packRGB(r / 255F, g / 255F, b / 255F);
-                }, true, data[0]), //
+	                new HCAuthor("Zeitheron", TextFormatting.DARK_PURPLE + "" + TextFormatting.ITALIC + "         " + TextFormatting.RESET + "   ", () ->
+	                {
+		                float sine = .5F * ((float) Math.sin(Math.toRadians(16 * client_ticks)) + 1);
+		                
+		                int r = 16;
+		                int g = 180;
+		                int b = 205 + (int) (sine * 50);
+		                
+		                return ColorHelper.packRGB(r / 255F, g / 255F, b / 255F);
+	                }, true, data[0]), //
 	                new HCAuthor("APengu", TextFormatting.BLUE + "" + TextFormatting.ITALIC + "       " + TextFormatting.RESET + "  ", () ->
 	                {
 		                float sine = .5F * ((float) Math.sin(Math.toRadians(16 * client_ticks)) + 1);
