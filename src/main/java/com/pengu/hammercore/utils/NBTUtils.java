@@ -7,14 +7,20 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.lang3.ArrayUtils;
 
 import com.pengu.hammercore.utils.NumberUtils.EnumNumberType;
 
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagString;
+import net.minecraftforge.common.util.Constants.NBT;
 
 public class NBTUtils
 {
@@ -58,6 +64,34 @@ public class NBTUtils
 		for(int i = 0; i < $.length; ++i)
 			$[i] = nbt.getUniqueId(key + i);
 		return $;
+	}
+	
+	public static List<String> readStringListFromNBT(NBTTagCompound nbt, String key)
+	{
+		List<String> list = new ArrayList<>();
+		NBTTagList tl = nbt.getTagList(key, NBT.TAG_STRING);
+		for(int i = 0; i < tl.tagCount(); ++i)
+			list.add(tl.getStringTagAt(i));
+		return list;
+	}
+	
+	public static NBTTagCompound writeStringListToNBT(NBTTagCompound nbt, String key, List<String> list)
+	{
+		NBTTagList tl = new NBTTagList();
+		for(int i = 0; i < list.size(); ++i)
+			tl.appendTag(new NBTTagString(list.get(i)));
+		nbt.setTag(key, tl);
+		return nbt;
+	}
+	
+	public static void removeTagFromItemStack(ItemStack stack, String tag)
+	{
+		if(!stack.isEmpty() && stack.hasTagCompound())
+		{
+			stack.getTagCompound().removeTag(tag);
+			if(stack.getTagCompound().hasNoTags())
+				stack.setTagCompound(null);
+		}
 	}
 	
 	public static int[] toIA(NBTTagCompound comp)

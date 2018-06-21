@@ -10,6 +10,8 @@ import java.util.Random;
 import java.util.Set;
 
 import com.pengu.hammercore.annotations.MCFBus;
+import com.pengu.hammercore.world.data.ChunkData;
+import com.pengu.hammercore.world.data.IChunkData;
 import com.pengu.hammercore.world.data.PerChunkDataManager;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -65,15 +67,15 @@ public class WorldRetroGen
 		
 		IChunkGenerator cgen = null;
 		
-		NBTTagCompound retrogen = PerChunkDataManager.getData(c, "Retrogen");
+		IChunkData retrogen = PerChunkDataManager.getData(c);
 		
 		for(String mod : mods)
 		{
 			List<IWorldGenerator> gens = WorldRetroGen.generators.get(mod);
 			
-			if(!retrogen.getBoolean(mod))
+			if(!retrogen.getRetrogenList1().contains(mod))
 			{
-				retrogen.setBoolean(mod, true);
+				retrogen.getRetrogenList1().add(mod);
 				
 				random.setSeed(chunkSeed);
 				if(gens != null)
@@ -88,9 +90,9 @@ public class WorldRetroGen
 		
 		random.setSeed(chunkSeed);
 		for(iWorldGenFeature feat : features)
-			if(!retrogen.getBoolean(feat.getRegistryName().toString()))
+			if(!retrogen.getRetrogenList2().contains(feat.getRegistryName().toString()))
 			{
-				retrogen.setBoolean(feat.getRegistryName().toString(), true);
+				retrogen.getRetrogenList2().add(feat.getRegistryName().toString());
 				
 				ChunkPos cp = new ChunkPos(c.x, c.z);
 				for(int i = 0; i < random.nextInt(feat.getMaxChances(c.getWorld(), cp, random)); ++i)

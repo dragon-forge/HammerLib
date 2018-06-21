@@ -40,6 +40,7 @@ public class TileHandler
 	public void playerInteract(PlayerInteractEvent.RightClickBlock evt)
 	{
 		EntityPlayer player = evt.getEntityPlayer();
+		
 		if(player != null && !player.getHeldItem(evt.getHand()).isEmpty())
 		{
 			iWrenchItem item = WorldUtil.cast(player.getHeldItem(evt.getHand()).getItem(), iWrenchItem.class);

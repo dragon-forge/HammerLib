@@ -1,6 +1,6 @@
 package com.pengu.hammercore.world.data;
 
-import com.pengu.hammercore.utils.OnetimeCaller;
+import com.pengu.hammercore.annotations.MCFBus;
 
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
@@ -9,61 +9,44 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.Capability.IStorage;
-import net.minecraftforge.event.AttachCapabilitiesEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+@MCFBus
 public class PerChunkDataManager
 {
-	@CapabilityInject(ChunkHCData.class)
-	public static Capability<ChunkHCData> dataCap;
-	
-	public static final OnetimeCaller register = new OnetimeCaller(PerChunkDataManager::register);
+	@CapabilityInject(IChunkData.class)
+	public static Capability<IChunkData> CHUNK_DATA;
 	
 	public static void register()
 	{
-		CapabilityManager.INSTANCE.register(ChunkHCData.class, new IStorage<ChunkHCData>()
+		CapabilityManager.INSTANCE.register(IChunkData.class, new IStorage<IChunkData>()
 		{
 			@Override
-			public NBTBase writeNBT(Capability<ChunkHCData> capability, ChunkHCData instance, EnumFacing side)
+			public NBTBase writeNBT(Capability<IChunkData> capability, IChunkData instance, EnumFacing side)
 			{
 				return instance.serializeNBT();
 			}
 			
 			@Override
-			public void readNBT(Capability<ChunkHCData> capability, ChunkHCData instance, EnumFacing side, NBTBase nbt)
+			public void readNBT(Capability<IChunkData> capability, IChunkData instance, EnumFacing side, NBTBase nbt)
 			{
-				instance.nbt = (NBTTagCompound) nbt;
+				instance.deserializeNBT((NBTTagCompound) instance);
 			}
-		}, () -> new ChunkHCData());
+		}, () -> new ChunkData());
 	}
 	
-	public static NBTTagCompound getData(Chunk chunk, String id)
+	public static IChunkData getData(Chunk chunk)
 	{
-		return chunk.getCapability(dataCap, null).nbt;
+		return chunk.getCapability(CHUNK_DATA, null);
 	}
 	
 	@SubscribeEvent
 	public void attachCaps(AttachCapabilitiesEvent<Chunk> e)
 	{
-		e.addCapability(new ResourceLocation("hammercore", "data"), new ICapabilityProvider()
-		{
-			public final ChunkHCData data = new ChunkHCData();
-			
-			@Override
-			public boolean hasCapability(Capability<?> capability, EnumFacing facing)
-			{
-				return capability == dataCap;
-			}
-			
-			@Override
-			public <T> T getCapability(Capability<T> capability, EnumFacing facing)
-			{
-				return capability == dataCap ? (T) data : null;
-			}
-		});
+		e.addCapability(new ResourceLocation("hammercore", "data"), new ChunkDataProvider());
 	}
 	
 	public static String build(Chunk c)

@@ -272,16 +272,18 @@ public class HammerCore
 		renderProxy.preInit(e.getAsmData());
 		
 		toRegister.add(this);
-		toRegister.add(new PerChunkDataManager());
 		
 		for(iJavaCode code : COMPILED_CODES)
 			// Add compiled codes
 			code.addMCFObjects(toRegister);
 		
-		ProgressBar bar = ProgressManager.push("Loading", 6 + apis.size() + toRegister.size() + listeners.size());
+		ProgressBar bar = ProgressManager.push("Loading", 7 + apis.size() + toRegister.size() + listeners.size());
 		
 		bar.step("Registering EJ");
 		CapabilityEJ.register();
+		
+		bar.step("Registering Chunk Storage");
+		PerChunkDataManager.register();
 		
 		bar.step("Loading ItemChargeHelper modules");
 		ItemChargeHelper.preInit(e.getAsmData());

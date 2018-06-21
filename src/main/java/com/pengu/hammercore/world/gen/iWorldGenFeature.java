@@ -17,6 +17,4 @@ public interface iWorldGenFeature<T extends iWorldGenFeature> extends IForgeRegi
 	int getMaxY(World world, BlockPos pos, Random rand);
 	
 	void generate(World world, BlockPos pos, Random rand);
-	
-	ResourceLocation getRegistryName();
 }
