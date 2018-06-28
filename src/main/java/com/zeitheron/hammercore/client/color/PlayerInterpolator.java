@@ -1,6 +1,6 @@
 package com.zeitheron.hammercore.client.color;
 
-import com.pengu.hammercore.color.InterpolationUtil;
+import com.zeitheron.hammercore.utils.color.ColorHelper;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -17,7 +17,7 @@ public class PlayerInterpolator
 		long stime = data.getLong("TimeStart");
 		int time = data.getInteger("Time");
 		long ttime = stime + time;
-		return time == 0 ? nev : ctime > ttime ? nev : ctime < stime ? old : InterpolationUtil.interpolate(old, nev, 1F - (float) ((ttime - ctime) / (double) time));
+		return time == 0 ? nev : ctime > ttime ? nev : ctime < stime ? old : ColorHelper.interpolate(old, nev, 1F - (float) ((ttime - ctime) / (double) time));
 	}
 	
 	public static NBTTagCompound targetTo(NBTTagCompound data, EntityPlayer player, int targetColor, int time)

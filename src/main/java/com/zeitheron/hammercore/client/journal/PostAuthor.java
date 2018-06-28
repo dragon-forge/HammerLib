@@ -1,6 +1,6 @@
 package com.zeitheron.hammercore.client.journal;
 
-import com.pengu.hammercore.client.utils.UtilsFX;
+import com.zeitheron.hammercore.client.utils.UtilsFX;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;

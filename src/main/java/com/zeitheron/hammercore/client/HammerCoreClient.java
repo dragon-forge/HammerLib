@@ -1,9 +1,9 @@
 package com.zeitheron.hammercore.client;
 
 import com.zeitheron.hammercore.event.client.ClientLoadedInEvent;
-import com.zeitheron.hammercore.netv2.HCV2Net;
-import com.zeitheron.hammercore.netv2.internal.PacketPing;
-import com.zeitheron.hammercore.netv2.internal.PacketPlayerReady;
+import com.zeitheron.hammercore.net.HCNet;
+import com.zeitheron.hammercore.net.internal.PacketPing;
+import com.zeitheron.hammercore.net.internal.PacketPlayerReady;
 
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
@@ -18,7 +18,7 @@ public class HammerCoreClient
 	
 	public static void runPingTest()
 	{
-		HCV2Net.INSTANCE.sendToServer(new PacketPing(System.currentTimeMillis()));
+		HCNet.INSTANCE.sendToServer(new PacketPing(System.currentTimeMillis()));
 	}
 	
 	int pingTimer = 40;
@@ -30,7 +30,7 @@ public class HammerCoreClient
 	{
 		if(!renderedWorld)
 		{
-			HCV2Net.INSTANCE.sendToServer(new PacketPlayerReady());
+			HCNet.INSTANCE.sendToServer(new PacketPlayerReady());
 			MinecraftForge.EVENT_BUS.post(new ClientLoadedInEvent());
 			renderedWorld = true;
 		}

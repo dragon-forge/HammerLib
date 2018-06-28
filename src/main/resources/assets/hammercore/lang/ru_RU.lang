@@ -3,45 +3,9 @@ itemGroup.hammercore=Hammer Core
 
 ###ITEMS###
 
-item.hammercore:zapper.name=[Отладка] Заппер
-item.hammercore:ray_tracer.name=[Отладка] Трейсер
-
-item.hammercore:calculatron.name=Калькулятрон
-item.hammercore:calculatron.tooltip0=Инженерный калькулятор в Minecraft!
-item.hammercore:calculatron.tooltip1=§oНе используйте для написания домашки!§r
-
 item.hammercore:manual.name=Инструкция по Hammer Core
-item.hammercore:manual.tooltip0=Содержит необходимую
-item.hammercore:manual.tooltip1=информацию для выживания
-
-item.hammercore:battery.name=Аккумулятор
-item.hammercore:battery.tooltip0=Используйте сидя чтобы
-item.hammercore:battery.tooltip1=изменить режим раздачи.
-
-item.hammercore:wrench.name=Гаечный ключ
-item.hammercore:wrench.tooltip0=Работет на HammerCore WrenchAPI.
-
-item.hammercore:iron_gear.name=Железная Шестерня
-item.hammercore:iron_gear.tooltip0=Действует как шестеренка!
-
-item.hammercore:iwrench.name=iКлюч
-item.hammercore:iwrench.tooltip0=Работет на HammerCore WrenchAPI.
 
 ###########
-
-###BLOCKS###
-
-tile.hammercore:tesseract.name=[WIP] Тессеракт
-tile.hammercore:infi_rf.name=Творческий источник энергии
-tile.hammercore:infi_rf.tooltip0=Генерирует 2,147,483,647 Эн/t
-tile.hammercore:infi_rf.tooltip1=Поддерживаемые типы "Эн" (Энергии):
-tile.hammercore:infi_rf.tooltip2=RF, FE, TESLA
-tile.hammercore:chunk_loader.name=Загрузчик чанков
-tile.hammercore:compound_crafting_table_0.name=ККС
-tile.hammercore:compound_crafting_table_1.name=Компонентный крафтовый стол
-tile.hammercore:compound_crafting_table_2.name=Компонентный крафтовый стол (ККС)
-
-############
 
 ##GUI##
 
@@ -80,7 +44,7 @@ chat.hammercore:newversion.clickdwn.detail=Нажмите, что бы откр�
 hc.manual_cat.hammercore=Hammer Core
 
 hc.manual_name.hammercore=Hammer Core
-hc.manual_text.hammercore=Ядро для всех модов от APengu
+hc.manual_text.hammercore=Ядро для всех модов от Zeitheron
 hc.manual_desc.hammercore=HammerCore предоставляет очень огромный набор утилитного кода, некоторые из них: ChunkLoad-API, Tooltip API (отображает информацию о блоке через WAILA и The One Probe), Network API (для отправки пакетов сохраненных в названном компоненте тегов [NBT]), Multipart API, прикольные визуальные эффекты и много другого.
 
 hc.manual_name.calculatron=Калькулятрон

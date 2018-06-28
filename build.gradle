@@ -100,7 +100,7 @@ task deobfJar(type: Jar) {
     from sourceSets.main.output
     classifier = 'deobf'
     manifest {
-        attributes 'FMLCorePlugin': 'com.pengu.hammercore.asm.HammerCoreCore'
+        attributes 'FMLCorePlugin': 'com.zeitheron.hammercore.asm.HCASM'
 		attributes 'FMLCorePluginContainsFMLMod': 'false'
 		attributes 'FMLAT': 'hc_at.cfg'
     }
@@ -110,7 +110,7 @@ task srcJar(type: Jar, dependsOn: classes) {
     from sourceSets.main.allSource
     classifier = 'sources'
 	manifest {
-        attributes 'FMLCorePlugin': 'com.pengu.hammercore.asm.HammerCoreCore'
+        attributes 'FMLCorePlugin': 'com.zeitheron.hammercore.asm.HCASM'
 		attributes 'FMLCorePluginContainsFMLMod': 'false'
 		attributes 'FMLAT': 'hc_at.cfg'
     }
@@ -118,7 +118,7 @@ task srcJar(type: Jar, dependsOn: classes) {
 
 jar {
 	manifest {
-        attributes 'FMLCorePlugin': 'com.pengu.hammercore.asm.HammerCoreCore'
+        attributes 'FMLCorePlugin': 'com.zeitheron.hammercore.asm.HCASM'
 		attributes 'FMLCorePluginContainsFMLMod': 'false'
 		attributes 'FMLAT': 'hc_at.cfg'
     }
@@ -196,7 +196,7 @@ task makeChangelog(type: se.bjurr.gitchangelog.plugin.gradle.GitChangelogTask) {
 <h1>Changes:</h1>
   <ul>
     {{#commits}}
-    <li> <a href="https://gitlab.com/Zeitheron/HammerCore/commit/{{hash}}" target=_blank> {{{message}}}</a>
+    <li> <a href="https://gitlab.com/DragonForge/HammerCore/commit/{{hash}}" target=_blank> {{{message}}}</a>
 </li>
     {{/commits}}
   </ul>

@@ -1,9 +1,9 @@
 package com.zeitheron.hammercore.api.crafting.impl;
 
-import com.pengu.hammercore.utils.ConsumableItem;
 import com.zeitheron.hammercore.api.crafting.ICustomIngredient;
 import com.zeitheron.hammercore.api.crafting.IItemIngredient;
 import com.zeitheron.hammercore.api.crafting.IngredientStack;
+import com.zeitheron.hammercore.utils.ConsumableItem;
 
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.crafting.Ingredient;

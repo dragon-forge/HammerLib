@@ -1,5 +1,5 @@
 //we import HammerCore from java and transform it's name to Hammer_Core
-import: com.mrdimka.hammercore.HammerCore:Hammer_Core;
+import: com.zeitheron.hammercore.HammerCore:Hammer_Core;
 
 hook PreInit
 {

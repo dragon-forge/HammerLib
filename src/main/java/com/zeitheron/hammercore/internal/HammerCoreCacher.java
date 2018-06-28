@@ -1,0 +1,63 @@
+package com.zeitheron.hammercore.internal;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
+
+import com.zeitheron.hammercore.lib.zlib.io.VoidInputStream;
+import com.zeitheron.hammercore.lib.zlib.io.VoidOutputStream;
+import com.zeitheron.hammercore.lib.zlib.io.cache.ICacher;
+import com.zeitheron.hammercore.utils.MD5;
+
+public class HammerCoreCacher implements ICacher
+{
+	public static File cacheDir = new File("HammerCore", "web_cache");
+	
+	static
+	{
+		if(!cacheDir.isDirectory())
+			cacheDir.mkdirs();
+	}
+	
+	@Override
+	public boolean isActuallyWorking()
+	{
+		return true;
+	}
+	
+	@Override
+	public boolean preventLiveConnection(String url)
+	{
+		return false;
+	}
+	
+	@Override
+	public InputStream pull(String url)
+	{
+		File f = new File(cacheDir, MD5.encrypt(url));
+		try
+		{
+			return new GZIPInputStream(new FileInputStream(f));
+		} catch(Throwable err)
+		{
+		}
+		return new VoidInputStream();
+	}
+	
+	@Override
+	public OutputStream put(String url)
+	{
+		File f = new File(cacheDir, MD5.encrypt(url));
+		try
+		{
+			return new GZIPOutputStream(new FileOutputStream(f));
+		} catch(Throwable err)
+		{
+		}
+		return new VoidOutputStream();
+	}
+}

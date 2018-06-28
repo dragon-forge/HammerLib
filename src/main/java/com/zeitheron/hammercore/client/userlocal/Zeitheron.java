@@ -7,16 +7,15 @@ import java.util.function.DoubleSupplier;
 
 import org.lwjgl.input.Keyboard;
 
-import com.pengu.hammercore.HammerCore;
-import com.pengu.hammercore.client.HCClientOptions;
-import com.pengu.hammercore.client.utils.RenderUtil;
-import com.pengu.hammercore.color.InterpolationUtil;
-import com.pengu.hammercore.core.gui.GuiCentered;
-import com.pengu.hammercore.core.gui.GuiCustomizeSkinHC;
-import com.pengu.hammercore.utils.ColorHelper;
+import com.zeitheron.hammercore.HammerCore;
+import com.zeitheron.hammercore.client.HCClientOptions;
 import com.zeitheron.hammercore.client.PerUserModule;
 import com.zeitheron.hammercore.client.UserModule;
 import com.zeitheron.hammercore.client.color.PlayerInterpolator;
+import com.zeitheron.hammercore.client.gui.GuiCentered;
+import com.zeitheron.hammercore.client.gui.impl.GuiCustomizeSkinHC;
+import com.zeitheron.hammercore.client.utils.RenderUtil;
+import com.zeitheron.hammercore.utils.color.ColorHelper;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
@@ -119,7 +118,7 @@ public class Zeitheron extends PerUserModule
 			RenderUtil.drawGradientRect(guiLeft + xSize - 40, guiTop, 40, 40, 255 << 24 | targetColor, 255 << 24 | targetColor);
 			double progress = 1 - this.progress.getAsDouble();
 			RenderUtil.drawGradientRect(guiLeft + 48, guiTop, xSize - 96, 40, 0xFF444444, 0xFF444444);
-			int interpRGB = InterpolationUtil.interpolate(255 << 24 | currentColor, 255 << 24 | targetColor, (float) progress);
+			int interpRGB = ColorHelper.interpolate(255 << 24 | currentColor, 255 << 24 | targetColor, (float) progress);
 			RenderUtil.drawGradientRect(guiLeft + 50, guiTop + 2, (xSize - 100) * progress, 36, interpRGB, interpRGB);
 			
 			time.drawTextBox();

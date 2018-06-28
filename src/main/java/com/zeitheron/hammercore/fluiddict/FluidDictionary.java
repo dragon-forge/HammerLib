@@ -7,7 +7,7 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 
 import com.google.common.collect.Maps;
-import com.pengu.hammercore.common.utils.WrappedLog;
+import com.zeitheron.hammercore.utils.WrappedLog;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
