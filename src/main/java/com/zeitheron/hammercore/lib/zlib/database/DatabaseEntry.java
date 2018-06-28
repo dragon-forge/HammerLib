@@ -120,7 +120,6 @@ public class DatabaseEntry implements Serializable
 		this.data = (byte[]) in.readObject();
 	}
 	
-	@SuppressWarnings("unused")
 	private void readObjectNoData() throws ObjectStreamException
 	{
 	}

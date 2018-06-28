@@ -10,7 +10,6 @@ import java.util.Map;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-@SuppressWarnings("serial")
 public class BaseFrame extends JFrame
 {
 	public final JPanel panel = new JPanel();
@@ -36,7 +35,6 @@ public class BaseFrame extends JFrame
 		this.repaint();
 	}
 	
-	@SuppressWarnings("unchecked")
 	public <T extends Component> T getComponent(String id, Class<T> type)
 	{
 		if(this.comps.containsKey(id) && type.isAssignableFrom(this.comps.get(id).getClass()))

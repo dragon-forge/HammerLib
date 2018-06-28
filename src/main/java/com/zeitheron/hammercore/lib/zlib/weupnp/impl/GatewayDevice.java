@@ -17,7 +17,6 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public class GatewayDevice
 {
 	private String st;

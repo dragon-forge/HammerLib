@@ -24,7 +24,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public class GatewayDiscover
 {
 	public static final int PORT = 1900;

@@ -6,7 +6,6 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public class NameValueHandler extends DefaultHandler
 {
 	private Map nameValue;

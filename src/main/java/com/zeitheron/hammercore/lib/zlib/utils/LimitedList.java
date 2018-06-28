@@ -3,7 +3,6 @@ package com.zeitheron.hammercore.lib.zlib.utils;
 import java.util.ArrayList;
 import java.util.Collection;
 
-@SuppressWarnings("serial")
 public class LimitedList<E> extends ArrayList<E>
 {
 	public final int capacity;
