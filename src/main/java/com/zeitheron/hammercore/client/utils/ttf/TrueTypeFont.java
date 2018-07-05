@@ -16,11 +16,11 @@ import java.nio.IntBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.GLU;
-
-import com.zeitheron.hammercore.utils.WrappedLog;
 
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
@@ -28,7 +28,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 
 public class TrueTypeFont
 {
-	public static final WrappedLog logger = new WrappedLog("TrueTypeFontLoader");
+	public static final Logger logger = LogManager.getLogger("TrueTypeFontLoader");
 	
 	public static final int ALIGN_LEFT = 0;
 	public static final int ALIGN_RIGHT = 1;

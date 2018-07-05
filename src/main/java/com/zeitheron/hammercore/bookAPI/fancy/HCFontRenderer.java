@@ -597,7 +597,7 @@ public class HCFontRenderer
 		this.renderSplitString(par1Str, par2, par3, par4, false);
 	}
 	
-	public List drawSplitString(String par1Str, int par2, int par3, int par4, int par5, Gui gui, iTooltipContext ctx)
+	public List drawSplitString(String par1Str, int par2, int par3, int par4, int par5, Gui gui, ITooltipContext ctx)
 	{
 		this.resetStyles();
 		this.textColor = par5;
@@ -605,7 +605,7 @@ public class HCFontRenderer
 		return renderSplitString(par1Str, par2, par3, par4, false, gui, ctx);
 	}
 	
-	private List renderSplitString(String par1Str, int par2, int par3, int par4, boolean par5, Gui gui, iTooltipContext ctx)
+	private List renderSplitString(String par1Str, int par2, int par3, int par4, boolean par5, Gui gui, ITooltipContext ctx)
 	{
 		List tooltip = new ArrayList<>();
 		
@@ -814,7 +814,7 @@ public class HCFontRenderer
 		return this.bidiFlag;
 	}
 	
-	public static interface iTooltipContext
+	public static interface ITooltipContext
 	{
 		int getStartX();
 		

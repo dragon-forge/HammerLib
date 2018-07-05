@@ -1,6 +1,5 @@
 package com.zeitheron.hammercore.utils.color;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.MathHelper;
 
 public class Rainbow
@@ -11,7 +10,7 @@ public class Rainbow
 		float g = 1;
 		float b = 1;
 		
-		long time = Math.abs(Minecraft.getSystemTime() + offset) % fullSycleInMilis;
+		long time = Math.abs(System.currentTimeMillis() + offset) % fullSycleInMilis;
 		long msPerSector = fullSycleInMilis / 3L;
 		int currentSector = MathHelper.floor((double) time / (double) msPerSector) + 1;
 		long sectorCenter = currentSector * msPerSector;

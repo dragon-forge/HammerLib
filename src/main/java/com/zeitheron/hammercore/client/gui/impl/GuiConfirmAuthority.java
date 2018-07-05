@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import com.zeitheron.hammercore.client.HCClientOptions;
-import com.zeitheron.hammercore.utils.MD5;
+import com.zeitheron.hammercore.lib.zlib.utils.MD5;
 
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiScreen;

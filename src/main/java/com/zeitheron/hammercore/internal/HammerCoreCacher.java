@@ -11,7 +11,7 @@ import java.util.zip.GZIPOutputStream;
 import com.zeitheron.hammercore.lib.zlib.io.VoidInputStream;
 import com.zeitheron.hammercore.lib.zlib.io.VoidOutputStream;
 import com.zeitheron.hammercore.lib.zlib.io.cache.ICacher;
-import com.zeitheron.hammercore.utils.MD5;
+import com.zeitheron.hammercore.lib.zlib.utils.MD5;
 
 public class HammerCoreCacher implements ICacher
 {

@@ -6,8 +6,10 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.google.common.collect.Maps;
-import com.zeitheron.hammercore.utils.WrappedLog;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
@@ -19,7 +21,7 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 
 public class FluidDictionary
 {
-	public static final WrappedLog log = new WrappedLog("Fluid Dictionary");
+	public static final Logger log = LogManager.getLogger("Fluid Dictionary");
 	private static boolean hasInit = false;
 	
 	private static final Map<String, List<String>> idToFn = Maps.newHashMapWithExpectedSize(96);
@@ -55,7 +57,7 @@ public class FluidDictionary
 	{
 		if(isEmpty(fluid))
 		{
-			log.bigWarn("Invalid registration attempt for a Fluid Dictionary fluid with name %s has occurred. The registration has been denied to prevent crashes. The mod responsible for the registration needs to correct this.", fname);
+			log.warn("Invalid registration attempt for a Fluid Dictionary fluid with name %s has occurred. The registration has been denied to prevent crashes. The mod responsible for the registration needs to correct this.", fname);
 			return;
 		}
 		

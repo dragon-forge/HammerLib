@@ -207,11 +207,11 @@ task makeChangelog(type: se.bjurr.gitchangelog.plugin.gradle.GitChangelogTask) {
 build.dependsOn signJar
 build.dependsOn signDeobfJar
 build.dependsOn signSrcJar
-// tasks.build.dependsOn makeChangelog
+tasks.build.dependsOn makeChangelog
 
 afterEvaluate {
 	tasks["curseforge${config.project_id}"].dependsOn.add(signJar)
 	tasks["curseforge${config.project_id}"].dependsOn.add(signDeobfJar)
 	tasks["curseforge${config.project_id}"].dependsOn.add(signSrcJar)
-	// tasks["curseforge${config.project_id}"].dependsOn.add(makeChangelog)
+	tasks["curseforge${config.project_id}"].dependsOn.add(makeChangelog)
 }

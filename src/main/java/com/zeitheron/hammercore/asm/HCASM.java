@@ -2,7 +2,8 @@ package com.zeitheron.hammercore.asm;
 
 import java.util.Map;
 
-import com.zeitheron.hammercore.utils.WrappedLog;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import net.minecraftforge.common.ForgeVersion;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
@@ -15,7 +16,7 @@ import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.MCVersion;
 public class HCASM implements IFMLLoadingPlugin
 {
 	public static boolean runtimeDeobfEnabled = false;
-	public static final WrappedLog ASM_LOG = new WrappedLog("Hammer Core [ASM]");
+	public static final Logger ASM_LOG = LogManager.getLogger("Hammer Core [ASM]");
 	// public static BufferedWriter hc_classes;
 	// public static BigInteger classID = BigInteger.ONE;
 	//

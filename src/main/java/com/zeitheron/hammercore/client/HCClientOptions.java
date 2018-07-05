@@ -12,9 +12,9 @@ import com.zeitheron.hammercore.lib.zlib.json.serapi.IgnoreSerialization;
 import com.zeitheron.hammercore.lib.zlib.json.serapi.Jsonable;
 import com.zeitheron.hammercore.lib.zlib.json.serapi.SerializationContext;
 import com.zeitheron.hammercore.lib.zlib.json.serapi.SerializedName;
+import com.zeitheron.hammercore.lib.zlib.utils.MD5;
 import com.zeitheron.hammercore.net.HCNet;
 import com.zeitheron.hammercore.net.internal.opts.PacketCHCOpts;
-import com.zeitheron.hammercore.utils.MD5;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;

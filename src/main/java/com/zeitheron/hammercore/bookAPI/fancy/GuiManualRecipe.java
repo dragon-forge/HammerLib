@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
-import com.zeitheron.hammercore.bookAPI.fancy.HCFontRenderer.iTooltipContext;
+import com.zeitheron.hammercore.bookAPI.fancy.HCFontRenderer.ITooltipContext;
 import com.zeitheron.hammercore.client.utils.UtilsFX;
 import com.zeitheron.hammercore.client.utils.texture.gui.theme.GuiTheme;
 import com.zeitheron.hammercore.utils.InterItemStack;
@@ -45,7 +45,7 @@ import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 
 @SideOnly(value = Side.CLIENT)
-public class GuiManualRecipe extends GuiScreen implements iTooltipContext
+public class GuiManualRecipe extends GuiScreen implements ITooltipContext
 {
 	public static RenderItem itemRenderer = Minecraft.getMinecraft().getRenderItem();
 	public static LinkedList<Object[]> history = new LinkedList();
