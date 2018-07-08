@@ -53,7 +53,7 @@ public class Zeitheron extends PerUserModule
 	{
 		if(cte.phase != Phase.START)
 			return;
-		
+			
 		if(openEyeColor.isKeyDown())
 			Minecraft.getMinecraft().displayGuiScreen(new Customization());
 	}
@@ -114,6 +114,8 @@ public class Zeitheron extends PerUserModule
 		@Override
 		protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY)
 		{
+			drawDefaultBackground();
+			
 			RenderUtil.drawGradientRect(guiLeft, guiTop, 40, 40, 255 << 24 | currentColor, 255 << 24 | currentColor);
 			RenderUtil.drawGradientRect(guiLeft + xSize - 40, guiTop, 40, 40, 255 << 24 | targetColor, 255 << 24 | targetColor);
 			double progress = 1 - this.progress.getAsDouble();

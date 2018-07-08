@@ -16,6 +16,11 @@ public class PacketDropItem implements IPacket
 	ItemStack stack;
 	NBTTagCompound ei;
 	
+	static
+	{
+		IPacket.handle(PacketDropItem.class, () -> new PacketDropItem(ItemStack.EMPTY));
+	}
+	
 	public PacketDropItem(ItemStack stack)
 	{
 		this.stack = stack;

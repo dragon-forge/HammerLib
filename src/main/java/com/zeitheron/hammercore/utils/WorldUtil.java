@@ -128,14 +128,16 @@ public class WorldUtil
 	{
 		if(!mp.world.isRemote)
 		{
-			if(mp.world.provider.getDimension() != dim)
-			{
-				MinecraftServer server = mp.mcServer;
-				WorldServer nev = server.getWorld(dim);
-				server.getPlayerList().transferPlayerToDimension(mp, dim, new BlankTeleporter(nev));
-			}
+//			if(mp.world.provider.getDimension() != dim)
+//			{
+//				MinecraftServer server = mp.mcServer;
+//				WorldServer nev = server.getWorld(dim);
+//				server.getPlayerList().transferPlayerToDimension(mp, dim, new BlankTeleporter(nev));
+//			}
 			
-			mp.setPositionAndUpdate(x, y, z);
+			TeleporterDimPos.of(x, y, z, dim).teleport(mp);
+			
+//			mp.setPositionAndUpdate(x, y, z);
 		}
 	}
 	
