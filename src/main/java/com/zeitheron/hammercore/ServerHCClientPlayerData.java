@@ -42,7 +42,7 @@ public class ServerHCClientPlayerData
 		playerMap.put(player, opts);
 	}
 	
-	private HCClientOptions opts(String player)
+	public HCClientOptions opts(String player)
 	{
 		HCClientOptions hc = playerMap.get(player);
 		if(hc == null)

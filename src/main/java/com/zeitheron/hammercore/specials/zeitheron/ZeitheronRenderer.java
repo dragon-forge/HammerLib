@@ -1,4 +1,4 @@
-package com.zeitheron.hammercore.client.render.player.players;
+package com.zeitheron.hammercore.specials.zeitheron;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +30,7 @@ import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.fml.relauncher.Side;
 
-public class Zeitheron implements IPlayerModel
+public class ZeitheronRenderer implements IPlayerModel
 {
 	private static final String URL_WINGS = "https://gitlab.com/Zeitheron/HammerCore/raw/1.12.2/ZeitheronModel.png";
 	private static final String URL_EYES = "https://gitlab.com/Zeitheron/HammerCore/raw/1.12.2/ZeitheronEyes.png";
@@ -226,9 +226,9 @@ public class Zeitheron implements IPlayerModel
 		private static Map<RenderPlayer, LayerScale> SCALES = new HashMap<>();
 		
 		private final RenderPlayer playerRenderer;
-		private final Zeitheron player;
+		private final ZeitheronRenderer player;
 		
-		public LayerScale(RenderPlayer playerRenderer, Zeitheron player)
+		public LayerScale(RenderPlayer playerRenderer, ZeitheronRenderer player)
 		{
 			this.playerRenderer = playerRenderer;
 			this.player = player;
@@ -247,7 +247,6 @@ public class Zeitheron implements IPlayerModel
 				NBTTagCompound interp = null;
 				if(clopts.customData != null && clopts.customData.hasKey("EyeColor", NBT.TAG_COMPOUND))
 					interp = clopts.customData.getCompoundTag("EyeColor");
-				
 				int rendered = interp != null && interp.hasKey("RainbowCycle", NBT.TAG_INT) ? Rainbow.doIt(0, interp.getInteger("RainbowCycle") * 50) : PlayerInterpolator.getRendered(entitylivingbaseIn, interp);
 				
 				GlStateManager.pushMatrix();

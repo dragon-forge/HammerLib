@@ -51,10 +51,19 @@ public class PacketCHCOpts implements IPacket
 		{
 			dat.assign(player, opts);
 			if(dat.side == Side.SERVER)
+			{
+				EntityPlayerMP sender = net.getSender();
+				if(sender != null)
+					HCNet.INSTANCE.sendToAll(new PacketCHCOpts().setOpts(opts).setLPlayer(sender.getGameProfile().getName()));
 				HCNet.INSTANCE.sendToAll(new PacketCHCOpts().setOpts(opts).setLPlayer(player));
+			}
 		} else if(player != null && net.server != null)
 		{
-			EntityPlayerMP mp = net.server.getPlayerList().getPlayerByUUID(UUID.fromString(player));
+			EntityPlayerMP mp;
+			if(player.contains("-"))
+				mp = net.server.getPlayerList().getPlayerByUUID(UUID.fromString(player));
+			else
+				mp = net.server.getPlayerList().getPlayerByUsername(player);
 			if(mp != null)
 				return new PacketCHCOpts().setLPlayer(player).setOpts(dat.getOptionsForPlayer(mp));
 		}

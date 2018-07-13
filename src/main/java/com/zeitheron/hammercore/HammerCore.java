@@ -305,7 +305,9 @@ public class HammerCore
 			i++;
 			bar.step("Registering Objects to Event Bus (" + i + "/" + toRegister.size() + ")");
 			MinecraftForge.EVENT_BUS.register(o);
-			LOG.info("Added \"" + o + "\" to MCF Event Bus.");
+			MCFBus bus = toRegister.getClass().getDeclaredAnnotation(MCFBus.class);
+			if(bus == null || bus.log())
+				LOG.info("Added \"" + o + "\" to MCF Event Bus.");
 		}
 		
 		LOG.info("Added " + toRegister.size() + " object to MCF Event Bus.");

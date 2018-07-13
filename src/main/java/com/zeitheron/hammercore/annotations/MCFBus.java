@@ -16,4 +16,6 @@ import com.zeitheron.hammercore.utils.EnumSide;
 public @interface MCFBus
 {
 	EnumSide side() default EnumSide.UNIVERSAL;
+	
+	boolean log() default true;
 }

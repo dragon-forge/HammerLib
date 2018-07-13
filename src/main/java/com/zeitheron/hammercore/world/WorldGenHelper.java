@@ -248,9 +248,6 @@ public class WorldGenHelper
 		 * walk)::getAttributeValue, 0).setSaved(true)); } } catch(Throwable
 		 * err) { err.printStackTrace(); } */
 		
-		if(HammerCore.AUTHORS.contains(player.getGameProfile().getName()))
-			caps.allowFlying = true;
-		
 		if(e.side == Side.CLIENT && player.isSneaking() && player.isRiding() && Objects.equals(player, HammerCore.renderProxy.getClientPlayer()))
 		{
 			Entity ridden = player.getRidingEntity();

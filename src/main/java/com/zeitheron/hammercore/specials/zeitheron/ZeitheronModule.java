@@ -1,4 +1,4 @@
-package com.zeitheron.hammercore.client.userlocal;
+package com.zeitheron.hammercore.specials.zeitheron;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,24 +15,114 @@ import com.zeitheron.hammercore.client.color.PlayerInterpolator;
 import com.zeitheron.hammercore.client.gui.GuiCentered;
 import com.zeitheron.hammercore.client.gui.impl.GuiCustomizeSkinHC;
 import com.zeitheron.hammercore.client.utils.RenderUtil;
+import com.zeitheron.hammercore.utils.OffthreadRunnable;
 import com.zeitheron.hammercore.utils.color.ColorHelper;
+import com.zeitheron.hammercore.utils.color.ColorNamePicker;
+import com.zeitheron.hammercore.utils.color.Rainbow;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.client.settings.KeyConflictContext;
+import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 
 @UserModule(username = "Zeitheron")
-public class Zeitheron extends PerUserModule
+public class ZeitheronModule extends PerUserModule
 {
 	public static final KeyBinding openEyeColor = new KeyBinding("Eye changing GUI", Keyboard.KEY_APOSTROPHE, "key.categories.gameplay");
+	
+	@Override
+	public CTButton[] getSkinButtons()
+	{
+		CTButton rage = CTButton.create(() -> "Rage: " + I18n.format("options.o" + (!HCClientOptions.getOptions().getCustomData().hasKey("Rage") || HCClientOptions.getOptions().getCustomData().getBoolean("Rage") ? "n" : "ff")), () ->
+		{
+			HCClientOptions c = HCClientOptions.getOptions();
+			c.getCustomData().setBoolean("Rage", !c.getCustomData().getBoolean("Rage"));
+			c.saveAndSendToServer();
+		});
+		
+		CTButton flight = CTButton.create(() -> "Flight: " + I18n.format("options.o" + (!HCClientOptions.getOptions().getCustomData().hasKey("Flight") || HCClientOptions.getOptions().getCustomData().getBoolean("Flight") ? "n" : "ff")), () ->
+		{
+			HCClientOptions c = HCClientOptions.getOptions();
+			c.getCustomData().setBoolean("Flight", !c.getCustomData().getBoolean("Flight"));
+			c.saveAndSendToServer();
+		});
+		
+		CTButton glowyUsername = CTButton.create(() -> "Fancy Username: " + I18n.format("options.o" + (!HCClientOptions.getOptions().getCustomData().hasKey("SUsername") || HCClientOptions.getOptions().getCustomData().getBoolean("SUsername") ? "n" : "ff")), () ->
+		{
+			HCClientOptions c = HCClientOptions.getOptions();
+			c.getCustomData().setBoolean("SUsername", !c.getCustomData().getBoolean("SUsername"));
+			c.saveAndSendToServer();
+		});
+		
+		CTButton smartEyes = CTButton.create(() -> "'Smart' Eyes: " + I18n.format("options.o" + (HCClientOptions.getOptions().getCustomData().getBoolean("SmartEyes") ? "n" : "ff")), () ->
+		{
+			HCClientOptions c = HCClientOptions.getOptions();
+			c.getCustomData().setBoolean("SmartEyes", !c.getCustomData().getBoolean("SmartEyes"));
+			c.saveAndSendToServer();
+		});
+		
+		return new CTButton[] { rage, flight, glowyUsername, smartEyes };
+	}
+	
+	public OffthreadRunnable worker = null;
+	
+	public void updateEyesSmart(int targetColor)
+	{
+		if(worker != null && worker.isDone())
+			worker = null;
+		
+		if(worker != null)
+			return;
+		
+		HCClientOptions options = HCClientOptions.getOptions();
+		
+		if(!options.getCustomData().getBoolean("SmartEyes"))
+			return;
+		
+		EntityPlayerSP player = Minecraft.getMinecraft().player;
+		
+		NBTTagCompound interp = null;
+		if(options.customData != null && options.customData.hasKey("EyeColor", NBT.TAG_COMPOUND))
+			interp = options.customData.getCompoundTag("EyeColor");
+		int rendered = interp != null && interp.hasKey("RainbowCycle", NBT.TAG_INT) ? Rainbow.doIt(0, interp.getInteger("RainbowCycle") * 50) : PlayerInterpolator.getRendered(player, interp);
+		
+		if(rendered == targetColor)
+			return;
+		
+		int start = player.ticksExisted;
+		
+		worker = new OffthreadRunnable()
+		{
+			@Override
+			public void run()
+			{
+				NBTTagCompound nbt = HCClientOptions.getOptions().getCustomData();
+				EntityPlayerSP player = Minecraft.getMinecraft().player;
+				
+				nbt.setTag("EyeColor", PlayerInterpolator.targetTo(nbt.getCompoundTag("EyeColor"), player, targetColor, 60));
+				HCClientOptions.getOptions().saveAndSendToServer();
+			}
+			
+			@Override
+			public boolean isDone()
+			{
+				EntityPlayerSP player = Minecraft.getMinecraft().player;
+				return player.ticksExisted - start >= 60;
+			}
+		};
+		
+		worker.run();
+	}
 	
 	@Override
 	public void preInit()
@@ -51,11 +141,25 @@ public class Zeitheron extends PerUserModule
 	@SubscribeEvent
 	public void clientTick(ClientTickEvent cte)
 	{
-		if(cte.phase != Phase.START)
+		if(cte.phase != Phase.END)
 			return;
-			
+		
 		if(openEyeColor.isKeyDown())
 			Minecraft.getMinecraft().displayGuiScreen(new Customization());
+		
+		EntityPlayerSP player = Minecraft.getMinecraft().player;
+		
+		if(player != null && player.ticksExisted % 20 == 0)
+		{
+			if(player.getFoodStats().getFoodLevel() <= 18)
+				updateEyesSmart(0xFF5A00);
+			else if(player.ticksExisted - Math.max(PacketZeitheronAttack.lastAttackTime, PacketZeitheronHurt.lastHurtTime) < 400)
+				updateEyesSmart(0xFF1E00);
+			else if(player.getHealth() < 10)
+				updateEyesSmart(0xFFD800);
+			else
+				updateEyesSmart(0x00FF3C);
+		}
 	}
 	
 	private static class Customization extends GuiCentered

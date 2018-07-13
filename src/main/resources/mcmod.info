@@ -2,10 +2,10 @@
 {
   "modid": "hammercore",
   "name": "Hammer Core",
-  "description": "Core used by most of Pengu's Mods.",
+  "description": "Core used by most of Zeitheron's Mods.",
   "url": "",
   "updateUrl": "",
-  "authorList": ["APengu"],
+  "authorList": ["Zeitheron"],
   "credits": "",
   "logoFile": "assets/hammercore/textures/logo.png",
   "screenshots": [],

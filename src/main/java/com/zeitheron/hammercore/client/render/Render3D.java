@@ -5,10 +5,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.logging.log4j.core.jmx.Server;
 import org.lwjgl.opengl.GL11;
 
 import com.zeitheron.hammercore.HammerCore;
 import com.zeitheron.hammercore.HammerCore.HCAuthor;
+import com.zeitheron.hammercore.ServerHCClientPlayerData;
 import com.zeitheron.hammercore.client.HCClientOptions;
 import com.zeitheron.hammercore.client.particle.api.ParticleList;
 import com.zeitheron.hammercore.client.render.player.PlayerRenderingManager;
@@ -34,6 +36,7 @@ import net.minecraft.client.renderer.GlStateManager.SourceFactor;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -240,6 +243,12 @@ public class Render3D
 						for(HCAuthor au : AUTHORS)
 							if((j < s.length() - au.getDisplayName().length() && s.substring(j, j + au.getDisplayName().length()).equals(au.getDisplayName())) | (j < s.length() - au.getUsername().length() && s.substring(j, j + au.getUsername().length()).equals(au.getUsername())))
 							{
+								HCClientOptions opts = ServerHCClientPlayerData.DATAS.get(Side.CLIENT).opts(au.getUsername());
+								NBTTagCompound data = opts == null ? null : opts.getCustomData();
+								
+								if(data != null && data.hasKey("SUsername") && !data.getBoolean("SUsername"))
+									continue;
+								
 								String before = s.substring(0, j);
 								float f = Minecraft.getMinecraft().gameSettings.chatOpacity * .9F + .1F;
 								int j1 = updateCounter - l.getUpdatedCounter();

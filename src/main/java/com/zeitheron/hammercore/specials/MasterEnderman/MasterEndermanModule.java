@@ -1,4 +1,4 @@
-package com.zeitheron.hammercore.client.userlocal;
+package com.zeitheron.hammercore.specials.MasterEnderman;
 
 import org.lwjgl.input.Keyboard;
 
@@ -21,7 +21,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 
 @UserModule(username = "_MasterEnderman_")
-public class _MasterEnderman_ extends PerUserModule
+public class MasterEndermanModule extends PerUserModule
 {
 	public static final KeyBinding tpKey = new KeyBinding("TP Keybind", Keyboard.KEY_APOSTROPHE, "key.categories.gameplay");
 	

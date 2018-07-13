@@ -7,6 +7,10 @@ public class ColorNamePicker
 {
 	public static final ArrayList<Col> colorList = initColorList();
 	
+	public static Col red;
+	public static Col orange, yellow;
+	public static Col lime;
+	
 	private static ArrayList<Col> initColorList()
 	{
 		ArrayList<Col> colorList = new ArrayList<Col>();
@@ -86,7 +90,7 @@ public class ColorNamePicker
 		colorList.add(new Col("LightSlateGray", 0x77, 0x88, 0x99));
 		colorList.add(new Col("LightSteelBlue", 0xB0, 0xC4, 0xDE));
 		colorList.add(new Col("LightYellow", 0xFF, 0xFF, 0xE0));
-		colorList.add(new Col("Lime", 0x00, 0xFF, 0x00));
+		colorList.add(lime = new Col("Lime", 0x00, 0xFF, 0x00));
 		colorList.add(new Col("LimeGreen", 0x32, 0xCD, 0x32));
 		colorList.add(new Col("Linen", 0xFA, 0xF0, 0xE6));
 		colorList.add(new Col("Magenta", 0xFF, 0x00, 0xFF));
@@ -109,7 +113,7 @@ public class ColorNamePicker
 		colorList.add(new Col("OldLace", 0xFD, 0xF5, 0xE6));
 		colorList.add(new Col("Olive", 0x80, 0x80, 0x00));
 		colorList.add(new Col("OliveDrab", 0x6B, 0x8E, 0x23));
-		colorList.add(new Col("Orange", 0xFF, 0xA5, 0x00));
+		colorList.add(orange = new Col("Orange", 0xFF, 0xA5, 0x00));
 		colorList.add(new Col("OrangeRed", 0xFF, 0x45, 0x00));
 		colorList.add(new Col("Orchid", 0xDA, 0x70, 0xD6));
 		colorList.add(new Col("PaleGoldenRod", 0xEE, 0xE8, 0xAA));
@@ -123,7 +127,7 @@ public class ColorNamePicker
 		colorList.add(new Col("Plum", 0xDD, 0xA0, 0xDD));
 		colorList.add(new Col("PowderBlue", 0xB0, 0xE0, 0xE6));
 		colorList.add(new Col("Purple", 0x80, 0x00, 0x80));
-		colorList.add(new Col("Red", 0xFF, 0x00, 0x00));
+		colorList.add(red = new Col("Red", 0xFF, 0x00, 0x00));
 		colorList.add(new Col("RosyBrown", 0xBC, 0x8F, 0x8F));
 		colorList.add(new Col("RoyalBlue", 0x41, 0x69, 0xE1));
 		colorList.add(new Col("SaddleBrown", 0x8B, 0x45, 0x13));
@@ -148,7 +152,7 @@ public class ColorNamePicker
 		colorList.add(new Col("Wheat", 0xF5, 0xDE, 0xB3));
 		colorList.add(new Col("White", 0xFF, 0xFF, 0xFF));
 		colorList.add(new Col("WhiteSmoke", 0xF5, 0xF5, 0xF5));
-		colorList.add(new Col("Yellow", 0xFF, 0xFF, 0x00));
+		colorList.add(yellow = new Col("Yellow", 0xFF, 0xFF, 0x00));
 		colorList.add(new Col("YellowGreen", 0x9A, 0xCD, 0x32));
 		for(Col c : colorList)
 		{
@@ -235,6 +239,11 @@ public class ColorNamePicker
 			this.g = g;
 			this.b = b;
 			this.name = name;
+		}
+		
+		public int computeMSE(int rgb)
+		{
+			return computeMSE((int) (ColorHelper.getRed(rgb) * 255F), (int) (ColorHelper.getGreen(rgb) * 255F), (int) (ColorHelper.getBlue(rgb) * 255F));
 		}
 		
 		public int computeMSE(int pixR, int pixG, int pixB)
