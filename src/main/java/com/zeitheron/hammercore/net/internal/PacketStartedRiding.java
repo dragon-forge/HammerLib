@@ -1,6 +1,7 @@
 package com.zeitheron.hammercore.net.internal;
 
 import com.zeitheron.hammercore.net.IPacket;
+import com.zeitheron.hammercore.net.MainThreaded;
 import com.zeitheron.hammercore.net.PacketContext;
 
 import net.minecraft.client.Minecraft;
@@ -10,6 +11,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+@MainThreaded
 public class PacketStartedRiding implements IPacket
 {
 	public int a, b;

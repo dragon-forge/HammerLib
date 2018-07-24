@@ -1,4 +1,4 @@
-package com.zeitheron.hammercore.specials.zeitheron;
+package com.zeitheron.hammercore.specials.Zeitheron;
 
 import com.zeitheron.hammercore.net.IPacket;
 import com.zeitheron.hammercore.net.PacketContext;

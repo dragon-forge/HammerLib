@@ -69,6 +69,11 @@ public class PacketHolder
 		return playerId > 0;
 	}
 	
+	public boolean enforceMainThread()
+	{
+		return packet != null && packet.executeOnMainThread();
+	}
+	
 	@SideOnly(Side.CLIENT)
 	public PacketHolder execute(ClientCustomPacketEvent handler)
 	{
@@ -82,7 +87,7 @@ public class PacketHolder
 		EntityPlayerMP mp = getPlayer(server);
 		return new PacketHolder(packet.executeOnServer(new PacketContext(new ContextSenderPlayerMP(mp), this, server)));
 	}
-
+	
 	public EntityPlayerMP getPlayer(MinecraftServer server)
 	{
 		return server != null && containsPlayer() ? server.getPlayerList().getPlayerByUUID(playerUUID) : null;

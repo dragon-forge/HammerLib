@@ -41,7 +41,7 @@ public class FluidEnergyAccessPoint
 			if(tile != null && tile.hasCapability(CapabilityEnergy.ENERGY, face.getOpposite()))
 				list.add(tile.getCapability(CapabilityEnergy.ENERGY, face.getOpposite()));
 		}
-		list.removeIf(es -> !es.canReceive());
+		list.removeIf(es -> es == null || !es.canReceive());
 		return list;
 	}
 	

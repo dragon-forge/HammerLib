@@ -135,7 +135,7 @@ public class GuiManualRecipe extends GuiScreen implements ITooltipContext
 				int mx = par1 - (sw + 118);
 				int my = par2 - (sh + 189);
 				if(mx >= 0 && my >= 0 && mx < 20 && my < 12)
-					UtilsFX.drawCustomTooltip(this, itemRenderer, fontRenderer, Arrays.asList(I18n.format("recipe.return")), par1 - 4, par2, 15);
+					UtilsFX.drawCustomTooltip(this, itemRenderer, fontRenderer, Arrays.asList(I18n.format("recipe.hammercore:return")), par1 - 4, par2, 15);
 			}
 		} catch(Throwable err)
 		{
@@ -278,7 +278,7 @@ public class GuiManualRecipe extends GuiScreen implements ITooltipContext
 			List items = (List) r.get(3);
 			GL11.glPushMatrix();
 			int start = side * 152;
-			String text = I18n.format("recipe.type.construct");
+			String text = I18n.format("recipe.hammercore:type.construct");
 			int offset = fontRenderer.getStringWidth(text);
 			fontRenderer.drawString(text, x + start + 56 - offset / 2, y, 5263440);
 			int mposx = mx;
@@ -343,7 +343,7 @@ public class GuiManualRecipe extends GuiScreen implements ITooltipContext
 							Object[] ref = findRecipeReference(stack);
 							if(ref != null && (!entry.key.equals(ref[0]) || (side % 2 == 0 && ((Integer) ref[1]) != this.page) || (side % 2 == 1 && ((Integer) ref[1]) != this.page)))
 							{
-								addtext.add("\u00a78\u00a7o" + I18n.format("recipe.clickthrough"));
+								addtext.add("\u00a78\u00a7o" + I18n.format("recipe.hammercore:clickthrough"));
 								reference.add(Arrays.asList(mx, my, ref[0], ref[1]));
 							}
 							drawCustomTooltip(addtext, mx, my, 11);
@@ -424,7 +424,7 @@ public class GuiManualRecipe extends GuiScreen implements ITooltipContext
 		{
 			int i;
 			int j;
-			text = I18n.format("recipe.type.workbench");
+			text = I18n.format("recipe.hammercore:type.workbench");
 			offset = this.fontRenderer.getStringWidth(text);
 			this.fontRenderer.drawString(text, x + start + 56 - offset / 2, y, GuiTheme.CURRENT_THEME.textColor);
 			int rw = 0;
@@ -476,7 +476,7 @@ public class GuiManualRecipe extends GuiScreen implements ITooltipContext
 					
 					if(ref != null && (!entry.key.equals(ref[0]) || (side % 2 == 0 && ((Integer) ref[1]) != page) || (side % 2 == 1 && ((Integer) ref[1]) != page)))
 					{
-						addtext.add("\u00a78\u00a7o" + I18n.format("recipe.clickthrough"));
+						addtext.add("\u00a78\u00a7o" + I18n.format("recipe.hammercore:clickthrough"));
 						reference.add(Arrays.asList(mx, my, ref[0], ref[1]));
 					}
 					
@@ -488,7 +488,7 @@ public class GuiManualRecipe extends GuiScreen implements ITooltipContext
 		if(recipe != null && (recipe instanceof ShapelessRecipes || recipe instanceof ShapelessOreRecipe))
 		{
 			int i;
-			text = I18n.format("recipe.type.workbenchshapeless");
+			text = I18n.format("recipe.hammercore:type.workbenchshapeless");
 			offset = fontRenderer.getStringWidth(text);
 			fontRenderer.drawString(text, x + start + 56 - offset / 2, y, GuiTheme.CURRENT_THEME.textColor);
 			for(i = 0; i < items.size() && i < 9; ++i)
@@ -516,7 +516,7 @@ public class GuiManualRecipe extends GuiScreen implements ITooltipContext
 				Object[] ref = findRecipeReference(InventoryUtils.cycleItemStack(items.get(i)));
 				if(ref != null && (!entry.key.equals(ref[0]) || (side % 2 == 0 && ((Integer) ref[1]) != page) || (side % 2 == 1 && ((Integer) ref[1]) != page)))
 				{
-					addtext.add("\u00a78\u00a7o" + I18n.format("recipe.clickthrough"));
+					addtext.add("\u00a78\u00a7o" + I18n.format("recipe.hammercore:clickthrough"));
 					reference.add(Arrays.asList(mx, my, ref[0], ref[1]));
 				}
 				drawCustomTooltip(addtext, mx, my, 11);
@@ -535,7 +535,7 @@ public class GuiManualRecipe extends GuiScreen implements ITooltipContext
 		{
 			GL11.glPushMatrix();
 			int start = side * 152;
-			String text = I18n.format("recipe.type.smelting");
+			String text = I18n.format("recipe.hammercore:type.smelting");
 			int offset = fontRenderer.getStringWidth(text);
 			fontRenderer.drawString(text, x + start + 56 - offset / 2, y, GuiTheme.CURRENT_THEME.textColor);
 			UtilsFX.bindTexture(this.tex2);
@@ -574,7 +574,7 @@ public class GuiManualRecipe extends GuiScreen implements ITooltipContext
 				Object[] ref = findRecipeReference(in);
 				if(ref != null && (!entry.key.equals(ref[0]) || (side % 2 == 0 && ((Integer) ref[1]) != page) || (side % 2 == 1 && ((Integer) ref[1]) != page)))
 				{
-					addtext.add("\u00a78\u00a7o" + I18n.format("recipe.clickthrough"));
+					addtext.add("\u00a78\u00a7o" + I18n.format("recipe.hammercore:clickthrough"));
 					reference.add(Arrays.asList(mx, my, ref[0], ref[1]));
 				}
 				drawCustomTooltip(addtext, mx, my, 11);
@@ -804,7 +804,7 @@ public class GuiManualRecipe extends GuiScreen implements ITooltipContext
 			Object[] ref = findRecipeReference(stack);
 			if(addClickTooltip && ref != null && (!entry.key.equals(ref[0]) || (side % 2 == 0 && ((Integer) ref[1]) != page) || (side % 2 == 1 && ((Integer) ref[1]) != page)))
 			{
-				addtext.add("\u00a78\u00a7o" + I18n.format("recipe.clickthrough"));
+				addtext.add("\u00a78\u00a7o" + I18n.format("recipe.hammercore:clickthrough"));
 				reference.add(Arrays.asList(mx, my, ref[0], ref[1]));
 			}
 			drawCustomTooltip(addtext, mx, my, 11);

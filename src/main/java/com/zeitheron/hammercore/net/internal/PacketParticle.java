@@ -1,6 +1,7 @@
 package com.zeitheron.hammercore.net.internal;
 
 import com.zeitheron.hammercore.net.IPacket;
+import com.zeitheron.hammercore.net.MainThreaded;
 import com.zeitheron.hammercore.net.PacketContext;
 
 import net.minecraft.client.Minecraft;
@@ -12,6 +13,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+@MainThreaded
 public class PacketParticle implements IPacket
 {
 	public int world;
@@ -68,7 +70,7 @@ public class PacketParticle implements IPacket
 		WorldClient wc = Minecraft.getMinecraft().world;
 		if(wc == null || world != wc.provider.getDimension())
 			return null;
-		Minecraft.getMinecraft().addScheduledTask(() -> wc.spawnParticle(particle, pos.x, pos.y, pos.z, motion.x, motion.y, motion.z, params));
+		wc.spawnParticle(particle, pos.x, pos.y, pos.z, motion.x, motion.y, motion.z, params);
 		return null;
 	}
 }

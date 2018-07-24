@@ -1,6 +1,7 @@
 package com.zeitheron.hammercore.net.internal;
 
 import com.zeitheron.hammercore.net.IPacket;
+import com.zeitheron.hammercore.net.MainThreaded;
 import com.zeitheron.hammercore.net.PacketContext;
 
 import net.minecraft.advancements.Advancement;
@@ -11,6 +12,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+@MainThreaded
 public class PacketAdvancementToast implements IPacket
 {
 	private ResourceLocation advancement;

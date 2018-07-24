@@ -18,6 +18,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.server.MinecraftServer;
@@ -221,9 +222,17 @@ public enum HCNet
 	{
 		FMLProxyPacket fmlpp = e.getPacket();
 		PacketHolder pkt = unwrap(fmlpp);
-		pkt = pkt.execute(e);
-		if(pkt.packet != null)
-			e.setReply(wrap(pkt, oppositeSide(e.side()), fmlpp));
+		NetworkManager networker = e.getManager();
+		Runnable task = () ->
+		{
+			PacketHolder reply = pkt.execute(e);
+			if(reply != null && reply.packet != null)
+				networker.sendPacket(wrap(reply, oppositeSide(e.side()), fmlpp));
+		};
+		if(pkt.enforceMainThread())
+			HammerCore.pipelineProxy.runFromMainThread(e.side(), task);
+		else
+			task.run();
 	}
 	
 	@SubscribeEvent
@@ -231,9 +240,17 @@ public enum HCNet
 	{
 		FMLProxyPacket fmlpp = e.getPacket();
 		PacketHolder pkt = unwrap(fmlpp);
-		pkt = pkt.execute(e);
-		if(pkt.packet != null)
-			e.setReply(wrap(pkt, oppositeSide(e.side()), fmlpp));
+		NetworkManager networker = e.getManager();
+		Runnable task = () ->
+		{
+			PacketHolder reply = pkt.execute(e);
+			if(reply != null && reply.packet != null)
+				networker.sendPacket(wrap(reply, oppositeSide(e.side()), fmlpp));
+		};
+		if(pkt.enforceMainThread())
+			HammerCore.pipelineProxy.runFromMainThread(e.side(), task);
+		else
+			task.run();
 	}
 	
 	private Side oppositeSide(Side s)

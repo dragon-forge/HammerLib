@@ -1,14 +1,17 @@
 package com.zeitheron.hammercore.net.internal;
 
 import com.zeitheron.hammercore.net.IPacket;
+import com.zeitheron.hammercore.net.MainThreaded;
 import com.zeitheron.hammercore.net.PacketContext;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+@MainThreaded
 public class PacketSwingArm implements IPacket
 {
 	public EnumHand hand;
@@ -31,7 +34,9 @@ public class PacketSwingArm implements IPacket
 	@SideOnly(Side.CLIENT)
 	public IPacket executeOnClient(PacketContext net)
 	{
-		Minecraft.getMinecraft().player.swingArm(hand);
+		EntityPlayerSP player = Minecraft.getMinecraft().player;
+		if(player != null)
+			player.swingArm(hand);
 		return null;
 	}
 	

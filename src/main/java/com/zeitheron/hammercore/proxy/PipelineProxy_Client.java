@@ -20,4 +20,13 @@ public class PipelineProxy_Client extends PipelineProxy_Common
 		if(sp != null)
 			sp.connection.sendPacket(packet);
 	}
+	
+	@Override
+	public void runFromMainThread(Side side, Runnable task)
+	{
+		if(side == Side.CLIENT)
+			Minecraft.getMinecraft().addScheduledTask(task);
+		else
+			super.runFromMainThread(side, task);
+	}
 }

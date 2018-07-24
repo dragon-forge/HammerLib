@@ -2,6 +2,7 @@ package com.zeitheron.hammercore.net.internal;
 
 import com.zeitheron.hammercore.net.HCNet;
 import com.zeitheron.hammercore.net.IPacket;
+import com.zeitheron.hammercore.net.MainThreaded;
 import com.zeitheron.hammercore.net.PacketContext;
 
 import net.minecraft.entity.Entity;
@@ -9,6 +10,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 
+@MainThreaded
 public class PacketStopRiding2 implements IPacket
 {
 	public int a, b;

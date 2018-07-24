@@ -1,4 +1,4 @@
-package com.zeitheron.hammercore.specials.zeitheron;
+package com.zeitheron.hammercore.specials.Zeitheron;
 
 import java.util.UUID;
 
@@ -62,6 +62,9 @@ public class ZeitheronGlobEvents
 		
 		if(e.phase == Phase.END && player.getGameProfile().getName().equalsIgnoreCase("Zeitheron") && player.ticksExisted % 5 == 0)
 		{
+			// I'm an ice derg, I can breathe underwater!
+			player.setAir(300);
+			
 			HCClientOptions options = ServerHCClientPlayerData.getOptionsFor(player);
 			NBTTagCompound data = options == null ? new NBTTagCompound() : options.getCustomData();
 			

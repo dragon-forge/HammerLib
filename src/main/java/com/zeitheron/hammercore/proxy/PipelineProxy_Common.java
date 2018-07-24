@@ -4,8 +4,12 @@ import java.lang.reflect.Constructor;
 
 import javax.annotation.Nullable;
 
+import com.zeitheron.hammercore.HammerCore;
+
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.Packet;
+import net.minecraft.server.MinecraftServer;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 
 public class PipelineProxy_Common
@@ -61,5 +65,15 @@ public class PipelineProxy_Common
 		if(getGameSide() == Side.SERVER)
 			return createAndPipeIfOnGameSide(serverClass, getGameSide(), arguments);
 		return null;
+	}
+	
+	public void runFromMainThread(Side side, Runnable task)
+	{
+		MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
+		if(side == Side.SERVER)
+			if(server != null)
+				server.addScheduledTask(task);
+			else
+				HammerCore.LOG.error("Dropped runnable task " + task + "! This shouldn't happen!");
 	}
 }

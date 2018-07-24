@@ -3,6 +3,7 @@ package com.zeitheron.hammercore.net.internal;
 import com.zeitheron.hammercore.HammerCore;
 import com.zeitheron.hammercore.net.HCNet;
 import com.zeitheron.hammercore.net.IPacket;
+import com.zeitheron.hammercore.net.MainThreaded;
 import com.zeitheron.hammercore.net.PacketContext;
 import com.zeitheron.hammercore.net.props.NetPropertyAbstract;
 import com.zeitheron.hammercore.tile.TileSyncable;
@@ -14,6 +15,7 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+@MainThreaded
 public class PacketSetProperty implements IPacket
 {
 	protected NBTTagCompound nbt;

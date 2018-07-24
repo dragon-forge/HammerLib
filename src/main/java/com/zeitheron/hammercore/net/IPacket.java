@@ -50,6 +50,14 @@ public interface IPacket
 		return refractSidedToUniversal() ? execute(Side.SERVER, net) : null;
 	}
 	
+	default boolean executeOnMainThread()
+	{
+		MainThreaded mt = getClass().getAnnotation(MainThreaded.class);
+		if(mt == null)
+			mt = getClass().getDeclaredAnnotation(MainThreaded.class);
+		return mt != null && mt.value();
+	}
+	
 	/**
 	 * Use in static { } body to add handler to this packet.
 	 */

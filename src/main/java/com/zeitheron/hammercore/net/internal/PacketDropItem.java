@@ -1,6 +1,7 @@
 package com.zeitheron.hammercore.net.internal;
 
 import com.zeitheron.hammercore.net.IPacket;
+import com.zeitheron.hammercore.net.MainThreaded;
 import com.zeitheron.hammercore.net.PacketContext;
 
 import net.minecraft.entity.item.EntityItem;
@@ -11,6 +12,7 @@ import net.minecraft.nbt.NBTTagCompound;
 /**
  * If sent to server, creates an {@link EntityItem} at sender's position
  */
+@MainThreaded
 public class PacketDropItem implements IPacket
 {
 	ItemStack stack;

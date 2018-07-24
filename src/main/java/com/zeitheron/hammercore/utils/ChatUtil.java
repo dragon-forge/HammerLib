@@ -1,8 +1,9 @@
 package com.zeitheron.hammercore.utils;
 
 import com.zeitheron.hammercore.HammerCore;
+import com.zeitheron.hammercore.internal.Chat;
+import com.zeitheron.hammercore.internal.Chat.ChatFingerprint;
 import com.zeitheron.hammercore.net.HCNet;
-import com.zeitheron.hammercore.net.internal.PacketNoSpamChat;
 
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
@@ -14,6 +15,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 /**
  * Lets you send messages to player without spamming
  */
+@Deprecated
 public class ChatUtil
 {
 	/**
@@ -176,6 +178,8 @@ public class ChatUtil
 		sendNoSpam(player, wrap(lines));
 	}
 	
+	public static final ChatFingerprint NO_SPAM_FINGERPRINT = new ChatFingerprint(System.currentTimeMillis() + System.nanoTime());
+	
 	/**
 	 * Sends a chat message to the client, deleting past messages also sent via
 	 * this method.
@@ -187,10 +191,9 @@ public class ChatUtil
 	 * @param lines
 	 *            The chat lines to send.
 	 */
-	public static void sendNoSpam(EntityPlayerMP player, ITextComponent... lines)
+	public static void sendNoSpam(EntityPlayerMP player, ITextComponent line)
 	{
-		if(lines.length > 0)
-			HCNet.INSTANCE.sendTo(new PacketNoSpamChat(lines), player);
+		Chat.editMessageFor(player, line, NO_SPAM_FINGERPRINT);
 	}
 	
 	public static ITextComponent[] localizeAll(String... strings)

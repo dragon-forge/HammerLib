@@ -1,6 +1,7 @@
 package com.zeitheron.hammercore.net.internal;
 
 import com.zeitheron.hammercore.net.IPacket;
+import com.zeitheron.hammercore.net.MainThreaded;
 import com.zeitheron.hammercore.net.PacketContext;
 import com.zeitheron.hammercore.tile.TileSyncable;
 import com.zeitheron.hammercore.utils.StrPos;
@@ -11,6 +12,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 
+@MainThreaded
 public class PacketSyncSyncableTile implements IPacket
 {
 	private String pos;

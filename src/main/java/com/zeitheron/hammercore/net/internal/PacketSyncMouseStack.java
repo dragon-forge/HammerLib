@@ -1,6 +1,7 @@
 package com.zeitheron.hammercore.net.internal;
 
 import com.zeitheron.hammercore.net.IPacket;
+import com.zeitheron.hammercore.net.MainThreaded;
 import com.zeitheron.hammercore.net.PacketContext;
 
 import net.minecraft.client.Minecraft;
@@ -9,6 +10,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+@MainThreaded
 public class PacketSyncMouseStack implements IPacket
 {
 	ItemStack mouse;
@@ -31,8 +33,7 @@ public class PacketSyncMouseStack implements IPacket
 	@Override
 	public IPacket executeOnClient(PacketContext net)
 	{
-		Minecraft mc = Minecraft.getMinecraft();
-		mc.addScheduledTask(() -> mc.player.inventory.setItemStack(mouse));
+		Minecraft.getMinecraft().player.inventory.setItemStack(mouse.copy());
 		return null;
 	}
 	

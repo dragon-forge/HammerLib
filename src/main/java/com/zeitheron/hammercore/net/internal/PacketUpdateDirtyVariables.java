@@ -5,6 +5,7 @@ import java.util.Map;
 import com.zeitheron.hammercore.internal.variables.VariableManager;
 import com.zeitheron.hammercore.internal.variables.IVariable;
 import com.zeitheron.hammercore.net.IPacket;
+import com.zeitheron.hammercore.net.MainThreaded;
 import com.zeitheron.hammercore.net.PacketContext;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -12,6 +13,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.fml.relauncher.Side;
 
+@MainThreaded
 public class PacketUpdateDirtyVariables implements IPacket
 {
 	public NBTTagList nbt;

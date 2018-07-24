@@ -3,7 +3,7 @@ package com.zeitheron.hammercore.client.render.player;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.zeitheron.hammercore.specials.zeitheron.ZeitheronRenderer;
+import com.zeitheron.hammercore.specials.Zeitheron.ZeitheronRenderer;
 
 public class PlayerRenderingManager
 {

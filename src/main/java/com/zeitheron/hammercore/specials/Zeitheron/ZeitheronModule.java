@@ -1,4 +1,4 @@
-package com.zeitheron.hammercore.specials.zeitheron;
+package com.zeitheron.hammercore.specials.Zeitheron;
 
 import java.io.IOException;
 import java.util.ArrayList;
