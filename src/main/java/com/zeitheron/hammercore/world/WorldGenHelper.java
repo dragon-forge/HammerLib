@@ -260,7 +260,7 @@ public class WorldGenHelper
 		if(player != null && !player.world.isRemote && player.ticksExisted % 10 == 0)
 			for(int x = -4; x < 4; ++x)
 				for(int z = -4; z < 4; ++z)
-					WorldRetroGen.generateChunk(player.world.getChunkFromBlockCoords(player.getPosition().add(x * 16, 0, z * 16)));
+					WorldRetroGen.generateChunk(player.world.getChunk(player.getPosition().add(x * 16, 0, z * 16)));
 	}
 	
 	@SubscribeEvent

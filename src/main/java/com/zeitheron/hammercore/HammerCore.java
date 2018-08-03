@@ -76,6 +76,8 @@ import com.zeitheron.hammercore.world.data.PerChunkDataManager;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
@@ -111,6 +113,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.registries.IForgeRegistry;
 
 /**
@@ -461,6 +464,11 @@ public class HammerCore
 	public void recipesEvent(RegistryEvent.Register<IRecipe> reg)
 	{
 		IForgeRegistry<IRecipe> fr = reg.getRegistry();
+		
+		fr.register(SimpleRegistration.parseShapelessRecipe(new ItemStack(ItemsHC.MANUAL), new ItemStack(Items.WRITABLE_BOOK), OreDictionary.doesOreNameExist("gearIron") ? "gearIron" : "ingotIron").setRegistryName("hammercore", "manual"));
+		if(ItemsHC.WRENCH != null)
+			fr.register(SimpleRegistration.parseShapedRecipe(new ItemStack(ItemsHC.WRENCH), " i ", " gi", "i  ", 'i', OreDictionary.doesOreNameExist("stickIron") ? "stickIron" : "ingotIron", 'g', OreDictionary.doesOreNameExist("gearIron") ? "gearIron" : "ingotIron").setRegistryName("hammercore", "wrench"));
+		
 		for(RecipeRegistry rr : recipeRegistries)
 			rr //
 			        .collect() //
@@ -549,16 +557,6 @@ public class HammerCore
 		                int r = 16;
 		                int g = 180;
 		                int b = 205 + (int) (sine * 50);
-		                
-		                return ColorHelper.packRGB(r / 255F, g / 255F, b / 255F);
-	                }, true, data[0]), //
-	                new HCAuthor("APengu", TextFormatting.BLUE + "" + TextFormatting.ITALIC + "       " + TextFormatting.RESET + "  ", () ->
-	                {
-		                float sine = .5F * ((float) Math.sin(Math.toRadians(16 * client_ticks)) + 1);
-		                
-		                int r = 16;
-		                int g = 16;
-		                int b = 150 + (int) (80F * sine);
 		                
 		                return ColorHelper.packRGB(r / 255F, g / 255F, b / 255F);
 	                }, true, data[0]), //

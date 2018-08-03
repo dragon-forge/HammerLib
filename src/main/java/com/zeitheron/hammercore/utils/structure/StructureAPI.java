@@ -57,7 +57,7 @@ public class StructureAPI
 		{
 			BlockPos tpos = BlockPos.fromLong(pl);
 			if(!world.isBlockLoaded(tpos))
-				world.getChunkFromBlockCoords(tpos);
+				world.getChunk(tpos);
 			IBlockState src = structure.getStateAt(tpos);
 			IBlockState state = world.getBlockState(tpos.add(centerPos));
 			
@@ -71,7 +71,7 @@ public class StructureAPI
 		{
 			BlockPos tpos = BlockPos.fromLong(pl);
 			if(!world.isBlockLoaded(tpos))
-				world.getChunkFromBlockCoords(tpos);
+				world.getChunk(tpos);
 			TileEntity te = world.getTileEntity(tpos.add(centerPos));
 			
 			NBTTagCompound src = structure.getTileNBTAt(tpos);
@@ -167,7 +167,7 @@ public class StructureAPI
 	
 	public static Structure ParseBuiltin(ResourceLocation resource) throws IOException
 	{
-		URL url = LootTableManager.class.getResource("/assets/" + resource.getResourceDomain() + "/structures/" + resource.getResourcePath() + ".hcstr");
+		URL url = LootTableManager.class.getResource("/assets/" + resource.getNamespace() + "/structures/" + resource.getPath() + ".hcstr");
 		if(url != null)
 		{
 			Scanner s = new Scanner(url.openStream());

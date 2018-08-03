@@ -11,11 +11,13 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 import com.zeitheron.hammercore.bookAPI.fancy.HCFontRenderer.ITooltipContext;
+import com.zeitheron.hammercore.client.utils.RenderUtil;
 import com.zeitheron.hammercore.client.utils.UtilsFX;
 import com.zeitheron.hammercore.client.utils.texture.gui.theme.GuiTheme;
 import com.zeitheron.hammercore.utils.InterItemStack;
 import com.zeitheron.hammercore.utils.InventoryUtils;
 import com.zeitheron.hammercore.utils.color.ColorHelper;
+import com.zeitheron.hammercore.utils.web.URLLocation;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -191,6 +193,8 @@ public class GuiManualRecipe extends GuiScreen implements ITooltipContext
 		int mx2 = mouseX - (sw - 17);
 		int my2 = mouseY - (sh + 189);
 		float bob = MathHelper.sin((mc.player.ticksExisted / 3F)) * .2F + .1F;
+
+		GL11.glColor4f(.75F, .75F, .75F, 1);
 		
 		if(!history.isEmpty())
 		{
@@ -257,6 +261,7 @@ public class GuiManualRecipe extends GuiScreen implements ITooltipContext
 			drawCompoundCraftingPage(side, x - 4, y - 8, mx, my, pageParm);
 		else if(pageParm.type.getRender() != null)
 			pageParm.type.getRender().render(pageParm, side, x - 4, y - 8, mx, my, this);
+		
 		GL11.glAlphaFunc(516, .1F);
 		GL11.glPopAttrib();
 	}
@@ -591,11 +596,12 @@ public class GuiManualRecipe extends GuiScreen implements ITooltipContext
 		sy += y + 59;
 		
 		GL11.glPushMatrix();
-		RenderHelper.enableGUIStandardItemLighting();
+		RenderHelper.disableStandardItemLighting();
 		GL11.glEnable(3042);
 		
-		List tip = fr.drawSplitString(text, x - 15 + side * 152, y, 139, GuiTheme.CURRENT_THEME.textColor, this, this);
+		UtilsFX.bindTexture(ICONS);
 		
+		List tip = fr.drawSplitString(text, x - 15 + side * 152, y, 139, GuiTheme.CURRENT_THEME.textColor, this, this);
 		if(tip != null && !tip.isEmpty())
 		{
 			LinkedList<String> nl = new LinkedList<>();
@@ -634,7 +640,14 @@ public class GuiManualRecipe extends GuiScreen implements ITooltipContext
 						GL11.glEnable('\u803a');
 						GL11.glEnable(2903);
 						GL11.glEnable(2896);
-						mc.getRenderItem().renderItemAndEffectIntoGUI(InventoryUtils.cycleItemStack(res.icon_item), 0, 0);
+						
+						if(res.icon_item instanceof URLLocation)
+						{
+							UtilsFX.bindTextureURL(((URLLocation) res.icon_item).url);
+							RenderUtil.drawFullTexturedModalRect(0, 0, 16, 16);
+						} else
+							mc.getRenderItem().renderItemAndEffectIntoGUI(InventoryUtils.cycleItemStack(res.icon_item), 0, 0);
+						
 						GL11.glDisable(2896);
 						GL11.glDepthMask(true);
 						GL11.glEnable(2929);

@@ -106,7 +106,7 @@ public class ItemBlockMultipartProvider extends Item
 		{
 			if(stack.getTagCompound().hasKey("LastPlaced"))
 				stack.getTagCompound().removeTag("LastPlaced");
-			if(stack.getTagCompound().hasNoTags())
+			if(stack.getTagCompound().isEmpty())
 				stack.setTagCompound(null);
 		}
 	}

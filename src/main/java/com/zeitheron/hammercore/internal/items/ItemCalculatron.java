@@ -14,7 +14,7 @@ public final class ItemCalculatron extends Item
 {
 	public ItemCalculatron()
 	{
-		setUnlocalizedName("calculatron");
+		setTranslationKey("calculatron");
 		setMaxStackSize(1);
 	}
 	

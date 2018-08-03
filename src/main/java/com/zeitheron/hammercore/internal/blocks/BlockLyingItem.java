@@ -32,7 +32,7 @@ public class BlockLyingItem extends Block implements ITileEntityProvider, ITileB
 	public BlockLyingItem()
 	{
 		super(Material.ROCK);
-		setUnlocalizedName("lying_item");
+		setTranslationKey("lying_item");
 	}
 	
 	@Override
@@ -65,7 +65,7 @@ public class BlockLyingItem extends Block implements ITileEntityProvider, ITileB
 	}
 	
 	@Override
-	public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn)
+	public void onEntityCollision(World worldIn, BlockPos pos, IBlockState state, Entity entityIn)
 	{
 		if(entityIn instanceof EntityPlayer)
 		{

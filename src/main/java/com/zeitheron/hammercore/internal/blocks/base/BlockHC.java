@@ -10,7 +10,7 @@ public class BlockHC extends Block
 	public BlockHC(Material material, String name)
 	{
 		super(material);
-		setUnlocalizedName(name);
+		setTranslationKey(name);
 		setResistance(2.0f);
 		setHardness(1.5f);
 	}

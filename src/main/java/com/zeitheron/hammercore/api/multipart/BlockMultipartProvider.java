@@ -27,6 +27,6 @@ public abstract class BlockMultipartProvider extends Block implements IMultipart
 	
 	public Item createItem()
 	{
-		return new ItemBlockMultipartProvider(this).setUnlocalizedName(getUnlocalizedName());
+		return new ItemBlockMultipartProvider(this).setTranslationKey(getTranslationKey());
 	}
 }

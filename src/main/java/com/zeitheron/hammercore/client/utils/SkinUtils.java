@@ -24,7 +24,7 @@ public class SkinUtils
 	{
 		if(uuidProfiles.get(uid) != null)
 			return uuidProfiles.get(uid);
-		GameProfile profile = TileEntitySkull.updateGameprofile(new GameProfile(uid, PlayerUtil.getUsernameFromUUID(uid)));
+		GameProfile profile = TileEntitySkull.updateGameProfile(new GameProfile(uid, PlayerUtil.getUsernameFromUUID(uid)));
 		uuidProfiles.put(uid, profile);
 		return profile;
 	}
@@ -33,14 +33,14 @@ public class SkinUtils
 	{
 		if(nameProfiles.get(username) != null)
 			return nameProfiles.get(username);
-		GameProfile profile = TileEntitySkull.updateGameprofile(new GameProfile(PlayerUtil.getUUIDFromUsername(username), username));
+		GameProfile profile = TileEntitySkull.updateGameProfile(new GameProfile(PlayerUtil.getUUIDFromUsername(username), username));
 		nameProfiles.put(username, profile);
 		return profile;
 	}
 	
 	public static ResourceLocation getSkinTexture(GameProfile profile)
 	{
-		profile = TileEntitySkull.updateGameprofile(profile);
+		profile = TileEntitySkull.updateGameProfile(profile);
 		ResourceLocation resourcelocation = DefaultPlayerSkin.getDefaultSkinLegacy();
 		if(profile != null)
 		{

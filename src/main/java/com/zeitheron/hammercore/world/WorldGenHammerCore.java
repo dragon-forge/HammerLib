@@ -19,7 +19,7 @@ public class WorldGenHammerCore implements IWorldGenerator
 	public void generate(Random random, int chunkX, int chunkZ, World world, IChunkGenerator chunkGenerator, IChunkProvider chunkProvider)
 	{
 		ChunkPos cp = new ChunkPos(chunkX, chunkZ);
-		Chunk c = world.getChunkFromChunkCoords(chunkX, chunkZ);
+		Chunk c = world.getChunk(chunkX, chunkZ);
 		
 		/**
 		 * Handle default retro-gen stuff. This means that chunks that didn't

@@ -8,12 +8,10 @@ public class ManualScale
 	
 	public static float get()
 	{
-		long maxTransition = 250L;
-		
+		long maxTransition = 100L;
 		float curr = target;
 		if(System.currentTimeMillis() - start < maxTransition)
 			curr = prev + (target - prev) * ((System.currentTimeMillis() - start) % maxTransition) / maxTransition;
-		
 		return curr;
 	}
 	

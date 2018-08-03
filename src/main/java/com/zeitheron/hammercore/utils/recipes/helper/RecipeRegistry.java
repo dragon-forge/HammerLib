@@ -30,11 +30,15 @@ public abstract class RecipeRegistry
 	public abstract void crafting();
 	
 	/** Called during init phase. */
-	public abstract void smelting();
+	public void smelting()
+	{
+		
+	}
 	
 	/**
 	 * Also called during init phase. Optional, use to register ore dictionary
 	 */
+	@Deprecated
 	public void oredict()
 	{
 		

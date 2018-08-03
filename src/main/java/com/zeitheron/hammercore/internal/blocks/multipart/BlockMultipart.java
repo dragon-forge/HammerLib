@@ -51,7 +51,7 @@ public class BlockMultipart extends BlockTraceable implements ITileEntityProvide
 	{
 		super(Material.IRON);
 		MinecraftForge.EVENT_BUS.register(this);
-		setUnlocalizedName("multipart");
+		setTranslationKey("multipart");
 	}
 	
 	@Override
@@ -83,7 +83,7 @@ public class BlockMultipart extends BlockTraceable implements ITileEntityProvide
 	}
 	
 	@Override
-	public BlockRenderLayer getBlockLayer()
+	public BlockRenderLayer getRenderLayer()
 	{
 		return BlockRenderLayer.CUTOUT;
 	}

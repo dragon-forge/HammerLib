@@ -248,8 +248,8 @@ public class RenderProxy_Client extends RenderProxy_Common implements IEnchantme
 	{
 		if(item.getClass().getAnnotation(HasNoModel.class) != null || (item instanceof ItemBlock && ((ItemBlock) item).getBlock().getClass().getAnnotation(HasNoModel.class) != null))
 			return;
-		HammerCore.LOG.info("Model definition for location " + item.getUnlocalizedName().substring(5));
-		Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, 0, new ModelResourceLocation(new ResourceLocation(item.getUnlocalizedName().substring(5)), "inventory"));
+		HammerCore.LOG.info("Model definition for location " + item.getTranslationKey().substring(5));
+		Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, 0, new ModelResourceLocation(new ResourceLocation(item.getTranslationKey().substring(5)), "inventory"));
 	}
 	
 	public static void registerRender(Item item, int meta, String modelName)
@@ -352,7 +352,7 @@ public class RenderProxy_Client extends RenderProxy_Common implements IEnchantme
 		{
 			ResourceLocation cape = mp.get(Type.CAPE);
 			
-			if(cape == null || (!cape.getResourceDomain().equals("hammercore") && ServerHCClientPlayerData.getOptionsFor(acp).overrideCape))
+			if(cape == null || (!cape.getNamespace().equals("hammercore") && ServerHCClientPlayerData.getOptionsFor(acp).overrideCape))
 			{
 				if(!customCapes.containsKey(name))
 					return;

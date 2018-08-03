@@ -25,6 +25,7 @@ import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -307,6 +308,9 @@ public class HCFontRenderer
 		this.italicStyle = false;
 		this.underlineStyle = false;
 		this.strikethroughStyle = false;
+		red = 1;
+		green = 1;
+		blue = 1;
 	}
 	
 	private void renderStringAtPos(String par1Str, boolean par2)
@@ -380,6 +384,11 @@ public class HCFontRenderer
 				this.posX -= f;
 				this.posY -= f;
 			}
+			
+			GlStateManager.enableTexture2D();
+			GlStateManager.enableAlpha();
+			GlStateManager.enableBlend();
+			
 			float f1 = this.renderCharAtPos(j, c0, this.italicStyle);
 			if(flag1)
 			{
@@ -611,11 +620,11 @@ public class HCFontRenderer
 		
 		GlStateManager.enableTexture2D();
 		
-		List list = this.listFormattedStringToWidth(par1Str, par4);
-		Iterator iterator = list.iterator();
+		List<String> list = this.listFormattedStringToWidth(par1Str, par4);
+		Iterator<String> iterator = list.iterator();
 		while(iterator.hasNext())
 		{
-			String s1 = (String) iterator.next();
+			String s1 = iterator.next();
 			if(s1.contains("@"))
 			{
 				int i1 = s1.indexOf("@");
@@ -649,7 +658,7 @@ public class HCFontRenderer
 					}
 				}
 			} else
-				renderStringAligned(s1, par2, par3, par4, this.textColor, par5);
+				renderStringAligned(TextFormatting.RESET + s1, par2, par3, par4, this.textColor, par5);
 			par3 += FONT_HEIGHT;
 		}
 		

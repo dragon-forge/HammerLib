@@ -239,7 +239,7 @@ public class TextureUtils
 	
 	public static TextureAtlasSprite getBlockTexture(ResourceLocation location)
 	{
-		return getTexture(new ResourceLocation(location.getResourceDomain(), "blocks/" + location.getResourcePath()));
+		return getTexture(new ResourceLocation(location.getNamespace(), "blocks/" + location.getPath()));
 	}
 	
 	public static TextureAtlasSprite getItemTexture(String string)
@@ -249,7 +249,7 @@ public class TextureUtils
 	
 	public static TextureAtlasSprite getItemTexture(ResourceLocation location)
 	{
-		return getTexture(new ResourceLocation(location.getResourceDomain(), "items/" + location.getResourcePath()));
+		return getTexture(new ResourceLocation(location.getNamespace(), "items/" + location.getPath()));
 	}
 	
 	public static IResource getResource(String location) throws IOException

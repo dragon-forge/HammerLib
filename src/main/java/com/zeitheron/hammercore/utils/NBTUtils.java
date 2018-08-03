@@ -89,7 +89,7 @@ public class NBTUtils
 		if(!stack.isEmpty() && stack.hasTagCompound())
 		{
 			stack.getTagCompound().removeTag(tag);
-			if(stack.getTagCompound().hasNoTags())
+			if(stack.getTagCompound().isEmpty())
 				stack.setTagCompound(null);
 		}
 	}

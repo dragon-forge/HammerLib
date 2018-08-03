@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Random;
 
 import com.zeitheron.hammercore.utils.color.ColorHelper;
+import com.zeitheron.hammercore.utils.web.URLLocation;
 
 import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
@@ -22,7 +23,7 @@ public class ManualEntry
 	public final Object icon_item;
 	public final ResourceLocation icon_resource;
 	private boolean isSpecial;
-	private eEntryShape shape = eEntryShape.SQUARE;
+	private EnumEntryShape shape = EnumEntryShape.SQUARE;
 	private ManualPage[] pages = null;
 	
 	public ManualEntry(String key, String category)
@@ -52,6 +53,16 @@ public class ManualEntry
 	}
 	
 	public ManualEntry(String key, String category, int col, int row, ItemStack icon)
+	{
+		this.key = key;
+		this.category = category;
+		this.icon_item = icon;
+		this.icon_resource = null;
+		this.displayColumn = col;
+		this.displayRow = row;
+	}
+	
+	public ManualEntry(String key, String category, int col, int row, URLLocation icon)
 	{
 		this.key = key;
 		this.category = category;
@@ -145,12 +156,19 @@ public class ManualEntry
 		return this.isSpecial;
 	}
 	
+	@Deprecated
 	public eEntryShape getShape()
 	{
-		return this.shape;
+		return eEntryShape.values()[this.shape.ordinal()];
 	}
 	
+	@Deprecated
 	public ManualEntry setShape(eEntryShape shape)
+	{
+		return setShape(EnumEntryShape.values()[shape.ordinal()]);
+	}
+	
+	public ManualEntry setShape(EnumEntryShape shape)
 	{
 		this.shape = shape;
 		return this;
@@ -168,6 +186,11 @@ public class ManualEntry
 	}
 	
 	public enum eEntryShape
+	{
+		SQUARE, ROUND, HEX;
+	}
+	
+	public enum EnumEntryShape
 	{
 		SQUARE, ROUND, HEX;
 	}

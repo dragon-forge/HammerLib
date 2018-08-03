@@ -40,6 +40,21 @@ public class RenderUtil
 		tess.draw();
 	}
 	
+	public static void drawFullTexturedModalRect(double x, double y, double width, double height)
+	{
+		float n = 0.00390625F;
+		Tessellator tess = Tessellator.getInstance();
+		BufferBuilder vb = tess.getBuffer();
+		vb.begin(7, DefaultVertexFormats.POSITION_TEX);
+		
+		vb.pos(x, y + height, zLevel).tex(0, 1).endVertex();
+		vb.pos(x + width, y + height, zLevel).tex(1, 1).endVertex();
+		vb.pos(x + width, y, zLevel).tex(1, 0).endVertex();
+		vb.pos(x, y, zLevel).tex(0, 0).endVertex();
+		
+		tess.draw();
+	}
+	
 	public static void drawColoredModalRect(double x, double y, double width, double height, int rgb)
 	{
 		float r = ColorHelper.getRed(rgb), g = ColorHelper.getGreen(rgb), b = ColorHelper.getBlue(rgb), a = ColorHelper.getAlpha(rgb);

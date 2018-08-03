@@ -52,7 +52,7 @@ public class Structure
 			IBlockState state = getStateAt(pos);
 			world.setBlockState(tpos, state);
 			if(!world.isBlockLoaded(tpos))
-				world.getChunkFromBlockCoords(tpos);
+				world.getChunk(tpos);
 			if(nbt != null)
 			{
 				nbt = nbt.copy();

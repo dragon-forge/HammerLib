@@ -56,7 +56,7 @@ public class UtilsFX
 	
 	public static void bindTexture(ResourceLocation loca)
 	{
-		bindTexture(loca.getResourceDomain(), loca.getResourcePath());
+		bindTexture(loca.getNamespace(), loca.getPath());
 	}
 	
 	public static void bindTexture(String dom, String tex)

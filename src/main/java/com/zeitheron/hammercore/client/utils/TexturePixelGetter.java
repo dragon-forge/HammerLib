@@ -35,7 +35,7 @@ public class TexturePixelGetter
 		if(spr == null)
 			spr = Minecraft.getMinecraft().getTextureMapBlocks().getMissingSprite();
 		ResourceLocation resourcelocation = new ResourceLocation(spr.getIconName());
-		return getAllColors(resourcelocation.getResourceDomain() + ":" + String.format("%s/%s%s", "textures", resourcelocation.getResourcePath(), ".png"));
+		return getAllColors(resourcelocation.getNamespace() + ":" + String.format("%s/%s%s", "textures", resourcelocation.getPath(), ".png"));
 	}
 	
 	public static int[] getAllColors(String texture)

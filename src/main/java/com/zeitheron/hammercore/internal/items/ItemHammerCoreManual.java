@@ -13,7 +13,7 @@ public class ItemHammerCoreManual extends Item
 {
 	public ItemHammerCoreManual()
 	{
-		setUnlocalizedName("manual");
+		setTranslationKey("manual");
 		setMaxStackSize(1);
 	}
 	

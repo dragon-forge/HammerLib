@@ -54,7 +54,7 @@ public class MasterEndermanModule extends PerUserModule
 			RayTraceResult hit = RayTracer.retrace(Minecraft.getMinecraft().player, 128);
 			if(hit != null && hit.typeOfHit == Type.BLOCK)
 			{
-				Vec3d target = new Vec3d(hit.getBlockPos().offset(hit.sideHit)).addVector(.5, .5, .5);
+				Vec3d target = new Vec3d(hit.getBlockPos().offset(hit.sideHit)).add(.5, .5, .5);
 				HCNet.INSTANCE.sendToServer(new PacketTeleportPlayer().withTarget(target));
 			}
 		}

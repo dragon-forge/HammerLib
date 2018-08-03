@@ -13,10 +13,12 @@ import org.lwjgl.opengl.GL11;
 
 import com.zeitheron.hammercore.bookAPI.fancy.ManualEntry.eEntryShape;
 import com.zeitheron.hammercore.client.utils.RenderUtil;
+import com.zeitheron.hammercore.client.utils.TooltipHelper;
 import com.zeitheron.hammercore.client.utils.UtilsFX;
 import com.zeitheron.hammercore.client.utils.texture.gui.theme.GuiTheme;
 import com.zeitheron.hammercore.utils.InventoryUtils;
 import com.zeitheron.hammercore.utils.color.ColorHelper;
+import com.zeitheron.hammercore.utils.web.URLLocation;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -31,6 +33,7 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.text.TextFormatting;
 
 public class GuiHammerManual extends GuiScreen
 {
@@ -345,7 +348,14 @@ public class GuiHammerManual extends GuiScreen
 					GL11.glEnable('\u803a');
 					GL11.glEnable(2903);
 					GL11.glEnable(2896);
-					var43.renderItemAndEffectIntoGUI(InventoryUtils.cycleItemStack(var45.icon_item), 0, 0);
+					
+					if(var45.icon_item instanceof URLLocation)
+					{
+						UtilsFX.bindTextureURL(((URLLocation) var45.icon_item).url);
+						RenderUtil.drawFullTexturedModalRect(0, 0, 16, 16);
+					} else
+						var43.renderItemAndEffectIntoGUI(InventoryUtils.cycleItemStack(var45.icon_item), 0, 0);
+					
 					GL11.glDisable(2896);
 					GL11.glDepthMask(true);
 					GL11.glEnable(2929);
@@ -464,19 +474,28 @@ public class GuiHammerManual extends GuiScreen
 		if(this.currentHighlight != null)
 		{
 			String var51 = this.currentHighlight.getName();
-			var26 = par1 + 6;
-			var27 = par2 - 4;
-			int var52 = 0;
+			var26 = par1 + 12;
+			var27 = par2 - 12;
+			int var52 = 4;
 			FontRenderer var53 = this.fontRenderer;
 			
-			var42 = (int) Math.max(var53.getStringWidth(var51), var53.getStringWidth(this.currentHighlight.getText()) / 1.9F);
+			var42 = (int) Math.max(var53.getStringWidth(var51), var53.getStringWidth(this.currentHighlight.getText()) * 1);
 			var44 = var53.getWordWrappedHeight(var51, var42) + 5;
 			
+			GL11.glColor4f(1, 1, 1, 1);
+			
 			this.drawGradientRect(var26 - 3, var27 - 3, var26 + var42 + 3, var27 + var44 + 6 + var52, -1073741824, -1073741824);
+			
+			GL11.glPushMatrix();
+			GL11.glTranslated(var26 + 1, var27 + var44 - 3, 0);
+			GL11.glRotated(-90, 0, 0, 1);
+			RenderUtil.drawGradientRect(0, 0, 1, (var42 - 1) / 2, 0x00000000, 255 << 24 | currentHighlight.getColor());
+			RenderUtil.drawGradientRect(0, (var42 - 1) / 2, 1, (var42 - 1) / 2, 255 << 24 | currentHighlight.getColor(), 0x00000000);
+			GL11.glPopMatrix();
+			
 			GL11.glPushMatrix();
 			GL11.glTranslatef(var26, var27 + var44 - 1, 0.0F);
-			GL11.glScalef(0.5F, 0.5F, 0.5F);
-			this.fontRenderer.drawStringWithShadow(this.currentHighlight.getText(), 0, 0, -7302913);
+			var53.drawStringWithShadow(this.currentHighlight.getText(), 0, 0, -7302913);
 			GL11.glPopMatrix();
 			
 			var53.drawStringWithShadow(var51, var26, var27, this.currentHighlight.isSpecial() ? -128 : -1);

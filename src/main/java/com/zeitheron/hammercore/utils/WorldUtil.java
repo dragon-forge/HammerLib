@@ -86,7 +86,7 @@ public class WorldUtil
 	
 	public static EnumFacing getFacing(int meta)
 	{
-		return EnumFacing.getFront(meta & 7);
+		return EnumFacing.byIndex(meta & 7);
 	}
 	
 	public static boolean isEnabled(int meta)
@@ -128,16 +128,17 @@ public class WorldUtil
 	{
 		if(!mp.world.isRemote)
 		{
-//			if(mp.world.provider.getDimension() != dim)
-//			{
-//				MinecraftServer server = mp.mcServer;
-//				WorldServer nev = server.getWorld(dim);
-//				server.getPlayerList().transferPlayerToDimension(mp, dim, new BlankTeleporter(nev));
-//			}
+			// if(mp.world.provider.getDimension() != dim)
+			// {
+			// MinecraftServer server = mp.mcServer;
+			// WorldServer nev = server.getWorld(dim);
+			// server.getPlayerList().transferPlayerToDimension(mp, dim, new
+			// BlankTeleporter(nev));
+			// }
 			
 			TeleporterDimPos.of(x, y, z, dim).teleport(mp);
 			
-//			mp.setPositionAndUpdate(x, y, z);
+			// mp.setPositionAndUpdate(x, y, z);
 		}
 	}
 	

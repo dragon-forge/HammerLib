@@ -175,7 +175,7 @@ public class WorldLocation
 			int i = pos.getX() & 15;
 			int j = pos.getZ() & 15;
 			int id = j << 4 | i;
-			Chunk c = world.getChunkFromBlockCoords(pos);
+			Chunk c = world.getChunk(pos);
 			byte[] blockBiomeArray = c.getBiomeArray();
 			blockBiomeArray[id] = (byte) (Biome.getIdForBiome(biome) & 255);
 			c.setBiomeArray(blockBiomeArray);
@@ -254,7 +254,7 @@ public class WorldLocation
 	
 	public int getRedstone()
 	{
-		return isLoaded() ? world.isBlockIndirectlyGettingPowered(pos) : 0;
+		return isLoaded() ? world.getRedstonePowerFromNeighbors(pos) : 0;
 	}
 	
 	public void markDirty()
@@ -264,14 +264,14 @@ public class WorldLocation
 	
 	public Chunk getChunk()
 	{
-		return world.getChunkFromBlockCoords(pos);
+		return world.getChunk(pos);
 	}
 	
 	public void markDirty(int flags)
 	{
 		if(world.isRemote)
 			return;
-		world.markAndNotifyBlock(pos, world.getChunkFromBlockCoords(pos), getState(), getState(), flags);
+		world.markAndNotifyBlock(pos, world.getChunk(pos), getState(), getState(), flags);
 		TileSyncable sync = getTileOfType(TileSyncable.class);
 		if(sync != null)
 			sync.sync();

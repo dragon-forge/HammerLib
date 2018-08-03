@@ -41,7 +41,7 @@ public class ParticleSlowZap extends SimpleParticle
 		particleMaxAge = maxTicks;
 		Vec3d vs = new Vec3d(0, 0, 0);
 		Vec3d ve = new Vec3d(tX, tY, tZ);
-		length = (float) (ve.lengthVector() * Math.PI + maxTicks / 3F * Math.PI);
+		length = (float) (ve.length() * Math.PI + maxTicks / 3F * Math.PI);
 		dr = (float) (rand.nextInt(50) * Math.PI);
 		seed = rand.nextLong();
 	}

@@ -28,15 +28,17 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.SoundEvent;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.oredict.OreDictionary;
+import net.minecraftforge.oredict.OreIngredient;
 
 public class SimpleRegistration
 {
 	public static ShapedRecipes parseShapedRecipe(ItemStack stack, Object... recipeComponents)
 	{
 		ModContainer mc = Loader.instance().activeModContainer();
-		String name = (mc != null ? mc.getModId() : "hammercore") + ":" + stack.getUnlocalizedName();
+		String name = (mc != null ? mc.getModId() : "hammercore") + ":" + stack.getTranslationKey();
 		String s = "";
 		int i = 0;
 		int j = 0;
@@ -63,23 +65,31 @@ public class SimpleRegistration
 			}
 		}
 		
-		Map<Character, ItemStack[]> map;
+		Map<Character, Ingredient> map;
 		
-		for(map = Maps.<Character, ItemStack[]> newHashMap(); i < recipeComponents.length; i += 2)
+		for(map = Maps.<Character, Ingredient> newHashMap(); i < recipeComponents.length; i += 2)
 		{
 			Character character = (Character) recipeComponents[i];
-			List<ItemStack> itemstack = new ArrayList<ItemStack>();
+			Ingredient ingr = null;
 			
 			if(recipeComponents[i + 1] instanceof Item)
-				itemstack.add(new ItemStack((Item) recipeComponents[i + 1]));
+				ingr = Ingredient.fromItem((Item) recipeComponents[i + 1]);
 			else if(recipeComponents[i + 1] instanceof Block)
-				itemstack.add(new ItemStack((Block) recipeComponents[i + 1], 1, OreDictionary.WILDCARD_VALUE));
+				ingr = Ingredient.fromItem(Item.getItemFromBlock((Block) recipeComponents[i + 1]));
 			else if(recipeComponents[i + 1] instanceof ItemStack)
-				itemstack.add(((ItemStack) recipeComponents[i + 1]).copy());
-			else if(recipeComponents[i + 1] instanceof String)
-				itemstack.addAll(OreDictionary.getOres(recipeComponents[i + 1] + ""));
+				ingr = Ingredient.fromStacks(((ItemStack) recipeComponents[i + 1]).copy());
+			else if(recipeComponents[i + 1] instanceof ItemStack[])
+			{
+				ItemStack[] items = ((ItemStack[]) recipeComponents[i + 1]).clone();
+				for(int l = 0; l < items.length; ++l)
+					items[l] = items[l].copy();
+				ingr = Ingredient.fromStacks(items);
+			} else if(recipeComponents[i + 1] instanceof String)
+				ingr = new OreIngredient(recipeComponents[i + 1] + "");
+			else if(recipeComponents[i + 1] instanceof Ingredient)
+				ingr = (Ingredient) recipeComponents[i + 1];
 			
-			map.put(character, itemstack.toArray(new ItemStack[0]));
+			map.put(character, ingr);
 		}
 		
 		NonNullList<Ingredient> aitemstack = NonNullList.withSize(j * k, Ingredient.EMPTY);
@@ -89,7 +99,7 @@ public class SimpleRegistration
 			char c0 = s.charAt(l);
 			
 			if(map.containsKey(Character.valueOf(c0)))
-				aitemstack.set(l, Ingredient.fromStacks(map.get(Character.valueOf(c0))));
+				aitemstack.set(l, map.get(Character.valueOf(c0)));
 		}
 		
 		return new ShapedRecipes(name, j, k, aitemstack, stack);
@@ -109,23 +119,34 @@ public class SimpleRegistration
 	public static ShapelessRecipes parseShapelessRecipe(ItemStack stack, Object... recipeComponents)
 	{
 		ModContainer mc = Loader.instance().activeModContainer();
-		String name = (mc != null ? mc.getModId() : "hammercore") + ":" + stack.getUnlocalizedName();
+		String name = (mc != null ? mc.getModId() : "hammercore") + ":" + stack.getTranslationKey();
 		NonNullList<Ingredient> list = NonNullList.create();
 		
 		for(Object object : recipeComponents)
 		{
-			if(object instanceof ItemStack)
-				list.add(Ingredient.fromStacks(((ItemStack) object).copy()));
-			else if(object instanceof Item)
-				list.add(Ingredient.fromStacks(new ItemStack((Item) object)));
-			else if(object instanceof String)
-				list.add(Ingredient.fromStacks(OreDictionary.getOres(object + "").toArray(new ItemStack[0])));
-			else
+			Ingredient ingr = null;
+			
+			if(object instanceof Item)
+				ingr = Ingredient.fromItem((Item) object);
+			else if(object instanceof Block)
+				ingr = Ingredient.fromItem(Item.getItemFromBlock((Block) object));
+			else if(object instanceof ItemStack)
+				ingr = Ingredient.fromStacks(((ItemStack) object).copy());
+			else if(object instanceof ItemStack[])
 			{
-				if(!(object instanceof Block))
-					throw new IllegalArgumentException("Invalid shapeless recipe: unknown type " + object.getClass().getName() + "!");
-				list.add(Ingredient.fromStacks(new ItemStack((Block) object)));
-			}
+				ItemStack[] items = ((ItemStack[]) object).clone();
+				for(int l = 0; l < items.length; ++l)
+					items[l] = items[l].copy();
+				ingr = Ingredient.fromStacks(items);
+			} else if(object instanceof String)
+				ingr = new OreIngredient(object + "");
+			else if(object instanceof Ingredient)
+				ingr = (Ingredient) object;
+			
+			if(ingr != null)
+				list.add(ingr);
+			else
+				throw new IllegalArgumentException("Invalid shapeless recipe: unknown type " + object.getClass().getName() + "!");
 		}
 		
 		return new ShapelessRecipes(name, stack, list);
@@ -186,12 +207,12 @@ public class SimpleRegistration
 	{
 		if(item == null)
 			return;
-		String name = item.getUnlocalizedName().substring("item.".length());
+		String name = item.getTranslationKey().substring("item.".length());
 		item.setRegistryName(modid, name);
-		item.setUnlocalizedName(modid + ":" + name);
+		item.setTranslationKey(modid + ":" + name);
 		if(tab != null)
 			item.setCreativeTab(tab);
-		GameRegistry.findRegistry(Item.class).register(item);
+		ForgeRegistries.ITEMS.register(item);
 		if(item instanceof IRegisterListener)
 			((IRegisterListener) item).onRegistered();
 		
@@ -202,8 +223,8 @@ public class SimpleRegistration
 	{
 		if(block == null)
 			return;
-		String name = block.getUnlocalizedName().substring("tile.".length());
-		block.setUnlocalizedName(modid + ":" + name);
+		String name = block.getTranslationKey().substring("tile.".length());
+		block.setTranslationKey(modid + ":" + name);
 		block.setCreativeTab(tab);
 		
 		// ItemBlockDefinition
@@ -217,9 +238,9 @@ public class SimpleRegistration
 			ib = new ItemBlock(block);
 		
 		block.setRegistryName(modid, name);
-		GameRegistry.findRegistry(Block.class).register(block);
+		ForgeRegistries.BLOCKS.register(block);
 		if(!(block instanceof INoItemBlock))
-			GameRegistry.findRegistry(Item.class).register(ib.setRegistryName(block.getRegistryName()));
+			ForgeRegistries.ITEMS.register(ib.setRegistryName(block.getRegistryName()));
 		
 		if(block instanceof IRegisterListener)
 			((IRegisterListener) block).onRegistered();
@@ -230,7 +251,7 @@ public class SimpleRegistration
 			
 			// Better registration of tiles. Maybe this will fix tile
 			// disappearing?
-			GameRegistry.registerTileEntity(c, modid + ":" + c.getName().substring(c.getName().lastIndexOf(".") + 1).toLowerCase());
+			TileEntity.register(modid + ":" + c.getName().substring(c.getName().lastIndexOf(".") + 1).toLowerCase(), c);
 		} else if(block instanceof ITileEntityProvider)
 		{
 			ITileEntityProvider te = (ITileEntityProvider) block;
@@ -238,7 +259,7 @@ public class SimpleRegistration
 			if(t != null)
 			{
 				Class c = t.getClass();
-				GameRegistry.registerTileEntity(c, modid + ":" + c.getName().substring(c.getName().lastIndexOf(".") + 1).toLowerCase());
+				TileEntity.register(modid + ":" + c.getName().substring(c.getName().lastIndexOf(".") + 1).toLowerCase(), c);
 			}
 		}
 		

@@ -62,7 +62,7 @@ public class PacketSetBiome implements IPacket
 		if(world == null)
 			return null;
 		
-		Chunk c = world.getChunkFromBlockCoords(pos);
+		Chunk c = world.getChunk(pos);
 		
 		if(c == null)
 			return null;

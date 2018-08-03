@@ -38,7 +38,7 @@ public class ItemContainer implements Predicate<ItemStack>
 		if(ods.endsWith(";"))
 			ods = ods.substring(0, ods.length() - 1);
 		oredictNames = ods;
-		mod = stack.getItem().getRegistryName().getResourceDomain();
+		mod = stack.getItem().getRegistryName().getNamespace();
 		damage = stack.getItemDamage();
 		type = 0;
 	}

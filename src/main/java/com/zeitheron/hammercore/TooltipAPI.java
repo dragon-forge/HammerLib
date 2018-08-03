@@ -41,7 +41,7 @@ public class TooltipAPI
 			int i = 0;
 			while(true)
 			{
-				String b = evt.getItemStack().getUnlocalizedName() + ".tooltip" + i;
+				String b = evt.getItemStack().getTranslationKey() + ".tooltip" + i;
 				String l = I18n.format(b);
 				if(b.equals(l))
 					break;

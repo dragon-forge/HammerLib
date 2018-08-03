@@ -28,7 +28,7 @@ public class FluidContainer
 		if(ods.endsWith(";"))
 			ods = ods.substring(0, ods.length() - 1);
 		fluiddictNames = ods;
-		mod = stack.getFluid().getBlock().delegate.name().getResourceDomain();
+		mod = stack.getFluid().getBlock().delegate.name().getNamespace();
 		type = 0;
 	}
 	

@@ -35,7 +35,7 @@ public class ParticleZap extends SimpleParticle
 		particleMaxAge = 3;
 		Vec3d vs = new Vec3d(0, 0, 0);
 		Vec3d ve = new Vec3d(tX, tY, tZ);
-		length = ((float) (ve.lengthVector() * 3.141592653589793));
+		length = ((float) (ve.length() * 3.141592653589793));
 		int steps = (int) length;
 		points.add(vs);
 		pointsWidth.add(1F);

@@ -242,7 +242,7 @@ public class TileMultipart extends TileSyncableTickable implements IHandlerProvi
 		if(signatures().size() > 100)
 			world.destroyBlock(getPos(), false);
 		for(MultipartSignature s : signatures())
-			if(s.getBoundingBox() != null && s.getBoundingBox().intersects(pos.addVector(-.0001, -.0001, -.0001), pos.addVector(.0001, .0001, .0001)))
+			if(s.getBoundingBox() != null && s.getBoundingBox().intersects(pos.add(-.0001, -.0001, -.0001), pos.add(.0001, .0001, .0001)))
 				return s;
 		return null;
 	}

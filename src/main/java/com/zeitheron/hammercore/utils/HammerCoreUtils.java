@@ -16,13 +16,13 @@ public class HammerCoreUtils
 		return new CreativeTabs(name)
 		{
 			@Override
-			public ItemStack getIconItemStack()
+			public ItemStack getIcon()
 			{
 				return iconStack.copy();
 			}
 			
 			@Override
-			public ItemStack getTabIconItem()
+			public ItemStack createIcon()
 			{
 				return iconStack.copy();
 			}
@@ -34,7 +34,7 @@ public class HammerCoreUtils
 		return new CreativeTabs(name)
 		{
 			@Override
-			public ItemStack getIconItemStack()
+			public ItemStack createIcon()
 			{
 				NonNullList<ItemStack> items = NonNullList.create();
 				displayAllRelevantItems(items);
@@ -46,9 +46,9 @@ public class HammerCoreUtils
 			}
 			
 			@Override
-			public ItemStack getTabIconItem()
+			public ItemStack getIcon()
 			{
-				return getIconItemStack();
+				return createIcon();
 			}
 		};
 	}

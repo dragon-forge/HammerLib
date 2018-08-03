@@ -197,7 +197,7 @@ public abstract class TESR<T extends TileEntity> extends TileEntitySpecialRender
 		NBTTagCompound tags = stack.getTagCompound();
 		if(tags != null)
 			tags = tags.getCompoundTag("BlockEntityTag");
-		if(tags != null && !tags.hasNoTags())
+		if(tags != null && !tags.isEmpty())
 			return tags.getCompoundTag("Tags");
 		return null;
 	}
