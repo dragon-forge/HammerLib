@@ -51,7 +51,11 @@ public class SplashTextHelper
 		}, ident));
 	}
 	
-	/** Gets the edited splash text */
+	/**
+	 * @param sp
+	 *            The source splash text
+	 * @return The edited splash text
+	 */
 	public static String handle(String sp)
 	{
 		if(splash != null)

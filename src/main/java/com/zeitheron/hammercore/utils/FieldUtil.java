@@ -14,13 +14,20 @@ public class FieldUtil
 {
 	/**
 	 * Writes all possible variables to NBT, including privates if you want to
+	 * 
+	 * @param obj
+	 *            The object to write it's fields
+	 * @param to
+	 *            The NBT tag to write to
+	 * @param privates
+	 *            Include private variables
 	 */
 	public static void writeFieldsToNBT(Object obj, NBTTagCompound to, boolean privates)
 	{
 		try
 		{
 			Class<? extends Object> c = obj.getClass();
-			Field[] fs = c.getFields();
+			Field[] fs = c.getDeclaredFields();
 			
 			for(Field f : fs)
 			{
@@ -67,6 +74,11 @@ public class FieldUtil
 	
 	/**
 	 * Sets all variables that were found in NBT tag compound
+	 * 
+	 * @param to
+	 *            The object to read it's fields
+	 * @param from
+	 *            The NBT tag to read from
 	 */
 	public static void readFieldsFromNBT(Object to, NBTTagCompound from)
 	{

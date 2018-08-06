@@ -16,6 +16,8 @@ public class TeslaAPI
 	
 	/**
 	 * Refreshes all Tesla class data, should be called, when loading world
+	 * 
+	 * @return The amount of classes found
 	 **/
 	public static int refreshTeslaClassData()
 	{
@@ -30,6 +32,8 @@ public class TeslaAPI
 	/**
 	 * Checks if a subclass of Tesla|API exists
 	 * 
+	 * @param api
+	 *            The API subclass
 	 * @return class The Tesla|API subclass or null, if not present
 	 **/
 	public static Class teslaClassExists(String api)
@@ -49,6 +53,10 @@ public class TeslaAPI
 	
 	/**
 	 * Checks if given {@link TileEntity} is ITeslaConsumer
+	 * 
+	 * @param tile
+	 *            The tile to check
+	 * @return if the tile is a consumer
 	 **/
 	public static boolean isTeslaConsumer(TileEntity tile)
 	{
@@ -57,6 +65,10 @@ public class TeslaAPI
 	
 	/**
 	 * Checks if given {@link TileEntity} is ITeslaHolder
+	 * 
+	 * @param tile
+	 *            The tile to check
+	 * @return if the tile is a holder
 	 **/
 	public static boolean isTeslaHolder(TileEntity tile)
 	{
@@ -65,6 +77,10 @@ public class TeslaAPI
 	
 	/**
 	 * Checks if given {@link TileEntity} is ITeslaProducer
+	 * 
+	 * @param tile
+	 *            The tile to check
+	 * @return if the tile is a producer
 	 **/
 	public static boolean isTeslaProducer(TileEntity tile)
 	{
@@ -74,6 +90,8 @@ public class TeslaAPI
 	/**
 	 * Offers power to the Tesla Consumer.
 	 * 
+	 * @param consumer
+	 *            The consumer tile
 	 * @param power
 	 *            The amount of power to offer.
 	 * @param simulated
@@ -101,6 +119,8 @@ public class TeslaAPI
 	/**
 	 * Gets the amount of Tesla power stored being stored.
 	 * 
+	 * @param holder
+	 *            The holder tile
 	 * @return The amount of Tesla power being stored.
 	 */
 	public static long getStoredPowerInHolder(TileEntity holder)
@@ -122,6 +142,8 @@ public class TeslaAPI
 	/**
 	 * Gets the maximum amount of Tesla power that can be held.
 	 * 
+	 * @param holder
+	 *            The holder tile
 	 * @return The maximum amount of Tesla power that can be held.
 	 */
 	public static long getCapacityPowerInHolder(TileEntity holder)
@@ -143,6 +165,8 @@ public class TeslaAPI
 	/**
 	 * Requests an amount of power from the Tesla Producer.
 	 * 
+	 * @param producer
+	 *            The producer tile
 	 * @param power
 	 *            The amount of power to request.
 	 * @param simulated

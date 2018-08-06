@@ -16,7 +16,7 @@ import net.minecraft.world.World;
 public interface ITileBlock<T extends TileEntity> extends ITileEntityProvider
 {
 	/**
-	 * Gets the class of {@link TileEntity} that will be registered.
+	 * @return The class of {@link TileEntity} that will be registered.
 	 */
 	public Class<T> getTileClass();
 	

@@ -22,6 +22,9 @@ public class GameRules
 	/**
 	 * Registers a gamerule to the game. Call under
 	 * {@link FMLPreInitializationEvent}
+	 * 
+	 * @param entry
+	 *            The entry to register
 	 */
 	public static void registerGameRule(GameRuleEntry entry)
 	{
@@ -30,6 +33,10 @@ public class GameRules
 	
 	/**
 	 * Gets the registered gamerule by the id.
+	 * 
+	 * @param name
+	 *            The name of custom gamerule to obtain
+	 * @return The registered gamerule, or NIL
 	 */
 	@Nonnull
 	public static GameRuleEntry getEntry(String name)
@@ -39,6 +46,9 @@ public class GameRules
 	
 	/**
 	 * Internal method.
+	 * 
+	 * @param server
+	 *            The server
 	 */
 	public static void load(MinecraftServer server)
 	{

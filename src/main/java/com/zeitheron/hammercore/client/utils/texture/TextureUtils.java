@@ -71,6 +71,8 @@ public class TextureUtils
 	}
 	
 	/**
+	 * @param resource
+	 *            The path to a texture
 	 * @return an array of ARGB pixel data
 	 */
 	public static int[] loadTextureData(ResourceLocation resource)
@@ -191,6 +193,12 @@ public class TextureUtils
 	 * Uses an empty placeholder texture to tell if the map has been reloaded
 	 * since the last call to refresh texture and the texture with name needs to
 	 * be reacquired to be valid
+	 * 
+	 * @param map
+	 *            Texture Map
+	 * @param name
+	 *            Name
+	 * @return If texture was refreshed
 	 */
 	public static boolean refreshTexture(TextureMap map, String name)
 	{
@@ -357,5 +365,4 @@ public class TextureUtils
 		}
 		return null;
 	}
-	
 }

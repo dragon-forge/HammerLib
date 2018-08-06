@@ -112,6 +112,25 @@ public class WorldGenHelper
 	/**
 	 * Generates a flower. WARNING: This method obtains world's height so you
 	 * don't have to specify y level
+	 * 
+	 * @param flower
+	 *            The {@link IBlockState} of the flower
+	 * @param rand
+	 *            The random
+	 * @param world
+	 *            The world
+	 * @param basePos
+	 *            The position
+	 * @param maxSpawnRad
+	 *            The maximal spread radius
+	 * @param minFlowers
+	 *            The minimal amount of flowers
+	 * @param maxFlowers
+	 *            The maximal amount of flowers
+	 * @param oneChunkOnly
+	 *            Should flowers spawn in one chunk only
+	 * @param soilChecker
+	 *            What blocks should flowers be planted on
 	 */
 	public static void generateFlowerOnSameY(IBlockState flower, Random rand, World world, BlockPos basePos, int maxSpawnRad, int minFlowers, int maxFlowers, boolean oneChunkOnly, Predicate<IBlockState> soilChecker)
 	{

@@ -86,6 +86,9 @@ public class JSONStringer
 	 * a call to {@link #endArray}.
 	 *
 	 * @return this stringer.
+	 * 
+	 * @throws JSONException
+	 *             The JSON exception
 	 */
 	public JSONStringer array() throws JSONException
 	{
@@ -96,6 +99,9 @@ public class JSONStringer
 	 * Ends encoding the current array.
 	 *
 	 * @return this stringer.
+	 * 
+	 * @throws JSONException
+	 *             The JSON exception
 	 */
 	public JSONStringer endArray() throws JSONException
 	{
@@ -107,6 +113,9 @@ public class JSONStringer
 	 * with a call to {@link #endObject}.
 	 *
 	 * @return this stringer.
+	 * 
+	 * @throws JSONException
+	 *             The JSON exception
 	 */
 	public JSONStringer object() throws JSONException
 	{
@@ -117,6 +126,9 @@ public class JSONStringer
 	 * Ends encoding the current object.
 	 *
 	 * @return this stringer.
+	 * 
+	 * @throws JSONException
+	 *             The JSON exception
 	 */
 	public JSONStringer endObject() throws JSONException
 	{
@@ -126,6 +138,15 @@ public class JSONStringer
 	/**
 	 * Enters a new scope by appending any necessary whitespace and the given
 	 * bracket.
+	 * 
+	 * @param empty
+	 *            Scope
+	 * @param openBracket
+	 *            String
+	 * @return this stringer.
+	 * 
+	 * @throws JSONException
+	 *             The JSON exception
 	 */
 	JSONStringer open(Scope empty, String openBracket) throws JSONException
 	{
@@ -142,6 +163,17 @@ public class JSONStringer
 	/**
 	 * Closes the current scope by appending any necessary whitespace and the
 	 * given bracket.
+	 * 
+	 * @param empty
+	 *            Scope
+	 * @param nonempty
+	 *            Scope
+	 * @param closeBracket
+	 *            String
+	 * @return this stringer.
+	 * 
+	 * @throws JSONException
+	 *             The JSON exception
 	 */
 	JSONStringer close(Scope empty, Scope nonempty, String closeBracket) throws JSONException
 	{
@@ -162,6 +194,11 @@ public class JSONStringer
 	
 	/**
 	 * Returns the value on the top of the stack.
+	 * 
+	 * @return Scope
+	 * 
+	 * @throws JSONException
+	 *             The JSON exception
 	 */
 	private Scope peek() throws JSONException
 	{
@@ -174,6 +211,9 @@ public class JSONStringer
 	
 	/**
 	 * Replace the value on the top of the stack with the given value.
+	 * 
+	 * @param topOfStack
+	 *            Scope
 	 */
 	private void replaceTop(Scope topOfStack)
 	{
@@ -189,6 +229,9 @@ public class JSONStringer
 	 *            {@link Double#isNaN() NaNs} or {@link Double#isInfinite()
 	 *            infinities}.
 	 * @return this stringer.
+	 * 
+	 * @throws JSONException
+	 *             The JSON exception
 	 */
 	public JSONStringer value(Object value) throws JSONException
 	{
@@ -229,7 +272,12 @@ public class JSONStringer
 	/**
 	 * Encodes {@code value} to this stringer.
 	 *
+	 * @param value
+	 *            boolean
 	 * @return this stringer.
+	 * 
+	 * @throws JSONException
+	 *             The JSON exception
 	 */
 	public JSONStringer value(boolean value) throws JSONException
 	{
@@ -249,13 +297,14 @@ public class JSONStringer
 	 *            a finite value. May not be {@link Double#isNaN() NaNs} or
 	 *            {@link Double#isInfinite() infinities}.
 	 * @return this stringer.
+	 * 
+	 * @throws JSONException
+	 *             The JSON exception
 	 */
 	public JSONStringer value(double value) throws JSONException
 	{
 		if(stack.isEmpty())
-		{
 			throw new JSONException("Nesting problem");
-		}
 		beforeValue();
 		out.append(JSONObject.numberToString(value));
 		return this;
@@ -264,14 +313,17 @@ public class JSONStringer
 	/**
 	 * Encodes {@code value} to this stringer.
 	 *
+	 * @param value
+	 *            long
 	 * @return this stringer.
+	 * 
+	 * @throws JSONException
+	 *             The JSON exception
 	 */
 	public JSONStringer value(long value) throws JSONException
 	{
 		if(stack.isEmpty())
-		{
 			throw new JSONException("Nesting problem");
-		}
 		beforeValue();
 		out.append(value);
 		return this;
@@ -351,6 +403,9 @@ public class JSONStringer
 	 * @param name
 	 *            the name of the forthcoming value. May not be null.
 	 * @return this stringer.
+	 * 
+	 * @throws JSONException
+	 *             The JSON exception
 	 */
 	public JSONStringer key(String name) throws JSONException
 	{
@@ -366,6 +421,9 @@ public class JSONStringer
 	/**
 	 * Inserts any necessary separators and whitespace before a name. Also
 	 * adjusts the stack to expect the key's value.
+	 * 
+	 * @throws JSONException
+	 *             The JSON exception
 	 */
 	private void beforeKey() throws JSONException
 	{
@@ -385,13 +443,14 @@ public class JSONStringer
 	 * Inserts any necessary separators and whitespace before a literal value,
 	 * inline array, or inline object. Also adjusts the stack to expect either a
 	 * closing bracket or another element.
+	 * 
+	 * @throws JSONException
+	 *             The JSON exception
 	 */
 	private void beforeValue() throws JSONException
 	{
 		if(stack.isEmpty())
-		{
 			return;
-		}
 		
 		Scope context = peek();
 		if(context == Scope.EMPTY_ARRAY)
@@ -413,9 +472,6 @@ public class JSONStringer
 	}
 	
 	/**
-	 * Returns the encoded JSON string.
-	 *
-	 * <p>
 	 * If invoked with unterminated arrays or unclosed objects, this method's
 	 * return value is undefined.
 	 *
@@ -423,6 +479,8 @@ public class JSONStringer
 	 * <strong>Warning:</strong> although it contradicts the general contract of
 	 * {@link Object#toString}, this method returns null if the stringer
 	 * contains no data.
+	 * 
+	 * @return the encoded JSON string.
 	 */
 	@Override
 	public String toString()

@@ -14,7 +14,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreIngredient;
 
 /**
- * A simple implementation for {@link IGeneralRecipe} featuring inputs -> output
+ * A simple implementation for {@link IGeneralRecipe} featuring inputs to output
  * feature. Use {@link BaseGeneralRecipe.Builder}
  */
 public class BaseGeneralRecipe implements IGeneralRecipe

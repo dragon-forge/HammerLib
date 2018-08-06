@@ -11,12 +11,12 @@ import net.minecraft.util.NonNullList;
 public interface IGeneralRecipe
 {
 	/**
-	 * Returns all inputs that are required for the recipe.
+	 * @return all inputs that are required for the recipe.
 	 */
 	NonNullList<IBaseIngredient> getIngredients();
 	
 	/**
-	 * Gets a result item for this recipe.
+	 * @return a result item for this recipe.
 	 */
 	default ItemStack getRecipeOutput()
 	{
@@ -24,7 +24,7 @@ public interface IGeneralRecipe
 	}
 	
 	/**
-	 * Gets the original result item for this recipe.
+	 * @return the original result item for this recipe.
 	 */
 	ItemStack getRecipeOutputOriginal();
 }

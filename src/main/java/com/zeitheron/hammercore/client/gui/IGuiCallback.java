@@ -33,6 +33,8 @@ public interface IGuiCallback
 	 *            The supplier of GUI, based on the player and location.
 	 * @param server
 	 *            The supplier of container, based on the player and location.
+	 * @return A new callback that must be registered using
+	 *         {@link GuiManager#registerGuiCallback(IGuiCallback)}
 	 */
 	static IGuiCallback create(BiFunction<EntityPlayer, WorldLocation, Object> client, BiFunction<EntityPlayer, WorldLocation, Object> server)
 	{

@@ -13,7 +13,9 @@ public class WittyCommentChooseEvent extends Event
 	{
 	}
 	
-	/** Checks if we didn't apply any custom comments yet. */
+	/**
+	 * @return If we didn't apply any custom comments yet.
+	 */
 	public boolean isCustomWittyComment()
 	{
 		return getWittyComment() != null;

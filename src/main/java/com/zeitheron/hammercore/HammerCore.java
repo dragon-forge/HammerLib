@@ -208,9 +208,6 @@ public class HammerCore
 		invalidCertificates.put("hammercore", "https://minecraft.curseforge.com/projects/247401");
 	}
 	
-	/**
-	 * This method is used to construct proxies
-	 */
 	@EventHandler
 	public void construct(FMLConstructionEvent e)
 	{

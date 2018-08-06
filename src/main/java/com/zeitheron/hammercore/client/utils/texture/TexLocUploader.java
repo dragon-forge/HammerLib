@@ -21,6 +21,12 @@ public class TexLocUploader
 	
 	/**
 	 * Uploads a {@link BufferedImage} to a {@link ResourceLocation}
+	 * 
+	 * @param rl
+	 *            The path
+	 * @param bi
+	 *            The image
+	 * @return If the image was uploaded to VRAM
 	 */
 	public static boolean upload(ResourceLocation rl, BufferedImage bi)
 	{
@@ -29,6 +35,12 @@ public class TexLocUploader
 	
 	/**
 	 * Uploads a {@link BufferedImage} to a {@link URL} given in string form
+	 * 
+	 * @param rl
+	 *            The path
+	 * @param url
+	 *            The image
+	 * @return If the image was uploaded to VRAM
 	 */
 	public static boolean upload(ResourceLocation rl, String url)
 	{
@@ -37,6 +49,16 @@ public class TexLocUploader
 	
 	/**
 	 * Uploads a {@link BufferedImage} to a {@link ResourceLocation}
+	 * 
+	 * @param rl
+	 *            The path
+	 * @param bi
+	 *            The image
+	 * @param blur
+	 *            Use blur
+	 * @param clamp
+	 *            Use clamp
+	 * @return If the image was uploaded to VRAM
 	 */
 	public static boolean upload(ResourceLocation rl, BufferedImage bi, boolean blur, boolean clamp)
 	{

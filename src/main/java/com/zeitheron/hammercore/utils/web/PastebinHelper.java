@@ -18,6 +18,12 @@ public class PastebinHelper
 {
 	/**
 	 * Creates a new paste using default dev key
+	 * 
+	 * @param text
+	 *            The text
+	 * @param title
+	 *            The title
+	 * @return The paste URL
 	 */
 	public static String paste(String text, String title)
 	{

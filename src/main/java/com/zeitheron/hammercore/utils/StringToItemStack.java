@@ -18,6 +18,12 @@ public class StringToItemStack
 	 * {@link StringToItemStack#toItemStack}("diamond:0@16", null) //Returns
 	 * stack with 16 diamonds and damage 0 and NBT is null; This example shows
 	 * that items from vanilla don't have to have "minecraft:" prefix
+	 * 
+	 * @param origin
+	 *            The string to parse
+	 * @param nbt
+	 *            The NBT tag as a string, or null
+	 * @return parsed item stack
 	 */
 	public static ItemStack toItemStack(String origin, String nbt)
 	{

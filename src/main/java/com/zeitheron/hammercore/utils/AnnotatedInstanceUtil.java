@@ -28,6 +28,8 @@ public class AnnotatedInstanceUtil
 	 * Gets all classes that extend (or implement) typeClass
 	 * <strong>and</strong> have annotationClass annotation present
 	 * 
+	 * @param <T>
+	 *            The type of base class
 	 * @param asmDataTable
 	 *            the ASM table with all loaded classes (get it via
 	 *            {@link FMLPreInitializationEvent#getAsmData()})
@@ -37,6 +39,7 @@ public class AnnotatedInstanceUtil
 	 * @param typeClass
 	 *            the class that object must extend in order for it to be added
 	 *            to the list
+	 * @return all matched classes
 	 */
 	public static <T> List<Class<? extends T>> getTypes(@Nonnull ASMDataTable asmDataTable, Class annotationClass, Class<T> typeClass)
 	{
@@ -62,6 +65,8 @@ public class AnnotatedInstanceUtil
 	 * instanceClass <strong>and</strong> have annotationClass annotation
 	 * present
 	 * 
+	 * @param <T>
+	 *            The type of base class
 	 * @param asmDataTable
 	 *            the ASM table with all loaded classes (get it via
 	 *            {@link FMLPreInitializationEvent#getAsmData()})
@@ -71,6 +76,7 @@ public class AnnotatedInstanceUtil
 	 * @param instanceClass
 	 *            the class that object must extend in order for it to be added
 	 *            to the list
+	 * @return All found classes, converted to instances
 	 */
 	public static <T> List<T> getInstances(@Nonnull ASMDataTable asmDataTable, Class annotationClass, Class<T> instanceClass)
 	{

@@ -20,6 +20,8 @@ public interface IManualPageRender<T extends ManualPage>
 	 *            The mouse current x position
 	 * @param my
 	 *            The mouse current y position
+	 * @param gui
+	 *            The open GUI
 	 */
 	void render(T recipe, int side, int x, int y, int mx, int my, GuiManualRecipe gui);
 }

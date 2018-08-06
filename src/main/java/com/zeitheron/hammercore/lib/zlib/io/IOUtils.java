@@ -263,6 +263,11 @@ public class IOUtils
 	/**
 	 * Follows redirect links (may be useful when downloading a file)
 	 * 
+	 * @param url
+	 *            The source link
+	 * @return The target link
+	 * @throws IOException
+	 *             if failed to connect to the source link
 	 * @since 1.5.2
 	 */
 	public static String followRedirects(String url) throws IOException
@@ -307,6 +312,10 @@ public class IOUtils
 	/**
 	 * Picks the file that doesn't exist by appending "(n)" at the end of the
 	 * name
+	 * 
+	 * @param f
+	 *            The source file
+	 * @return The target file
 	 */
 	public static File pickFile(File f)
 	{

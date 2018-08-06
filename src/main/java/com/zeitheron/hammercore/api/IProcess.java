@@ -15,6 +15,8 @@ public interface IProcess
 	/**
 	 * Checks if this process can still tick. IF return value is false, the
 	 * process will be killed, and {@link #onKill()} will be called.
+	 * 
+	 * @return if this process is alive
 	 */
 	boolean isAlive();
 	

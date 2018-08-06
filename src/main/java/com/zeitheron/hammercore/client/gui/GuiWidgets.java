@@ -32,6 +32,7 @@ public class GuiWidgets
 	 * 
 	 * @param tank
 	 *            The tank to create a tooltip for.
+	 * @return The tooltip
 	 */
 	public static List<String> createTooltipForFluidTank(FluidTank tank)
 	{

@@ -38,7 +38,12 @@ public class GLEException extends RuntimeException
 		super();
 	}
 	
-	/** Constructor with an argument! */
+	/**
+	 * Constructor with an argument!
+	 * 
+	 * @param message
+	 *            The message
+	 */
 	public GLEException(String message)
 	{
 		super(message);

@@ -9,13 +9,13 @@ import com.zeitheron.hammercore.api.crafting.impl.EnergyIngredient;
 public interface INumericalIngredient<T extends Number> extends IBaseIngredient
 {
 	/**
-	 * Gets the value of the ingredient.
+	 * @return the value of the ingredient.
 	 */
 	T getAmount();
 	
 	/**
-	 * Gets the additional info about this ingredient. May be used if any other
-	 * data should be stored besides a number.
+	 * @return the additional info about this ingredient. May be used if any
+	 *         other data should be stored besides a number.
 	 */
 	default Object getMeta()
 	{
@@ -28,7 +28,7 @@ public interface INumericalIngredient<T extends Number> extends IBaseIngredient
 	}
 	
 	/**
-	 * Gets the cost of this ingredient in Redstone Flux (RF).
+	 * @return the cost of this ingredient in Redstone Flux (RF).
 	 */
 	default double getRFCost()
 	{
@@ -38,8 +38,8 @@ public interface INumericalIngredient<T extends Number> extends IBaseIngredient
 	}
 	
 	/**
-	 * Gets the conversion ratio of 1 unit of this ingredient to RF. For EU this
-	 * value would be 4, since 4 RF convert to 1 EU.
+	 * @return the conversion ratio of 1 unit of this ingredient to RF. For EU
+	 *         this value would be 4, since 4 RF convert to 1 EU.
 	 */
 	default double toRFRatio()
 	{

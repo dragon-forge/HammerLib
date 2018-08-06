@@ -10,6 +10,7 @@ public abstract class AbstractCharge
 	
 	/**
 	 * Creates a copy of this charge with it's current charge.
+	 * @return A copy of this charge with it's current charge.
 	 */
 	public abstract AbstractCharge copy();
 }

@@ -49,6 +49,8 @@ public class ExpressionEvaluator
 	/**
 	 * Parses expression. Uses + - * / ^ % and all functions defined by
 	 * {@link #addFunction(ExpressionFunction)}
+	 * 
+	 * @return parsed double
 	 */
 	public final double parse()
 	{
@@ -141,6 +143,9 @@ public class ExpressionEvaluator
 	
 	/**
 	 * Adds function to evaluation process.
+	 * 
+	 * @param func
+	 *            The function to add
 	 */
 	public void addFunction(ExpressionFunction func)
 	{
@@ -152,6 +157,12 @@ public class ExpressionEvaluator
 	/**
 	 * Evaluates expression with optional functions passed. If result is equal
 	 * to floor() function, an int will be returned
+	 * 
+	 * @param expression
+	 *            The expression
+	 * @param functions
+	 *            The function
+	 * @return The result as a string
 	 */
 	public static String evaluate(String expression, ExpressionFunction... functions)
 	{
@@ -164,6 +175,12 @@ public class ExpressionEvaluator
 	/**
 	 * Evaluates expression with optional functions passed. Returns exact
 	 * number, in double
+	 * 
+	 * @param expression
+	 *            The expression
+	 * @param functions
+	 *            The function
+	 * @return The result as a double
 	 */
 	public static double evaluateDouble(String expression, ExpressionFunction... functions)
 	{

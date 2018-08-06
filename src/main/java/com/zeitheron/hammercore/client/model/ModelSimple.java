@@ -42,6 +42,9 @@ public class ModelSimple<T> extends ModelBase
 	
 	/**
 	 * Binds to the texture of this model.
+	 * 
+	 * @param o
+	 *            the model's owner
 	 */
 	public void bindTexture(T o)
 	{

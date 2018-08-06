@@ -31,6 +31,10 @@ public class Vec2D
 	
 	/**
 	 * Returns a new vector with the result of the specified vector minus this.
+	 * 
+	 * @param vec
+	 *            The subtract source
+	 * @return The target vector
 	 */
 	public Vec2D subtractReverse(Vec2D vec)
 	{
@@ -39,6 +43,8 @@ public class Vec2D
 	
 	/**
 	 * Normalizes the vector to a length of 1 (except if it is the zero vector)
+	 * 
+	 * @return The normalized vector
 	 */
 	public Vec2D normalize()
 	{
@@ -69,6 +75,12 @@ public class Vec2D
 	/**
 	 * Adds the specified x,y,z vector components to this vector and returns the
 	 * resulting vector. Does not change this vector.
+	 * 
+	 * @param x
+	 *            The x
+	 * @param y
+	 *            The y
+	 * @return The sum vector of this + (x; y)
 	 */
 	public Vec2D addVector(double x, double y)
 	{
@@ -76,8 +88,10 @@ public class Vec2D
 	}
 	
 	/**
-	 * Euclidean distance between this and the specified vector, returned as
-	 * double.
+	 * @param vec
+	 *            The vector to get distance to
+	 * @return Euclidean distance between this and the specified vector,
+	 *         returned as double.
 	 */
 	public double distanceTo(Vec2D vec)
 	{
@@ -87,8 +101,13 @@ public class Vec2D
 	}
 	
 	/**
-	 * Euclidean distance between this and the specified vector, returned as
-	 * double.
+	 * @param x
+	 *            The x
+	 * @param y
+	 *            The y
+	 * 
+	 * @return Euclidean distance between this and the specified vector,
+	 *         returned as double.
 	 */
 	public double distanceTo(double x, double y)
 	{
@@ -98,8 +117,10 @@ public class Vec2D
 	}
 	
 	/**
-	 * The square of the Euclidean distance between this and the specified
-	 * vector.
+	 * @param vec
+	 *            The different vector
+	 * @return The square of the Euclidean distance between this and the
+	 *         specified vector.
 	 */
 	public double squareDistanceTo(Vec2D vec)
 	{
@@ -122,6 +143,8 @@ public class Vec2D
 	
 	/**
 	 * Returns the length of the vector.
+	 * 
+	 * @return vector's length
 	 */
 	public double lengthVector()
 	{
@@ -134,9 +157,13 @@ public class Vec2D
 	}
 	
 	/**
-	 * Returns a new vector with x value equal to the second parameter, along
-	 * the line between this vector and the passed in vector, or null if not
-	 * possible.
+	 * @param vec
+	 *            Different vector
+	 * @param x
+	 *            The x
+	 * @return a new vector with x value equal to the second parameter, along
+	 *         the line between this vector and the passed in vector, or null if
+	 *         not possible.
 	 */
 	@Nullable
 	public Vec2D getIntermediateWithXValue(Vec3d vec, double x)
@@ -155,9 +182,13 @@ public class Vec2D
 	}
 	
 	/**
-	 * Returns a new vector with y value equal to the second parameter, along
-	 * the line between this vector and the passed in vector, or null if not
-	 * possible.
+	 * @param vec
+	 *            Different vector
+	 * @param y
+	 *            The y
+	 * @return a new vector with y value equal to the second parameter, along
+	 *         the line between this vector and the passed in vector, or null if
+	 *         not possible.
 	 */
 	@Nullable
 	public Vec2D getIntermediateWithYValue(Vec3d vec, double y)
@@ -195,6 +226,7 @@ public class Vec2D
 		}
 	}
 	
+	@Override
 	public int hashCode()
 	{
 		long j = Double.doubleToLongBits(this.x);
@@ -204,6 +236,7 @@ public class Vec2D
 		return i;
 	}
 	
+	@Override
 	public String toString()
 	{
 		return "(" + this.x + ", " + this.y + ")";

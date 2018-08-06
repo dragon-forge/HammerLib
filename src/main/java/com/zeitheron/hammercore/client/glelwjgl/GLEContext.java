@@ -39,7 +39,7 @@ public class GLEContext
 	private int joinStyle = GLE.TUBE_JN_RAW;
 	
 	/** Various state variables used in extrusions */
-	/** @@Make these private and add accessor methods */
+	/** Make these private and add accessor methods */
 	protected int ncp = 0;
 	protected double[][] contour = null;
 	protected double[][] contourNormal = null;
@@ -49,16 +49,20 @@ public class GLEContext
 	protected float[][] colourArray = null;
 	protected double[][][] xformArray = null;
 	
-	/** Returns the current join style */
+	/** @return the current join style */
 	protected final int getJoinStyle()
 	{
 		return joinStyle;
 	}
 	
-	/** Sets the join style */
+	/**
+	 * Sets the join style.
+	 * 
+	 * @param style
+	 *            the join style to set.
+	 */
 	protected final void setJoinStyle(int style)
 	{
 		joinStyle = style;
 	}
-	
 }

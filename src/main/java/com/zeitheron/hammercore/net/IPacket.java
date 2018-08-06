@@ -4,6 +4,7 @@ import java.util.function.Supplier;
 
 import com.zeitheron.hammercore.utils.NPEUtils;
 
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.INetHandler;
 import net.minecraft.network.play.INetHandlerPlayClient;
@@ -17,16 +18,39 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  */
 public interface IPacket
 {
+	/**
+	 * Reads this packet from NBT.
+	 * 
+	 * @param nbt
+	 *            The NBT tag that was read from network.
+	 */
 	default void readFromNBT(NBTTagCompound nbt)
 	{
 		
 	}
 	
+	/**
+	 * Writes this packet to NBT. Keep everything as short as possible to make
+	 * the network usage as low as possible.
+	 * 
+	 * @param nbt
+	 *            The NBT tag that will be written to network.
+	 */
 	default void writeToNBT(NBTTagCompound nbt)
 	{
 		
 	}
 	
+	/**
+	 * A universal executor method for this packet.
+	 * 
+	 * @param side
+	 *            The side that this packet was accepted on.
+	 * @param ctx
+	 *            The context that this packet holds. On server, contains sender
+	 *            as an {@link EntityPlayerMP}
+	 * @return Reply packet, or null, if none.
+	 */
 	default IPacket execute(Side side, PacketContext ctx)
 	{
 		if(side == Side.CLIENT)
@@ -34,22 +58,45 @@ public interface IPacket
 		return executeOnServer(ctx);
 	}
 	
+	/**
+	 * @return True if the single method should be called from both client and
+	 *         server ({@link #execute(Side, PacketContext)})
+	 */
 	default boolean refractSidedToUniversal()
 	{
 		return true;
 	}
 	
+	/**
+	 * Executes this packet on client side.
+	 * 
+	 * @param net
+	 *            A context of this packet. Mostly useless in this case.
+	 * @return Reply packet, or null, if none.
+	 */
 	@SideOnly(Side.CLIENT)
 	default IPacket executeOnClient(PacketContext net)
 	{
 		return refractSidedToUniversal() ? execute(Side.CLIENT, net) : null;
 	}
 	
+	/**
+	 * Executes this packet on server side.
+	 * 
+	 * @param net
+	 *            A context of this packet. Contains sender as an
+	 *            {@link EntityPlayerMP}
+	 * @return Reply packet, or null, if none.
+	 */
 	default IPacket executeOnServer(PacketContext net)
 	{
 		return refractSidedToUniversal() ? execute(Side.SERVER, net) : null;
 	}
 	
+	/**
+	 * @return Should this packet execute from main thread, or from network
+	 *         therad?
+	 */
 	default boolean executeOnMainThread()
 	{
 		MainThreaded mt = getClass().getAnnotation(MainThreaded.class);
@@ -60,6 +107,13 @@ public interface IPacket
 	
 	/**
 	 * Use in static { } body to add handler to this packet.
+	 * 
+	 * @param <T>
+	 *            The packet subclass
+	 * @param t
+	 *            The packet class
+	 * @param nev
+	 *            The supplier of new instances for this packet.
 	 */
 	static <T extends IPacket> void handle(Class<T> t, Supplier<T> nev)
 	{

@@ -121,8 +121,8 @@ public abstract class TESR<T extends TileEntity> extends TileEntitySpecialRender
 	}
 	
 	/**
-	 * Return true for Hammer Core to use NBT rendering instead of TileEntity
-	 * rendering.
+	 * @return true for Hammer Core to use NBT rendering instead of TileEntity
+	 *         rendering.
 	 **/
 	public boolean canRenderFromNbt()
 	{
@@ -152,6 +152,9 @@ public abstract class TESR<T extends TileEntity> extends TileEntitySpecialRender
 	/**
 	 * useful implementation for rendering an item stack if it can handle
 	 * rendering from NBT
+	 * 
+	 * @param item
+	 *            The stack to render
 	 */
 	@Override
 	public void renderItem(ItemStack item)
@@ -168,6 +171,21 @@ public abstract class TESR<T extends TileEntity> extends TileEntitySpecialRender
 	
 	/**
 	 * Shared method that is executed on rendering both: item AND tile
+	 * 
+	 * @param tile
+	 *            The tile, or null
+	 * @param stack
+	 *            The stack, or {@link ItemStack#EMPTY}
+	 * @param x
+	 *            X pos
+	 * @param y
+	 *            Y pos
+	 * @param z
+	 *            Z pos
+	 * @param destroyStage
+	 *            The texture
+	 * @param alpha
+	 *            The alpha
 	 */
 	public void renderBase(@Nullable T tile, @Nullable ItemStack stack, double x, double y, double z, @Nullable ResourceLocation destroyStage, float alpha)
 	{
@@ -189,6 +207,8 @@ public abstract class TESR<T extends TileEntity> extends TileEntitySpecialRender
 	 * Used when you Ctrl+Select a block and it stores it's NBT data inside of
 	 * an ItemStack
 	 * 
+	 * @param stack
+	 *            The stack get NBT from
 	 * @return NBT of an ItemStack, or null if there are no tags
 	 */
 	@Nullable

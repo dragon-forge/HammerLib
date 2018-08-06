@@ -19,7 +19,9 @@ public class ManualCategories
 	public static LinkedHashMap<String, ManualCategory> manualCategories = new LinkedHashMap();
 	
 	/**
-	 * @return The category by it's unique ID.
+	 * @param key
+	 *            The category unique ID
+	 * @return The category, or null
 	 */
 	public static ManualCategory getCategory(String key)
 	{
@@ -27,7 +29,9 @@ public class ManualCategories
 	}
 	
 	/**
-	 * @return The category's translated name by it's unique ID.
+	 * @param key
+	 *            The category unique ID
+	 * @return The category's translated name.
 	 */
 	@SideOnly(Side.CLIENT)
 	public static String getCategoryName(String key)
@@ -36,6 +40,8 @@ public class ManualCategories
 	}
 	
 	/**
+	 * @param key
+	 *            The category unique ID
 	 * @return The {@link ManualEntry} by it's unique ID.
 	 */
 	public static ManualEntry getEntry(String key)
@@ -112,6 +118,9 @@ public class ManualCategories
 	
 	/**
 	 * Internal use only, registers an entry.
+	 * 
+	 * @param ri
+	 *            The entry
 	 */
 	public static void addEntry(ManualEntry ri)
 	{

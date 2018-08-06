@@ -42,6 +42,8 @@ public class ItemChargeHelper
 	/**
 	 * Maps a handler to a charge type.
 	 * 
+	 * @param <T>
+	 *            The charge type
 	 * @param chargeType
 	 *            the class of the charge
 	 * @param handler
@@ -81,6 +83,15 @@ public class ItemChargeHelper
 	/**
 	 * Charges player's inventory. Supports modules, HammerCore supports
 	 * player's vanilla inventory and baubles inventory.
+	 * 
+	 * @param <T>
+	 *            The charge type
+	 * @param player
+	 *            The player
+	 * @param charge
+	 *            The charge
+	 * @param simulate
+	 *            true to simulate, false to perform
 	 */
 	public static <T extends AbstractCharge> T chargePlayer(EntityPlayer player, T charge, boolean simulate)
 	{

@@ -6,6 +6,7 @@ import java.util.List;
 import org.lwjgl.opengl.GL11;
 
 import com.zeitheron.hammercore.client.utils.RenderUtil;
+import com.zeitheron.hammercore.net.HCNet;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -60,6 +61,11 @@ public class GuiFluidTank extends Gui
 	
 	/**
 	 * Renders a tank in the gui.
+	 * 
+	 * @param mouseX
+	 *            The mouse X position
+	 * @param mouseY
+	 *            The mouse Y position
 	 */
 	public void render(int mouseX, int mouseY)
 	{
@@ -81,6 +87,12 @@ public class GuiFluidTank extends Gui
 	/**
 	 * Returns if you should draw the tooltip (get it from
 	 * {@link #getTooltip(int, int)}).
+	 * 
+	 * @param mouseX
+	 *            The mouse X position
+	 * @param mouseY
+	 *            The mouse Y position
+	 * @return should the tooltip be drawn
 	 */
 	public boolean postRender(int mouseX, int mouseY)
 	{
@@ -90,7 +102,7 @@ public class GuiFluidTank extends Gui
 			RenderUtil.drawColoredModalRect(x, y, width, height, 0xAAFFFFFF);
 			GL11.glEnable(GL11.GL_TEXTURE_2D);
 			
-			return true;
+			return HCNet.getMouseStack(Minecraft.getMinecraft().player).isEmpty();
 		}
 		
 		return false;
@@ -98,6 +110,13 @@ public class GuiFluidTank extends Gui
 	
 	/**
 	 * Appends the tooltip to already existing one.
+	 * 
+	 * @param mouseX
+	 *            The mouse X position
+	 * @param mouseY
+	 *            The mouse Y position
+	 * @param tooltip
+	 *            The tooltip
 	 */
 	public void addTooltip(int mouseX, int mouseY, List<String> tooltip)
 	{
@@ -106,6 +125,13 @@ public class GuiFluidTank extends Gui
 	
 	/**
 	 * Creates the tooltip for this tank.
+	 * 
+	 * @param mouseX
+	 *            The mouse X position
+	 * @param mouseY
+	 *            The mouse Y position
+	 * 
+	 * @return The new tooltip
 	 */
 	public List<String> getTooltip(int mouseX, int mouseY)
 	{
@@ -115,12 +141,11 @@ public class GuiFluidTank extends Gui
 	}
 	
 	/**
-	 * Returns if the mouse is over the tank element.
-	 * 
 	 * @param mouseX
 	 *            The X position of the mouse.
 	 * @param mouseY
 	 *            The Y positions of the mouse.
+	 * @return if the mouse is over the tank element.
 	 */
 	public boolean isHovered(int mouseX, int mouseY)
 	{

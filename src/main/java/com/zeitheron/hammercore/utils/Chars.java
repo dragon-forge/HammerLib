@@ -33,7 +33,13 @@ public class Chars
 	        SUPERSCRIPT_9 = '\u2079', //
 	        SUPERSCRIPT_MINUS = '\u02C9';
 	
-	/** Superscripts a given number. */
+	/**
+	 * Superscripts a given number.
+	 * 
+	 * @param i
+	 *            The number to superscript
+	 * @return superscripted number as string
+	 */
 	public static String superscript(long i)
 	{
 		String v = i + "";

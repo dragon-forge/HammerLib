@@ -147,6 +147,8 @@ public class ShaderProgram
 	
 	/**
 	 * Call this once you have bound your frag and vert shader.
+	 * 
+	 * @return The validated shader program
 	 */
 	public ShaderProgram validate()
 	{

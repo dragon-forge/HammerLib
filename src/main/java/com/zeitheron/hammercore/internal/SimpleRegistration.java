@@ -109,12 +109,11 @@ public class SimpleRegistration
 	 * This should only be used for registering recipes for vanilla objects and
 	 * not mod-specific objects.
 	 * 
-	 * @param name
-	 *            The name of the recipe.
 	 * @param stack
 	 *            The output stack.
 	 * @param recipeComponents
 	 *            The recipe components.
+	 * @return The parsed recipe
 	 */
 	public static ShapelessRecipes parseShapelessRecipe(ItemStack stack, Object... recipeComponents)
 	{
@@ -197,6 +196,9 @@ public class SimpleRegistration
 	/**
 	 * Registers {@link SoundObject} to registry and populates
 	 * {@link SoundObject} with {@link SoundEvent}.
+	 * 
+	 * @param sound
+	 *            The object containing a pahth to sound object
 	 **/
 	public static void registerSound(SoundObject sound)
 	{

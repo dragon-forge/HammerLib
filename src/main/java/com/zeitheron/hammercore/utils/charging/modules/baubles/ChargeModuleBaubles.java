@@ -12,5 +12,6 @@ public class ChargeModuleBaubles implements IChargeModule
 	@Override
 	public void registerListers(List<IPlayerInventoryLister> listers)
 	{
+		listers.add(new BaubleInvLister());
 	}
 }

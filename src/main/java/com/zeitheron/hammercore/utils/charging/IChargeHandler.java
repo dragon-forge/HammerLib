@@ -12,6 +12,8 @@ public interface IChargeHandler<T extends AbstractCharge>
 	/**
 	 * @param stack
 	 *            the stack being checked
+	 * @param charge
+	 *            the charge being checked
 	 * @return true if the given stack may be charged, false otherwise.
 	 */
 	boolean canCharge(ItemStack stack, T charge);

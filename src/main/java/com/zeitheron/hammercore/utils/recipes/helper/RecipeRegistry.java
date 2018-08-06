@@ -148,7 +148,11 @@ public abstract class RecipeRegistry
 		recipe(SimpleRegistration.parseShapelessRecipe(new ItemStack(out), recipeComponents));
 	}
 	
-	/** Gets the modid of the registry */
+	/**
+	 * Gets the modid of the registry
+	 * 
+	 * @return modid of this registry.
+	 */
 	protected String getMod()
 	{
 		RegisterRecipes a = getClass().getAnnotation(RegisterRecipes.class);

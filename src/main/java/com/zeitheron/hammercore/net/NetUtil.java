@@ -12,6 +12,11 @@ public class NetUtil
 	
 	/**
 	 * Attempts to write byte array to buffer
+	 * 
+	 * @param b
+	 *            The bytes to write
+	 * @param buf
+	 *            The buffer to write to
 	 **/
 	public static void writeByteArray(byte[] b, ByteBuf buf)
 	{
@@ -26,6 +31,8 @@ public class NetUtil
 	/**
 	 * Attempts to read byte array from buffer
 	 * 
+	 * @param buf
+	 *            The buffer to read from
 	 * @return primitive {@link byte[]}, or null, if packet is corrupted.
 	 **/
 	public static byte[] readByteArray(ByteBuf buf)

@@ -124,13 +124,13 @@ public class MathHelper
 	 *            The value
 	 * @param b
 	 *            The value to approach
-	 * @param ratio
-	 *            The ratio to reduce the difference by
 	 * @param c
 	 *            The value to retreat from
+	 * @param ratio
+	 *            The ratio to reduce the difference by
 	 * @param kick
 	 *            The difference when a == c
-	 * @return
+	 * @return the new value
 	 */
 	public static double retreatExp(double a, double b, double c, double ratio, double kick)
 	{
@@ -154,9 +154,6 @@ public class MathHelper
 		return Math.min(max, Math.max(min, value));
 	}
 	
-	/**
-	 * @return a <= x <= b
-	 */
 	public static boolean between(double a, double x, double b)
 	{
 		return a <= x && x <= b;

@@ -17,6 +17,8 @@ import net.minecraft.world.World;
 
 public class BlockDeviceHC<T extends TileEntity> extends BlockTileHC<T>
 {
+	protected boolean reactsToRedstone;
+	
 	public BlockDeviceHC(Material mat, Class<T> tc, String name)
 	{
 		super(mat, tc, name);
@@ -28,9 +30,18 @@ public class BlockDeviceHC<T extends TileEntity> extends BlockTileHC<T>
 			else if(this instanceof IBlockOrientable)
 				bs.withProperty(IBlockOrientable.FACING, EnumFacing.UP);
 			if(this instanceof IBlockEnableable)
-				bs.withProperty(IBlockEnableable.ENABLED, true);
+				bs.withProperty(IBlockEnableable.ENABLED, ((IBlockEnableable) this).enableableDefault());
 			setDefaultState(bs);
 		}
+	}
+	
+	public static void updateStateKeepTile(World world, BlockPos pos, IBlockState newState)
+	{
+		TileEntity tile = world.getTileEntity(pos);
+		world.removeTileEntity(pos);
+		world.setBlockState(pos, newState, 3);
+		tile.validate();
+		world.setTileEntity(pos, tile);
 	}
 	
 	@Override
@@ -56,18 +67,18 @@ public class BlockDeviceHC<T extends TileEntity> extends BlockTileHC<T>
 		if(this instanceof IBlockOrientable)
 			bs = bs.withProperty(IBlockOrientable.FACING, placer.isSneaking() ? EnumFacing.getDirectionFromEntityLiving(pos, placer).getOpposite() : EnumFacing.getDirectionFromEntityLiving(pos, placer));
 		if(this instanceof IBlockEnableable)
-			bs = bs.withProperty(IBlockEnableable.ENABLED, true);
+			bs = bs.withProperty(IBlockEnableable.ENABLED, ((IBlockEnableable) this).enableableDefault());
 		return bs;
 	}
 	
 	protected void updateState(World worldIn, BlockPos pos, IBlockState state)
 	{
-		if(this instanceof IBlockEnableable)
+		if(reactsToRedstone && this instanceof IBlockEnableable)
 		{
 			boolean flag;
 			boolean bl = flag = !worldIn.isBlockPowered(pos);
 			if(flag != state.getValue(IBlockEnableable.ENABLED))
-				worldIn.setBlockState(pos, state.withProperty(IBlockEnableable.ENABLED, flag), 3);
+				updateStateKeepTile(worldIn, pos, state.withProperty(IBlockEnableable.ENABLED, flag));
 		}
 	}
 	
@@ -78,9 +89,9 @@ public class BlockDeviceHC<T extends TileEntity> extends BlockTileHC<T>
 			if(face == WorldUtil.getFacing(world.getBlockState(pos)))
 				return;
 			if(this instanceof IBlockHorizontal && face.getHorizontalIndex() >= 0)
-				world.setBlockState(pos, world.getBlockState(pos).withProperty(IBlockHorizontal.FACING, face), 3);
+				updateStateKeepTile(world, pos, world.getBlockState(pos).withProperty(IBlockHorizontal.FACING, face));
 			if(this instanceof IBlockOrientable)
-				world.setBlockState(pos, world.getBlockState(pos).withProperty(IBlockOrientable.FACING, face), 3);
+				updateStateKeepTile(world, pos, world.getBlockState(pos).withProperty(IBlockOrientable.FACING, face));
 		}
 	}
 	

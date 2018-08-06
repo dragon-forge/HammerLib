@@ -13,6 +13,14 @@ public interface ICubeManager
 {
 	/**
 	 * Gets a list of cuboids found for the block at given location.
+	 * 
+	 * @param world
+	 *            The world
+	 * @param pos
+	 *            The position
+	 * @param state
+	 *            The state
+	 * @return The cuboids
 	 */
 	public Cuboid6[] getCuboids(World world, BlockPos pos, IBlockState state);
 }

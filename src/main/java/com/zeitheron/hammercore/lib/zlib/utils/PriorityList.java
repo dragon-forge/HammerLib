@@ -16,6 +16,7 @@ public class PriorityList<T> extends AbstractList<T>
 		prio = i;
 	}
 	
+	@Override
 	public boolean add(T elem)
 	{
 		int p = prio.getInt(elem);
@@ -38,7 +39,7 @@ public class PriorityList<T> extends AbstractList<T>
 		return sorted.add(elem);
 	}
 	
-	/** Inverts the list. */
+	/** @return The inverted list. */
 	public PriorityList<T> invert()
 	{
 		PriorityList<T> pl = new PriorityList<>();

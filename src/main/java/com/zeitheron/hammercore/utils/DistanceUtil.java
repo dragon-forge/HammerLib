@@ -15,6 +15,12 @@ public class DistanceUtil
 {
 	/**
 	 * Gets THE fastest way that you should go from point A to point B
+	 * 
+	 * @param from
+	 *            The source position
+	 * @param to
+	 *            The target position
+	 * @return the facing that will shorten the distance
 	 */
 	public static EnumFacing getFastestWay(BlockPos from, BlockPos to)
 	{
@@ -41,6 +47,12 @@ public class DistanceUtil
 	/**
 	 * Gets a {@link EnumFacing}[6] array containing sorted ways from fastest
 	 * to, well, never
+	 * 
+	 * @param from
+	 *            The source position
+	 * @param to
+	 *            The target position
+	 * @return sorted ways from fastest to never
 	 */
 	public static EnumFacing[] sortByDistance(BlockPos from, BlockPos to)
 	{

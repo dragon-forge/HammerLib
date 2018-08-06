@@ -249,6 +249,8 @@ public class ManualEntry
 	/**
 	 * Sets this entry parents by their unique IDs.
 	 * 
+	 * @param par
+	 *            The parents
 	 * @return This entry, for building convenience.
 	 */
 	public ManualEntry setParents(String... par)
@@ -261,6 +263,8 @@ public class ManualEntry
 	 * Sets this entry passed pages. See {@link ManualPage}'s constructors for
 	 * some options.
 	 * 
+	 * @param par
+	 *            The pages
 	 * @return This entry, for building convenience.
 	 */
 	public ManualEntry setPages(ManualPage... par)
@@ -315,6 +319,8 @@ public class ManualEntry
 	/**
 	 * Sets this entry a shape.
 	 * 
+	 * @param shape
+	 *            The shape
 	 * @return This entry, for building convenience.
 	 */
 	public ManualEntry setShape(EnumEntryShape shape)
@@ -331,6 +337,8 @@ public class ManualEntry
 	/**
 	 * Sets this entry a color.
 	 * 
+	 * @param color
+	 *            The hex color
 	 * @return This entry, for building convenience.
 	 */
 	public ManualEntry setColor(int color)

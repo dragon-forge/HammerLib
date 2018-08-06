@@ -27,7 +27,12 @@ public enum TextureFXManager
 			this.iconMap.put(path, sprite);
 	}
 	
-	/** upload and reload all custom textures */
+	/**
+	 * Upload and reload all custom textures
+	 * 
+	 * @param event
+	 *            The event we receive
+	 */
 	@SubscribeEvent
 	public void onTextureStitch(TextureStitchEvent event)
 	{

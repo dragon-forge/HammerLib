@@ -90,6 +90,23 @@ public class ParticleProxy_Common
 	
 	/**
 	 * Creates a new thunder FX using default fractal.
+	 * 
+	 * @param world
+	 *            The world
+	 * @param start
+	 *            The start
+	 * @param end
+	 *            The end
+	 * @param seed
+	 *            The seed
+	 * @param age
+	 *            The age
+	 * @param fractMod
+	 *            The fractal modifier
+	 * @param core
+	 *            The core layer
+	 * @param aura
+	 *            The aura layer
 	 */
 	public void spawnSimpleThunder(World world, Vec3d start, Vec3d end, long seed, int age, float fractMod, Thunder.Layer core, Thunder.Layer aura)
 	{

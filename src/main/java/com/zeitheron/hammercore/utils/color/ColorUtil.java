@@ -19,6 +19,10 @@ public class ColorUtil
 	
 	/**
 	 * Gets if this stack is a "DyeStack"
+	 * 
+	 * @param stack
+	 *            The stack
+	 * @return If the stack is a dye
 	 */
 	public static boolean isDye(ItemStack stack)
 	{
@@ -37,6 +41,7 @@ public class ColorUtil
 	 * 
 	 * @param stack
 	 *            The stack that we should get color from
+	 * @return The color, or null.
 	 */
 	public static EnumDyeColor getDyeColor(ItemStack stack)
 	{
@@ -59,6 +64,7 @@ public class ColorUtil
 	 * 
 	 * @param stack
 	 *            The stack that we should get color from
+	 * @return The color of the dye, or white
 	 */
 	public static int getDyeColorInt(ItemStack stack)
 	{
@@ -73,11 +79,15 @@ public class ColorUtil
 				return ItemDye.DYE_COLORS[meta];
 			meta++;
 		}
-		return 0;
+		return 0xFFFFFF;
 	}
 	
 	/**
-	 * Formats message, replacing &[CC] with color codes
+	 * Formats message, replacing &[CC] with color codes.
+	 * 
+	 * @param src
+	 *            The string to be formatted
+	 * @return The formatted string
 	 */
 	public static String format(String src)
 	{
@@ -90,7 +100,11 @@ public class ColorUtil
 	}
 	
 	/**
-	 * Inverts ARGB color, passed as a 0-1 float array
+	 * Inverts ARGB color, passed as a [0;1] float array
+	 * 
+	 * @param rgb
+	 *            The source float array
+	 * @return The inverted float array
 	 */
 	public static float[] reverse(float... rgb)
 	{
@@ -99,10 +113,6 @@ public class ColorUtil
 		return rgb;
 	}
 	
-	/**
-	 * Used to reverse color for multi-hand render, that means, if passed hand
-	 * is main, leave all like it was before, otherwise, reverse
-	 */
 	public static float[] checkHandReverse(EnumHand hand, float... rgb)
 	{
 		return hand == EnumHand.MAIN_HAND ? rgb : reverse(rgb);

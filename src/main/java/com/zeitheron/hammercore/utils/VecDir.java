@@ -97,6 +97,10 @@ public class VecDir
 	
 	/**
 	 * Cuts till the start of entity's hitbox
+	 * 
+	 * @param ent
+	 *            The entity till which this vector direction should be cut
+	 * @return the cut directions
 	 */
 	public VecDir cutTill(Entity ent)
 	{

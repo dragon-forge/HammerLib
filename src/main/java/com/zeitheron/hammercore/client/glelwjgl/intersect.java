@@ -43,6 +43,18 @@ public class intersect
 	/**
 	 * This macro is used in several places to cycle through a series of points
 	 * to find the next non-degenerate point in a series
+	 * 
+	 * @param index
+	 *            int
+	 * @param npoints
+	 *            int
+	 * @param len
+	 *            double
+	 * @param diff
+	 *            double[]
+	 * @param point_array
+	 *            double[][]
+	 * @return int
 	 */
 	public static final int FIND_NON_DEGENERATE_POINT(int index, int npoints, double len, double[] diff, double[][] point_array)
 	{
@@ -299,6 +311,14 @@ public class intersect
 	 * make sure that the comparison is unit-less, i.e. that the lengths of the
 	 * individual segments is normalized. By re-arrangement, avoid overhead of
 	 * two square roots and two divides.
+	 * 
+	 * @param v1
+	 *            double[]
+	 * @param v2
+	 *            double[]
+	 * @param v3
+	 *            double[]
+	 * @return boolean
 	 */
 	public static boolean COLINEAR(double[] v1, double[] v2, double[] v3)
 	{

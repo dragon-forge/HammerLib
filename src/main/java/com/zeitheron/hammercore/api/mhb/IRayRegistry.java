@@ -8,6 +8,8 @@ public interface IRayRegistry
 {
 	/**
 	 * Called when the world is loaded.
+	 * 
+	 * @param cube The cube registry
 	 */
 	public void registerCubes(IRayCubeRegistry cube);
 }

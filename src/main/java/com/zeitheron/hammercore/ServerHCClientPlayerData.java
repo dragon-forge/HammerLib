@@ -28,7 +28,11 @@ public class ServerHCClientPlayerData
 	}
 	
 	/**
-	 * Automatically selects option map and gets client's settings 
+	 * Automatically selects option map and gets client's settings.
+	 * 
+	 * @param player
+	 *            The player whom we want to retrieve configs
+	 * @return The options for the specified player
 	 */
 	public static HCClientOptions getOptionsFor(EntityPlayer player)
 	{

@@ -19,7 +19,6 @@ public class BlockTileHC<T extends TileEntity> extends BlockHC implements ITileE
 {
 	protected final Class<T> tileClass;
 	protected static boolean keepInventory = false;
-	protected static boolean spillEssentia = true;
 	
 	public BlockTileHC(Material mat, Class<T> tc, String name)
 	{

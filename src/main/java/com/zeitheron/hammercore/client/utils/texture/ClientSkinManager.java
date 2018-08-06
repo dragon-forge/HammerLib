@@ -26,6 +26,10 @@ public class ClientSkinManager
 	
 	/**
 	 * Gets the texture map for certain player. It may be modified.
+	 * 
+	 * @param acp
+	 *            The player
+	 * @return The skin map
 	 */
 	public static Map<Type, ResourceLocation> getPlayerMap(AbstractClientPlayer acp)
 	{

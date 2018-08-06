@@ -106,7 +106,8 @@ public class CoreGLE implements GLE
 	
 	/**
 	 * Returns the current join style for connected extruded segments
-	 * <P>
+	 * 
+	 * @return the join style
 	 */
 	@Override
 	public int gleGetJoinStyle()
@@ -804,7 +805,7 @@ public class CoreGLE implements GLE
 	 *            The start angle in XY plane
 	 * @param sweepTheta
 	 *            The number of degrees to spiral around
-	 * @see com.hermetica.gle.GLE#gleSpiral
+	 * @see GLE#gleSpiral(int, double[][], double[][], double[], double, double, double, double, double[][], double[][], double, double)
 	 */
 	@Override
 	public void gleHelicoid(double rToroid, double startRadius, double drdTheta, double startZ, double dzdTheta, double[][] startTransform, double[][] dTransformdTheta, double startTheta, double sweepTheta) throws GLEException
@@ -835,7 +836,7 @@ public class CoreGLE implements GLE
 	 *            The start angle in XY plane
 	 * @param sweepTheta
 	 *            The number of degrees to spiral around
-	 * @see com.hermetica.gle.GLE#gleSpiral
+	 * @see GLE#gleSpiral(int, double[][], double[][], double[], double, double, double, double, double[][], double[][], double, double)
 	 */
 	@Override
 	public void gleToroid(double rToroid, double startRadius, double drdTheta, double startZ, double dzdTheta, double[][] startTransform, double[][] dTransformdTheta, double startTheta, double sweepTheta) throws GLEException

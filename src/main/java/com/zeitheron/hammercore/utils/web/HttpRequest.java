@@ -400,6 +400,9 @@ public class HttpRequest
 	
 	/**
 	 * Specify the {@link ConnectionFactory} used to create new requests.
+	 * 
+	 * @param connectionFactory
+	 *            The connection factory
 	 */
 	public static void setConnectionFactory(final ConnectionFactory connectionFactory)
 	{
@@ -905,8 +908,10 @@ public class HttpRequest
 	 * constructor.
 	 *
 	 * @param url
+	 *            The url
 	 * @return encoded URL
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public static String encode(final CharSequence url) throws HttpRequestException
 	{
@@ -946,7 +951,9 @@ public class HttpRequest
 	 * {@link Object#toString()} will be the parameter value.
 	 *
 	 * @param url
+	 *            The url
 	 * @param params
+	 *            The parameters
 	 * @return URL with appended query params
 	 */
 	public static String append(final CharSequence url, final Map<?, ?> params)
@@ -982,6 +989,7 @@ public class HttpRequest
 	 * the given number of params must be divisible by 2.
 	 *
 	 * @param url
+	 *            The url
 	 * @param params
 	 *            name/value pairs
 	 * @return URL with appended query params
@@ -1015,8 +1023,10 @@ public class HttpRequest
 	 * Start a 'GET' request to the given URL
 	 *
 	 * @param url
+	 *            The url
 	 * @return request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public static HttpRequest get(final CharSequence url) throws HttpRequestException
 	{
@@ -1027,8 +1037,10 @@ public class HttpRequest
 	 * Start a 'GET' request to the given URL
 	 *
 	 * @param url
+	 *            The url
 	 * @return request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public static HttpRequest get(final URL url) throws HttpRequestException
 	{
@@ -1039,6 +1051,7 @@ public class HttpRequest
 	 * Start a 'GET' request to the given URL along with the query params
 	 *
 	 * @param baseUrl
+	 *            The base URL
 	 * @param params
 	 *            The query parameters to include as part of the baseUrl
 	 * @param encode
@@ -1059,6 +1072,7 @@ public class HttpRequest
 	 * Start a 'GET' request to the given URL along with the query params
 	 *
 	 * @param baseUrl
+	 *            The base URL
 	 * @param encode
 	 *            true to encode the full URL
 	 * @param params
@@ -1080,8 +1094,10 @@ public class HttpRequest
 	 * Start a 'POST' request to the given URL
 	 *
 	 * @param url
+	 *            The url
 	 * @return request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public static HttpRequest post(final CharSequence url) throws HttpRequestException
 	{
@@ -1092,8 +1108,10 @@ public class HttpRequest
 	 * Start a 'POST' request to the given URL
 	 *
 	 * @param url
+	 *            The url
 	 * @return request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public static HttpRequest post(final URL url) throws HttpRequestException
 	{
@@ -1104,6 +1122,7 @@ public class HttpRequest
 	 * Start a 'POST' request to the given URL along with the query params
 	 *
 	 * @param baseUrl
+	 *            The base URL
 	 * @param params
 	 *            the query parameters to include as part of the baseUrl
 	 * @param encode
@@ -1124,6 +1143,7 @@ public class HttpRequest
 	 * Start a 'POST' request to the given URL along with the query params
 	 *
 	 * @param baseUrl
+	 *            The base URL
 	 * @param encode
 	 *            true to encode the full URL
 	 * @param params
@@ -1145,8 +1165,10 @@ public class HttpRequest
 	 * Start a 'PUT' request to the given URL
 	 *
 	 * @param url
+	 *            The URL
 	 * @return request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public static HttpRequest put(final CharSequence url) throws HttpRequestException
 	{
@@ -1157,8 +1179,10 @@ public class HttpRequest
 	 * Start a 'PUT' request to the given URL
 	 *
 	 * @param url
+	 *            The URL
 	 * @return request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public static HttpRequest put(final URL url) throws HttpRequestException
 	{
@@ -1169,6 +1193,7 @@ public class HttpRequest
 	 * Start a 'PUT' request to the given URL along with the query params
 	 *
 	 * @param baseUrl
+	 *            The base URL
 	 * @param params
 	 *            the query parameters to include as part of the baseUrl
 	 * @param encode
@@ -1189,6 +1214,7 @@ public class HttpRequest
 	 * Start a 'PUT' request to the given URL along with the query params
 	 *
 	 * @param baseUrl
+	 *            The base URL
 	 * @param encode
 	 *            true to encode the full URL
 	 * @param params
@@ -1210,8 +1236,10 @@ public class HttpRequest
 	 * Start a 'DELETE' request to the given URL
 	 *
 	 * @param url
+	 *            The URL
 	 * @return request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public static HttpRequest delete(final CharSequence url) throws HttpRequestException
 	{
@@ -1222,8 +1250,10 @@ public class HttpRequest
 	 * Start a 'DELETE' request to the given URL
 	 *
 	 * @param url
+	 *            The URL
 	 * @return request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public static HttpRequest delete(final URL url) throws HttpRequestException
 	{
@@ -1234,6 +1264,7 @@ public class HttpRequest
 	 * Start a 'DELETE' request to the given URL along with the query params
 	 *
 	 * @param baseUrl
+	 *            The base URL
 	 * @param params
 	 *            The query parameters to include as part of the baseUrl
 	 * @param encode
@@ -1254,6 +1285,7 @@ public class HttpRequest
 	 * Start a 'DELETE' request to the given URL along with the query params
 	 *
 	 * @param baseUrl
+	 *            The base URL
 	 * @param encode
 	 *            true to encode the full URL
 	 * @param params
@@ -1275,8 +1307,10 @@ public class HttpRequest
 	 * Start a 'HEAD' request to the given URL
 	 *
 	 * @param url
+	 *            The URL
 	 * @return request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public static HttpRequest head(final CharSequence url) throws HttpRequestException
 	{
@@ -1287,8 +1321,10 @@ public class HttpRequest
 	 * Start a 'HEAD' request to the given URL
 	 *
 	 * @param url
+	 *            The URL
 	 * @return request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public static HttpRequest head(final URL url) throws HttpRequestException
 	{
@@ -1299,6 +1335,7 @@ public class HttpRequest
 	 * Start a 'HEAD' request to the given URL along with the query params
 	 *
 	 * @param baseUrl
+	 *            The base URL
 	 * @param params
 	 *            The query parameters to include as part of the baseUrl
 	 * @param encode
@@ -1319,6 +1356,7 @@ public class HttpRequest
 	 * Start a 'GET' request to the given URL along with the query params
 	 *
 	 * @param baseUrl
+	 *            The base URL
 	 * @param encode
 	 *            true to encode the full URL
 	 * @param params
@@ -1340,8 +1378,10 @@ public class HttpRequest
 	 * Start an 'OPTIONS' request to the given URL
 	 *
 	 * @param url
+	 *            The URL
 	 * @return request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public static HttpRequest options(final CharSequence url) throws HttpRequestException
 	{
@@ -1352,8 +1392,10 @@ public class HttpRequest
 	 * Start an 'OPTIONS' request to the given URL
 	 *
 	 * @param url
+	 *            The URL
 	 * @return request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public static HttpRequest options(final URL url) throws HttpRequestException
 	{
@@ -1364,8 +1406,10 @@ public class HttpRequest
 	 * Start a 'TRACE' request to the given URL
 	 *
 	 * @param url
+	 *            The URL
 	 * @return request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public static HttpRequest trace(final CharSequence url) throws HttpRequestException
 	{
@@ -1376,8 +1420,10 @@ public class HttpRequest
 	 * Start a 'TRACE' request to the given URL
 	 *
 	 * @param url
+	 *            The URL
 	 * @return request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public static HttpRequest trace(final URL url) throws HttpRequestException
 	{
@@ -1606,6 +1652,7 @@ public class HttpRequest
 	 * The default value of this setting is <code>true</code>
 	 *
 	 * @param ignore
+	 *            Ignore
 	 * @return this request
 	 */
 	public HttpRequest ignoreCloseExceptions(final boolean ignore)
@@ -1630,6 +1677,7 @@ public class HttpRequest
 	 *
 	 * @return the response code
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public int code() throws HttpRequestException
 	{
@@ -1648,8 +1696,10 @@ public class HttpRequest
 	 * the response
 	 *
 	 * @param output
+	 *            The output
 	 * @return this request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public HttpRequest code(final AtomicInteger output) throws HttpRequestException
 	{
@@ -1662,6 +1712,7 @@ public class HttpRequest
 	 *
 	 * @return true if 200, false otherwise
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public boolean ok() throws HttpRequestException
 	{
@@ -1673,6 +1724,7 @@ public class HttpRequest
 	 *
 	 * @return true if 201, false otherwise
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public boolean created() throws HttpRequestException
 	{
@@ -1684,6 +1736,7 @@ public class HttpRequest
 	 *
 	 * @return true if 204, false otherwise
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public boolean noContent() throws HttpRequestException
 	{
@@ -1695,6 +1748,7 @@ public class HttpRequest
 	 *
 	 * @return true if 500, false otherwise
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public boolean serverError() throws HttpRequestException
 	{
@@ -1706,6 +1760,7 @@ public class HttpRequest
 	 *
 	 * @return true if 400, false otherwise
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public boolean badRequest() throws HttpRequestException
 	{
@@ -1717,6 +1772,7 @@ public class HttpRequest
 	 *
 	 * @return true if 404, false otherwise
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public boolean notFound() throws HttpRequestException
 	{
@@ -1728,6 +1784,7 @@ public class HttpRequest
 	 *
 	 * @return true if 304, false otherwise
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public boolean notModified() throws HttpRequestException
 	{
@@ -1739,6 +1796,7 @@ public class HttpRequest
 	 *
 	 * @return message
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public String message() throws HttpRequestException
 	{
@@ -1767,6 +1825,7 @@ public class HttpRequest
 	 * Set chunked streaming mode to the given size
 	 *
 	 * @param size
+	 *            The size of a chunk
 	 * @return this request
 	 */
 	public HttpRequest chunk(final int size)
@@ -1784,6 +1843,7 @@ public class HttpRequest
 	 * The default buffer size is 8,192 bytes
 	 *
 	 * @param size
+	 *            The size of the buffer
 	 * @return this request
 	 */
 	public HttpRequest bufferSize(final int size)
@@ -1822,6 +1882,7 @@ public class HttpRequest
 	 * conjunction with this setting to tell the server to gzip the response.
 	 *
 	 * @param uncompress
+	 *            Do uncompression
 	 * @return this request
 	 */
 	public HttpRequest uncompress(final boolean uncompress)
@@ -1851,8 +1912,10 @@ public class HttpRequest
 	 * is null
 	 *
 	 * @param charset
+	 *            The charset
 	 * @return string
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public String body(final String charset) throws HttpRequestException
 	{
@@ -1871,8 +1934,9 @@ public class HttpRequest
 	 * Get response as {@link String} using character set returned from
 	 * {@link #charset()}
 	 *
-	 * @return string
+	 * @return string The body
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public String body() throws HttpRequestException
 	{
@@ -1884,8 +1948,10 @@ public class HttpRequest
 	 * given reference.
 	 *
 	 * @param output
+	 *            The output
 	 * @return this request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public HttpRequest body(final AtomicReference<String> output) throws HttpRequestException
 	{
@@ -1898,9 +1964,12 @@ public class HttpRequest
 	 * given reference.
 	 *
 	 * @param output
+	 *            The output
 	 * @param charset
+	 *            The charset
 	 * @return this request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public HttpRequest body(final AtomicReference<String> output, final String charset) throws HttpRequestException
 	{
@@ -1913,6 +1982,7 @@ public class HttpRequest
 	 *
 	 * @return true if the Content-Length response header is 0, false otherwise
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public boolean isBodyEmpty() throws HttpRequestException
 	{
@@ -1924,6 +1994,7 @@ public class HttpRequest
 	 *
 	 * @return byte array
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public byte[] bytes() throws HttpRequestException
 	{
@@ -1944,6 +2015,7 @@ public class HttpRequest
 	 * @see #bufferSize(int)
 	 * @return stream
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public BufferedInputStream buffer() throws HttpRequestException
 	{
@@ -1955,6 +2027,7 @@ public class HttpRequest
 	 *
 	 * @return stream
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public InputStream stream() throws HttpRequestException
 	{
@@ -2002,8 +2075,10 @@ public class HttpRequest
 	 * is null
 	 *
 	 * @param charset
+	 *            The charset
 	 * @return reader
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public InputStreamReader reader(final String charset) throws HttpRequestException
 	{
@@ -2022,6 +2097,7 @@ public class HttpRequest
 	 *
 	 * @return reader
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public InputStreamReader reader() throws HttpRequestException
 	{
@@ -2035,8 +2111,10 @@ public class HttpRequest
 	 *
 	 * @see #bufferSize(int)
 	 * @param charset
+	 *            The charset
 	 * @return reader
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public BufferedReader bufferedReader(final String charset) throws HttpRequestException
 	{
@@ -2050,6 +2128,7 @@ public class HttpRequest
 	 * @see #bufferSize(int)
 	 * @return reader
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public BufferedReader bufferedReader() throws HttpRequestException
 	{
@@ -2060,8 +2139,10 @@ public class HttpRequest
 	 * Stream response body to file
 	 *
 	 * @param file
+	 *            The file to receive into
 	 * @return this request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public HttpRequest receive(final File file) throws HttpRequestException
 	{
@@ -2090,6 +2171,7 @@ public class HttpRequest
 	 * @param output
 	 * @return this request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public HttpRequest receive(final OutputStream output) throws HttpRequestException
 	{
@@ -2106,8 +2188,10 @@ public class HttpRequest
 	 * Stream response to given print stream
 	 *
 	 * @param output
+	 *            The output
 	 * @return this request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public HttpRequest receive(final PrintStream output) throws HttpRequestException
 	{
@@ -2118,8 +2202,10 @@ public class HttpRequest
 	 * Receive response into the given appendable
 	 *
 	 * @param appendable
+	 *            The appendable
 	 * @return this request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public HttpRequest receive(final Appendable appendable) throws HttpRequestException
 	{
@@ -2147,8 +2233,10 @@ public class HttpRequest
 	 * Receive response into the given writer
 	 *
 	 * @param writer
+	 *            The writer
 	 * @return this request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public HttpRequest receive(final Writer writer) throws HttpRequestException
 	{
@@ -2168,6 +2256,7 @@ public class HttpRequest
 	 * Set read timeout on connection to given value
 	 *
 	 * @param timeout
+	 *            The timeout
 	 * @return this request
 	 */
 	public HttpRequest readTimeout(final int timeout)
@@ -2180,6 +2269,7 @@ public class HttpRequest
 	 * Set connect timeout on connection to given value
 	 *
 	 * @param timeout
+	 *            The timeout
 	 * @return this request
 	 */
 	public HttpRequest connectTimeout(final int timeout)
@@ -2192,7 +2282,9 @@ public class HttpRequest
 	 * Set header name to given value
 	 *
 	 * @param name
+	 *            The name
 	 * @param value
+	 *            The value
 	 * @return this request
 	 */
 	public HttpRequest header(final String name, final String value)
@@ -2205,7 +2297,9 @@ public class HttpRequest
 	 * Set header name to given value
 	 *
 	 * @param name
+	 *            The name
 	 * @param value
+	 *            The value
 	 * @return this request
 	 */
 	public HttpRequest header(final String name, final Number value)
@@ -2218,6 +2312,7 @@ public class HttpRequest
 	 * and the values are the header values
 	 *
 	 * @param headers
+	 *            The header
 	 * @return this request
 	 */
 	public HttpRequest headers(final Map<String, String> headers)
@@ -2232,6 +2327,7 @@ public class HttpRequest
 	 * Set header to have given entry's key as the name and value as the value
 	 *
 	 * @param header
+	 *            The header
 	 * @return this request
 	 */
 	public HttpRequest header(final Entry<String, String> header)
@@ -2243,8 +2339,10 @@ public class HttpRequest
 	 * Get a response header
 	 *
 	 * @param name
+	 *            The name
 	 * @return response header
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public String header(final String name) throws HttpRequestException
 	{
@@ -2257,6 +2355,7 @@ public class HttpRequest
 	 *
 	 * @return map of response header names to their value(s)
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public Map<String, List<String>> headers() throws HttpRequestException
 	{
@@ -2269,8 +2368,10 @@ public class HttpRequest
 	 * header is missing or parsing fails
 	 *
 	 * @param name
+	 *            The name
 	 * @return date, -1 on failures
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public long dateHeader(final String name) throws HttpRequestException
 	{
@@ -2282,9 +2383,12 @@ public class HttpRequest
 	 * default value if the header is missing or parsing fails
 	 *
 	 * @param name
+	 *            The name
 	 * @param defaultValue
+	 *            The default value
 	 * @return date, default value on failures
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public long dateHeader(final String name, final long defaultValue) throws HttpRequestException
 	{
@@ -2297,8 +2401,10 @@ public class HttpRequest
 	 * the header is missing or parsing fails
 	 *
 	 * @param name
+	 *            The name
 	 * @return header value as an integer, -1 when missing or parsing fails
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public int intHeader(final String name) throws HttpRequestException
 	{
@@ -2310,10 +2416,13 @@ public class HttpRequest
 	 * default value if the header is missing or if parsing fails
 	 *
 	 * @param name
+	 *            The name
 	 * @param defaultValue
+	 *            The value
 	 * @return header value as an integer, default value when missing or parsing
 	 *         fails
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public int intHeader(final String name, final int defaultValue) throws HttpRequestException
 	{
@@ -2325,6 +2434,7 @@ public class HttpRequest
 	 * Get all values of the given header from the response
 	 *
 	 * @param name
+	 *            The name
 	 * @return non-null but possibly empty array of {@link String} header values
 	 */
 	public String[] headers(final String name)
@@ -2344,7 +2454,9 @@ public class HttpRequest
 	 * Get parameter with given name from header value in response
 	 *
 	 * @param headerName
+	 *            The header's name
 	 * @param paramName
+	 *            The param's name
 	 * @return parameter value or null if missing
 	 */
 	public String parameter(final String headerName, final String paramName)
@@ -2359,6 +2471,7 @@ public class HttpRequest
 	 * by a ';'
 	 *
 	 * @param headerName
+	 *            The header name
 	 * @return non-null but possibly empty map of parameter headers
 	 */
 	public Map<String, String> parameters(final String headerName)
@@ -2370,6 +2483,7 @@ public class HttpRequest
 	 * Get parameter values from header value
 	 *
 	 * @param header
+	 *            The header
 	 * @return parameter value or null if none
 	 */
 	protected Map<String, String> getParams(final String header)
@@ -2418,7 +2532,9 @@ public class HttpRequest
 	 * Get parameter value from header value
 	 *
 	 * @param value
+	 *            The value
 	 * @param paramName
+	 *            The name
 	 * @return parameter value or null if none
 	 */
 	protected String getParam(final String value, final String paramName)
@@ -2472,6 +2588,7 @@ public class HttpRequest
 	 * Set the 'User-Agent' header to given value
 	 *
 	 * @param userAgent
+	 *            The user agent
 	 * @return this request
 	 */
 	public HttpRequest userAgent(final String userAgent)
@@ -2483,6 +2600,7 @@ public class HttpRequest
 	 * Set the 'Referer' header to given value
 	 *
 	 * @param referer
+	 *            The referer
 	 * @return this request
 	 */
 	public HttpRequest referer(final String referer)
@@ -2494,6 +2612,7 @@ public class HttpRequest
 	 * Set value of {@link HttpURLConnection#setUseCaches(boolean)}
 	 *
 	 * @param useCaches
+	 *            Use caches
 	 * @return this request
 	 */
 	public HttpRequest useCaches(final boolean useCaches)
@@ -2506,6 +2625,7 @@ public class HttpRequest
 	 * Set the 'Accept-Encoding' header to given value
 	 *
 	 * @param acceptEncoding
+	 *            The encoding to accept
 	 * @return this request
 	 */
 	public HttpRequest acceptEncoding(final String acceptEncoding)
@@ -2528,6 +2648,7 @@ public class HttpRequest
 	 * Set the 'Accept-Charset' header to given value
 	 *
 	 * @param acceptCharset
+	 *            The charset to accept
 	 * @return this request
 	 */
 	public HttpRequest acceptCharset(final String acceptCharset)
@@ -2619,6 +2740,7 @@ public class HttpRequest
 	 * Set the 'Authorization' header to given value
 	 *
 	 * @param authorization
+	 *            The authorization
 	 * @return this request
 	 */
 	public HttpRequest authorization(final String authorization)
@@ -2630,6 +2752,7 @@ public class HttpRequest
 	 * Set the 'Proxy-Authorization' header to given value
 	 *
 	 * @param proxyAuthorization
+	 *            The proxy authorization
 	 * @return this request
 	 */
 	public HttpRequest proxyAuthorization(final String proxyAuthorization)
@@ -2642,7 +2765,9 @@ public class HttpRequest
 	 * format
 	 *
 	 * @param name
+	 *            The name
 	 * @param password
+	 *            The password
 	 * @return this request
 	 */
 	public HttpRequest basic(final String name, final String password)
@@ -2655,7 +2780,9 @@ public class HttpRequest
 	 * authentication format
 	 *
 	 * @param name
+	 *            The name
 	 * @param password
+	 *            The password
 	 * @return this request
 	 */
 	public HttpRequest proxyBasic(final String name, final String password)
@@ -2667,6 +2794,7 @@ public class HttpRequest
 	 * Set the 'If-Modified-Since' request header to the given value
 	 *
 	 * @param ifModifiedSince
+	 *            The modified since
 	 * @return this request
 	 */
 	public HttpRequest ifModifiedSince(final long ifModifiedSince)
@@ -2679,6 +2807,7 @@ public class HttpRequest
 	 * Set the 'If-None-Match' request header to the given value
 	 *
 	 * @param ifNoneMatch
+	 *            The if none match
 	 * @return this request
 	 */
 	public HttpRequest ifNoneMatch(final String ifNoneMatch)
@@ -2690,6 +2819,7 @@ public class HttpRequest
 	 * Set the 'Content-Type' request header to the given value
 	 *
 	 * @param contentType
+	 *            The content type
 	 * @return this request
 	 */
 	public HttpRequest contentType(final String contentType)
@@ -2701,7 +2831,9 @@ public class HttpRequest
 	 * Set the 'Content-Type' request header to the given value and charset
 	 *
 	 * @param contentType
+	 *            The content type
 	 * @param charset
+	 *            The charset
 	 * @return this request
 	 */
 	public HttpRequest contentType(final String contentType, final String charset)
@@ -2738,6 +2870,7 @@ public class HttpRequest
 	 * Set the 'Content-Length' request header to the given value
 	 *
 	 * @param contentLength
+	 *            The content length
 	 * @return this request
 	 */
 	public HttpRequest contentLength(final String contentLength)
@@ -2749,6 +2882,7 @@ public class HttpRequest
 	 * Set the 'Content-Length' request header to the given value
 	 *
 	 * @param contentLength
+	 *            The content length
 	 * @return this request
 	 */
 	public HttpRequest contentLength(final int contentLength)
@@ -2761,6 +2895,7 @@ public class HttpRequest
 	 * Set the 'Accept' header to given value
 	 *
 	 * @param accept
+	 *            The accept
 	 * @return this request
 	 */
 	public HttpRequest accept(final String accept)
@@ -2782,9 +2917,12 @@ public class HttpRequest
 	 * Copy from input stream to output stream
 	 *
 	 * @param input
+	 *            The input
 	 * @param output
+	 *            The output
 	 * @return this request
 	 * @throws IOException
+	 *             if something goes wrong
 	 */
 	protected HttpRequest copy(final InputStream input, final OutputStream output) throws IOException
 	{
@@ -2811,9 +2949,12 @@ public class HttpRequest
 	 * Copy from reader to writer
 	 *
 	 * @param input
+	 *            The Reader
 	 * @param output
+	 *            The Writer
 	 * @return this request
 	 * @throws IOException
+	 *             if something goes wrong
 	 */
 	protected HttpRequest copy(final Reader input, final Writer output) throws IOException
 	{
@@ -2840,6 +2981,7 @@ public class HttpRequest
 	 * Set the UploadProgress callback for this request
 	 *
 	 * @param callback
+	 *            The callback
 	 * @return this request
 	 */
 	public HttpRequest progress(final UploadProgress callback)
@@ -2864,7 +3006,9 @@ public class HttpRequest
 	 *
 	 * @return this request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 * @throws IOException
+	 *             if something goes wrong
 	 */
 	protected HttpRequest closeOutput() throws IOException
 	{
@@ -2893,6 +3037,7 @@ public class HttpRequest
 	 *
 	 * @return this request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	protected HttpRequest closeOutputQuietly() throws HttpRequestException
 	{
@@ -2910,6 +3055,7 @@ public class HttpRequest
 	 *
 	 * @return this request
 	 * @throws IOException
+	 *             if something goes wrong
 	 */
 	protected HttpRequest openOutput() throws IOException
 	{
@@ -2926,6 +3072,7 @@ public class HttpRequest
 	 *
 	 * @return this request
 	 * @throws IOException
+	 *             if something goes wrong
 	 */
 	protected HttpRequest startPart() throws IOException
 	{
@@ -2943,9 +3090,12 @@ public class HttpRequest
 	 * Write part header
 	 *
 	 * @param name
+	 *            The name
 	 * @param filename
+	 *            The filename
 	 * @return this request
 	 * @throws IOException
+	 *             if something goes wrong
 	 */
 	protected HttpRequest writePartHeader(final String name, final String filename) throws IOException
 	{
@@ -2956,10 +3106,14 @@ public class HttpRequest
 	 * Write part header
 	 *
 	 * @param name
+	 *            The name
 	 * @param filename
+	 *            The filename
 	 * @param contentType
+	 *            The content type
 	 * @return this request
 	 * @throws IOException
+	 *             if something goes wrong
 	 */
 	protected HttpRequest writePartHeader(final String name, final String filename, final String contentType) throws IOException
 	{
@@ -2978,7 +3132,9 @@ public class HttpRequest
 	 * Write part of a multipart request to the request body
 	 *
 	 * @param name
+	 *            The name
 	 * @param part
+	 *            The part
 	 * @return this request
 	 */
 	public HttpRequest part(final String name, final String part)
@@ -2990,10 +3146,14 @@ public class HttpRequest
 	 * Write part of a multipart request to the request body
 	 *
 	 * @param name
+	 *            The name
 	 * @param filename
+	 *            The filename
 	 * @param part
+	 *            The part
 	 * @return this request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public HttpRequest part(final String name, final String filename, final String part) throws HttpRequestException
 	{
@@ -3004,12 +3164,16 @@ public class HttpRequest
 	 * Write part of a multipart request to the request body
 	 *
 	 * @param name
+	 *            The name
 	 * @param filename
+	 *            The filename
 	 * @param contentType
 	 *            value of the Content-Type part header
 	 * @param part
+	 *            The part
 	 * @return this request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public HttpRequest part(final String name, final String filename, final String contentType, final String part) throws HttpRequestException
 	{
@@ -3029,9 +3193,12 @@ public class HttpRequest
 	 * Write part of a multipart request to the request body
 	 *
 	 * @param name
+	 *            The name
 	 * @param part
+	 *            The part
 	 * @return this request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public HttpRequest part(final String name, final Number part) throws HttpRequestException
 	{
@@ -3042,10 +3209,14 @@ public class HttpRequest
 	 * Write part of a multipart request to the request body
 	 *
 	 * @param name
+	 *            The name
 	 * @param filename
+	 *            The filename
 	 * @param part
+	 *            The part
 	 * @return this request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public HttpRequest part(final String name, final String filename, final Number part) throws HttpRequestException
 	{
@@ -3056,9 +3227,12 @@ public class HttpRequest
 	 * Write part of a multipart request to the request body
 	 *
 	 * @param name
+	 *            The name
 	 * @param part
+	 *            The part
 	 * @return this request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public HttpRequest part(final String name, final File part) throws HttpRequestException
 	{
@@ -3069,10 +3243,14 @@ public class HttpRequest
 	 * Write part of a multipart request to the request body
 	 *
 	 * @param name
+	 *            The name
 	 * @param filename
+	 *            The filename
 	 * @param part
+	 *            The part
 	 * @return this request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public HttpRequest part(final String name, final String filename, final File part) throws HttpRequestException
 	{
@@ -3083,12 +3261,16 @@ public class HttpRequest
 	 * Write part of a multipart request to the request body
 	 *
 	 * @param name
+	 *            The name
 	 * @param filename
+	 *            The filename
 	 * @param contentType
 	 *            value of the Content-Type part header
 	 * @param part
+	 *            The part
 	 * @return this request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public HttpRequest part(final String name, final String filename, final String contentType, final File part) throws HttpRequestException
 	{
@@ -3108,9 +3290,12 @@ public class HttpRequest
 	 * Write part of a multipart request to the request body
 	 *
 	 * @param name
+	 *            The name
 	 * @param part
+	 *            The part
 	 * @return this request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public HttpRequest part(final String name, final InputStream part) throws HttpRequestException
 	{
@@ -3121,12 +3306,16 @@ public class HttpRequest
 	 * Write part of a multipart request to the request body
 	 *
 	 * @param name
+	 *            The name
 	 * @param filename
+	 *            The filename
 	 * @param contentType
 	 *            value of the Content-Type part header
 	 * @param part
+	 *            The part
 	 * @return this request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public HttpRequest part(final String name, final String filename, final String contentType, final InputStream part) throws HttpRequestException
 	{
@@ -3146,9 +3335,12 @@ public class HttpRequest
 	 * Write a multipart header to the response body
 	 *
 	 * @param name
+	 *            The name
 	 * @param value
+	 *            The value
 	 * @return this request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public HttpRequest partHeader(final String name, final String value) throws HttpRequestException
 	{
@@ -3159,8 +3351,10 @@ public class HttpRequest
 	 * Write contents of file to request body
 	 *
 	 * @param input
+	 *            The input
 	 * @return this request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public HttpRequest send(final File input) throws HttpRequestException
 	{
@@ -3180,8 +3374,10 @@ public class HttpRequest
 	 * Write byte array to request body
 	 *
 	 * @param input
+	 *            The input
 	 * @return this request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public HttpRequest send(final byte[] input) throws HttpRequestException
 	{
@@ -3196,8 +3392,10 @@ public class HttpRequest
 	 * The given stream will be closed once sending completes
 	 *
 	 * @param input
+	 *            The input
 	 * @return this request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public HttpRequest send(final InputStream input) throws HttpRequestException
 	{
@@ -3218,8 +3416,10 @@ public class HttpRequest
 	 * The given reader will be closed once sending completes
 	 *
 	 * @param input
+	 *            The input
 	 * @return this request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public HttpRequest send(final Reader input) throws HttpRequestException
 	{
@@ -3249,8 +3449,10 @@ public class HttpRequest
 	 * UTF-8 will be used if it is unset.
 	 *
 	 * @param value
+	 *            The value
 	 * @return this request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public HttpRequest send(final CharSequence value) throws HttpRequestException
 	{
@@ -3270,6 +3472,7 @@ public class HttpRequest
 	 *
 	 * @return writer
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public OutputStreamWriter writer() throws HttpRequestException
 	{
@@ -3290,8 +3493,10 @@ public class HttpRequest
 	 * 'application/x-www-form-urlencoded' content-type
 	 *
 	 * @param values
+	 *            The values map
 	 * @return this request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public HttpRequest form(final Map<?, ?> values) throws HttpRequestException
 	{
@@ -3320,9 +3525,12 @@ public class HttpRequest
 	 * 'application/x-www-form-urlencoded' content-type
 	 *
 	 * @param entry
+	 *            The entry
 	 * @param charset
+	 *            The charset
 	 * @return this request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public HttpRequest form(final Entry<?, ?> entry, final String charset) throws HttpRequestException
 	{
@@ -3336,9 +3544,12 @@ public class HttpRequest
 	 * 'application/x-www-form-urlencoded' content-type
 	 *
 	 * @param name
+	 *            The name
 	 * @param value
+	 *            The value
 	 * @return this request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public HttpRequest form(final Object name, final Object value) throws HttpRequestException
 	{
@@ -3352,10 +3563,14 @@ public class HttpRequest
 	 * 'application/x-www-form-urlencoded' content-type
 	 *
 	 * @param name
+	 *            The name
 	 * @param value
+	 *            The value
 	 * @param charset
+	 *            The charset
 	 * @return this request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public HttpRequest form(final Object name, final Object value, String charset) throws HttpRequestException
 	{
@@ -3386,9 +3601,12 @@ public class HttpRequest
 	 * Write the values in the map as encoded form data to the request body
 	 *
 	 * @param values
+	 *            The value map
 	 * @param charset
+	 *            The charset
 	 * @return this request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public HttpRequest form(final Map<?, ?> values, final String charset) throws HttpRequestException
 	{
@@ -3405,6 +3623,7 @@ public class HttpRequest
 	 *
 	 * @return this request
 	 * @throws HttpRequestException
+	 *             if something goes wrong
 	 */
 	public HttpRequest trustAllCerts() throws HttpRequestException
 	{
@@ -3457,7 +3676,9 @@ public class HttpRequest
 	 * authentication.
 	 *
 	 * @param proxyHost
+	 *            The host
 	 * @param proxyPort
+	 *            The port
 	 * @return this request
 	 */
 	public HttpRequest useProxy(final String proxyHost, final int proxyPort)
@@ -3475,7 +3696,7 @@ public class HttpRequest
 	 * the response.
 	 *
 	 * @param followRedirects
-	 *            - true fo follow redirects, false to not.
+	 *            true fo follow redirects, false to not.
 	 * @return this request
 	 */
 	public HttpRequest followRedirects(final boolean followRedirects)

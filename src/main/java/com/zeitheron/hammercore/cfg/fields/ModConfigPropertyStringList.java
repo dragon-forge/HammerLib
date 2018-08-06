@@ -21,6 +21,6 @@ public @interface ModConfigPropertyStringList
 	
 	String[] defaultValue();
 	
-	/** Return either null or empty array to allow anything */
+	/** @return either null or empty array to allow anything */
 	String[] allowedValues();
 }

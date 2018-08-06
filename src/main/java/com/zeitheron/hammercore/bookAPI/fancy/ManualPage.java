@@ -233,6 +233,10 @@ public class ManualPage
 	
 	/**
 	 * Adds the items that are outputs on this page.
+	 * 
+	 * @param associations
+	 *            The associated output items
+	 * @return This page, for convenience
 	 */
 	public ManualPage addClickthroughAssociation(ItemStack... associations)
 	{
@@ -242,7 +246,7 @@ public class ManualPage
 	}
 	
 	/**
-	 * Gets the localized text (description) on this page.
+	 * @return the localized text (description) on this page.
 	 */
 	public String getTranslatedText()
 	{

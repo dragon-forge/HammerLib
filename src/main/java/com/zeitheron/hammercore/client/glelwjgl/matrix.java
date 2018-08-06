@@ -54,6 +54,12 @@ public class matrix
 	 */
 	/**
 	 * Creates a rotation matrix about the x-axis
+	 * 
+	 * @param cosine
+	 *            double
+	 * @param sine
+	 *            double
+	 * @return double matrix
 	 */
 	private static final double[][] ROTX_CS(double cosine, double sine)
 	{
@@ -82,6 +88,12 @@ public class matrix
 	
 	/**
 	 * Creates a rotation matrix around the y-axis
+	 * 
+	 * @param cosine
+	 *            double
+	 * @param sine
+	 *            double
+	 * @return double matrix
 	 */
 	private static final double[][] ROTY_CS(double cosine, double sine)
 	{
@@ -111,6 +123,12 @@ public class matrix
 	
 	/**
 	 * Creates a rotation matrix around the z-axis
+	 * 
+	 * @param cosine
+	 *            double
+	 * @param sine
+	 *            double
+	 * @return double matrix
 	 */
 	private static final double[][] ROTZ_CS(double cosine, double sine)
 	{
@@ -155,6 +173,12 @@ public class matrix
 	 */
 	/**
 	 * Creates a matrix that represents rotation about the x-axis
+	 * 
+	 * @param cosine
+	 *            double
+	 * @param sine
+	 *            double
+	 * @return double matrix
 	 */
 	public static final double[][] urotx_cs_d(double cosine, double sine)
 	{
@@ -163,6 +187,11 @@ public class matrix
 	
 	/**
 	 * Creates and loads a matrix that represents rotation about the x-axis
+	 * 
+	 * @param cosine
+	 *            double
+	 * @param sine
+	 *            double
 	 */
 	public static final void rotx_cs_d(double cosine, double sine)
 	{
@@ -172,6 +201,12 @@ public class matrix
 	
 	/**
 	 * Creates a matrix that represents rotation about the y-axis
+	 * 
+	 * @param cosine
+	 *            double
+	 * @param sine
+	 *            double
+	 * @return double matrix
 	 */
 	public static final double[][] uroty_cs_d(double cosine, double sine)
 	{
@@ -180,6 +215,11 @@ public class matrix
 	
 	/**
 	 * Creates and loads a matrix that represents rotation about the y-axis
+	 * 
+	 * @param cosine
+	 *            double
+	 * @param sine
+	 *            double
 	 */
 	public static final void roty_cs_d(double cosine, double sine)
 	{
@@ -188,6 +228,10 @@ public class matrix
 	
 	/**
 	 * Creates a matrix that represents rotation about the z-axis
+	 * 
+	 * @param cosine double
+	 * @param sine double
+	 * @return double matrix
 	 */
 	public static final double[][] urotz_cs_d(double cosine, double sine)
 	{
@@ -196,6 +240,9 @@ public class matrix
 	
 	/**
 	 * Creates and loads a matrix that represents rotation about the z-axis
+	 * 
+	 * @param cosine double
+	 * @param sine double
 	 */
 	public static final void rotz_cs_d(double cosine, double sine)
 	{
@@ -204,6 +251,11 @@ public class matrix
 	
 	/**
 	 * Creates a matrix that represents rotation about the given axis
+	 * 
+	 * @param cosine double
+	 * @param sine double
+	 * @param axis char
+	 * @return double matrix
 	 */
 	public static final double[][] urot_cs_d(double cosine, double sine, char axis)
 	{
@@ -230,6 +282,10 @@ public class matrix
 	
 	/**
 	 * Creates and loads a matrix that represents rotation about the given axis
+	 * 
+	 * @param cosine double
+	 * @param sine double
+	 * @param axis char
 	 */
 	public static final void rot_cs_d(double cosine, double sine, char axis)
 	{
@@ -240,6 +296,10 @@ public class matrix
 	 * Generates a rotation matrix for rotation about principal axis; note that
 	 * angle is measured in radians ( divide by 180, multiply by PI to convert
 	 * from degrees )
+	 * 
+	 * @param theta double
+	 * @param axis char
+	 * @return double matrix
 	 */
 	public static final double[][] urot_prince_d(double theta, char axis)
 	{
@@ -250,6 +310,9 @@ public class matrix
 	 * Generates and loads a rotation matrix for rotation about principal axis;
 	 * note that angle is measured in radians ( divide by 180, multiply by PI to
 	 * convert from degrees )
+	 * 
+	 * @param theta double
+	 * @param axis char
 	 */
 	public static final void rot_prince_d(double theta, char axis)
 	{
@@ -264,6 +327,9 @@ public class matrix
 	 */
 	/**
 	 * Generates and loads a rotation about axis matrix
+	 * 
+	 * @param omega double
+	 * @param axis double[]
 	 */
 	public static final void rot_axis_d(double omega, double[] axis)
 	{
@@ -271,7 +337,8 @@ public class matrix
 	}
 	
 	/**
-	 *
+	 * @param angle double
+	 * @param axis double[]
 	 */
 	public static final void rot_about_axis_d(double angle, double[] axis)
 	{
@@ -279,7 +346,7 @@ public class matrix
 	}
 	
 	/**
-	 *
+	 * @param axis double
 	 */
 	public static final void rot_omega_d(double[] axis)
 	{
@@ -293,7 +360,9 @@ public class matrix
 	 * -- Begin urotate.c --
 	 */
 	/**
-	 *
+	 * @param omega double
+	 * @param axis double[]
+	 * @return double matrix
 	 */
 	public static final double[][] urot_axis_d(double omega, double[] axis)
 	{
@@ -368,7 +437,9 @@ public class matrix
 	}
 	
 	/**
-	 *
+	 * @param angle double
+	 * @param axis double[]
+	 * @return double matrix
 	 */
 	public static final double[][] urot_about_axis_d(double angle, double[] axis)
 	{
@@ -406,7 +477,8 @@ public class matrix
 	}
 	
 	/**
-	 *
+	 * @param axis double[]
+	 * @return double matrix
 	 */
 	public static final double[][] urot_omega_d(double[] axis)
 	{
@@ -435,6 +507,8 @@ public class matrix
 	 */
 	/**
 	 * Returns a new vector with all coefficients set to 0
+	 * 
+	 * @return zero vector
 	 */
 	public static final double[] VEC_ZERO()
 	{
@@ -445,6 +519,9 @@ public class matrix
 	
 	/**
 	 * Returns a new vector as the given vector normalized
+	 * 
+	 * @param v double[]
+	 * @return normalized vector
 	 */
 	public static final double[] VEC_NORMALIZE(double[] v)
 	{
@@ -463,6 +540,10 @@ public class matrix
 	/**
 	 * Vector reflection. Takes vector v and reflects it against reflector n.
 	 * Returns the new reflected vector
+	 * 
+	 * @param v double[]
+	 * @param n double[]
+	 * @return double array
 	 */
 	public static final double[] VEC_REFLECT(double[] v, double[] n)
 	{
@@ -477,6 +558,9 @@ public class matrix
 	
 	/**
 	 * Returns a new vector as a copy of the given vector
+	 * 
+	 * @param v double[]
+	 * @return double array
 	 */
 	public static final double[] VEC_COPY_2(double[] v)
 	{
@@ -488,6 +572,9 @@ public class matrix
 	
 	/**
 	 * Returns a new vector as a copy of the given vector
+	 * 
+	 * @param v double[]
+	 * @return double array
 	 */
 	public static final double[] VEC_COPY(double[] v)
 	{
@@ -500,6 +587,9 @@ public class matrix
 	
 	/**
 	 * Returns the length of the given vector
+	 * 
+	 * @param v double[]
+	 * @return double
 	 */
 	public static final double VEC_LENGTH_2(double[] v)
 	{
@@ -509,6 +599,9 @@ public class matrix
 	
 	/**
 	 * Returns the length of the given vector
+	 * 
+	 * @param v double[]
+	 * @return double
 	 */
 	public static final double VEC_LENGTH(double[] v)
 	{
@@ -518,6 +611,10 @@ public class matrix
 	
 	/**
 	 * Returns a new vector as a scaled version of the given one
+	 * 
+	 * @param scale double
+	 * @param v double[]
+	 * @return double array
 	 */
 	public static final double[] VEC_SCALE(double scale, double[] v)
 	{
@@ -530,6 +627,10 @@ public class matrix
 	
 	/**
 	 * Calculates the cross product of the two given vectors
+	 * 
+	 * @param v1 double[]
+	 * @param v2 double[]
+	 * @return double array
 	 */
 	public static final double[] VEC_CROSS_PRODUCT(double[] v1, double[] v2)
 	{
@@ -542,6 +643,10 @@ public class matrix
 	
 	/**
 	 * Calculates the dot product of the two given vectors
+	 * 
+	 * @param v1 double[]
+	 * @param v2 double[]
+	 * @return double
 	 */
 	public static final double VEC_DOT_PRODUCT(double[] v1, double[] v2)
 	{
@@ -557,6 +662,10 @@ public class matrix
 	
 	/**
 	 * Calculates vector parallel to the given vectors
+	 * 
+	 * @param v double[]
+	 * @param n double[]
+	 * @return double array
 	 */
 	public static final double[] VEC_PERP(double[] v, double[] n)
 	{
@@ -578,6 +687,10 @@ public class matrix
 	/**
 	 * Returns a new vector containing the difference between the two given
 	 * vectors
+	 * 
+	 * @param v2 double[]
+	 * @param v1 double[]
+	 * @return double array
 	 */
 	public static final double[] VEC_DIFF(double[] v2, double[] v1)
 	{
@@ -597,6 +710,10 @@ public class matrix
 	
 	/**
 	 * Returns a new vector created from the sum of the two given vectors
+	 * 
+	 * @param v1 double[]
+	 * @param v2 double[]
+	 * @return double array
 	 */
 	public static final double[] VEC_SUM(double[] v1, double[] v2)
 	{
@@ -616,6 +733,8 @@ public class matrix
 	
 	/**
 	 * Initializes a 3x3 matrix
+	 * 
+	 * @return identity matrix
 	 */
 	public static final double[][] IDENTIFY_MATRIX_3X3()
 	{
@@ -638,6 +757,8 @@ public class matrix
 	
 	/**
 	 * Initializes a 4x4 matrix
+	 * 
+	 * @return identity matrix
 	 */
 	public static final double[][] IDENTIFY_MATRIX_4X4()
 	{
@@ -668,6 +789,9 @@ public class matrix
 	
 	/**
 	 * Returns a new 2x2 matrix that is a copy of the given 2x2 matrix
+	 * 
+	 * @param a double[][]
+	 * @return copy
 	 */
 	public static final double[][] COPY_MATRIX_2X2(double[][] a)
 	{
@@ -684,6 +808,9 @@ public class matrix
 	
 	/**
 	 * Returns a new 2x3 matrix that is a copy of the given 2x3 matrix
+	 * 
+	 * @param a double[][]
+	 * @return copy
 	 */
 	public static final double[][] COPY_MATRIX_2X3(double[][] a)
 	{
@@ -702,6 +829,9 @@ public class matrix
 	
 	/**
 	 * Returns a new 4x4 matrix that is a copy of the given 4x4 matrix
+	 * 
+	 * @param a double[][]
+	 * @return copy
 	 */
 	public static final double[][] COPY_MATRIX_4X4(double[][] a)
 	{
@@ -732,6 +862,10 @@ public class matrix
 	
 	/**
 	 * Returns a new matrix as the product of the two given matrices
+	 * 
+	 * @param a double[][]
+	 * @param b double[][]
+	 * @return double matrix
 	 */
 	public static final double[][] MATRIX_PRODUCT_2X2(double[][] a, double[][] b)
 	{
@@ -749,6 +883,10 @@ public class matrix
 	
 	/**
 	 * Returns a new matrix as the product of the two given matrices
+	 * 
+	 * @param a double[][]
+	 * @param b double[][]
+	 * @return double matrix
 	 */
 	public static final double[][] MATRIX_PRODUCT_4X4(double[][] a, double[][] b)
 	{
@@ -780,6 +918,10 @@ public class matrix
 	/**
 	 * Affine matrix times vector. The matrix is assumed to be an affine matrix
 	 * with last two entries representing a translation
+	 * 
+	 * @param m double[][]
+	 * @param v double[]
+	 * @return double array
 	 */
 	public static final double[] MAT_DOT_VEC_2X3(double[][] m, double[] v)
 	{
@@ -792,6 +934,10 @@ public class matrix
 	
 	/**
 	 * Matrix times vector
+	 * 
+	 * @param m double[][]
+	 * @param v double[]
+	 * @return double array
 	 */
 	public static final double[] MAT_DOT_VEC_3X3(double[][] m, double[] v)
 	{
@@ -810,6 +956,10 @@ public class matrix
 	 *
 	 * This macro computes inverse transpose of matrix m, and multiplies vector
 	 * v into it, to yeild vector p Vector p is then normalized.
+	 * 
+	 * @param m double[][]
+	 * @param v double[]
+	 * @return double array
 	 */
 	public static final double[] NORM_XFORM_2X2(double[][] m, double[] v)
 	{
@@ -851,6 +1001,10 @@ public class matrix
 	 * normalizes when necessary, it does nothing when vectors are of zero
 	 * length, or are co-linear. This code shouldn't croak, no matter what the
 	 * user sends in as arguments.
+	 * 
+	 * @param v21 double[]
+	 * @param up double[]
+	 * @return double matrix
 	 */
 	public static final double[][] uview_direction_d(double[] v21, double[] up)
 	{
@@ -958,9 +1112,6 @@ public class matrix
 		return m;
 	}
 	
-	/**
-	 *
-	 */
 	public static final double[][] uviewpoint_d(double[] v1, double[] v2, double[] up)
 	{
 		

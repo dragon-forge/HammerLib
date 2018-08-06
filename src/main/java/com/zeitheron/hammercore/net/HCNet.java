@@ -97,7 +97,14 @@ public enum HCNet
 			}
 	}
 	
-	/** Swings the player's arms on server AND client if called from server. */
+	/**
+	 * Swings the player's arms on server AND client if called from server.
+	 * 
+	 * @param player
+	 *            The player
+	 * @param hand
+	 *            The hand to swing
+	 */
 	public static void swingArm(EntityPlayer player, EnumHand hand)
 	{
 		player.swingArm(hand);

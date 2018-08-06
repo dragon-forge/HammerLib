@@ -464,7 +464,9 @@ public class Vector3 implements ICopyable<Vector3>
 	/**
 	 * Equals method with tolerance
 	 *
-	 * @return true if this is equal to v within +-1E-5
+	 * @param v
+	 *            the other vector to comare to
+	 * @return true if this is equal to v within ±1E-5
 	 */
 	public boolean equalsT(Vector3 v)
 	{
