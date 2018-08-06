@@ -17,6 +17,9 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 
+/**
+ * An internal class.
+ */
 public class GuiMissingApis extends GuiScreen
 {
 	private int panoramaTimer;

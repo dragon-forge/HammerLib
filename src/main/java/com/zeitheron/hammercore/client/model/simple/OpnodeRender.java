@@ -8,8 +8,24 @@ import com.zeitheron.hammercore.client.render.vertex.SimpleBlockRendering;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.EnumFacing;
 
+/**
+ * A renderer class for opnodes.
+ */
 public class OpnodeRender
 {
+	/**
+	 * Renders opnodes to {@link SimpleBlockRendering}.
+	 * 
+	 * @param sbr
+	 *            The renderer class.
+	 * @param nodes
+	 *            The opnode list. Get it from {@link SimpleModelParser}
+	 * @param bright
+	 *            The brightness of the model
+	 * @param newTessellation
+	 *            If we should call {@link SimpleBlockRendering#begin()} and
+	 *            {@link SimpleBlockRendering#end()}
+	 */
 	public static void renderOpnodes(SimpleBlockRendering sbr, List<int[]> nodes, int bright, boolean newTessellation)
 	{
 		if(newTessellation)
@@ -20,6 +36,19 @@ public class OpnodeRender
 			sbr.end();
 	}
 	
+	/**
+	 * Renders a single opnode to {@link SimpleBlockRendering}.
+	 * 
+	 * @param sbr
+	 *            The renderer class.
+	 * @param opnode
+	 *            The opnode itself. Get it from {@link SimpleModelParser}
+	 * @param bright
+	 *            The brightness of the model
+	 * @param newTessellation
+	 *            If we should call {@link SimpleBlockRendering#begin()} and
+	 *            {@link SimpleBlockRendering#end()}
+	 */
 	public static void renderOpnode(SimpleBlockRendering sbr, int[] opnode, int bright, boolean newTessellation)
 	{
 		if(newTessellation)

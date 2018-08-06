@@ -9,6 +9,9 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+/**
+ * Internal use only!
+ */
 public class SnowfallHooks
 {
 	private static void meltSnow(World world, BlockPos pos, IBlockState state, Random rand)

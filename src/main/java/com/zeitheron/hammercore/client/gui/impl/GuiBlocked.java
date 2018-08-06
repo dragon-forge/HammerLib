@@ -9,6 +9,9 @@ import com.zeitheron.hammercore.HammerCore;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
+/**
+ * An internal class.
+ */
 public class GuiBlocked extends GuiScreen
 {
 	public String reason1 = "", reason2 = "";

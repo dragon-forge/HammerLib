@@ -6,6 +6,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+/**
+ * A float config annotation.
+ */
 @Retention(RUNTIME)
 @Target(FIELD)
 public @interface ModConfigPropertyFloat

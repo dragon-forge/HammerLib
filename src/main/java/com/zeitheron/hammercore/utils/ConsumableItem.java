@@ -6,6 +6,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
+import net.minecraftforge.oredict.OreIngredient;
 
 public class ConsumableItem
 {
@@ -25,7 +26,7 @@ public class ConsumableItem
 	
 	public static ConsumableItem of(int amount, String oredict)
 	{
-		return new ConsumableItem(amount, new OreDictionaryIngredient(oredict));
+		return new ConsumableItem(amount, new OreIngredient(oredict));
 	}
 	
 	public static ConsumableItem of(int amount, ItemStack... stacks)

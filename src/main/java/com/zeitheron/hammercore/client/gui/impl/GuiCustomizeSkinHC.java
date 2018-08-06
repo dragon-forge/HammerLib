@@ -16,6 +16,9 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EnumPlayerModelParts;
 
+/**
+ * An internal class.
+ */
 public class GuiCustomizeSkinHC extends GuiCustomizeSkin
 {
 	public static Supplier<? extends GuiScreen> customization;

@@ -13,6 +13,9 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.init.SoundEvents;
 
+/**
+ * An internal class.
+ */
 public class GuiPersonalisation extends GuiScreen
 {
 	public int page;

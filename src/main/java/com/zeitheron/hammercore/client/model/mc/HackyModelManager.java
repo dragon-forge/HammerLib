@@ -9,6 +9,9 @@ import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+/**
+ * Failed experiment, I think.
+ */
 public class HackyModelManager
 {
 	private static List<Pair<ModelResourceLocation, ISimplifiedModel>> models = new ArrayList<>();

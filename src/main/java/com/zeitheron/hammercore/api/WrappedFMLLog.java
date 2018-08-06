@@ -6,7 +6,7 @@ import net.minecraftforge.fml.common.FMLLog;
 
 /**
  * Implementation for {@link ILog}. Used in
- * {@link IHammerCoreAPI#init(ILog, String)}
+ * {@link IHammerCoreAPI#init(ILog, String)}. Internal use class.
  */
 public class WrappedFMLLog implements ILog
 {

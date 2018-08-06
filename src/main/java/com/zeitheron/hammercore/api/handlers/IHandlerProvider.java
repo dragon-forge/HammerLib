@@ -8,7 +8,13 @@ import net.minecraft.util.EnumFacing;
  */
 public interface IHandlerProvider
 {
+	/**
+	 * Gets the handler for the passed class, at facing with params.
+	 */
 	<T extends ITileHandler> T getHandler(EnumFacing facing, Class<T> handler, Object... params);
 	
+	/**
+	 * Tests if the handler for the passed class, at facing with params exists.
+	 */
 	<T extends ITileHandler> boolean hasHandler(EnumFacing facing, Class<T> handler, Object... params);
 }

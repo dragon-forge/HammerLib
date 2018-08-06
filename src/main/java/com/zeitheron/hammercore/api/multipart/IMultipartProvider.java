@@ -13,8 +13,14 @@ import net.minecraft.world.World;
  */
 public interface IMultipartProvider
 {
+	/**
+	 * Creates an instance for multipart that will handle custom data.
+	 */
 	MultipartSignature createSignature(int signatureIndex, ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ);
 	
+	/**
+	 * Peeks a {@link TileMultipart} if this multipart can be placed in it.
+	 */
 	default boolean canPlaceInto(TileMultipart multipart, ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
 	{
 		return true;

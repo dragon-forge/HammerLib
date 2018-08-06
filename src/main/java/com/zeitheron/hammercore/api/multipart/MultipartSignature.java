@@ -36,7 +36,9 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
- * The main part of {@link MultipartAPI}
+ * The main part of {@link MultipartAPI} or the "multipart instance". This class
+ * may hold custom data, write and read it with NBT. Also allows to do some
+ * default stuff like hardness, pick block and sound type.
  */
 public abstract class MultipartSignature implements IPropertyChangeHandler
 {

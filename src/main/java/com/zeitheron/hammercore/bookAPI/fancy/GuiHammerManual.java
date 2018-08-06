@@ -35,6 +35,9 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 
+/**
+ * Internal use only!
+ */
 public class GuiHammerManual extends GuiScreen
 {
 	private static int guiMapTop;

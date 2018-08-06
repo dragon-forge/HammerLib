@@ -1,8 +1,6 @@
 package com.zeitheron.hammercore.client.model.simple;
 
-import java.io.Serializable;
-
-public class Opnode implements Serializable
+public class Opnode
 {
 	public static void verify(int[] opnode)
 	{

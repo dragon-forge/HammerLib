@@ -5,7 +5,8 @@ import com.zeitheron.hammercore.HammerCore;
 import net.minecraftforge.fml.common.versioning.ComparableVersion;
 
 /**
- * Allows modder to check for external APIs
+ * Allows modder to check for external APIs. Used by
+ * <a href = "https://minecraft.curseforge.com/projects/289079">Music Layer</a>
  */
 public class APILoader
 {

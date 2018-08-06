@@ -18,6 +18,9 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraft.util.ResourceLocation;
 
+/**
+ * An internal class.
+ */
 public class GuiFurnaceSmooth extends GuiFurnace
 {
 	private static final ResourceLocation FURNACE_GUI_TEXTURE = new ResourceLocation("textures/gui/container/furnace.png");
@@ -77,8 +80,7 @@ public class GuiFurnaceSmooth extends GuiFurnace
 			RenderUtil.drawTexturedModalRect(guiLeft + 56, guiTop + 37 + 12 - k, 0, 12 - k, 14, k + 1);
 		}
 		
-		double l = cookProgressScaled(24);
-		GuiWidgets.drawFurnaceArrow(guiLeft + 81, guiTop + 34, l);
+		GuiWidgets.drawFurnaceArrow(guiLeft + 81, guiTop + 34, cookProgressScaled(1));
 	}
 	
 	private double cookProgressScaled(double pixels)

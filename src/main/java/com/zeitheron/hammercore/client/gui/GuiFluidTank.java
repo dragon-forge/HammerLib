@@ -9,6 +9,7 @@ import com.zeitheron.hammercore.client.utils.RenderUtil;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -20,6 +21,9 @@ import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 
+/**
+ * A simple texture-less fluid tank rendering with tooltip support.
+ */
 public class GuiFluidTank extends Gui
 {
 	private static final int TEX_WIDTH = 16;
@@ -31,6 +35,20 @@ public class GuiFluidTank extends Gui
 	
 	public int tankColor = 0xFF7F0000;
 	
+	/**
+	 * Constructs a new tank renderer. Call under {@link GuiScreen#initGui()}
+	 * 
+	 * @param x
+	 *            the X position of the tank
+	 * @param y
+	 *            the Y position of the tank
+	 * @param width
+	 *            the width of the tank
+	 * @param height
+	 *            the height of the tank
+	 * @param tank
+	 *            the fluid tank to be rendered.
+	 */
 	public GuiFluidTank(int x, int y, int width, int height, FluidTank tank)
 	{
 		this.x = x;
@@ -40,6 +58,9 @@ public class GuiFluidTank extends Gui
 		this.tank = tank;
 	}
 	
+	/**
+	 * Renders a tank in the gui.
+	 */
 	public void render(int mouseX, int mouseY)
 	{
 		int totalLines = Math.round(height / 5F);
@@ -59,14 +80,14 @@ public class GuiFluidTank extends Gui
 	
 	/**
 	 * Returns if you should draw the tooltip (get it from
-	 * {@link #getTooltip(int, int)})
+	 * {@link #getTooltip(int, int)}).
 	 */
 	public boolean postRender(int mouseX, int mouseY)
 	{
 		if(isHovered(mouseX, mouseY))
 		{
 			GL11.glDisable(GL11.GL_TEXTURE_2D);
-			RenderUtil.drawColoredModalRect(x, x, width, height, 0xAAFFFFFF);
+			RenderUtil.drawColoredModalRect(x, y, width, height, 0xAAFFFFFF);
 			GL11.glEnable(GL11.GL_TEXTURE_2D);
 			
 			return true;
@@ -75,11 +96,17 @@ public class GuiFluidTank extends Gui
 		return false;
 	}
 	
+	/**
+	 * Appends the tooltip to already existing one.
+	 */
 	public void addTooltip(int mouseX, int mouseY, List<String> tooltip)
 	{
 		tooltip.addAll(getTooltip(mouseX, mouseY));
 	}
 	
+	/**
+	 * Creates the tooltip for this tank.
+	 */
 	public List<String> getTooltip(int mouseX, int mouseY)
 	{
 		if(isHovered(mouseX, mouseY))
@@ -87,6 +114,14 @@ public class GuiFluidTank extends Gui
 		return Collections.emptyList();
 	}
 	
+	/**
+	 * Returns if the mouse is over the tank element.
+	 * 
+	 * @param mouseX
+	 *            The X position of the mouse.
+	 * @param mouseY
+	 *            The Y positions of the mouse.
+	 */
 	public boolean isHovered(int mouseX, int mouseY)
 	{
 		return mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height;

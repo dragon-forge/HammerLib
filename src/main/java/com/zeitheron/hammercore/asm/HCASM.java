@@ -10,7 +10,7 @@ import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.MCVersion;
 
 /**
- * FML plugin for HammerCore
+ * FML plugin for HammerCore. Internal use only!
  */
 @MCVersion(ForgeVersion.mcVersion)
 public class HCASM implements IFMLLoadingPlugin

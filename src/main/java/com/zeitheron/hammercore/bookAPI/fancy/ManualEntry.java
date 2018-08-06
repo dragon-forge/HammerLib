@@ -11,6 +11,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.ResourceLocation;
 
+/**
+ * An entry in a manual. Must contain some {@link ManualPage}s.
+ */
 public class ManualEntry
 {
 	public final String key;
@@ -26,6 +29,14 @@ public class ManualEntry
 	private EnumEntryShape shape = EnumEntryShape.SQUARE;
 	private ManualPage[] pages = null;
 	
+	/**
+	 * Creates an entry in category with specified key.
+	 * 
+	 * @param key
+	 *            The unique ID of this entry.
+	 * @param category
+	 *            The unique ID of the category.
+	 */
 	public ManualEntry(String key, String category)
 	{
 		this.key = key;
@@ -42,6 +53,22 @@ public class ManualEntry
 		setColor(ColorHelper.packRGB(red, green, blue));
 	}
 	
+	/**
+	 * Creates an entry in category with specified key, location and icon.
+	 * 
+	 * @param key
+	 *            The unique ID of this entry.
+	 * @param category
+	 *            The unique ID of the category.
+	 * @param col
+	 *            The X position of the entry in the category (bigger values go
+	 *            to right)
+	 * @param row
+	 *            The Y position of the entry in the category (bigger values go
+	 *            to down)
+	 * @param icon
+	 *            The icon of this entry.
+	 */
 	public ManualEntry(String key, String category, int col, int row, ResourceLocation icon)
 	{
 		this.key = key;
@@ -52,6 +79,22 @@ public class ManualEntry
 		this.displayRow = row;
 	}
 	
+	/**
+	 * Creates an entry in category with specified key, location and icon.
+	 * 
+	 * @param key
+	 *            The unique ID of this entry.
+	 * @param category
+	 *            The unique ID of the category.
+	 * @param col
+	 *            The X position of the entry in the category (bigger values go
+	 *            to right)
+	 * @param row
+	 *            The Y position of the entry in the category (bigger values go
+	 *            to down)
+	 * @param icon
+	 *            The icon of this entry.
+	 */
 	public ManualEntry(String key, String category, int col, int row, ItemStack icon)
 	{
 		this.key = key;
@@ -62,6 +105,22 @@ public class ManualEntry
 		this.displayRow = row;
 	}
 	
+	/**
+	 * Creates an entry in category with specified key, location and icon.
+	 * 
+	 * @param key
+	 *            The unique ID of this entry.
+	 * @param category
+	 *            The unique ID of the category.
+	 * @param col
+	 *            The X position of the entry in the category (bigger values go
+	 *            to right)
+	 * @param row
+	 *            The Y position of the entry in the category (bigger values go
+	 *            to down)
+	 * @param icon
+	 *            The icon of this entry.
+	 */
 	public ManualEntry(String key, String category, int col, int row, URLLocation icon)
 	{
 		this.key = key;
@@ -72,6 +131,22 @@ public class ManualEntry
 		this.displayRow = row;
 	}
 	
+	/**
+	 * Creates an entry in category with specified key, location and icon.
+	 * 
+	 * @param key
+	 *            The unique ID of this entry.
+	 * @param category
+	 *            The unique ID of the category.
+	 * @param col
+	 *            The X position of the entry in the category (bigger values go
+	 *            to right)
+	 * @param row
+	 *            The Y position of the entry in the category (bigger values go
+	 *            to down)
+	 * @param icons
+	 *            The icons of this entry.
+	 */
 	public ManualEntry(String key, String category, int col, int row, ItemStack... icons)
 	{
 		this.key = key;
@@ -82,6 +157,22 @@ public class ManualEntry
 		this.displayRow = row;
 	}
 	
+	/**
+	 * Creates an entry in category with specified key, location and icon.
+	 * 
+	 * @param key
+	 *            The unique ID of this entry.
+	 * @param category
+	 *            The unique ID of the category.
+	 * @param col
+	 *            The X position of the entry in the category (bigger values go
+	 *            to right)
+	 * @param row
+	 *            The Y position of the entry in the category (bigger values go
+	 *            to down)
+	 * @param icons
+	 *            The icons of this entry.
+	 */
 	public ManualEntry(String key, String category, int col, int row, List<ItemStack> icons)
 	{
 		this.key = key;
@@ -92,6 +183,22 @@ public class ManualEntry
 		this.displayRow = row;
 	}
 	
+	/**
+	 * Creates an entry in category with specified key, location and icon.
+	 * 
+	 * @param key
+	 *            The unique ID of this entry.
+	 * @param category
+	 *            The unique ID of the category.
+	 * @param col
+	 *            The X position of the entry in the category (bigger values go
+	 *            to right)
+	 * @param row
+	 *            The Y position of the entry in the category (bigger values go
+	 *            to down)
+	 * @param icon
+	 *            The icon {@link Ingredient} of this entry.
+	 */
 	public ManualEntry(String key, String category, int col, int row, Ingredient icon)
 	{
 		this.key = key;
@@ -102,6 +209,22 @@ public class ManualEntry
 		this.displayRow = row;
 	}
 	
+	/**
+	 * Creates an entry in category with specified key, location and icon.
+	 * 
+	 * @param key
+	 *            The unique ID of this entry.
+	 * @param category
+	 *            The unique ID of the category.
+	 * @param col
+	 *            The X position of the entry in the category (bigger values go
+	 *            to right)
+	 * @param row
+	 *            The Y position of the entry in the category (bigger values go
+	 *            to down)
+	 * @param iconOreDict
+	 *            The OreDictionary icon of this entry.
+	 */
 	public ManualEntry(String key, String category, int col, int row, String iconOreDict)
 	{
 		this.key = key;
@@ -112,18 +235,34 @@ public class ManualEntry
 		this.displayRow = row;
 	}
 	
+	/**
+	 * Sets this entry as 'special'
+	 * 
+	 * @return This entry, for building convenience.
+	 */
 	public ManualEntry setSpecial()
 	{
 		this.isSpecial = true;
 		return this;
 	}
 	
+	/**
+	 * Sets this entry parents by their unique IDs.
+	 * 
+	 * @return This entry, for building convenience.
+	 */
 	public ManualEntry setParents(String... par)
 	{
 		this.parents = par;
 		return this;
 	}
 	
+	/**
+	 * Sets this entry passed pages. See {@link ManualPage}'s constructors for
+	 * some options.
+	 * 
+	 * @return This entry, for building convenience.
+	 */
 	public ManualEntry setPages(ManualPage... par)
 	{
 		this.pages = par;
@@ -135,6 +274,11 @@ public class ManualEntry
 		return this.pages;
 	}
 	
+	/**
+	 * Registers this entry to manual.
+	 * 
+	 * @return This entry, for building convenience.
+	 */
 	public ManualEntry registerEntry()
 	{
 		ManualCategories.addEntry(this);
@@ -168,6 +312,11 @@ public class ManualEntry
 		return setShape(EnumEntryShape.values()[shape.ordinal()]);
 	}
 	
+	/**
+	 * Sets this entry a shape.
+	 * 
+	 * @return This entry, for building convenience.
+	 */
 	public ManualEntry setShape(EnumEntryShape shape)
 	{
 		this.shape = shape;
@@ -179,12 +328,18 @@ public class ManualEntry
 		return color;
 	}
 	
+	/**
+	 * Sets this entry a color.
+	 * 
+	 * @return This entry, for building convenience.
+	 */
 	public ManualEntry setColor(int color)
 	{
 		this.color = color;
 		return this;
 	}
 	
+	@Deprecated
 	public enum eEntryShape
 	{
 		SQUARE, ROUND, HEX;

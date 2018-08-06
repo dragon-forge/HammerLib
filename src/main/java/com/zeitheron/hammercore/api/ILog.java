@@ -1,7 +1,7 @@
 package com.zeitheron.hammercore.api;
 
 /**
- * Simple loging interface
+ * Simple logging interface for external APIs
  */
 public interface ILog
 {

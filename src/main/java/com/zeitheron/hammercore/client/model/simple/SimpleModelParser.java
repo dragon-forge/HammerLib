@@ -13,8 +13,18 @@ import com.zeitheron.hammercore.utils.math.ExpressionEvaluator;
 
 import net.minecraft.util.EnumFacing;
 
+/**
+ * Parser class for simple model files.
+ */
 public class SimpleModelParser
 {
+	/**
+	 * Parses a string passed to this method.
+	 * 
+	 * @param model
+	 *            A string with model to parse.
+	 * @return An opnode list.
+	 */
 	public static UnmodifiableList<int[]> toOpcodes(String model)
 	{
 		int[] node = null;

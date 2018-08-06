@@ -7,6 +7,9 @@ import com.zeitheron.hammercore.api.crafting.IngredientStack;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidTank;
 
+/**
+ * The fluid ingredient implementation.
+ */
 public class FluidStackIngredient implements ICustomIngredient<FluidStack>, IFluidIngredient<FluidStackIngredient>
 {
 	public FluidStack stack;

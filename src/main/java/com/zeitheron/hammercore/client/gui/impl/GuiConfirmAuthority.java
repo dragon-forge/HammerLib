@@ -10,6 +10,9 @@ import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 
+/**
+ * An internal class.
+ */
 public class GuiConfirmAuthority extends GuiScreen
 {
 	public GuiTextField field;

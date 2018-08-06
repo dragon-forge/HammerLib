@@ -6,6 +6,11 @@ import net.minecraftforge.fluids.FluidStack;
 
 public interface IJeiHelper
 {
+	static IJeiHelper instance()
+	{
+		return Instance.getJEIModifier();
+	}
+	
 	void addJEI(Object recipe);
 	
 	void removeJEI(Object recipe);
@@ -13,6 +18,8 @@ public interface IJeiHelper
 	<T> void showRecipes(T ingredient);
 	
 	<T> void showUses(T ingredient);
+	
+	void showCategories(String... uids);
 	
 	Object getKeybind_showRecipes();
 	
@@ -55,6 +62,11 @@ public interface IJeiHelper
 		
 		@Override
 		public <T> void showUses(T ingredient)
+		{
+		}
+		
+		@Override
+		public void showCategories(String... uid)
 		{
 		}
 		

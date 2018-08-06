@@ -6,16 +6,37 @@ import com.zeitheron.hammercore.client.utils.RenderUtil;
 
 import net.minecraft.client.Minecraft;
 
+/**
+ * A texture overlay for the tank.
+ */
 public class GuiTankTexture
 {
 	public final int width, height;
 	public final int tankColor;
 	
+	/**
+	 * Constructs a new texture with width and height.
+	 * 
+	 * @param width
+	 *            The width of the texture
+	 * @param height
+	 *            The height of the texture
+	 */
 	public GuiTankTexture(int width, int height)
 	{
 		this(width, height, 0xFF7F0000);
 	}
 	
+	/**
+	 * Constructs a new texture with width and height and color.
+	 * 
+	 * @param width
+	 *            The width of the texture
+	 * @param height
+	 *            The height of the texture
+	 * @param tankColor
+	 *            The color of the texture
+	 */
 	public GuiTankTexture(int width, int height, int tankColor)
 	{
 		this.tankColor = tankColor;
@@ -33,6 +54,14 @@ public class GuiTankTexture
 		return height;
 	}
 	
+	/**
+	 * Renders this texture onto the screen on the specified positions.
+	 * 
+	 * @param xOffset
+	 *            The x position of this texture.
+	 * @param yOffset
+	 *            The y position of this texture.
+	 */
 	public void draw(int xOffset, int yOffset)
 	{
 		int totalLines = height / 5;

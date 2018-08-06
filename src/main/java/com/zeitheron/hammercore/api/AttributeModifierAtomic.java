@@ -5,6 +5,9 @@ import java.util.function.DoubleSupplier;
 
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 
+/**
+ * The attribute modifier that may be implemented at any point in time.
+ */
 public class AttributeModifierAtomic extends AttributeModifier
 {
 	public final DoubleSupplier amountGet;

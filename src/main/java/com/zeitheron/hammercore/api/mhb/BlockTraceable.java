@@ -29,7 +29,7 @@ import net.minecraftforge.fml.relauncher.Side;
 
 /**
  * Represents a base for blocks that have multiple hitboxes. Used for
- * MultipartAPI
+ * MultipartAPI. To bind cuboids, see {@link IRayRegistry}
  */
 public abstract class BlockTraceable extends Block
 {
@@ -78,7 +78,6 @@ public abstract class BlockTraceable extends Block
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
 	{
 		RayTraceResult hit = com.zeitheron.hammercore.raytracer.RayTracer.retraceBlock(worldIn, playerIn, pos);
-		
 		int boxID = hit != null ? Math.max(0, hit.subHit) : 0;
 		Cuboid6[] boxes = getCurrentCuboids(worldIn, pos);
 		Cuboid6 box = boxes != null && boxes.length > 0 ? boxes[hit != null ? Math.max(0, Math.min(hit.subHit, boxes.length - 1)) : 0] : null;

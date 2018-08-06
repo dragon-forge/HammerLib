@@ -1,10 +1,10 @@
 forge_version=1.12.2-14.23.4.2705
 mappings=snapshot_20180803
 minecraft_version=1.12.2
-mod_version=2.0.2.1
+mod_version=2.0.2.2
 mod_name=Hammer Core
 release_type=release
-jei_version=4.8.5.138
+jei_version=4.11.0.206
 
 project_id=247401
 startGitRev=ba4d7967b7e3c297f5abdf7bb8d0ba02f51299ab

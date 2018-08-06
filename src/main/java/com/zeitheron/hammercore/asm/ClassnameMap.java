@@ -2,6 +2,9 @@ package com.zeitheron.hammercore.asm;
 
 import java.util.HashMap;
 
+/**
+ * Internal use only!
+ */
 public class ClassnameMap extends HashMap<String, String>
 {
 	public ClassnameMap(String... s)

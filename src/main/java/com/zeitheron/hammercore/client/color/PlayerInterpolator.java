@@ -5,6 +5,9 @@ import com.zeitheron.hammercore.utils.color.ColorHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 
+/**
+ * An internal class.
+ */
 public class PlayerInterpolator
 {
 	public static int getRendered(EntityPlayer player, NBTTagCompound data)

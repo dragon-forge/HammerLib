@@ -8,8 +8,10 @@ import java.lang.annotation.Target;
 
 import com.zeitheron.hammercore.utils.EnumSide;
 
+import net.minecraftforge.common.MinecraftForge;
+
 /**
- * Targets class to be registered to MinecraftForge EVENT_BUS on PreInit
+ * Targets class to be registered to {@link MinecraftForge#EVENT_BUS} at PreInit
  **/
 @Retention(RUNTIME)
 @Target(ElementType.TYPE)

@@ -14,6 +14,9 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * A page in a {@link ManualEntry}.
+ */
 public class ManualPage
 {
 	public ManualPage.PageType type = ManualPage.PageType.TEXT;
@@ -61,13 +64,28 @@ public class ManualPage
 		return this;
 	}
 	
-	/** For adding custom recipe support */
+	/**
+	 * Constructs a page with custom {@link PageType} and recipe. This will use
+	 * custom rendering for the page.
+	 * 
+	 * @param recipe
+	 *            The custom recipe to be displayed.
+	 * @param page
+	 *            The page that will handle rendering for this recipe(s).
+	 */
 	public ManualPage(Object recipe, PageType page)
 	{
 		type = page;
 		this.recipe = recipe;
 	}
 	
+	/**
+	 * Constructs a page with simple text. This value will be translated later.
+	 * 
+	 * @param text
+	 *            The I18n key. Use as template:
+	 *            "MOD_ID.manual_desc.ENTRY_ID.PAGE_NUMBER".
+	 */
 	public ManualPage(String text)
 	{
 		this.text = null;
@@ -79,6 +97,15 @@ public class ManualPage
 		this.text = text;
 	}
 	
+	/**
+	 * Constructs a new page with text, and an output association.
+	 * 
+	 * @param text
+	 *            The I18n key. Use as template:
+	 *            "MOD_ID.manual_desc.ENTRY_ID.PAGE_NUMBER".
+	 * @param output
+	 *            The associated output to this page.
+	 */
 	public ManualPage(String text, ItemStack output)
 	{
 		this.text = null;
@@ -91,6 +118,17 @@ public class ManualPage
 		this.text = text;
 	}
 	
+	/**
+	 * WIP feature.<br>
+	 * Allows to render text in galactic font instead, if player doesn't have
+	 * required knowledge.
+	 * 
+	 * @param research
+	 *            The knowledge ID to be required to read this page.
+	 * @param text
+	 *            The I18n key. Use as template:
+	 *            "MOD_ID.manual_desc.ENTRY_ID.PAGE_NUMBER".
+	 */
 	public ManualPage(String research, String text)
 	{
 		this.text = null;
@@ -103,6 +141,12 @@ public class ManualPage
 		this.text = text;
 	}
 	
+	/**
+	 * Constructs a page with multiblock structure.
+	 * 
+	 * @param recipe
+	 *            The list that represents the multiblock structure.
+	 */
 	public ManualPage(List recipe)
 	{
 		this.text = null;
@@ -114,6 +158,12 @@ public class ManualPage
 		this.recipe = recipe;
 	}
 	
+	/**
+	 * Constructs a new page with smelting recipe.
+	 * 
+	 * @param input
+	 *            The smelting input.
+	 */
 	public ManualPage(ItemStack input)
 	{
 		this.text = null;
@@ -126,6 +176,14 @@ public class ManualPage
 		this.recipeOutput = FurnaceRecipes.instance().getSmeltingResult(input).copy();
 	}
 	
+	/**
+	 * Constructs a new page that will have an image and a caption.
+	 * 
+	 * @param image
+	 *            The image to be rendered.
+	 * @param caption
+	 *            The caption after the image.
+	 */
 	public ManualPage(ResourceLocation image, String caption)
 	{
 		this.text = null;
@@ -138,6 +196,16 @@ public class ManualPage
 		this.text = caption;
 	}
 	
+	/**
+	 * Allows for creating a page with {@link PageType#NORMAL_CRAFTING} and
+	 * {@link PageType#SMELTING}.
+	 * 
+	 * @param type
+	 *            The page type. May be 1 of those above.
+	 * @param item
+	 *            The recipe output, if crafting. The smelting input, if
+	 *            smelting.
+	 */
 	public ManualPage(PageType type, ItemStack item)
 	{
 		if(type == PageType.NORMAL_CRAFTING)
@@ -163,6 +231,9 @@ public class ManualPage
 		}
 	}
 	
+	/**
+	 * Adds the items that are outputs on this page.
+	 */
 	public ManualPage addClickthroughAssociation(ItemStack... associations)
 	{
 		for(ItemStack a : associations)
@@ -170,6 +241,9 @@ public class ManualPage
 		return this;
 	}
 	
+	/**
+	 * Gets the localized text (description) on this page.
+	 */
 	public String getTranslatedText()
 	{
 		String ret = "";
@@ -198,11 +272,28 @@ public class ManualPage
 		private Object render;
 		private final String renderClass;
 		
-		public PageType(String var1)
+		/**
+		 * Constructs a new {@link PageType}.
+		 * 
+		 * @param var1
+		 *            the UPPERCASE id of the page type. Internal use only
+		 */
+		private PageType(String var1)
 		{
 			this(var1, null);
 		}
 		
+		/**
+		 * Constructs a new {@link PageType}.
+		 * 
+		 * @param var1
+		 *            the UPPERCASE id of the page type.
+		 * @param renderClass
+		 *            the class which will be used to render. Example:
+		 *            "com.author.mod.client.render.manual.CustomManualRenderer".
+		 *            The passed class must also implement
+		 *            {@link IManualPageRender} for rendering to work.
+		 */
 		public PageType(String var1, String renderClass)
 		{
 			v1 = var1;
@@ -227,8 +318,9 @@ public class ManualPage
 					render = Class.forName(renderClass).newInstance();
 				} catch(Throwable err)
 				{
-					System.err.println("Unable to construct iRenderExtension");
+					System.err.println("Unable to construct IManualPageRender");
 					err.printStackTrace();
+					render = new Object();
 				}
 			}
 			

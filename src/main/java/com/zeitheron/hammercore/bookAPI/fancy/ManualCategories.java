@@ -8,21 +8,36 @@ import com.zeitheron.hammercore.HammerCore;
 
 import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
+/**
+ * A collection of categories known to a manual.
+ */
 public class ManualCategories
 {
 	public static LinkedHashMap<String, ManualCategory> manualCategories = new LinkedHashMap();
 	
+	/**
+	 * @return The category by it's unique ID.
+	 */
 	public static ManualCategory getCategory(String key)
 	{
 		return manualCategories.get(key);
 	}
 	
+	/**
+	 * @return The category's translated name by it's unique ID.
+	 */
+	@SideOnly(Side.CLIENT)
 	public static String getCategoryName(String key)
 	{
 		return I18n.format("hc.manual_cat." + key);
 	}
 	
+	/**
+	 * @return The {@link ManualEntry} by it's unique ID.
+	 */
 	public static ManualEntry getEntry(String key)
 	{
 		Collection<ManualCategory> rc = manualCategories.values();
@@ -45,6 +60,16 @@ public class ManualCategories
 		return null;
 	}
 	
+	/**
+	 * Registers a new category.
+	 * 
+	 * @param key
+	 *            The unique ID of this category.
+	 * @param icon
+	 *            The icon of this category.
+	 * @param background
+	 *            The background of this category.
+	 */
 	public static void registerCategory(String key, ResourceLocation icon, ResourceLocation background)
 	{
 		if(getCategory(key) == null)
@@ -54,12 +79,40 @@ public class ManualCategories
 		}
 	}
 	
+	/**
+	 * Registers a new category with default background.
+	 * 
+	 * @param key
+	 *            The unique ID of this category.
+	 * @param icon
+	 *            The icon of this category.
+	 */
+	public static void registerCategory(String key, ResourceLocation icon)
+	{
+		if(getCategory(key) == null)
+		{
+			ManualCategory rl = new ManualCategory(icon);
+			manualCategories.put(key, rl);
+		}
+	}
+	
+	/**
+	 * Registers a new category.
+	 * 
+	 * @param key
+	 *            The unique ID of this category.
+	 * @param rl
+	 *            The manual cateogory to register.
+	 */
 	public static void registerCategory(String key, ManualCategory rl)
 	{
 		if(getCategory(key) == null)
 			manualCategories.put(key, rl);
 	}
 	
+	/**
+	 * Internal use only, registers an entry.
+	 */
 	public static void addEntry(ManualEntry ri)
 	{
 		ManualCategory rl = getCategory(ri.category);

@@ -12,6 +12,9 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+/**
+ * A fast and large explosion implementation
+ */
 public class CustomExplosion implements IProcess
 {
 	private World worldObj;

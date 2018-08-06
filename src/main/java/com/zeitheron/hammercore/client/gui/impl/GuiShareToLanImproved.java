@@ -16,6 +16,9 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
+/**
+ * An internal class.
+ */
 public class GuiShareToLanImproved extends GuiShareToLan
 {
 	private GuiTextField txtPort, txtMaxPlayers;

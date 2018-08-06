@@ -17,6 +17,9 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 
+/**
+ * An internal class.
+ */
 public class GuiBrewingStandSmooth extends GuiBrewingStand
 {
 	private static final ResourceLocation BREWING_STAND_GUI_TEXTURE = new ResourceLocation("textures/gui/container/brewing_stand.png");

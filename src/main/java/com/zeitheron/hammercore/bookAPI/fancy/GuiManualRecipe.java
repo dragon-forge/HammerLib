@@ -46,7 +46,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 
-@SideOnly(value = Side.CLIENT)
+/**
+ * Internal use only!
+ */
+@SideOnly(Side.CLIENT)
 public class GuiManualRecipe extends GuiScreen implements ITooltipContext
 {
 	public static RenderItem itemRenderer = Minecraft.getMinecraft().getRenderItem();
@@ -193,7 +196,7 @@ public class GuiManualRecipe extends GuiScreen implements ITooltipContext
 		int mx2 = mouseX - (sw - 17);
 		int my2 = mouseY - (sh + 189);
 		float bob = MathHelper.sin((mc.player.ticksExisted / 3F)) * .2F + .1F;
-
+		
 		GL11.glColor4f(.75F, .75F, .75F, 1);
 		
 		if(!history.isEmpty())

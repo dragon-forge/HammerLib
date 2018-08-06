@@ -15,10 +15,28 @@ import net.minecraft.world.World;
  */
 public interface IRayCubeGetter
 {
+	/**
+	 * Gets a current instance of {@link IRayCubeGetter}
+	 */
+	static IRayCubeGetter instance()
+	{
+		return Instance.getter;
+	}
+	
+	/**
+	 * Gets an array of hard-coded cuboids for a block
+	 */
 	public Cuboid6[] getBoundCubes6(BlockTraceable target);
 	
+	/**
+	 * Gets a manager for retrieving cuboids based on world and position (used
+	 * for dynamic cuboids like cables)
+	 */
 	public ICubeManager getBoundCubeManager(BlockTraceable target);
 	
+	/**
+	 * Gets an array of cuboids found for the block at given location
+	 */
 	@Nullable
 	default Cuboid6[] getCuboids(World world, BlockPos pos)
 	{
@@ -38,5 +56,5 @@ public interface IRayCubeGetter
 	public static class Instance
 	{
 		public static IRayCubeGetter getter;
-	};
+	}
 }

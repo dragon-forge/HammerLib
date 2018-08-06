@@ -14,7 +14,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
 
 /**
- * Useful utilities to handle class IO and transformation
+ * Internal use only!
  */
 class ObjectWebUtils
 {

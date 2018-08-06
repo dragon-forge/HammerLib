@@ -10,22 +10,36 @@ import com.zeitheron.hammercore.HammerCore;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
+/**
+ * A complete control over Game Rule API
+ */
 public class GameRules
 {
 	public static final Map<String, GameRuleEntry> entries = new HashMap<>();
 	
+	/**
+	 * Registers a gamerule to the game. Call under
+	 * {@link FMLPreInitializationEvent}
+	 */
 	public static void registerGameRule(GameRuleEntry entry)
 	{
 		entries.put(entry.name, entry);
 	}
 	
+	/**
+	 * Gets the registered gamerule by the id.
+	 */
 	@Nonnull
 	public static GameRuleEntry getEntry(String name)
 	{
 		return entries.getOrDefault(name, GameRuleEntry.NIL);
 	}
 	
+	/**
+	 * Internal method.
+	 */
 	public static void load(MinecraftServer server)
 	{
 		WorldServer ws = server.getWorld(0);
@@ -48,6 +62,9 @@ public class GameRules
 		});
 	}
 	
+	/**
+	 * Internal method.
+	 */
 	public static void cleanup()
 	{
 		// HammerCore.LOG.info("Saving custom GameRule data...");
@@ -55,6 +72,9 @@ public class GameRules
 		//
 	}
 	
+	/**
+	 * The class for the game rule.
+	 */
 	public static class GameRuleEntry
 	{
 		private static final GameRuleEntry NIL = new GameRuleEntry("unknown", "", "gamerules.hc_unknown", ValueType.STRING_VALUE);
@@ -62,6 +82,21 @@ public class GameRules
 		public final String name, defVal, i18nDesc;
 		public final ValueType type;
 		
+		/**
+		 * Creates a gamerule entry, register with
+		 * {@link GameRules#registerGameRule(GameRuleEntry)} at
+		 * {@link FMLPreInitializationEvent}.
+		 * 
+		 * @param name
+		 *            the name of gamerule (will be used as 2nd argument in
+		 *            /gamerule command)
+		 * @param defValue
+		 *            the default value of this gamerule
+		 * @param i18nDesc
+		 *            the description of this gamerule.
+		 * @param type
+		 *            the value type of this gamerule.
+		 */
 		public GameRuleEntry(String name, String defValue, String i18nDesc, ValueType type)
 		{
 			this.i18nDesc = i18nDesc;

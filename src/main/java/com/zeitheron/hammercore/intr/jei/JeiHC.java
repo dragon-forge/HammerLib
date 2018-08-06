@@ -1,5 +1,6 @@
 package com.zeitheron.hammercore.intr.jei;
 
+import java.util.Arrays;
 import java.util.function.Consumer;
 
 import com.zeitheron.hammercore.client.gui.impl.smooth.GuiBrewingStandSmooth;
@@ -12,6 +13,7 @@ import mezz.jei.api.IModRegistry;
 import mezz.jei.api.IRecipeRegistry;
 import mezz.jei.api.JEIPlugin;
 import mezz.jei.api.recipe.IFocus.Mode;
+import mezz.jei.api.recipe.IRecipeWrapper;
 import net.minecraft.client.Minecraft;
 
 @JEIPlugin
@@ -53,7 +55,12 @@ public class JeiHC implements IModPlugin, IJeiHelper
 			if(recipe instanceof Consumer)
 				((Consumer) recipe).accept(registry);
 			else
-				registry.addRecipe(recipe);
+			{
+				String uid = null;
+				
+				IRecipeWrapper w = registry.getRecipeWrapper(recipe, uid);
+				registry.unhideRecipe(w, uid);
+			}
 		});
 	}
 	
@@ -65,7 +72,12 @@ public class JeiHC implements IModPlugin, IJeiHelper
 			if(recipe instanceof Consumer)
 				((Consumer) recipe).accept(registry);
 			else
-				registry.removeRecipe(recipe);
+			{
+				String uid = null;
+				
+				IRecipeWrapper w = registry.getRecipeWrapper(recipe, uid);
+				registry.hideRecipe(w, uid);
+			}
 		});
 	}
 	
@@ -91,5 +103,11 @@ public class JeiHC implements IModPlugin, IJeiHelper
 	public <T> void showUses(T ingredient)
 	{
 		runtime.getRecipesGui().show(registry.createFocus(Mode.INPUT, ingredient));
+	}
+	
+	@Override
+	public void showCategories(String... uid)
+	{
+		runtime.getRecipesGui().showCategories(Arrays.asList(uid));
 	}
 }

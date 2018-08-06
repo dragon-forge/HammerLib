@@ -10,6 +10,9 @@ import com.zeitheron.hammercore.cfg.fields.ModConfigPropertyStringList;
 
 import net.minecraftforge.common.config.Configuration;
 
+/**
+ * An internal class.
+ */
 public class ConfigHolder
 {
 	public final IConfigReloadListener listener;

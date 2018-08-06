@@ -7,6 +7,10 @@ import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.Loader;
 
+/**
+ * An internal class. Use it as an example of how to make custom configs with
+ * Hammer Core.
+ */
 @HCModConfigurations(modid = "hammercore")
 public class HammerCoreConfigs implements IConfigReloadListener
 {

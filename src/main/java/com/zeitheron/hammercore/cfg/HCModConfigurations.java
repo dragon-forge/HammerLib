@@ -6,6 +6,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+/**
+ * An annotation for {@link IConfigReloadListener}.
+ */
 @Retention(RUNTIME)
 @Target(TYPE)
 public @interface HCModConfigurations

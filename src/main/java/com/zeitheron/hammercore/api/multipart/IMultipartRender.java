@@ -1,8 +1,8 @@
 package com.zeitheron.hammercore.api.multipart;
 
 import com.zeitheron.hammercore.HammerCore;
+import com.zeitheron.hammercore.client.render.tesr.TESR;
 
-import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.util.ResourceLocation;
 
 /**
@@ -11,12 +11,10 @@ import net.minecraft.util.ResourceLocation;
  */
 public interface IMultipartRender<MP extends MultipartSignature>
 {
+	/**
+	 * Handles rendering for multipart instances. Similar to {@link TESR}
+	 */
 	void renderMultipartAt(MP signature, double x, double y, double z, float partialTicks, ResourceLocation destroyStage);
-	
-	@Deprecated
-	default void renderMultipartAt(MP signature, double x, double y, double z, float partialTicks, ResourceLocation destroyStage, BufferBuilder buffer)
-	{
-	}
 	
 	default void bindTexture(ResourceLocation location)
 	{

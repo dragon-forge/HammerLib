@@ -22,7 +22,7 @@ import com.zeitheron.hammercore.asm.TransformerSystem.iASMHook;
 import net.minecraft.launchwrapper.IClassTransformer;
 
 /**
- * Transforms classes
+ * Transforms classes. Internal use only!
  */
 public class HammerCoreTransformer implements IClassTransformer
 {

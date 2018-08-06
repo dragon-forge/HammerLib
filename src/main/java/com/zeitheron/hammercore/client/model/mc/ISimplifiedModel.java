@@ -15,6 +15,9 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
+/**
+ * Failed experiment, I think.
+ */
 public interface ISimplifiedModel
 {
 	@Nonnull

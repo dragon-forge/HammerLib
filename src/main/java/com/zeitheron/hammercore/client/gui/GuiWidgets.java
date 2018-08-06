@@ -19,13 +19,19 @@ import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
 
+/**
+ * A simple widgets class that has some default rendering methods.
+ */
 public class GuiWidgets
 {
 	public static final ResourceLocation TEXTURE = new ResourceLocation("hammercore", "textures/gui/widgets.png");
 	public static final long fullCycle = 1500;
 	
 	/**
-	 * Creates a tooltip for fluid tanks
+	 * Creates a tooltip for fluid tank.
+	 * 
+	 * @param tank
+	 *            The tank to create a tooltip for.
 	 */
 	public static List<String> createTooltipForFluidTank(FluidTank tank)
 	{
@@ -41,6 +47,16 @@ public class GuiWidgets
 			return Arrays.asList("Empty", TextFormatting.GRAY + String.format("%,d / %,d mB", 0, tank.getCapacity()));
 	}
 	
+	/**
+	 * Renders the furnace progress bar arrow.
+	 * 
+	 * @param x
+	 *            The x position to render on
+	 * @param y
+	 *            The y position to render on
+	 * @param l
+	 *            The progress of the bar, may be [0; 1].
+	 */
 	public static void drawFurnaceArrow(float x, float y, double l)
 	{
 		UtilsFX.bindTexture("textures/gui/def_widgets.png");
@@ -49,23 +65,64 @@ public class GuiWidgets
 		GL11.glColor4f(ColorHelper.getRed(col), ColorHelper.getGreen(col), ColorHelper.getBlue(col), 1);
 		RenderUtil.drawTexturedModalRect(x, y, 0, 14, 22, 16);
 		
-		RenderUtil.drawTexturedModalRect(x, y, 0, 30, l, 16);
+		RenderUtil.drawTexturedModalRect(x, y, 0, 30, l * 24, 16);
 		col = GuiTheme.current().getColor(1);
 		GL11.glColor4f(ColorHelper.getRed(col), ColorHelper.getGreen(col), ColorHelper.getBlue(col), 1);
-		RenderUtil.drawTexturedModalRect(x, y, 0, 14, l, 16);
+		RenderUtil.drawTexturedModalRect(x, y, 0, 14, l * 24, 16);
+		
+		GL11.glColor4f(1, 1, 1, 1);
 	}
 	
+	/**
+	 * Renders a horizontal line that will be at x, y, it's width is 8, and
+	 * height is 1.
+	 * 
+	 * @param x
+	 *            The x position to render on
+	 * @param y
+	 *            The y position to render on
+	 */
 	public static void drawLine(float x, float y)
 	{
 		bind();
 		RenderUtil.drawTexturedModalRect(x, y, 0, 8, 8, 1);
 	}
 	
+	/**
+	 * Renders a square of 8x8 pixels.
+	 * 
+	 * @param x
+	 *            The x position to render on
+	 * @param y
+	 *            The y position to render on
+	 * @param red
+	 *            The amount of red. May be [0; 1]
+	 * @param green
+	 *            The amount of green. May be [0; 1]
+	 * @param blue
+	 *            The amount of blue. May be [0; 1]
+	 */
 	public static void drawSquare(float x, float y, float red, float green, float blue)
 	{
 		drawSquare(x, y, red, green, blue, 1);
 	}
 	
+	/**
+	 * Renders a square of 8x8 pixels.
+	 * 
+	 * @param x
+	 *            The x position to render on
+	 * @param y
+	 *            The y position to render on
+	 * @param red
+	 *            The amount of red. May be [0; 1]
+	 * @param green
+	 *            The amount of green. May be [0; 1]
+	 * @param blue
+	 *            The amount of blue. May be [0; 1]
+	 * @param alpha
+	 *            The amount of alpha. May be [0; 1]
+	 */
 	public static void drawSquare(float x, float y, float red, float green, float blue, float alpha)
 	{
 		GL11.glColor4f(red, green, blue, alpha);
@@ -73,22 +130,70 @@ public class GuiWidgets
 		GL11.glColor4f(1, 1, 1, 1);
 	}
 	
+	/**
+	 * Renders a square of 8x8 pixels.
+	 * 
+	 * @param x
+	 *            The x position to render on
+	 * @param y
+	 *            The y position to render o
+	 */
 	public static void drawSquare(float x, float y)
 	{
 		bind();
 		RenderUtil.drawTexturedModalRect(x, y, 0, 0, 8, 8);
 	}
 	
+	/**
+	 * Renders an energy bar at x, y, with width and height.
+	 * 
+	 * @param x
+	 *            The x position to render on
+	 * @param y
+	 *            The y position to render on
+	 * @param w
+	 *            The bar's width
+	 * @param h
+	 *            The bar's height
+	 */
 	public static void drawEnergy(float x, float y, float w, float h)
 	{
 		drawEnergy(x, y, w, h, true);
 	}
 	
+	/**
+	 * Renders an energy bar at x, y, with width and height.
+	 * 
+	 * @param x
+	 *            The x position to render on
+	 * @param y
+	 *            The y position to render on
+	 * @param w
+	 *            The bar's width
+	 * @param h
+	 *            The bar's height
+	 * @param animate
+	 *            should this bar have an animation?
+	 */
 	public static void drawEnergy(float x, float y, float w, float h, boolean animate)
 	{
 		drawEnergy(x, y, w, h, animate ? (x > y ? EnumPowerAnimation.RIGHT : EnumPowerAnimation.UP) : EnumPowerAnimation.NONE);
 	}
 	
+	/**
+	 * Renders an energy bar at x, y, with width and height.
+	 * 
+	 * @param x
+	 *            The x position to render on
+	 * @param y
+	 *            The y position to render on
+	 * @param w
+	 *            The bar's width
+	 * @param h
+	 *            The bar's height
+	 * @param animate
+	 *            the direction that the animation will be directed to
+	 */
 	public static void drawEnergy(float x, float y, float w, float h, EnumPowerAnimation animate)
 	{
 		bind();
@@ -125,11 +230,17 @@ public class GuiWidgets
 				RenderUtil.drawTexturedModalRect(x + cx * 8, y + cy * 8, 8 + animX, animY, 8, 8);
 	}
 	
+	/**
+	 * Binds to default widget textures.
+	 */
 	public static void bind()
 	{
 		Minecraft.getMinecraft().getTextureManager().bindTexture(TEXTURE);
 	}
 	
+	/**
+	 * The power animation direction class.
+	 */
 	public enum EnumPowerAnimation
 	{
 		UP(0, 1), //

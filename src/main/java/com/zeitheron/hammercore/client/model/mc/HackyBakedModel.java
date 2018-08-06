@@ -36,6 +36,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 
+/**
+ * Failed experiment, I think.
+ */
 public class HackyBakedModel implements IBakedModel
 {
 	public static final List<BakedQuad> QUADS = Collections.emptyList();

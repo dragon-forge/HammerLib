@@ -5,10 +5,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Supplier;
 
 import org.apache.logging.log4j.LogManager;
@@ -21,12 +19,11 @@ import com.zeitheron.hammercore.api.GameRules.GameRuleEntry;
 import com.zeitheron.hammercore.api.GameRules.ValueType;
 import com.zeitheron.hammercore.api.HammerCoreAPI;
 import com.zeitheron.hammercore.api.IHammerCoreAPI;
-import com.zeitheron.hammercore.api.IJavaCode;
 import com.zeitheron.hammercore.api.IProcess;
 import com.zeitheron.hammercore.api.RequiredDeps;
 import com.zeitheron.hammercore.api.WrappedFMLLog;
-import com.zeitheron.hammercore.api.mhb.RaytracePlugin;
 import com.zeitheron.hammercore.api.mhb.IRayRegistry;
+import com.zeitheron.hammercore.api.mhb.RaytracePlugin;
 import com.zeitheron.hammercore.cfg.ConfigHolder;
 import com.zeitheron.hammercore.cfg.HCModConfigurations;
 import com.zeitheron.hammercore.cfg.IConfigReloadListener;
@@ -124,13 +121,12 @@ import net.minecraftforge.registries.IForgeRegistry;
 @Mod(modid = "hammercore", version = "@VERSION@", name = "Hammer Core", guiFactory = "com.zeitheron.hammercore.cfg.gui.GuiConfigFactory", certificateFingerprint = "4d7b29cd19124e986da685107d16ce4b49bc0a97")
 public class HammerCore
 {
-	public static final List<String> initHCChannels = new ArrayList<>();
 	public static final List<AttuneResult> closeAfterLogoff = new ArrayList<>();
 	public static boolean invalidCertificate = false;
 	/**
 	 * Contains all mods that require HammerCore and have invalid certificates
 	 */
-	public static Map<String, String> invalidCertificates = new HashMap<>();
+	public static final Map<String, String> invalidCertificates = new HashMap<>();
 	public static final List<IProcess> updatables = new ArrayList<>(16);
 	
 	/**
@@ -176,8 +172,6 @@ public class HammerCore
 	public static final CreativeTabs tab = HammerCoreUtils.createDynamicCreativeTab("hammercore", 60);
 	
 	public static final Map<IHammerCoreAPI, HammerCoreAPI> APIS = new HashMap<>();
-	
-	public static final Set<IJavaCode> COMPILED_CODES = new HashSet<>();
 	
 	public static final Logger LOG = LogManager.getLogger("HammerCore");
 	
@@ -227,36 +221,6 @@ public class HammerCore
 			FluidRegistry.enableUniversalBucket();
 		
 		new FluidDictionary();
-		
-		initHCChannels.add("particles");
-		
-		// File javacode = new File(".", "javacode");
-		// if(!javacode.isDirectory()) javacode.mkdir();
-		// try
-		// {
-		// Map<String, byte[]> classes = JavaCodeLoader.compileRoot(javacode);
-		// javaLoader = JavaCodeLoader.toLoader(classes);
-		// for(String clas : classes.keySet())
-		// {
-		// try
-		// {
-		// // GameRegistry.makeItemStack(itemName, meta, stackSize, nbtString)
-		// Class cls = javaLoader.loadClass(clas);
-		// IJavaCode code = null;
-		// if(IJavaCode.class.isAssignableFrom(cls)) code = (IJavaCode)
-		// cls.newInstance();
-		// else code = new IJavaCode.IJavaCode_IMPL(cls.newInstance());
-		// COMPILED_CODES.add(code);
-		// LOG.info("Added new JavaCode: " + code + " for " + clas);
-		// }
-		// catch(ClassNotFoundException cnfe)
-		// {
-		// LOG.error("Error: unexpected class " + clas +
-		// ". Perharps it has different package?");
-		// }
-		// catch(Throwable err) { err.printStackTrace(); }
-		// }
-		// } catch(Exception e1) { e1.printStackTrace(); }
 	}
 	
 	public List<Object> MCFBusObjects;
@@ -271,10 +235,6 @@ public class HammerCore
 		renderProxy.preInit(e.getAsmData());
 		
 		toRegister.add(this);
-		
-		for(IJavaCode code : COMPILED_CODES)
-			// Add compiled codes
-			code.addMCFObjects(toRegister);
 		
 		ProgressBar bar = ProgressManager.push("Loading", 7 + apis.size() + toRegister.size() + listeners.size());
 		
@@ -356,9 +316,6 @@ public class HammerCore
 		
 		meta.authorList = getHCAuthorsArray();
 		
-		for(IJavaCode code : COMPILED_CODES)
-			code.preInit();
-		
 		ProgressManager.pop(bar);
 	}
 	
@@ -376,9 +333,6 @@ public class HammerCore
 		for(RecipeRegistry r : recipeRegistries)
 			r.smelting();
 		
-		for(IJavaCode code : COMPILED_CODES)
-			code.init();
-		
 		NetworkRegistry.INSTANCE.registerGuiHandler(instance, new GuiManager());
 		
 		BrewingRecipeRegistry.addRecipe(BrewingRecipe.INSTANCE);
@@ -395,8 +349,6 @@ public class HammerCore
 	public void postInit(FMLPostInitializationEvent e)
 	{
 		renderProxy.postInit();
-		for(IJavaCode code : COMPILED_CODES)
-			code.postInit();
 	}
 	
 	@EventHandler

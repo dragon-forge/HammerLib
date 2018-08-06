@@ -11,5 +11,8 @@ import net.minecraft.world.World;
  */
 public interface ICubeManager
 {
+	/**
+	 * Gets a list of cuboids found for the block at given location.
+	 */
 	public Cuboid6[] getCuboids(World world, BlockPos pos, IBlockState state);
 }

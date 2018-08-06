@@ -15,7 +15,7 @@ public class ClassWrapper
 	{
 		try
 		{
-			return new FieldWrapper<>(getInstance(), clazz.getField(name));
+			return new FieldWrapper<>(getInstance(), clazz.getDeclaredField(name));
 		} catch(NoSuchFieldException | SecurityException e)
 		{
 			return new FieldWrapper<>(null, null);
@@ -26,7 +26,7 @@ public class ClassWrapper
 	{
 		try
 		{
-			return new MethodWrapper(getInstance(), clazz.getMethod(name, classes));
+			return new MethodWrapper(getInstance(), clazz.getDeclaredMethod(name, classes));
 		} catch(NoSuchMethodException | SecurityException e)
 		{
 			return new MethodWrapper(null, null);

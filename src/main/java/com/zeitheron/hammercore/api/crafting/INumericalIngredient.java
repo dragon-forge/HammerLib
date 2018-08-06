@@ -1,5 +1,11 @@
 package com.zeitheron.hammercore.api.crafting;
 
+import com.zeitheron.hammercore.api.crafting.impl.EnergyIngredient;
+
+/**
+ * A number tree ingredient implementation of {@link IBaseIngredient}. Allows
+ * for numerical values such as FE (see {@link EnergyIngredient})
+ */
 public interface INumericalIngredient<T extends Number> extends IBaseIngredient
 {
 	/**
@@ -8,7 +14,8 @@ public interface INumericalIngredient<T extends Number> extends IBaseIngredient
 	T getAmount();
 	
 	/**
-	 * Gets the additional info about this ingredient. May be used if any other data should be stored.
+	 * Gets the additional info about this ingredient. May be used if any other
+	 * data should be stored besides a number.
 	 */
 	default Object getMeta()
 	{
@@ -31,8 +38,8 @@ public interface INumericalIngredient<T extends Number> extends IBaseIngredient
 	}
 	
 	/**
-	 * Gets the conversion ratio of 1 unit of this ingredient to RF.
-	 * For EU this value would be 4, since 4 RF convert to 1 EU.
+	 * Gets the conversion ratio of 1 unit of this ingredient to RF. For EU this
+	 * value would be 4, since 4 RF convert to 1 EU.
 	 */
 	default double toRFRatio()
 	{

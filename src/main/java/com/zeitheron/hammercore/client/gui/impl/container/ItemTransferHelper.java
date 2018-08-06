@@ -13,6 +13,9 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
+/**
+ * A shift-click helper for {@link TransferableContainer}.
+ */
 public class ItemTransferHelper
 {
 	public final TransferableContainer container;
@@ -27,24 +30,49 @@ public class ItemTransferHelper
 		this.container = container;
 	}
 	
+	/**
+	 * Adds a transfer rule into slot.
+	 * 
+	 * @param targetSlot
+	 *            the slot that items will be shift-clicked in.
+	 * @param valid
+	 *            if the shift-clicked items are valid for the slot.
+	 */
 	public ItemTransferHelper addInTransferRule(int targetSlot, Predicate<ItemStack> valid)
 	{
 		inHandlers.put(targetSlot, valid);
 		return this;
 	}
 	
+	/**
+	 * Adds a transfer rule out of the slot.
+	 * 
+	 * @param targetSlot
+	 *            the slot that items will be shift-clicked out.
+	 * @param slots
+	 *            if the item can go into slot.
+	 */
 	public ItemTransferHelper addOutTransferRule(int targetSlot, Predicate<Integer> slots)
 	{
 		outHandlers.put(targetSlot, slots);
 		return this;
 	}
 	
+	/**
+	 * An internal method.
+	 */
 	public ItemTransferHelper setInventorySlots(int start, int end)
 	{
 		inventory = new TwoTuple<>(start, end);
 		return this;
 	}
 	
+	/**
+	 * Marks this slot to shift-click items to invetory
+	 * 
+	 * @param slot
+	 *            the slot that will be extractable using shift-click.
+	 */
 	public ItemTransferHelper toInventory(int slot)
 	{
 		if(!toInventory.contains(slot))
@@ -52,11 +80,17 @@ public class ItemTransferHelper
 		return this;
 	}
 	
+	/**
+	 * An internal method.
+	 */
 	public boolean isInventorySlot(int slot)
 	{
 		return slot >= inventory.get1() && slot < inventory.get2();
 	}
 	
+	/**
+	 * An internal method.
+	 */
 	public ItemStack handleTransfer(EntityPlayer playerIn, int index)
 	{
 		ItemStack itemstack = ItemStack.EMPTY;
@@ -129,12 +163,27 @@ public class ItemTransferHelper
 		return itemstack;
 	}
 	
+	/**
+	 * A container with simplified shift-clicking algorithm.
+	 */
 	public static abstract class TransferableContainer<T> extends Container
 	{
 		public final ItemTransferHelper transfer = new ItemTransferHelper(this);
 		public final T t;
 		public final EntityPlayer player;
 		
+		/**
+		 * Constructs a new container.
+		 * 
+		 * @param player
+		 *            The player that opened the container.
+		 * @param t
+		 *            The object opened.
+		 * @param invX
+		 *            the start X position for inventory slots.
+		 * @param invY
+		 *            the start Y position for inventory slots.
+		 */
 		public TransferableContainer(EntityPlayer player, T t, int invX, int invY)
 		{
 			this.t = t;
@@ -144,14 +193,24 @@ public class ItemTransferHelper
 			addTransfer();
 		}
 		
+		/**
+		 * Override to implement custom slots to inventory.
+		 */
 		protected void addCustomSlots()
 		{
 		}
 		
+		/**
+		 * Override to add shift-click rules. See {@link #transfer}'s methods
+		 * for more info.
+		 */
 		protected void addTransfer()
 		{
 		}
 		
+		/**
+		 * An internal method.
+		 */
 		protected void addInventorySlots(EntityPlayer player, int x, int y)
 		{
 			int start = inventorySlots.size();
@@ -166,6 +225,9 @@ public class ItemTransferHelper
 			transfer.setInventorySlots(start, inventorySlots.size());
 		}
 		
+		/**
+		 * An internal method.
+		 */
 		@Override
 		public ItemStack transferStackInSlot(EntityPlayer playerIn, int index)
 		{
@@ -178,6 +240,9 @@ public class ItemTransferHelper
 			return true;
 		}
 		
+		/**
+		 * Make sure we catch any exceptions to prevent crashes.
+		 */
 		@Override
 		protected boolean mergeItemStack(ItemStack stack, int startIndex, int endIndex, boolean reverseDirection)
 		{
@@ -188,6 +253,7 @@ public class ItemTransferHelper
 			{
 				// Safe check
 			}
+			
 			return false;
 		}
 	}

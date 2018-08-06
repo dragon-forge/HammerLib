@@ -14,7 +14,7 @@ public class ManualHC
 {
 	public static void register()
 	{
-		ManualCategories.registerCategory("hammercore", new ResourceLocation("hammercore", "textures/hammer.png"), new ResourceLocation("hammercore", "textures/gui/manual_back.png"));
+		ManualCategories.registerCategory("hammercore", new ResourceLocation("hammercore", "textures/hammer.png"));
 		
 		new ManualEntry("hammercore", "hammercore", 0, 0, new ResourceLocation("hammercore", "textures/hammer.png")).setPages(new ManualPage("hc.manual_desc.hammercore")).setShape(EnumEntryShape.ROUND).registerEntry();
 		

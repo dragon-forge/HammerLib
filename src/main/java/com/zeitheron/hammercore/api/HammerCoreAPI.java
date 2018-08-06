@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 
 /**
  * Allows any class to be defined as an instance for API between HammerCore and
- * used class
+ * used class. Test for presence in {@link APILoader}
  */
 @Retention(RUNTIME)
 @Target(TYPE)

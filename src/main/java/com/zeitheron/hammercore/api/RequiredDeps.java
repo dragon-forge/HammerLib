@@ -6,7 +6,7 @@ import java.util.Map;
 import com.zeitheron.hammercore.event.GetAllRequiredApisEvent;
 
 /**
- * Gather all required {@link IHammerCoreAPI}s
+ * Gather all required {@link IHammerCoreAPI}s. Internal class.
  */
 public class RequiredDeps
 {

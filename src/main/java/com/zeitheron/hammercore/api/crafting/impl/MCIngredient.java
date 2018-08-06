@@ -8,6 +8,9 @@ import com.zeitheron.hammercore.utils.ConsumableItem;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.crafting.Ingredient;
 
+/**
+ * The {@link Ingredient} implementation of {@link IItemIngredient}
+ */
 public class MCIngredient implements ICustomIngredient<Ingredient>, IItemIngredient<MCIngredient>
 {
 	public final Ingredient ingredient;
@@ -17,15 +20,10 @@ public class MCIngredient implements ICustomIngredient<Ingredient>, IItemIngredi
 		this.ingredient = ingredient;
 	}
 	
-	public Ingredient copy()
-	{
-		return Ingredient.fromStacks(getOrigin().getMatchingStacks());
-	}
-	
 	@Override
 	public Ingredient getCopy()
 	{
-		return copy();
+		return Ingredient.fromStacks(getOrigin().getMatchingStacks());
 	}
 	
 	@Override

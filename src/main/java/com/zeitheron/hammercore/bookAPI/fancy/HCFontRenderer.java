@@ -29,7 +29,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-@SideOnly(value = Side.CLIENT)
+@SideOnly(Side.CLIENT)
 public class HCFontRenderer
 {
 	private static final ResourceLocation[] unicodePageLocations = new ResourceLocation[256];

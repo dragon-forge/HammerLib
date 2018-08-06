@@ -8,6 +8,9 @@ import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 
+/**
+ * Internal use only!
+ */
 public class EntityHooks
 {
 	public static void onItemUseFinish(EntityLivingBase base)

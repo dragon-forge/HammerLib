@@ -4,26 +4,30 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.zeitheron.hammercore.cfg.HammerCoreConfigs;
-
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.common.config.ConfigElement;
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.fml.client.IModGuiFactory;
 import net.minecraftforge.fml.client.config.GuiConfig;
 import net.minecraftforge.fml.client.config.IConfigElement;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
 
+/**
+ * Use in {@link IModGuiFactory} to create a simple factory
+ */
 public class HCConfigGui extends GuiConfig
 {
 	/**
-	 * Must-have constructor for making gui factories
+	 * Constructs a config gui for the mod.
+	 * 
+	 * @param prev
+	 *            The previous screen.
+	 * @param cfg
+	 *            The configs to be edited.
+	 * @param modid
+	 *            The ModID of the owning mod.
 	 */
-	public HCConfigGui(GuiScreen prev)
-	{
-		this(prev, HammerCoreConfigs.cfg, "hammercore");
-	}
-	
 	public HCConfigGui(GuiScreen prev, Configuration cfg, String modid)
 	{
 		super(prev, getElements(cfg), modid, allRequireWorldRestart(cfg), allRequireMcRestart(cfg), getAbridgedConfigPath(cfg.toString()));

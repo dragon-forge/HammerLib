@@ -8,7 +8,13 @@ import com.zeitheron.hammercore.utils.math.vec.Cuboid6;
  */
 public interface IRayCubeRegistry
 {
+	/**
+	 * Binds cuboids to {@link BlockTraceable}
+	 */
 	public void bindBlockCube6(BlockTraceable target, Cuboid6... boxes);
 	
+	/**
+	 * Binds cuboid manager to {@link BlockTraceable}
+	 */
 	public void bindBlockCubeManager(BlockTraceable target, ICubeManager manager);
 }

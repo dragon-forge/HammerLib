@@ -6,6 +6,9 @@ import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.util.ResourceLocation;
 
+/**
+ * A simple textured model class with a helper method and a bind function.
+ */
 public class ModelSimple<T> extends ModelBase
 {
 	protected ResourceLocation texture;
@@ -37,6 +40,9 @@ public class ModelSimple<T> extends ModelBase
 		super.setRotationAngles(f, f1, f2, f3, f4, f5, null);
 	}
 	
+	/**
+	 * Binds to the texture of this model.
+	 */
 	public void bindTexture(T o)
 	{
 		String url = getTextureURL();

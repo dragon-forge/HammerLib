@@ -14,6 +14,9 @@ import org.objectweb.asm.tree.MethodNode;
 
 import com.zeitheron.hammercore.lib.zlib.utils.TaskedThread;
 
+/**
+ * Internal use only!
+ */
 class TransformerSystem
 {
 	public static interface iASMHook
