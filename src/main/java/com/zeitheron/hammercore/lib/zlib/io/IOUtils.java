@@ -19,9 +19,9 @@ import java.util.zip.InflaterInputStream;
 
 import javax.imageio.ImageIO;
 
-import com.zeitheron.hammercore.internal.HammerCoreCacher;
 import com.zeitheron.hammercore.lib.zlib.error.JSONException;
 import com.zeitheron.hammercore.lib.zlib.io.cache.ICacher;
+import com.zeitheron.hammercore.lib.zlib.io.cache.VoidCacher;
 import com.zeitheron.hammercore.lib.zlib.json.JSONTokener;
 import com.zeitheron.hammercore.lib.zlib.tuple.TwoTuple;
 import com.zeitheron.hammercore.lib.zlib.utils.Joiner;
@@ -29,7 +29,7 @@ import com.zeitheron.hammercore.utils.classes.ClassWrapper;
 
 public class IOUtils
 {
-	public static final ICacher cache = new HammerCoreCacher();
+	public static final ICacher cache = new VoidCacher();
 	public static final DecimalFormat lenform = new DecimalFormat("#0.00");
 	public static int heapLimit = 4096;
 	public static final byte[] ZERO_ARRAY = new byte[0];

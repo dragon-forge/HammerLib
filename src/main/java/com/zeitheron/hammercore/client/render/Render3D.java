@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.logging.log4j.core.jmx.Server;
 import org.lwjgl.opengl.GL11;
 
 import com.zeitheron.hammercore.HammerCore;
@@ -20,9 +19,6 @@ import com.zeitheron.hammercore.event.client.ClientLoadedInEvent;
 import com.zeitheron.hammercore.net.HCNet;
 import com.zeitheron.hammercore.net.internal.opts.PacketCHCOpts;
 import com.zeitheron.hammercore.proxy.RenderProxy_Client;
-import com.zeitheron.hammercore.utils.UpdateChecker;
-import com.zeitheron.hammercore.utils.UpdateChecker.ModVersion;
-import com.zeitheron.hammercore.utils.VersionCompareTool.EnumVersionLevel;
 import com.zeitheron.hammercore.utils.color.Color;
 import com.zeitheron.hammercore.utils.color.ColorHelper;
 
@@ -35,7 +31,6 @@ import net.minecraft.client.renderer.GlStateManager.DestFactor;
 import net.minecraft.client.renderer.GlStateManager.SourceFactor;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -44,7 +39,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.ClickEvent;
-import net.minecraft.util.text.event.ClickEvent.Action;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
@@ -90,21 +84,6 @@ public class Render3D
 				tct.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("chat.hammercore:newversion.clickdwn.detail")));
 				tct.getStyle().setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, HammerCore.invalidCertificates.get(mod)));
 				Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation("chat.hammercore:corrupt", TextFormatting.AQUA + mc.getName() + TextFormatting.RESET).appendText(" ").appendSibling(tct));
-			}
-		});
-		
-		UpdateChecker.installedUpdateableMods().forEach(mod ->
-		{
-			ModVersion ver = UpdateChecker.getLatestVersion(mod);
-			EnumVersionLevel ever = ver.check();
-			if(ever == EnumVersionLevel.NEWER)
-			{
-				TextComponentTranslation tct = new TextComponentTranslation("chat.hammercore:newversion.clickdwn");
-				tct.getStyle().setColor(TextFormatting.BLUE);
-				tct.getStyle().setUnderlined(true);
-				tct.getStyle().setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TextComponentTranslation("chat.hammercore:newversion.clickdwn.detail")));
-				tct.getStyle().setClickEvent(new ClickEvent(Action.OPEN_URL, ver.url));
-				Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation("chat.hammercore:newversion", TextFormatting.AQUA + ver.getModName() + TextFormatting.RESET, TextFormatting.GREEN + ver.remVer + TextFormatting.RESET).appendText(" ").appendSibling(tct));
 			}
 		});
 	}

@@ -155,9 +155,11 @@ class TransformerSystem
 				pop();
 			}
 		
+		// Not interesting
 		/** Save classes that we are interested in. */
-		if(l || HammerCoreTransformer.CLASS_MAPPINGS.containsKey("L" + transformedName.replaceAll("[.]", "/") + ";"))
-			saveClass(origin, data, transformedName);
+		// if(l || HammerCoreTransformer.CLASS_MAPPINGS.containsKey("L" +
+		// transformedName.replaceAll("[.]", "/") + ";"))
+		// saveClass(origin, data, transformedName);
 		
 		currentClass = null;
 		transformedCurrentClass = null;

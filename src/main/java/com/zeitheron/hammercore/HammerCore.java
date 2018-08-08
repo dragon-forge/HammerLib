@@ -47,7 +47,6 @@ import com.zeitheron.hammercore.internal.init.BlocksHC;
 import com.zeitheron.hammercore.internal.init.ItemsHC;
 import com.zeitheron.hammercore.internal.init.ManualHC;
 import com.zeitheron.hammercore.lib.zlib.database.SafeStore;
-import com.zeitheron.hammercore.lib.zlib.utils.Threading;
 import com.zeitheron.hammercore.lib.zlib.weupnp.AttuneResult;
 import com.zeitheron.hammercore.net.HCNet;
 import com.zeitheron.hammercore.net.internal.opts.PacketReqOpts;
@@ -59,7 +58,6 @@ import com.zeitheron.hammercore.proxy.PipelineProxy_Common;
 import com.zeitheron.hammercore.proxy.RenderProxy_Common;
 import com.zeitheron.hammercore.utils.AnnotatedInstanceUtil;
 import com.zeitheron.hammercore.utils.HammerCoreUtils;
-import com.zeitheron.hammercore.utils.UpdateChecker;
 import com.zeitheron.hammercore.utils.charging.ItemChargeHelper;
 import com.zeitheron.hammercore.utils.color.ColorHelper;
 import com.zeitheron.hammercore.utils.recipes.BrewingRecipe;
@@ -118,7 +116,7 @@ import net.minecraftforge.registries.IForgeRegistry;
  * <span style="text-decoration: underline;"> <em>This really sounds weird
  * :/</em></span>
  **/
-@Mod(modid = "hammercore", version = "@VERSION@", name = "Hammer Core", guiFactory = "com.zeitheron.hammercore.cfg.gui.GuiConfigFactory", certificateFingerprint = "4d7b29cd19124e986da685107d16ce4b49bc0a97")
+@Mod(modid = "hammercore", version = "@VERSION@", name = "Hammer Core", guiFactory = "com.zeitheron.hammercore.cfg.gui.GuiConfigFactory", certificateFingerprint = "4d7b29cd19124e986da685107d16ce4b49bc0a97", updateJSON = "https://pastebin.com/raw/JmcqzmEf")
 public class HammerCore
 {
 	public static final List<AttuneResult> closeAfterLogoff = new ArrayList<>();
@@ -322,8 +320,6 @@ public class HammerCore
 		renderProxy.init();
 		bookProxy.init();
 		ManualHC.register();
-		
-		Threading.createAndStart("HCUpdateCheckThread", UpdateChecker::refresh);
 		
 		for(RecipeRegistry r : recipeRegistries)
 			r.oredict();
