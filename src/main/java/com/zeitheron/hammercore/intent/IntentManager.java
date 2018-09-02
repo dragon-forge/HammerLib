@@ -5,7 +5,7 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
-import com.zeitheron.hammercore.utils.IndexedMap;
+import com.zeitheron.hammercore.lib.zlib.utils.IndexedMap;
 import com.zeitheron.hammercore.utils.NPEUtils;
 
 import net.minecraftforge.fml.common.Loader;

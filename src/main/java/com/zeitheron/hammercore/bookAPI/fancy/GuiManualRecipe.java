@@ -86,20 +86,14 @@ public class GuiManualRecipe extends GuiScreen implements ITooltipContext
 		return cache.get(key);
 	}
 	
-	public GuiManualRecipe(ManualEntry research, int page, double x, double y)
+	public GuiManualRecipe(ManualEntry entry, int page, double x, double y)
 	{
-		this.entry = research;
+		this.entry = entry;
 		this.guiMapX = x;
 		this.guiMapY = y;
 		this.mc = Minecraft.getMinecraft();
-		this.pages = research.getPages();
-		List<ManualPage> p1 = Arrays.asList(this.pages);
-		ArrayList<ManualPage> p2 = new ArrayList<ManualPage>();
-		for(ManualPage pp : p1)
-			p2.add(pp);
-		this.pages = p2.toArray(new ManualPage[0]);
-		this.maxPages = this.pages.length;
 		this.fr = new HCFontRenderer(this.mc.gameSettings, HCFontRenderer.FONT_NORMAL, this.mc.renderEngine, true);
+		
 		if(page % 2 == 1)
 			--page;
 		this.page = page;
@@ -108,7 +102,8 @@ public class GuiManualRecipe extends GuiScreen implements ITooltipContext
 	@Override
 	public void initGui()
 	{
-		
+		this.pages = entry.getPagesWrapped(this.fr, 139, (int) (paneHeight * 1.3F - 30));
+		this.maxPages = this.pages.length;
 	}
 	
 	@Override

@@ -26,11 +26,11 @@ import com.zeitheron.hammercore.api.GameRules;
 import com.zeitheron.hammercore.event.WorldEventsHC;
 import com.zeitheron.hammercore.internal.chunk.ChunkPredicate.IChunkLoader;
 import com.zeitheron.hammercore.internal.chunk.ChunkPredicate.LoadableChunk;
+import com.zeitheron.hammercore.lib.zlib.utils.IndexedMap;
 import com.zeitheron.hammercore.net.HCNet;
 import com.zeitheron.hammercore.net.internal.PacketStartedRiding;
 import com.zeitheron.hammercore.net.internal.PacketStopRiding;
 import com.zeitheron.hammercore.net.internal.PacketStopRiding2;
-import com.zeitheron.hammercore.utils.IndexedMap;
 import com.zeitheron.hammercore.utils.WorldUtil;
 import com.zeitheron.hammercore.world.gen.WorldRetroGen;
 

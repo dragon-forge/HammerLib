@@ -3,7 +3,7 @@ package com.zeitheron.hammercore.client.gui;
 import java.util.function.BiFunction;
 
 import com.zeitheron.hammercore.internal.GuiManager;
-import com.zeitheron.hammercore.utils.IndexedMap;
+import com.zeitheron.hammercore.lib.zlib.utils.IndexedMap;
 import com.zeitheron.hammercore.utils.WorldLocation;
 
 import net.minecraft.entity.player.EntityPlayer;

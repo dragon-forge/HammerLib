@@ -2,7 +2,7 @@ package com.zeitheron.hammercore.event;
 
 import java.io.Serializable;
 
-import com.zeitheron.hammercore.utils.IndexedMap;
+import com.zeitheron.hammercore.lib.zlib.utils.IndexedMap;
 
 import net.minecraft.world.World;
 import net.minecraftforge.event.world.WorldEvent;

@@ -25,12 +25,12 @@ public class ManualItemHelper
 		{
 			for(ManualEntry ri : rcl.entries.values())
 			{
-				if(ri.getPages() == null)
+				if(ri.getPagesRaw() == null)
 					continue;
 				
-				for(int a = 0; a < ri.getPages().length; ++a)
+				for(int a = 0; a < ri.getPagesRaw().length; ++a)
 				{
-					ManualPage page = ri.getPages()[a];
+					ManualPage page = ri.getPagesRaw()[a];
 					
 					page.getRecipe();
 					boolean anyEqual = !InterItemStack.isStackNull(page.recipeOutput) && page.recipeOutput.isItemEqual(stack);

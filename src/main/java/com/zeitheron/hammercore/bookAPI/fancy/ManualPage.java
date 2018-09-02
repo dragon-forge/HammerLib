@@ -40,6 +40,12 @@ public class ManualPage
 		return recipes;
 	}
 	
+	@SideOnly(Side.CLIENT)
+	public void addPage(HCFontRenderer fr, int maxWidth, int maxHeight, List<ManualPage> pages)
+	{
+		pages.add(this);
+	}
+	
 	public Object getRecipe()
 	{
 		if(type == PageType.NORMAL_CRAFTING)

@@ -11,11 +11,12 @@ import java.util.Set;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
-import com.zeitheron.hammercore.bookAPI.fancy.ManualEntry.eEntryShape;
+import com.zeitheron.hammercore.bookAPI.fancy.ManualEntry.EnumEntryShape;
 import com.zeitheron.hammercore.client.utils.RenderUtil;
-import com.zeitheron.hammercore.client.utils.TooltipHelper;
 import com.zeitheron.hammercore.client.utils.UtilsFX;
 import com.zeitheron.hammercore.client.utils.texture.gui.theme.GuiTheme;
+import com.zeitheron.hammercore.lib.zlib.tuple.TwoTuple;
+import com.zeitheron.hammercore.lib.zlib.utils.IndexedMap;
 import com.zeitheron.hammercore.utils.InventoryUtils;
 import com.zeitheron.hammercore.utils.color.ColorHelper;
 import com.zeitheron.hammercore.utils.web.URLLocation;
@@ -33,17 +34,16 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.TextFormatting;
 
 /**
  * Internal use only!
  */
 public class GuiHammerManual extends GuiScreen
 {
-	private static int guiMapTop;
-	private static int guiMapLeft;
-	private static int guiMapBottom;
-	private static int guiMapRight;
+	private int guiMapTop;
+	private int guiMapLeft;
+	private int guiMapBottom;
+	private int guiMapRight;
 	protected int paneWidth = 256;
 	protected int paneHeight = 230;
 	protected int mouseX = 0;
@@ -55,20 +55,34 @@ public class GuiHammerManual extends GuiScreen
 	protected double field_74124_q;
 	protected double field_74123_r;
 	private int isMouseButtonDown = 0;
-	public static int lastX = -5;
-	public static int lastY = -6;
 	private GuiButton button;
 	public final List<ManualEntry> entries = HammerManual.listEntries();
-	public static ArrayList highlightedItem = new ArrayList();
-	private static String selectedCategory = null;
 	private FontRenderer galFontRenderer;
 	private ManualEntry currentHighlight = null;
 	private String player = "";
 	long popuptime = 0L;
 	String popupmessage = "";
+	public String selectedCategory = null;
+	public boolean showCategories = true;
+	
+	public static IndexedMap<Class<? extends GuiHammerManual>, String> lastCategory = new IndexedMap<>();
+	public static ArrayList highlightedItem = new ArrayList();
+	public static IndexedMap<Class<? extends GuiHammerManual>, TwoTuple<Integer, Integer>> lastPos = new IndexedMap<>();
+	
+	public GuiHammerManual(String onlyCategory)
+	{
+		this();
+		selectedCategory = onlyCategory;
+		showCategories = false;
+	}
 	
 	public GuiHammerManual()
 	{
+		int lastX = lastPos.containsKey(getClass()) ? lastPos.get(getClass()).get1() : -5;
+		int lastY = lastPos.containsKey(getClass()) ? lastPos.get(getClass()).get2() : -6;
+		
+		selectedCategory = lastCategory.get(getClass());
+		
 		short var2 = 141;
 		short var3 = 141;
 		this.field_74117_m = this.guiMapX = this.field_74124_q = lastX * 24 - var2 / 2 - 12;
@@ -119,8 +133,10 @@ public class GuiHammerManual extends GuiScreen
 	{
 		short var2 = 141;
 		short var3 = 141;
-		lastX = (int) ((this.guiMapX + var2 / 2D + 12.0D) / 24.0D);
-		lastY = (int) ((this.guiMapY + var3 / 2D) / 24.0D);
+		int lastX = (int) ((this.guiMapX + var2 / 2D + 12.0D) / 24.0D);
+		int lastY = (int) ((this.guiMapY + var3 / 2D) / 24.0D);
+		lastPos.put(getClass(), new TwoTuple<>(lastX, lastY));
+		lastCategory.put(getClass(), selectedCategory);
 		super.onGuiClosed();
 	}
 	
@@ -221,6 +237,8 @@ public class GuiHammerManual extends GuiScreen
 		for(int var22 = 0; var22 < entries.size(); ++var22)
 		{
 			ManualEntry entry = entries.get(var22);
+			if(!entry.isVisibleTo(mc.player))
+				continue;
 			int var25;
 			ManualEntry parent;
 			if(entry.parents != null && entry.parents.length > 0)
@@ -274,9 +292,13 @@ public class GuiHammerManual extends GuiScreen
 		
 		for(var24 = 0; var24 < this.entries.size(); ++var24)
 		{
-			ManualEntry var45 = this.entries.get(var24);
-			var26 = var45.displayColumn * sz - var4;
-			var27 = var45.displayRow * sz - var5;
+			ManualEntry entry = this.entries.get(var24);
+			
+			if(!entry.isVisibleTo(mc.player))
+				continue;
+			
+			var26 = entry.displayColumn * sz - var4;
+			var27 = entry.displayRow * sz - var5;
 			
 			if(var26 >= -24 * sz && var27 >= -24 * sz && var26 <= 224 && var27 <= 196)
 			{
@@ -284,7 +306,7 @@ public class GuiHammerManual extends GuiScreen
 				var44 = var11 + var27;
 				float var47;
 				
-				int col = var45.getColor();
+				int col = entry.getColor();
 				if(col == 0xFFFFFF)
 					col = rgb;
 				
@@ -303,17 +325,17 @@ public class GuiHammerManual extends GuiScreen
 				GL11.glScaled(scale, scale, 1);
 				GL11.glTranslated(-.5, -.5, -.5);
 				
-				eEntryShape shape = var45.getShape();
+				EnumEntryShape shape = entry.getEntryShape();
 				
 				GL11.glColor4f(r, g, b, 1F);
-				if(shape == eEntryShape.ROUND)
+				if(shape == EnumEntryShape.ROUND)
 					this.drawTexturedModalRect(0, 0, 54, 230, 26, 26);
-				else if(shape == eEntryShape.HEX)
+				else if(shape == EnumEntryShape.HEX)
 					this.drawTexturedModalRect(0, 0, 80, 230, 26, 26);
 				else
 					this.drawTexturedModalRect(0, 0, 0, 230, 26, 26);
 				
-				if(var45.isSpecial())
+				if(entry.isSpecial())
 					this.drawTexturedModalRect(0, 0, 26, 230, 26, 26);
 				
 				GL11.glColor4f(1, 1, 1, 1);
@@ -321,7 +343,7 @@ public class GuiHammerManual extends GuiScreen
 				GL11.glPopMatrix();
 				
 				GL11.glDisable(3042);
-				if(highlightedItem.contains(var45.key))
+				if(highlightedItem.contains(entry.key))
 				{
 					GL11.glPushMatrix();
 					GL11.glEnable(3042);
@@ -335,7 +357,7 @@ public class GuiHammerManual extends GuiScreen
 					GL11.glPopMatrix();
 				}
 				
-				if(var45.icon_item != null)
+				if(entry.icon_item != null)
 				{
 					GL11.glPushMatrix();
 					
@@ -352,19 +374,19 @@ public class GuiHammerManual extends GuiScreen
 					GL11.glEnable(2903);
 					GL11.glEnable(2896);
 					
-					if(var45.icon_item instanceof URLLocation)
+					if(entry.icon_item instanceof URLLocation)
 					{
-						UtilsFX.bindTextureURL(((URLLocation) var45.icon_item).url);
+						UtilsFX.bindTextureURL(((URLLocation) entry.icon_item).url);
 						RenderUtil.drawFullTexturedModalRect(0, 0, 16, 16);
 					} else
-						var43.renderItemAndEffectIntoGUI(InventoryUtils.cycleItemStack(var45.icon_item), 0, 0);
+						var43.renderItemAndEffectIntoGUI(InventoryUtils.cycleItemStack(entry.icon_item), 0, 0);
 					
 					GL11.glDisable(2896);
 					GL11.glDepthMask(true);
 					GL11.glEnable(2929);
 					GL11.glDisable(3042);
 					GL11.glPopMatrix();
-				} else if(var45.icon_resource != null)
+				} else if(entry.icon_resource != null)
 				{
 					GL11.glPushMatrix();
 					
@@ -375,7 +397,7 @@ public class GuiHammerManual extends GuiScreen
 					
 					GL11.glEnable(3042);
 					GL11.glBlendFunc(770, 771);
-					mc.renderEngine.bindTexture(var45.icon_resource);
+					mc.renderEngine.bindTexture(entry.icon_resource);
 					if(!renderWithColor)
 						GL11.glColor4f(0.2F, 0.2F, 0.2F, 1.0F);
 					UtilsFX.drawTexturedQuadFull(0, 0, this.zLevel);
@@ -383,7 +405,7 @@ public class GuiHammerManual extends GuiScreen
 				}
 				
 				if(par1 >= var10 && par2 >= var11 && par1 < var10 + 224 && par2 < var11 + 196 && par1 >= var42 && par1 <= var42 + sz && par2 >= var44 && par2 <= var44 + sz)
-					this.currentHighlight = var45;
+					this.currentHighlight = entry;
 				
 				GlStateManager.color(1, 1, 1, 1);
 				RenderHelper.enableGUIStandardItemLighting();
@@ -395,71 +417,75 @@ public class GuiHammerManual extends GuiScreen
 		GL11.glEnable(3042);
 		GL11.glBlendFunc(770, 771);
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-		Set var46 = ManualCategories.manualCategories.keySet();
 		int var49 = 0;
 		boolean var50 = false;
-		Iterator var34 = var46.iterator();
 		
-		int warp;
-		while(var34.hasNext())
+		if(showCategories)
 		{
-			Object var99 = var34.next();
-			ManualCategory fr = ManualCategories.getCategory((String) var99);
+			Set<String> catSet = ManualCategories.manualCategories.keySet();
+			Iterator<String> catIter = catSet.iterator();
 			
-			if(fr.isVisibleTo(mc.player))
+			int warp;
+			while(catIter.hasNext())
 			{
-				GL11.glPushMatrix();
-				if(var49 == 9)
-				{
-					var49 = 0;
-					var50 = true;
-				}
+				String cat = catIter.next();
+				ManualCategory fr = ManualCategories.getCategory(cat);
 				
-				int var39 = !var50 ? 0 : 264;
-				byte primary = 0;
-				warp = var50 ? 14 : 0;
-				if(!selectedCategory.equals(var99))
-				{
-					primary = 24;
-					warp = var50 ? 6 : 8;
-				}
-				
-				UtilsFX.bindTexture("textures/gui/gui_manual.png");
-				
-				GL11.glColor4f(ColorHelper.getRed(rgb), ColorHelper.getGreen(rgb), ColorHelper.getBlue(rgb), 1F);
-				if(var50)
-					this.drawTexturedModalRectReversed(var8 + var39 - 8, var9 + 2 + var49 * 24, 176 + primary, 232, 24, 24);
-				else
-					this.drawTexturedModalRect(var8 - 24 + var39, var9 + 2 + var49 * 24, 152 + primary, 232, 24, 24);
-				
-				if(highlightedItem.contains(var99))
+				if(fr.isVisibleTo(mc.player))
 				{
 					GL11.glPushMatrix();
-					this.mc.renderEngine.bindTexture(com.zeitheron.hammercore.client.utils.UtilsFX.getMCParticleTexture());
-					GL11.glColor4f(1, 1, 1, 1);
-					int ws = (int) (16L * (t % 16L));
-					RenderUtil.drawTexturedModalRect(var8 - 27 + warp + var39, var9 - 2 + var49 * 24, ws, 80, 16, 16, -90.0D);
-					GL11.glPopMatrix();
-				}
-				
-				GL11.glPushMatrix();
-				this.mc.renderEngine.bindTexture(fr.icon);
-				GL11.glColor4f(1, 1, 1, 1);
-				UtilsFX.drawTexturedQuadFull(var8 - 19 + warp + var39, var9 + 6 + var49 * 24, -80.0D);
-				GL11.glPopMatrix();
-				
-				if(!selectedCategory.equals(var99))
-				{
+					if(var49 == 9)
+					{
+						var49 = 0;
+						var50 = true;
+					}
+					
+					int var39 = !var50 ? 0 : 264;
+					byte primary = 0;
+					warp = var50 ? 14 : 0;
+					if(!selectedCategory.equals(cat))
+					{
+						primary = 24;
+						warp = var50 ? 6 : 8;
+					}
+					
 					UtilsFX.bindTexture("textures/gui/gui_manual.png");
+					
 					GL11.glColor4f(ColorHelper.getRed(rgb), ColorHelper.getGreen(rgb), ColorHelper.getBlue(rgb), 1F);
 					if(var50)
-						drawTexturedModalRectReversed(var8 + var39 - 8, var9 + 2 + var49 * 24, 224, 232, 24, 24);
+						this.drawTexturedModalRectReversed(var8 + var39 - 8, var9 + 2 + var49 * 24, 176 + primary, 232, 24, 24);
 					else
-						drawTexturedModalRect(var8 - 24 + var39, var9 + 2 + var49 * 24, 200, 232, 24, 24);
+						this.drawTexturedModalRect(var8 - 24 + var39, var9 + 2 + var49 * 24, 152 + primary, 232, 24, 24);
+					
+					if(highlightedItem.contains(cat))
+					{
+						GL11.glPushMatrix();
+						this.mc.renderEngine.bindTexture(com.zeitheron.hammercore.client.utils.UtilsFX.getMCParticleTexture());
+						GL11.glColor4f(1, 1, 1, 1);
+						int ws = (int) (16L * (t % 16L));
+						RenderUtil.drawTexturedModalRect(var8 - 27 + warp + var39, var9 - 2 + var49 * 24, ws, 80, 16, 16, -90.0D);
+						GL11.glPopMatrix();
+					}
+					
+					GL11.glPushMatrix();
+					this.mc.renderEngine.bindTexture(fr.icon);
+					GL11.glColor4f(1, 1, 1, 1);
+					UtilsFX.drawTexturedQuadFull(var8 - 19 + warp + var39, var9 + 6 + var49 * 24, -80.0D);
+					GL11.glPopMatrix();
+					
+					if(!selectedCategory.equals(cat))
+					{
+						UtilsFX.bindTexture("textures/gui/gui_manual.png");
+						GL11.glColor4f(ColorHelper.getRed(rgb), ColorHelper.getGreen(rgb), ColorHelper.getBlue(rgb), 1F);
+						if(var50)
+							drawTexturedModalRectReversed(var8 + var39 - 8, var9 + 2 + var49 * 24, 224, 232, 24, 24);
+						else
+							drawTexturedModalRect(var8 - 24 + var39, var9 + 2 + var49 * 24, 200, 232, 24, 24);
+					}
+					
+					GL11.glPopMatrix();
+					++var49;
 				}
-				
-				GL11.glPopMatrix();
-				++var49;
 			}
 		}
 		
@@ -524,7 +550,7 @@ public class GuiHammerManual extends GuiScreen
 		{
 			mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1));
 			this.mc.displayGuiScreen(new GuiManualRecipe(this.currentHighlight, 0, this.guiMapX, this.guiMapY));
-		} else
+		} else if(showCategories)
 		{
 			int var4 = (this.width - this.paneWidth) / 2;
 			int var5 = (this.height - this.paneHeight) / 2 + 2;
@@ -725,24 +751,27 @@ public class GuiHammerManual extends GuiScreen
 			this.fontRenderer.drawSplitString(this.popupmessage, xq - 75, yq - var41, 150, -7302913);
 		}
 		
-		Set<String> cats = ManualCategories.manualCategories.keySet();
-		int count = 0;
-		boolean swop = false;
-		for(String obj : cats)
+		if(showCategories)
 		{
-			if(count == 9)
+			Set<String> cats = ManualCategories.manualCategories.keySet();
+			int count = 0;
+			boolean swop = false;
+			for(String obj : cats)
 			{
-				count = 0;
-				swop = true;
+				if(count == 9)
+				{
+					count = 0;
+					swop = true;
+				}
+				ManualCategory rcl = ManualCategories.getCategory(obj);
+				if(!rcl.isVisibleTo(mc.player))
+					continue;
+				int mposx = mx - (var4 - 24 + (swop ? 280 : 0));
+				int mposy = my - ((var5 + 2) + count * 24);
+				if(mposx >= 0 && mposx < 24 && mposy >= 0 && mposy < 24)
+					UtilsFX.drawCustomTooltip(this, itemRender, fontRenderer, Arrays.asList(ManualCategories.getCategoryName(obj)), mx, my - 16 < 0 ? (int) (my - (my - 16)) : my, 15);
+				++count;
 			}
-			ManualCategory rcl = ManualCategories.getCategory(obj);
-			if(!rcl.isVisibleTo(mc.player))
-				continue;
-			int mposx = mx - (var4 - 24 + (swop ? 280 : 0));
-			int mposy = my - ((var5 + 2) + count * 24);
-			if(mposx >= 0 && mposx < 24 && mposy >= 0 && mposy < 24)
-				UtilsFX.drawCustomTooltip(this, itemRender, fontRenderer, Arrays.asList(ManualCategories.getCategoryName(obj)), mx, my - 16 < 0 ? (int) (my - (my - 16)) : my, 15);
-			++count;
 		}
 		
 		String cat = ManualCategories.getCategoryName(selectedCategory);

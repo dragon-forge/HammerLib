@@ -1,5 +1,6 @@
 package com.zeitheron.hammercore.bookAPI.fancy;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -7,9 +8,12 @@ import com.zeitheron.hammercore.utils.color.ColorHelper;
 import com.zeitheron.hammercore.utils.web.URLLocation;
 
 import net.minecraft.client.resources.I18n;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 /**
  * An entry in a manual. Must contain some {@link ManualPage}s.
@@ -273,7 +277,21 @@ public class ManualEntry
 		return this;
 	}
 	
-	public ManualPage[] getPages()
+	@SideOnly(Side.CLIENT)
+	public ManualPage[] getPagesWrapped(HCFontRenderer font, int maxWidth, int maxHeight)
+	{
+		List<ManualPage> pages = new ArrayList<>();
+		for(ManualPage page : getPagesRaw())
+			page.addPage(font, maxWidth, maxHeight, pages);
+		return pages.toArray(new ManualPage[pages.size()]);
+	}
+	
+	public boolean isVisibleTo(EntityPlayer player)
+	{
+		return true;
+	}
+	
+	public ManualPage[] getPagesRaw()
 	{
 		return this.pages;
 	}
@@ -327,6 +345,11 @@ public class ManualEntry
 	{
 		this.shape = shape;
 		return this;
+	}
+	
+	public EnumEntryShape getEntryShape()
+	{
+		return this.shape;
 	}
 	
 	public int getColor()

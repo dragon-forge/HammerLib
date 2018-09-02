@@ -13,8 +13,8 @@ import com.zeitheron.hammercore.client.gui.impl.GuiMissingApis;
 import com.zeitheron.hammercore.client.gui.impl.GuiShareToLanImproved;
 import com.zeitheron.hammercore.client.gui.impl.smooth.GuiBrewingStandSmooth;
 import com.zeitheron.hammercore.client.gui.impl.smooth.GuiFurnaceSmooth;
+import com.zeitheron.hammercore.lib.zlib.utils.IndexedMap;
 import com.zeitheron.hammercore.tile.TileSyncable;
-import com.zeitheron.hammercore.utils.IndexedMap;
 import com.zeitheron.hammercore.utils.WorldUtil;
 
 import net.minecraft.client.Minecraft;
