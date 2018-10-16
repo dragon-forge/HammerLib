@@ -14,6 +14,7 @@ import org.lwjgl.opengl.GL11;
 import com.zeitheron.hammercore.bookAPI.fancy.ManualEntry.EnumEntryShape;
 import com.zeitheron.hammercore.client.utils.RenderUtil;
 import com.zeitheron.hammercore.client.utils.UtilsFX;
+import com.zeitheron.hammercore.client.utils.texture.def.ImagePuller;
 import com.zeitheron.hammercore.client.utils.texture.gui.theme.GuiTheme;
 import com.zeitheron.hammercore.lib.zlib.tuple.TwoTuple;
 import com.zeitheron.hammercore.lib.zlib.utils.IndexedMap;
@@ -349,7 +350,7 @@ public class GuiHammerManual extends GuiScreen
 					GL11.glEnable(3042);
 					GL11.glBlendFunc(770, 771);
 					GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-					this.mc.renderEngine.bindTexture(com.zeitheron.hammercore.client.utils.UtilsFX.getMCParticleTexture());
+					this.mc.renderEngine.bindTexture(UtilsFX.getMCParticleTexture());
 					int var48 = (int) (t % 16L) * 16;
 					GL11.glTranslatef(var42 - 5, var44 - 5, 0.0F);
 					RenderUtil.drawTexturedModalRect(0, 0, var48, 80, 16, 16, 0.0D);
@@ -376,7 +377,10 @@ public class GuiHammerManual extends GuiScreen
 					
 					if(entry.icon_item instanceof URLLocation)
 					{
-						UtilsFX.bindTextureURL(((URLLocation) entry.icon_item).url);
+						String url = ((URLLocation) entry.icon_item).url;
+						// API Change: allow GIF images to load as well!
+						if(!ImagePuller.bind(url))
+							UtilsFX.bindTextureURL(url);
 						RenderUtil.drawFullTexturedModalRect(0, 0, 16, 16);
 					} else
 						var43.renderItemAndEffectIntoGUI(InventoryUtils.cycleItemStack(entry.icon_item), 0, 0);

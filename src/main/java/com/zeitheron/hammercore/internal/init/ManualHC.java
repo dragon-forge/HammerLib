@@ -21,7 +21,7 @@ public class ManualHC
 		if(ItemsHC.WRENCH != null)
 			new ManualEntry("wrench", "hammercore", 0, 2, new ItemStack(ItemsHC.WRENCH)).setPages(new ManualTextPage("hc.manual_desc.wrench")).setShape(EnumEntryShape.ROUND).registerEntry();
 		
-		new ManualEntry("apengu", "hammercore", -1, -2, new URLLocation("https://visage.surgeplay.com/head/256/4249ed58d13c4a89a9da1e507774dfac")).setPages(new ManualTextPage("hc.manual_desc.apengu")).setShape(EnumEntryShape.HEX).setColor(0xFFFF0000).registerEntry();
+		new ManualEntry("apengu", "hammercore", -1, -2, new URLLocation("https://i.imgur.com/64QhGiC.png")).setPages(new ManualTextPage("hc.manual_desc.apengu")).setShape(EnumEntryShape.HEX).setColor(0xFFFF0000).registerEntry();
 		new ManualEntry("zeitheron", "hammercore", 1, -2, new URLLocation("https://visage.surgeplay.com/head/256/63fa4c485b5640809727d5d59663e603")).setPages(new ManualTextPage("hc.manual_desc.zeitheron")).setShape(EnumEntryShape.HEX).setColor(0xFF00FFFF).registerEntry();
 	}
 }

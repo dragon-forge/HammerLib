@@ -4,8 +4,8 @@ import java.nio.file.Files;
 
 import com.zeitheron.hammercore.cfg.HammerCoreConfigs;
 import com.zeitheron.hammercore.fluiddict.FluidDictionary;
-import com.zeitheron.hammercore.utils.web.HttpRequest;
-import com.zeitheron.hammercore.utils.web.HttpRequest.Base64;
+import com.zeitheron.hammercore.lib.zlib.web.HttpRequest;
+import com.zeitheron.hammercore.lib.zlib.web.HttpRequest.Base64;
 
 import net.minecraftforge.fml.common.ICrashCallable;
 import net.minecraftforge.fml.common.Loader;

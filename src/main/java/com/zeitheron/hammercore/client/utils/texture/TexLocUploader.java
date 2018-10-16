@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.zeitheron.hammercore.HammerCore;
+import com.zeitheron.hammercore.client.utils.texture.def.ImagePuller;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.AbstractTexture;
@@ -67,11 +68,17 @@ public class TexLocUploader
 	
 	static void cleanupAll()
 	{
-		HammerCore.LOG.info("Cleaning " + cleanup.size() + " textures from VRAM");
+		HammerCore.LOG.info("Cleaning " + (cleanup.size() + ImagePuller.GL_IMAGES.size()) + " textures from VRAM");
+		ImagePuller.GL_IMAGES.values().forEach(r -> deleteGlTexture(Minecraft.getMinecraft().getTextureManager().mapTextureObjects.remove(r)));
 		cleanup.forEach(r -> deleteGlTexture(Minecraft.getMinecraft().getTextureManager().mapTextureObjects.remove(r)));
 		cleanCallbacks.forEach(r -> r.run());
 		cleanup.clear();
 		cleanCallbacks.clear();
+		
+		HammerCore.LOG.info("Interrupting " + ImagePuller.DWN.size() + " image download threads");
+		ImagePuller.DWN.values().forEach(Thread::interrupt);
+		ImagePuller.GL_IMAGES.clear();
+		ImagePuller.DWN.clear();
 	}
 	
 	public static void cleanupAfterLogoff(ResourceLocation loca, Runnable... runnables)
@@ -84,9 +91,12 @@ public class TexLocUploader
 	{
 		if(tex == null)
 			return;
-		if(tex instanceof AbstractTexture)
-			((AbstractTexture) tex).deleteGlTexture();
-		else if(tex.getGlTextureId() != -1)
-			TextureUtil.deleteTexture(tex.getGlTextureId());
+		Minecraft.getMinecraft().addScheduledTask(() ->
+		{
+			if(tex instanceof AbstractTexture)
+				((AbstractTexture) tex).deleteGlTexture();
+			else if(tex.getGlTextureId() != -1)
+				TextureUtil.deleteTexture(tex.getGlTextureId());
+		});
 	}
 }

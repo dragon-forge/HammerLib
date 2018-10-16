@@ -3,7 +3,7 @@ package com.zeitheron.hammercore.utils.web.webhooks.discord;
 import com.zeitheron.hammercore.lib.zlib.json.serapi.IgnoreSerialization;
 import com.zeitheron.hammercore.lib.zlib.json.serapi.Jsonable;
 import com.zeitheron.hammercore.lib.zlib.json.serapi.SerializedName;
-import com.zeitheron.hammercore.utils.web.HttpRequest;
+import com.zeitheron.hammercore.lib.zlib.web.HttpRequest;
 
 public class DiscordMessage implements Jsonable
 {
@@ -32,6 +32,6 @@ public class DiscordMessage implements Jsonable
 	
 	public static String sendMessage(DiscordMessage msg)
 	{
-		return HttpRequest.post(msg.webhook).acceptJson().contentType("application/json").header("User-Agent", "Mozilla/5.0 (X11; U; Linux i686) Gecko/20071127 Firefox/2.0.0.11").send(msg.serialize()).body();
+		return HttpRequest.post(msg.webhook).acceptJson().contentType("application/json").header("User-Agent", "HammerCore/@VERSION@").send(msg.serialize()).body();
 	}
 }

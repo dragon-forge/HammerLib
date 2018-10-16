@@ -19,12 +19,15 @@ import java.util.zip.InflaterInputStream;
 
 import javax.imageio.ImageIO;
 
+import org.apache.http.client.methods.HttpOptions;
+
 import com.zeitheron.hammercore.lib.zlib.error.JSONException;
 import com.zeitheron.hammercore.lib.zlib.io.cache.ICacher;
 import com.zeitheron.hammercore.lib.zlib.io.cache.VoidCacher;
 import com.zeitheron.hammercore.lib.zlib.json.JSONTokener;
 import com.zeitheron.hammercore.lib.zlib.tuple.TwoTuple;
 import com.zeitheron.hammercore.lib.zlib.utils.Joiner;
+import com.zeitheron.hammercore.lib.zlib.web.HttpRequest;
 import com.zeitheron.hammercore.utils.classes.ClassWrapper;
 
 public class IOUtils
@@ -81,9 +84,9 @@ public class IOUtils
 	
 	public static BufferedImage downloadPicture(String url)
 	{
-		try
+		try(InputStream in = HttpRequest.get(url).userAgent("HammerCore/@VERSION@").stream())
 		{
-			return ImageIO.read(new URL(url));
+			return ImageIO.read(in);
 		} catch(Throwable throwable)
 		{
 			return null;

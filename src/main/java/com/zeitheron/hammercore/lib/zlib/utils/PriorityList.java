@@ -3,15 +3,14 @@ package com.zeitheron.hammercore.lib.zlib.utils;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
-
-import it.unimi.dsi.fastutil.objects.Object2IntFunction;
+import java.util.function.Function;
 
 public class PriorityList<T> extends AbstractList<T>
 {
 	private List<T> sorted = new ArrayList<>();
-	private Object2IntFunction<T> prio;
+	private Function<T, Integer> prio;
 	
-	public void setPriority(Object2IntFunction<T> i)
+	public void setPriority(Function<T, Integer> i)
 	{
 		prio = i;
 	}
@@ -19,14 +18,14 @@ public class PriorityList<T> extends AbstractList<T>
 	@Override
 	public boolean add(T elem)
 	{
-		int p = prio.getInt(elem);
+		int p = prio.apply(elem);
 		
 		if(sorted.isEmpty())
 			return sorted.add(elem);
 		
 		for(int i = 0; i < sorted.size(); ++i)
 		{
-			int cp = prio.getInt(sorted.get(i));
+			int cp = prio.apply(sorted.get(i));
 			
 			if(p >= cp)
 				continue;
@@ -49,7 +48,7 @@ public class PriorityList<T> extends AbstractList<T>
 		return pl;
 	}
 	
-	public static <T> PriorityList<T> sort(List<T> src, Object2IntFunction<T> priority)
+	public static <T> PriorityList<T> sort(List<T> src, Function<T, Integer> priority)
 	{
 		PriorityList<T> pl = new PriorityList<>();
 		pl.setPriority(priority);
@@ -68,5 +67,22 @@ public class PriorityList<T> extends AbstractList<T>
 	public int size()
 	{
 		return sorted.size();
+	}
+	
+	public static class PriorityHolder<T>
+	{
+		public final T val;
+		public final int prior;
+		
+		public PriorityHolder(T value, int priority)
+		{
+			this.val = value;
+			this.prior = priority;
+		}
+		
+		public static <K> Function<PriorityHolder<K>, Integer> sorter()
+		{
+			return holder -> holder.prior;
+		}
 	}
 }

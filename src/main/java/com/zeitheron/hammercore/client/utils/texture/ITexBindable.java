@@ -7,7 +7,7 @@ import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.util.ResourceLocation;
 
-public interface iTexBindable
+public interface ITexBindable
 {
 	int getGLId();
 	
@@ -21,12 +21,12 @@ public interface iTexBindable
 		GlStateManager.deleteTexture(getGLId());
 	}
 	
-	static iTexBindable ofGLTex(int tex)
+	static ITexBindable ofGLTex(int tex)
 	{
 		return () -> tex;
 	}
 	
-	static iTexBindable ofMCTex(ResourceLocation tex)
+	static ITexBindable ofMCTex(ResourceLocation tex)
 	{
 		ITextureObject itextureobject = Minecraft.getMinecraft().getTextureManager().mapTextureObjects.get(tex);
 		

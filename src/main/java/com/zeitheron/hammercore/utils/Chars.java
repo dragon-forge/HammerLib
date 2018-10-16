@@ -17,7 +17,24 @@ public class Chars
 	        SQRT = '\u221A', //
 	        PI = '\u1D28', //
 	        PSI = '\u1D2A', //
-	        SECTION_SIGN = '\u00A7';
+	        SECTION_SIGN = '\u00A7', //
+	        PLUS_MINUS_SIGN = '\u00B1', //
+	        MICRO_SIGN = '\u00B5', //
+	        MULTIPLICATION_SIGN = '\u00D7', //
+	        DIVISION_SIGN = '\u00F7', //
+	        BULLET = '\u2022', //
+	        INFINITY = '\u221E', //
+	        INTERSECTION = '\u2229', //
+	        ALMOST_EQUAL_TO = '\u2248', //
+	        NOT_EQUAL_TO = '\u2260', //
+	        IDENTICAL_TO = '\u2261', //
+	        LESS_EQUAL_TO = '\u2264', //
+	        GREATER_EQUAL_TO = '\u2265', //
+	        BLACK_UP_POINTING_TRIANLE = '\u25B2', //
+	        BLACK_RIGHT_POINTING_TRIANGLE = '\u25BA', //
+	        BLACK_DOWN_POINTING_TRIANGLE = '\u25BC', //
+	        BLACK_LEFT_POINTING_TRIANGLE = '\u25C4', //
+	        BLACK_CIRCLE = '\u25CF';
 	
 	/** Superscript numbers */
 	public static final char //
