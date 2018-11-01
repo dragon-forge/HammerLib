@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import com.zeitheron.hammercore.net.HCNet;
 import com.zeitheron.hammercore.net.internal.chat.PacketDeleteMessage;
@@ -82,6 +83,20 @@ public class Chat
 	public static void deleteMessageFor(EntityPlayerMP player, ChatFingerprint print)
 	{
 		HCNet.INSTANCE.sendTo(new PacketDeleteMessage().withPrint(print), player);
+	}
+	
+	//
+	
+	@SideOnly(Side.CLIENT)
+	public static void printNoSpam_client(long id, ITextComponent line)
+	{
+		ChatFingerprint fp = new ChatFingerprint(id);
+		
+		List<FingerprintedChatLine> rem = FingerprintedChatLine.getChatLines().stream().filter(l -> l instanceof FingerprintedChatLine).map(l -> (FingerprintedChatLine) l).filter(l -> l.print.equals(fp)).collect(Collectors.toList());
+		FingerprintedChatLine.getChatLines().removeAll(rem);
+		Minecraft.getMinecraft().ingameGUI.getChatGUI().drawnChatLines.removeAll(rem);
+		
+		new PacketEditMessage().withPrint(fp).withText(line).executeOnClient(null);
 	}
 	
 	public static class ChatFingerprint implements INBTSerializable<NBTTagCompound>

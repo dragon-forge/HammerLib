@@ -7,10 +7,14 @@ import org.lwjgl.opengl.GL11;
 
 import com.zeitheron.hammercore.client.utils.RenderUtil;
 import com.zeitheron.hammercore.client.utils.UtilsFX;
+import com.zeitheron.hammercore.client.utils.texture.gui.DynGuiTex;
+import com.zeitheron.hammercore.client.utils.texture.gui.GuiTexBakery;
 import com.zeitheron.hammercore.client.utils.texture.gui.theme.GuiTheme;
 import com.zeitheron.hammercore.utils.color.ColorHelper;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.inventory.Slot;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fluids.FluidRegistry;
@@ -237,6 +241,23 @@ public class GuiWidgets
 	public static void bind()
 	{
 		Minecraft.getMinecraft().getTextureManager().bindTexture(TEXTURE);
+	}
+	
+	/**
+	 * Creates a GUI builder with body and slots in place, you can either add
+	 * more stuff, or call .builds();
+	 * 
+	 * @param gui
+	 *            The gui we should build for
+	 * @return Unfinished GUI builder
+	 */
+	public static GuiTexBakery bakeTexture(GuiContainer gui)
+	{
+		GuiTexBakery b = GuiTexBakery.start();
+		b.body(0, 0, gui.getXSize(), gui.getYSize());
+		for(Slot s : gui.inventorySlots.inventorySlots)
+			b.slot(s.xPos - 1, s.yPos - 1);
+		return b;
 	}
 	
 	/**

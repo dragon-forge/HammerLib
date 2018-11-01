@@ -9,47 +9,38 @@
 package com.zeitheron.hammercore.lib.objl;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class Model
 {
+	public static final Logger LOGGER = LogManager.getLogger();
+	
 	public float[] vertices, texCoords, normals;
 	public VerticesDescriptor[] vd;
 	public float minX, maxX, minY, maxY, minZ, maxZ;
 	public int POLY_TYPE_TRIANGLES = 0, POLY_TYPE_QUADS = 1, POLY_TYPE_POLYGON = 2;
 	public OBJLoader loader;
-	private File pathToOBJ;
 	
-	public Model(File pathToOBJ)
+	public Model(InputStream obj)
 	{
-		this.pathToOBJ = pathToOBJ;
 		loader = new OBJLoader(this);
-	}
-	
-	// [EN] Start parsing
-	// ---Begin---
-	public void load()
-	{
 		try
 		{
-			loader.load(new BufferedReader(new InputStreamReader(new FileInputStream(pathToOBJ))));
-		} catch(FileNotFoundException e)
-		{
-			System.out.println("FileNotFoundException >> Error loading model: " + e);
+			loader.load(new BufferedReader(new InputStreamReader(obj)));
 		} catch(IOException e)
 		{
-			System.out.println("IOException >> Error loading model: " + e);
+			LOGGER.error("IOException >> Error loading model: " + e);
 		} catch(Exception e)
 		{
 			e.printStackTrace();
-			System.out.println("Exception >> Error loading model: " + e);
+			LOGGER.error("Exception >> Error loading model: " + e);
 		}
 	}
-	// ---End---
 	
 	// [EN] Clears arrays to consume less memory (can be called after the
 	// Model.convertToFloatArray)

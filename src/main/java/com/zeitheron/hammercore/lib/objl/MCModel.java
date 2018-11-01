@@ -8,7 +8,7 @@ import org.lwjgl.opengl.GL11;
 import net.minecraft.client.Minecraft;
 
 /**
- * This part was written by APengu in order to render congard's models into
+ * This part was written by Zeitheron in order to render congard's models into
  * lwjgl. Untested, may be unstable!
  */
 public class MCModel

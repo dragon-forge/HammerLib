@@ -149,6 +149,34 @@ public class MathHelper
 	 *            The max value
 	 * @return The clipped value between min and max
 	 */
+	public static int clip(int value, int min, int max)
+	{
+		return Math.min(max, Math.max(min, value));
+	}
+	
+	/**
+	 * @param value
+	 *            The value
+	 * @param min
+	 *            The min value
+	 * @param max
+	 *            The max value
+	 * @return The clipped value between min and max
+	 */
+	public static float clip(float value, float min, float max)
+	{
+		return Math.min(max, Math.max(min, value));
+	}
+	
+	/**
+	 * @param value
+	 *            The value
+	 * @param min
+	 *            The min value
+	 * @param max
+	 *            The max value
+	 * @return The clipped value between min and max
+	 */
 	public static double clip(double value, double min, double max)
 	{
 		return Math.min(max, Math.max(min, value));

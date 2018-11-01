@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+import com.zeitheron.hammercore.utils.inventory.InventoryDummy;
+
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.inventory.IInventory;
@@ -12,6 +14,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -225,5 +228,35 @@ public class ItemStackUtil
 	public static boolean shouldReturn(ItemStack stack)
 	{
 		return stack == null || InterItemStack.getStackSize(stack) <= 0;
+	}
+	
+	public static NonNullList<ItemStack> getTopItems(IInventory inv, int count)
+	{
+		NonNullList<ItemStack> top = NonNullList.withSize(count, ItemStack.EMPTY);
+		NonNullList<ItemStack> all = NonNullList.create();
+		InventoryDummy invd = new InventoryDummy(0);
+		invd.inventory = all;
+		for(int i = 0; i < inv.getSizeInventory(); ++i)
+		{
+			ItemStack item = inv.getStackInSlot(i).copy();
+			if(count(item, invd) == 0)
+			{
+				item.setCount(count(item, inv));
+				all.add(item);
+			}
+		}
+		all.sort((a, b) -> count(b, invd) - count(a, invd));
+		for(int i = 0; i < Math.min(all.size(), count); ++i)
+			top.set(i, all.get(i));
+		return top;
+	}
+	
+	public static int count(ItemStack stack, IInventory stacks)
+	{
+		int found = 0;
+		for(int i = 0; i < stacks.getSizeInventory(); ++i)
+			if(stack.isItemEqual(stacks.getStackInSlot(i)))
+				found += stacks.getStackInSlot(i).getCount();
+		return found;
 	}
 }
