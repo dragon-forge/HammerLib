@@ -2,12 +2,21 @@ package com.zeitheron.hammercore.proxy;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+import java.sql.Date;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import javax.imageio.ImageIO;
+
+import org.lwjgl.input.Keyboard;
+
+import com.google.common.io.Files;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
 import com.mojang.authlib.properties.PropertyMap;
@@ -24,6 +33,7 @@ import com.zeitheron.hammercore.client.model.HasNoModel;
 import com.zeitheron.hammercore.client.particle.RenderHelperImpl;
 import com.zeitheron.hammercore.client.render.Render3D;
 import com.zeitheron.hammercore.client.render.item.TileEntityItemStackRendererHC;
+import com.zeitheron.hammercore.client.render.item.img.Stack2ImageRenderer;
 import com.zeitheron.hammercore.client.render.tesr.TESR;
 import com.zeitheron.hammercore.client.utils.IEnchantmentColorManager;
 import com.zeitheron.hammercore.client.utils.IRenderHelper;
@@ -50,12 +60,17 @@ import com.zeitheron.hammercore.utils.color.ColorHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.gui.GuiNewChat;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.gui.toasts.SystemToast;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
@@ -63,10 +78,13 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
+import net.minecraftforge.client.settings.KeyConflictContext;
+import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.discovery.ASMDataTable;
@@ -80,6 +98,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class RenderProxy_Client extends RenderProxy_Common implements IEnchantmentColorManager
 {
 	public final EntityTooltipRenderEngine tooltipEngine = new EntityTooltipRenderEngine();
+	
+	public static final KeyBinding BIND_RENDER = new KeyBinding("keybind.hammercorerenderstack", KeyConflictContext.GUI, Keyboard.KEY_NUMPAD6, "key.categories.inventory");
 	
 	private List<TESR> tesrs;
 	private boolean cticked, reloaded;
@@ -97,6 +117,7 @@ public class RenderProxy_Client extends RenderProxy_Common implements IEnchantme
 		MinecraftForge.EVENT_BUS.register(new TexturePixelGetter());
 		MinecraftForge.EVENT_BUS.register(new SplashTextHelper());
 		MinecraftForge.EVENT_BUS.register(new HammerCoreClient());
+		MinecraftForge.EVENT_BUS.register(Stack2ImageRenderer.INSTANCE);
 		
 		TextureFXManager.INSTANCE.preInit();
 	}
@@ -106,6 +127,8 @@ public class RenderProxy_Client extends RenderProxy_Common implements IEnchantme
 	{
 		tesrs = AnnotatedInstanceUtil.getInstances(table, AtTESR.class, TESR.class);
 		module = AnnotatedInstanceUtil.getUserModule(table);
+		
+		ClientRegistry.registerKeyBinding(BIND_RENDER);
 		
 		HammerCore.LOG.info("Using per-user module " + module.getClass().getSimpleName());
 		
@@ -312,10 +335,75 @@ public class RenderProxy_Client extends RenderProxy_Common implements IEnchantme
 	
 	public static boolean needsClConfigSync;
 	
+	private boolean renderPress = false;
+	
 	@SubscribeEvent
 	public void ctick(ClientTickEvent e)
 	{
 		cticked = true;
+		
+		boolean mod = true;
+		KeyModifier km = BIND_RENDER.getKeyModifier();
+		if(km != null)
+			mod = km.isActive(KeyConflictContext.GUI);
+		boolean rp = Keyboard.isKeyDown(BIND_RENDER.getKeyCode()) && mod;
+		if(rp != renderPress)
+		{
+			renderPress = rp;
+			if(rp)
+			{
+				GuiScreen gs = Minecraft.getMinecraft().currentScreen;
+				GuiContainer gc = WorldUtil.cast(gs, GuiContainer.class);
+				
+				ITextComponent a = new TextComponentString("Renderer"), b = null;
+				
+				if(gc != null)
+				{
+					Slot mouse = gc.getSlotUnderMouse();
+					
+					if(mouse != null)
+					{
+						ItemStack stack = mouse.getStack();
+						if(!stack.isEmpty())
+						{
+							Stack2ImageRenderer.queueRenderer(stack, 1024, image ->
+							{
+								SystemToast.addOrUpdate(Minecraft.getMinecraft().getToastGui(), SystemToast.Type.NARRATOR_TOGGLE, a.appendSibling(new TextComponentString(": Rendered!")), new TextComponentString(stack.getDisplayName()));
+								
+								SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy-hh.mm.ss");
+								
+								try
+								{
+									ResourceLocation rl = stack.getItem().getRegistryName();
+									File fail = new File("hammercore", "renderers" + File.separator + rl.getNamespace() + File.separator + rl.getPath() + "." + stack.getItemDamage() + "-" + sdf.format(Date.from(Instant.now())) + ".png");
+									Files.createParentDirs(fail);
+									
+									Threading.createAndStart("SaveRenderer" + image.hashCode(), () ->
+									{
+										try
+										{
+											ImageIO.write(image, "png", fail);
+										} catch(IOException e1)
+										{
+											e1.printStackTrace();
+										}
+									});
+								} catch(Throwable e1)
+								{
+									e1.printStackTrace();
+								}
+							});
+						} else
+							b = new TextComponentString("Slot under mouse is empty!");
+					} else
+						b = new TextComponentString("Mouse doesn't hover any slot!");
+				} else
+					b = new TextComponentString(gs == null ? "GUI is not open." : "Gui is not container.");
+				
+				if(a != null && b != null)
+					SystemToast.addOrUpdate(Minecraft.getMinecraft().getToastGui(), SystemToast.Type.NARRATOR_TOGGLE, a, b);
+			}
+		}
 	}
 	
 	@SubscribeEvent

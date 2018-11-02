@@ -96,7 +96,16 @@ public class TransportSession
 		HCNet.INSTANCE.sendToServer(createPacket());
 	}
 	
+	/**
+	 * @deprecated For backwards compatability. Will be removed in 1.13.
+	 */
+	@Deprecated
 	public void sendToAll(EntityPlayerMP player)
+	{
+		sendToAll();
+	}
+	
+	public void sendToAll()
 	{
 		sendToPlayersIf(Predicates.alwaysTrue());
 	}
