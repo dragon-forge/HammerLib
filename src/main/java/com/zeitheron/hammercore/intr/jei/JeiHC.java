@@ -15,6 +15,7 @@ import mezz.jei.api.JEIPlugin;
 import mezz.jei.api.recipe.IFocus.Mode;
 import mezz.jei.api.recipe.IRecipeWrapper;
 import net.minecraft.client.Minecraft;
+import net.minecraft.item.ItemStack;
 
 @JEIPlugin
 public class JeiHC implements IModPlugin, IJeiHelper
@@ -109,5 +110,14 @@ public class JeiHC implements IModPlugin, IJeiHelper
 	public void showCategories(String... uid)
 	{
 		runtime.getRecipesGui().showCategories(Arrays.asList(uid));
+	}
+	
+	@Override
+	public ItemStack getSlotUnderMouseInJEI()
+	{
+		Object mouse = runtime.getIngredientListOverlay().getIngredientUnderMouse();
+		if(mouse == null || !(mouse instanceof ItemStack))
+			return ItemStack.EMPTY;
+		return (ItemStack) mouse;
 	}
 }

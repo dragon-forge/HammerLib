@@ -2,6 +2,7 @@ package com.zeitheron.hammercore.intr.jei;
 
 import javax.annotation.Nonnull;
 
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 
 public interface IJeiHelper
@@ -24,6 +25,8 @@ public interface IJeiHelper
 	Object getKeybind_showRecipes();
 	
 	Object getKeybind_showUses();
+	
+	ItemStack getSlotUnderMouseInJEI();
 	
 	default void showFluidRecipes(FluidStack fluid)
 	{
@@ -80,6 +83,12 @@ public interface IJeiHelper
 		public Object getKeybind_showUses()
 		{
 			return null;
+		}
+
+		@Override
+		public ItemStack getSlotUnderMouseInJEI()
+		{
+			return ItemStack.EMPTY;
 		}
 	}
 }

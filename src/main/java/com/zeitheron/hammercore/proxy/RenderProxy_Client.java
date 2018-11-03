@@ -6,11 +6,17 @@ import java.io.IOException;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 
@@ -47,6 +53,7 @@ import com.zeitheron.hammercore.client.utils.texture.TextureUtils;
 import com.zeitheron.hammercore.client.utils.texture.gui.theme.GuiTheme;
 import com.zeitheron.hammercore.client.witty.SplashTextHelper;
 import com.zeitheron.hammercore.internal.init.ItemsHC;
+import com.zeitheron.hammercore.intr.jei.IJeiHelper;
 import com.zeitheron.hammercore.lib.zlib.error.JSONException;
 import com.zeitheron.hammercore.lib.zlib.io.IOUtils;
 import com.zeitheron.hammercore.lib.zlib.json.JSONObject;
@@ -68,6 +75,7 @@ import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.Slot;
@@ -76,7 +84,9 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
@@ -87,10 +97,12 @@ import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.discovery.ASMDataTable;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.network.FMLNetworkEvent;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -180,6 +192,59 @@ public class RenderProxy_Client extends RenderProxy_Common implements IEnchantme
 					
 					Minecraft.getMinecraft().addScheduledTask(() -> Minecraft.getMinecraft().displayGuiScreen(new GuiPersonalisation()));
 				}).start();
+			}
+		});
+		
+		ClientCommandHandler.instance.registerCommand(new CommandBase()
+		{
+			@Override
+			public int getRequiredPermissionLevel()
+			{
+				return 0;
+			}
+			
+			@Override
+			public boolean checkPermission(MinecraftServer server, ICommandSender sender)
+			{
+				return sender instanceof EntityPlayer;
+			}
+			
+			@Override
+			public String getUsage(ICommandSender sender)
+			{
+				return "/hc_render_mod";
+			}
+			
+			@Override
+			public String getName()
+			{
+				return "hc_render_mod";
+			}
+			
+			@Override
+			public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
+			{
+				if(args.length > 0)
+				{
+					sender.sendMessage(new TextComponentString("Rendering in " + Runtime.getRuntime().availableProcessors() + " cores."));
+					if(args[0].equals("ALL"))
+						renderAll(args.length > 1 ? parseInt(args[1], 1, 1024) : 1024);
+					else
+						renderMod(args[0], args.length > 1 ? parseInt(args[1], 1, 1024) : 1024);
+				} else
+					throw new CommandException("Modid not specified!");
+			}
+			
+			@Override
+			public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos targetPos)
+			{
+				if(args.length == 1)
+				{
+					List<String> l = new ArrayList<>(Loader.instance().getActiveModList().stream().map(mc -> mc.getModId()).collect(Collectors.toList()));
+					l.add("ALL");
+					return getListOfStringsMatchingLastWord(args, l);
+				}
+				return super.getTabCompletions(server, sender, args, targetPos);
 			}
 		});
 	}
@@ -346,6 +411,7 @@ public class RenderProxy_Client extends RenderProxy_Common implements IEnchantme
 		KeyModifier km = BIND_RENDER.getKeyModifier();
 		if(km != null)
 			mod = km.isActive(KeyConflictContext.GUI);
+		
 		boolean rp = Keyboard.isKeyDown(BIND_RENDER.getKeyCode()) && mod;
 		if(rp != renderPress)
 		{
@@ -361,9 +427,11 @@ public class RenderProxy_Client extends RenderProxy_Common implements IEnchantme
 				{
 					Slot mouse = gc.getSlotUnderMouse();
 					
-					if(mouse != null)
+					ItemStack jei = IJeiHelper.instance().getSlotUnderMouseInJEI();
+					
+					if(mouse != null || !jei.isEmpty())
 					{
-						ItemStack stack = mouse.getStack();
+						ItemStack stack = mouse != null ? mouse.getStack() : jei;
 						if(!stack.isEmpty())
 						{
 							Stack2ImageRenderer.queueRenderer(stack, 1024, image ->
@@ -375,7 +443,7 @@ public class RenderProxy_Client extends RenderProxy_Common implements IEnchantme
 								try
 								{
 									ResourceLocation rl = stack.getItem().getRegistryName();
-									File fail = new File("hammercore", "renderers" + File.separator + rl.getNamespace() + File.separator + rl.getPath() + "." + stack.getItemDamage() + "-" + sdf.format(Date.from(Instant.now())) + ".png");
+									File fail = new File("hammercore", "renderers" + File.separator + rl.getNamespace() + File.separator + rl.getPath() + (stack.getItemDamage() == 0 ? "" : "." + stack.getItemDamage()) + "-" + sdf.format(Date.from(Instant.now())) + ".png");
 									Files.createParentDirs(fail);
 									
 									Threading.createAndStart("SaveRenderer" + image.hashCode(), () ->
@@ -403,6 +471,113 @@ public class RenderProxy_Client extends RenderProxy_Common implements IEnchantme
 				if(a != null && b != null)
 					SystemToast.addOrUpdate(Minecraft.getMinecraft().getToastGui(), SystemToast.Type.NARRATOR_TOGGLE, a, b);
 			}
+		}
+	}
+	
+	private static void renderAll(int size)
+	{
+		NonNullList<ItemStack> sub = NonNullList.create();
+		
+		for(Item item : ForgeRegistries.ITEMS.getValuesCollection())
+		{
+			NonNullList<ItemStack> sb = NonNullList.create();
+			try
+			{
+				item.getSubItems(CreativeTabs.SEARCH, sb);
+			} catch(Throwable err)
+			{
+			}
+			for(ItemStack sbs : sb)
+				sub.add(sbs);
+		}
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy-hh.mm.ss");
+		
+		File faild = new File("hammercore", "renderers" + File.separator + "all-" + sdf.format(Date.from(Instant.now())));
+		
+		int i = 0;
+		AtomicInteger ati = new AtomicInteger(0);
+		ExecutorService saver = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+		for(ItemStack sttr : sub)
+		{
+			final int index = i;
+			Stack2ImageRenderer.queueRenderer(sttr, size, image ->
+			{
+				ResourceLocation rl = sttr.getItem().getRegistryName();
+				saver.execute(() ->
+				{
+					try
+					{
+						File fail = new File(faild, rl.getNamespace() + File.separator + (rl.getPath() + (sttr.getItemDamage() == 0 ? "" : "." + sttr.getItemDamage()) + (sttr.hasTagCompound() ? "_" + sttr.getTagCompound() : "") + ".png").replaceAll("[^a-zA-Z0-9\\.\\-]", "_"));
+						Files.createParentDirs(fail);
+						
+						ImageIO.write(image, "png", fail);
+						
+						Minecraft.getMinecraft().addScheduledTask(() -> SystemToast.addOrUpdate(Minecraft.getMinecraft().getToastGui(), SystemToast.Type.NARRATOR_TOGGLE, new TextComponentString("Rendered " + (index + 1) + "/" + sub.size() + ":"), new TextComponentString(sttr.getDisplayName())));
+					} catch(IOException e1)
+					{
+						e1.printStackTrace();
+					}
+					
+					if(ati.addAndGet(1) == sub.size())
+						saver.shutdown();
+				});
+			});
+			++i;
+		}
+	}
+	
+	private static void renderMod(String modid, int size)
+	{
+		NonNullList<ItemStack> sub = NonNullList.create();
+		
+		for(Item item : ForgeRegistries.ITEMS.getValuesCollection())
+		{
+			NonNullList<ItemStack> sb = NonNullList.create();
+			try
+			{
+				item.getSubItems(CreativeTabs.SEARCH, sb);
+			} catch(Throwable err)
+			{
+			}
+			for(ItemStack sbs : sb)
+				if(sbs.getItem().getRegistryName().getNamespace().equals(modid))
+					sub.add(sbs);
+		}
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy-hh.mm.ss");
+		
+		File faild = new File("hammercore", "renderers" + File.separator + modid + "-" + sdf.format(Date.from(Instant.now())));
+		
+		int i = 0;
+		AtomicInteger ati = new AtomicInteger(0);
+		ExecutorService saver = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+		for(ItemStack sttr : sub)
+		{
+			final int index = i;
+			Stack2ImageRenderer.queueRenderer(sttr, size, image ->
+			{
+				ResourceLocation rl = sttr.getItem().getRegistryName();
+				saver.execute(() ->
+				{
+					try
+					{
+						File fail = new File(faild, (rl.getPath() + (sttr.getItemDamage() == 0 ? "" : "." + sttr.getItemDamage()) + (sttr.hasTagCompound() ? "_" + sttr.getTagCompound() : "") + ".png").replaceAll("[^a-zA-Z0-9\\.\\-]", "_"));
+						Files.createParentDirs(fail);
+						
+						ImageIO.write(image, "png", fail);
+						
+						Minecraft.getMinecraft().addScheduledTask(() -> SystemToast.addOrUpdate(Minecraft.getMinecraft().getToastGui(), SystemToast.Type.NARRATOR_TOGGLE, new TextComponentString("Rendered " + (index + 1) + "/" + sub.size() + ":"), new TextComponentString(sttr.getDisplayName())));
+					} catch(IOException e1)
+					{
+						e1.printStackTrace();
+					}
+					
+					if(ati.addAndGet(1) == sub.size())
+						saver.shutdown();
+				});
+			});
+			++i;
 		}
 	}
 	
