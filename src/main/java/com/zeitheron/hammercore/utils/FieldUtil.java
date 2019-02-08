@@ -35,36 +35,36 @@ public class FieldUtil
 					continue;
 				
 				int mod = f.getModifiers();
-				if(Modifier.isStatic(mod))
+				if(Modifier.isStatic(mod) || Modifier.isFinal(mod))
 					continue;
 				
 				f.setAccessible(true);
 				Object oj = f.get(obj);
 				
 				Class<?> o = oj.getClass();
-				if(o.isAssignableFrom(boolean.class))
+				if(boolean.class.isAssignableFrom(o))
 					to.setBoolean(f.getName(), (Boolean) oj);
-				else if(o.isAssignableFrom(byte.class))
+				else if(byte.class.isAssignableFrom(o))
 					to.setByte(f.getName(), (Byte) oj);
-				else if(o.isAssignableFrom(byte[].class))
+				else if(byte[].class.isAssignableFrom(o))
 					to.setByteArray(f.getName(), (byte[]) oj);
-				else if(o.isAssignableFrom(double.class))
+				else if(double.class.isAssignableFrom(o))
 					to.setDouble(f.getName(), (Double) oj);
-				else if(o.isAssignableFrom(float.class))
+				else if(float.class.isAssignableFrom(o))
 					to.setFloat(f.getName(), (Float) oj);
-				else if(o.isAssignableFrom(int[].class))
+				else if(int[].class.isAssignableFrom(o))
 					to.setIntArray(f.getName(), (int[]) oj);
-				else if(o.isAssignableFrom(int.class))
+				else if(int.class.isAssignableFrom(o))
 					to.setInteger(f.getName(), (Integer) oj);
-				else if(o.isAssignableFrom(long.class))
+				else if(long.class.isAssignableFrom(o))
 					to.setLong(f.getName(), (Long) oj);
-				else if(o.isAssignableFrom(short.class))
+				else if(short.class.isAssignableFrom(o))
 					to.setShort(f.getName(), (Short) oj);
-				else if(o.isAssignableFrom(String.class))
+				else if(String.class.isAssignableFrom(o))
 					to.setString(f.getName(), (String) oj);
-				else if(o.isAssignableFrom(NBTBase.class))
+				else if(NBTBase.class.isAssignableFrom(o))
 					to.setTag(f.getName(), (NBTBase) oj);
-				else if(o.isAssignableFrom(UUID.class))
+				else if(UUID.class.isAssignableFrom(o))
 					to.setUniqueId(f.getName(), (UUID) oj);
 			}
 		} catch(Throwable err)
@@ -92,34 +92,34 @@ public class FieldUtil
 				f.setAccessible(true);
 				
 				int mod = f.getModifiers();
-				if(Modifier.isStatic(mod))
+				if(Modifier.isStatic(mod) || Modifier.isFinal(mod))
 					continue;
 				
 				Class<?> o = f.getType();
 				
-				if(o.isAssignableFrom(boolean.class))
+				if(boolean.class.isAssignableFrom(o))
 					f.setBoolean(to, from.getBoolean(f.getName()));
-				else if(o.isAssignableFrom(byte.class))
+				else if(byte.class.isAssignableFrom(o))
 					f.setByte(to, from.getByte(f.getName()));
-				else if(o.isAssignableFrom(byte[].class))
+				else if(byte[].class.isAssignableFrom(o))
 					f.set(to, from.getByteArray(f.getName()));
-				else if(o.isAssignableFrom(double.class))
+				else if(double.class.isAssignableFrom(o))
 					f.setDouble(to, from.getDouble(f.getName()));
-				else if(o.isAssignableFrom(float.class))
+				else if(float.class.isAssignableFrom(o))
 					f.setFloat(to, from.getFloat(f.getName()));
-				else if(o.isAssignableFrom(int[].class))
+				else if(int[].class.isAssignableFrom(o))
 					f.set(to, from.getIntArray(f.getName()));
-				else if(o.isAssignableFrom(int.class))
+				else if(int.class.isAssignableFrom(o))
 					f.setInt(to, from.getInteger(f.getName()));
-				else if(o.isAssignableFrom(long.class))
+				else if(long.class.isAssignableFrom(o))
 					f.setLong(to, from.getLong(f.getName()));
-				else if(o.isAssignableFrom(short.class))
+				else if(short.class.isAssignableFrom(o))
 					f.setShort(to, from.getShort(f.getName()));
-				else if(o.isAssignableFrom(String.class))
+				else if(String.class.isAssignableFrom(o))
 					f.set(to, from.getString(f.getName()));
-				else if(o.isAssignableFrom(NBTBase.class))
+				else if(NBTBase.class.isAssignableFrom(o))
 					f.set(to, from.getTag(f.getName()));
-				else if(o.isAssignableFrom(UUID.class))
+				else if(UUID.class.isAssignableFrom(o))
 					f.set(to, from.getUniqueId(f.getName()));
 			}
 		} catch(Throwable err)

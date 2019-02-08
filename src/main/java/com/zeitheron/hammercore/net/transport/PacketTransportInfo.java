@@ -46,7 +46,9 @@ public class PacketTransportInfo implements IPacket
 		try
 		{
 			Class<? extends ITransportAcceptor> cl = Class.forName(clas).asSubclass(ITransportAcceptor.class);
-			new TransportSession(id, cl, null, cl.getDeclaredConstructor().newInstance(), length);
+			ITransportAcceptor it = cl.getDeclaredConstructor().newInstance();
+			it.setInitialContext(side, ctx);
+			new TransportSession(id, cl, null, it, length);
 			return new PacketRequestFurther(id, true);
 		} catch(Throwable err)
 		{

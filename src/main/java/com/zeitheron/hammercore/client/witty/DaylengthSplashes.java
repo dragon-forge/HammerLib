@@ -27,7 +27,7 @@ public class DaylengthSplashes
 	{
 		try
 		{
-			JSONObject jobj = (JSONObject) IOUtils.downloadjsonOrLoadFromInternal("https://pastebin.com/raw/k9NJUb2P", "/assets/hammercore/io/dlsplashes.json");
+			JSONObject jobj = (JSONObject) IOUtils.downloadjsonOrLoadFromInternal("https://pastebin.com/raw/U8ZNkcLV", "/assets/hammercore/io/dlsplashes.json");
 			for(String key : jobj.keySet())
 			{
 				List<String> vals = new ArrayList<>();
@@ -44,7 +44,7 @@ public class DaylengthSplashes
 				}
 				vals.forEach(v -> addBirthdaySplash(key, v));
 			}
-		} catch(JSONException e)
+		} catch(JSONException | ClassCastException e)
 		{
 		}
 	}

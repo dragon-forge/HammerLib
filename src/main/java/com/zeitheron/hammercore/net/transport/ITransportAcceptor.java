@@ -2,6 +2,10 @@ package com.zeitheron.hammercore.net.transport;
 
 import java.io.InputStream;
 
+import com.zeitheron.hammercore.net.PacketContext;
+
+import net.minecraftforge.fml.relauncher.Side;
+
 public interface ITransportAcceptor
 {
 	/**
@@ -9,4 +13,11 @@ public interface ITransportAcceptor
 	 * at once, so don't check available bytes or you can cause serious lags!
 	 */
 	void read(InputStream readable, int length);
+	
+	/**
+	 * Sets the context of this session. Used to get side on wich the packet is being received, the sender and/or server.
+	 */
+	default void setInitialContext(Side side, PacketContext ctx)
+	{
+	}
 }

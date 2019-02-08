@@ -97,7 +97,7 @@ public class TransportSession
 	}
 	
 	/**
-	 * @deprecated For backwards compatability. Will be removed in 1.13.
+	 * @deprecated For backwards compatability. TODO: Will be removed in 1.13.
 	 */
 	@Deprecated
 	public void sendToAll(EntityPlayerMP player)
