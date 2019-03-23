@@ -1,11 +1,20 @@
 package com.zeitheron.hammercore.internal;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import com.google.common.collect.Maps;
+import com.zeitheron.hammercore.annotations.RecipeRegister;
 import com.zeitheron.hammercore.api.INoItemBlock;
 import com.zeitheron.hammercore.api.ITileBlock;
 import com.zeitheron.hammercore.api.multipart.BlockMultipartProvider;
@@ -13,6 +22,7 @@ import com.zeitheron.hammercore.internal.blocks.IItemBlock;
 import com.zeitheron.hammercore.internal.init.ItemsHC;
 import com.zeitheron.hammercore.utils.IRegisterListener;
 import com.zeitheron.hammercore.utils.SoundObject;
+import com.zeitheron.hammercore.utils.WorldUtil;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
@@ -20,17 +30,18 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraft.item.crafting.ShapelessRecipes;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.OreIngredient;
 
 public class SimpleRegistration
@@ -273,5 +284,47 @@ public class SimpleRegistration
 			if(i != null)
 				ItemsHC.items.add(i);
 		}
+	}
+	
+	private static final List<Supplier<List<IRecipe>>> RECIPE_GENERATORS = new ArrayList<>();
+	
+	public static void registerConstantRecipes(Class<?> base)
+	{
+		for(Method m : base.getDeclaredMethods())
+		{
+			int mod = m.getModifiers();
+			if(Modifier.isStatic(mod) && m.getAnnotation(RecipeRegister.class) != null && m.getParameterTypes().length == 1 && List.class.isAssignableFrom(m.getParameterTypes()[0]))
+			{
+				Type type = m.getParameters()[0].getParameterizedType();
+				if(type instanceof ParameterizedType)
+				{
+					type = ((ParameterizedType) type).getActualTypeArguments()[0];
+					if(Class.class.isAssignableFrom(type.getClass()) && IRecipe.class.getName().equals(type.getTypeName()))
+					{
+						m.setAccessible(true);
+						final Method $ = m;
+						
+						RECIPE_GENERATORS.add(() ->
+						{
+							List<IRecipe> recipes = new ArrayList<>();
+							try
+							{
+								$.invoke(null, recipes);
+							} catch(IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
+							{
+								e.printStackTrace();
+							}
+							return recipes;
+						});
+					}
+				}
+			}
+		}
+	}
+	
+	public static void $addRegisterRecipes(Consumer<IRecipe> registry)
+	{
+		for(Supplier<List<IRecipe>> recipes : RECIPE_GENERATORS)
+			recipes.get().forEach(registry);
 	}
 }

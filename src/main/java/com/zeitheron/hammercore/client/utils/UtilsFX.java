@@ -1,13 +1,19 @@
 package com.zeitheron.hammercore.client.utils;
 
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.lwjgl.opengl.GL11;
 
+import com.zeitheron.hammercore.HammerCore;
 import com.zeitheron.hammercore.client.utils.texture.TexLocUploader;
 import com.zeitheron.hammercore.client.utils.texture.TextureUtils;
+import com.zeitheron.hammercore.lib.zlib.io.IOUtils;
+import com.zeitheron.hammercore.lib.zlib.utils.MD5;
 import com.zeitheron.hammercore.utils.QuadHelper;
 import com.zeitheron.hammercore.utils.color.ColorHelper;
 import com.zeitheron.hammercore.utils.math.vec.Vector3;
@@ -20,6 +26,7 @@ import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
@@ -31,19 +38,32 @@ public class UtilsFX
 	
 	private static Map<String, ResourceLocation> textures = new HashMap<>();
 	
-	public static void bindTextureURL(String url)
+	public static boolean bindTextureURL(String url)
 	{
 		String withoutHTTP = url.substring(url.indexOf("://") + 3);
 		String protocol = url.substring(0, url.indexOf("://"));
-		ResourceLocation loca = new ResourceLocation("url_" + protocol, withoutHTTP);
+		ResourceLocation loca = new ResourceLocation("hammercore", protocol + "/" + MD5.encrypt(withoutHTTP));
 		if(!TexLocUploader.cleanup.contains(loca))
 		{
 			final String lpa = loca.toString();
-			TexLocUploader.upload(loca, url);
+			new Thread(() ->
+			{
+				try(InputStream input = IOUtils.getInput(url).get1())
+				{
+					BufferedImage bufferedimage = TextureUtil.readBufferedImage(input);
+					Minecraft.getMinecraft().addScheduledTask(() -> TexLocUploader.upload(loca, bufferedimage));
+				} catch(IOException ioe)
+				{
+					HammerCore.LOG.error("Failed to load texture from url \"" + url + "\"", ioe);
+				}
+			}).start();
 			TexLocUploader.cleanupAfterLogoff(loca, () -> textures.remove(lpa));
 			textures.put(lpa, loca);
 		}
-		bindTexture(loca);
+		boolean b = Minecraft.getMinecraft().getTextureManager().mapTextureObjects.containsKey(loca);
+		if(b)
+			bindTexture(loca);
+		return b;
 	}
 	
 	public static void bindTexture(String tex)

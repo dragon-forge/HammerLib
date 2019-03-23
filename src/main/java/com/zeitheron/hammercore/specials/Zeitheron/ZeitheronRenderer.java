@@ -34,6 +34,7 @@ public class ZeitheronRenderer implements IPlayerModel
 {
 	private static final String URL_WINGS = "https://gitlab.com/Zeitheron/HammerCore/raw/1.12.2/ZeitheronModel.png";
 	private static final String URL_EYES = "https://gitlab.com/Zeitheron/HammerCore/raw/1.12.2/ZeitheronEyes.png";
+	private static final String URL_EYES2 = "https://gitlab.com/Zeitheron/HammerCore/raw/1.12.2/ZeitheronEyes2.png";
 	
 	private final ModelDragon dragon = new ModelDragon(0F);
 	private ModelRenderer //
@@ -81,119 +82,120 @@ public class ZeitheronRenderer implements IPlayerModel
 		
 		RenderPlayer rp = Minecraft.getMinecraft().getRenderManager().getSkinMap().get("default");
 		
-		UtilsFX.bindTextureURL(URL_WINGS);
-		
-		ModelBase.copyModelAngles(rp.getMainModel().bipedHead, spike);
-		
-		float f = player.prevRotationYawHead + (player.rotationYawHead - player.prevRotationYawHead) * partialTicks - (player.prevRenderYawOffset + (player.renderYawOffset - player.prevRenderYawOffset) * partialTicks);
-		float f1 = player.prevRotationPitch + (player.rotationPitch - player.prevRotationPitch) * partialTicks;
-		
-		GlStateManager.pushMatrix();
-		
-		for(int i = 0; i < 2; ++i)
+		if(UtilsFX.bindTextureURL(URL_WINGS))
 		{
+			ModelBase.copyModelAngles(rp.getMainModel().bipedHead, spike);
+			
+			float f = player.prevRotationYawHead + (player.rotationYawHead - player.prevRotationYawHead) * partialTicks - (player.prevRenderYawOffset + (player.renderYawOffset - player.prevRenderYawOffset) * partialTicks);
+			float f1 = player.prevRotationPitch + (player.rotationPitch - player.prevRotationPitch) * partialTicks;
+			
 			GlStateManager.pushMatrix();
-			GlStateManager.translate(0, player.isSneaking() ? .2 : 0, 0);
-			GlStateManager.rotate(f, 0.0F, 1.0F, 0.0F);
-			GlStateManager.rotate(f1, 1.0F, 0.0F, 0.0F);
-			GlStateManager.translate(.18F * (i * 2 - 1), 0, 0);
-			GlStateManager.translate(0, -.32F, 0);
-			GlStateManager.rotate(-f1, 1.0F, 0.0F, 0.0F);
-			GlStateManager.rotate(-f, 0.0F, 1.0F, 0.0F);
-			float f2 = 0.03F;
-			GlStateManager.scale(f2, f2, f2);
-			spike.render(1F);
+			
+			for(int i = 0; i < 2; ++i)
+			{
+				GlStateManager.pushMatrix();
+				GlStateManager.translate(0, player.isSneaking() ? .2 : 0, 0);
+				GlStateManager.rotate(f, 0.0F, 1.0F, 0.0F);
+				GlStateManager.rotate(f1, 1.0F, 0.0F, 0.0F);
+				GlStateManager.translate(.18F * (i * 2 - 1), 0, 0);
+				GlStateManager.translate(0, -.32F, 0);
+				GlStateManager.rotate(-f1, 1.0F, 0.0F, 0.0F);
+				GlStateManager.rotate(-f, 0.0F, 1.0F, 0.0F);
+				float f2 = 0.03F;
+				GlStateManager.scale(f2, f2, f2);
+				spike.render(1F);
+				GlStateManager.popMatrix();
+			}
+			
 			GlStateManager.popMatrix();
-		}
-		
-		GlStateManager.popMatrix();
-		
-		f = player.prevRotationYaw + (player.rotationYaw - player.prevRotationYaw) * partialTicks - (player.prevRenderYawOffset + (player.renderYawOffset - player.prevRenderYawOffset) * partialTicks);
-		f1 = player.prevRotationPitch + (player.rotationPitch - player.prevRotationPitch) * partialTicks;
-		
-		GL11.glPushMatrix();
-		
-		GlStateManager.translate(0, player.isSneaking() ? .15 : 0, 0);
-		
-		GL11.glTranslated(.5, 1, .5);
-		GL11.glRotated(180, 1, 0, 0);
-		GL11.glRotated(180, 0, 1, 0);
-		GL11.glTranslated(.5, .15, -.5);
-		
-		GL11.glPushMatrix();
-		
-		if(player.isSneaking())
-		{
-			GL11.glTranslated(0, 0, .5);
-			GL11.glRotated(30, -1, 0, 0);
-		}
-		
-		GL11.glPushMatrix();
-		GL11.glTranslated(0, 0, .05);
-		GL11.glRotated(deg, 0, 1, 0);
-		GL11.glRotatef(270, 0, 0, 1);
-		GL11.glTranslated(0, -.075, 0);
-		wing.render(.0128F);
-		GL11.glPopMatrix();
-		
-		GL11.glPushMatrix();
-		GL11.glTranslated(0, 0, .05);
-		GL11.glRotated(-deg, 0, 1, 0);
-		GL11.glRotatef(270, 0, 0, 1);
-		GL11.glTranslated(0, -.053, 0);
-		wing.render(.0128F);
-		GL11.glPopMatrix();
-		
-		GL11.glPopMatrix();
-		
-		//
-		
-		GL11.glPushMatrix();
-		if(player.isSneaking())
-		{
-			GL11.glTranslated(0, 0, .45);
-			GL11.glRotated(30, -1, 0, 0);
-		}
-		
-		float tailDeg = (float) (Math.cos(Math.toRadians(System.currentTimeMillis() % 36000L / 10L)) * 1);
-		
-		GL11.glTranslated(0, .24, 0);
-		GL11.glRotated(180, 1, 0, 0);
-		for(int i = 0; i < 10; ++i)
-		{
-			float calc = (float) Math.sin((player.ticksExisted + partialTicks - i) / 10);
-			float displace = (float) Math.sin((player.ticksExisted + partialTicks - i) / 10);
-			GL11.glTranslated(displace / 200F, calc / 200F, -.09);
-			GL11.glRotated(9 + tailDeg, 1, 0, 0);
-			spine.render(.01F);
-		}
-		GL11.glPopMatrix();
-		
-		//
-		
-		ModelBase.copyModelAngles(spine, spike);
-		
-		//
-		
-		GL11.glPushMatrix();
-		if(player.isSneaking())
-		{
-			GL11.glTranslated(0, 0, .45);
-			GL11.glRotated(30, -1, 0, 0);
-		}
-		GL11.glTranslated(0, .45, .35);
-		for(int i = 0; i < 2; ++i)
-		{
+			
+			f = player.prevRotationYaw + (player.rotationYaw - player.prevRotationYaw) * partialTicks - (player.prevRenderYawOffset + (player.renderYawOffset - player.prevRenderYawOffset) * partialTicks);
+			f1 = player.prevRotationPitch + (player.rotationPitch - player.prevRotationPitch) * partialTicks;
+			
 			GL11.glPushMatrix();
-			GL11.glScaled(.03, .03, .03);
-			GL11.glRotated(90, 1, 0, 0);
-			spike.render(1F);
+			
+			GlStateManager.translate(0, player.isSneaking() ? .15 : 0, 0);
+			
+			GL11.glTranslated(.5, 1, .5);
+			GL11.glRotated(180, 1, 0, 0);
+			GL11.glRotated(180, 0, 1, 0);
+			GL11.glTranslated(.5, .15, -.5);
+			
+			GL11.glPushMatrix();
+			
+			if(player.isSneaking())
+			{
+				GL11.glTranslated(0, 0, .5);
+				GL11.glRotated(30, -1, 0, 0);
+			}
+			
+			GL11.glPushMatrix();
+			GL11.glTranslated(0, 0, .05);
+			GL11.glRotated(deg, 0, 1, 0);
+			GL11.glRotatef(270, 0, 0, 1);
+			GL11.glTranslated(0, -.075, 0);
+			wing.render(.0128F);
 			GL11.glPopMatrix();
-			GL11.glTranslated(0, .25, 0);
+			
+			GL11.glPushMatrix();
+			GL11.glTranslated(0, 0, .05);
+			GL11.glRotated(-deg, 0, 1, 0);
+			GL11.glRotatef(270, 0, 0, 1);
+			GL11.glTranslated(0, -.053, 0);
+			wing.render(.0128F);
+			GL11.glPopMatrix();
+			
+			GL11.glPopMatrix();
+			
+			//
+			
+			GL11.glPushMatrix();
+			if(player.isSneaking())
+			{
+				GL11.glTranslated(0, 0, .45);
+				GL11.glRotated(30, -1, 0, 0);
+			}
+			
+			float tailDeg = (float) (Math.cos(Math.toRadians(System.currentTimeMillis() % 36000L / 10L)) * 1);
+			
+			GL11.glTranslated(0, .24, 0);
+			GL11.glRotated(180, 1, 0, 0);
+			for(int i = 0; i < 10; ++i)
+			{
+				float calc = (float) Math.sin((player.ticksExisted + partialTicks - i) / 10);
+				float displace = (float) Math.sin((player.ticksExisted + partialTicks - i) / 10);
+				GL11.glTranslated(displace / 200F, calc / 200F, -.09);
+				GL11.glRotated(9 + tailDeg, 1, 0, 0);
+				spine.render(.01F);
+			}
+			GL11.glPopMatrix();
+			
+			//
+			
+			ModelBase.copyModelAngles(spine, spike);
+			
+			//
+			
+			GL11.glPushMatrix();
+			if(player.isSneaking())
+			{
+				GL11.glTranslated(0, 0, .45);
+				GL11.glRotated(30, -1, 0, 0);
+			}
+			GL11.glTranslated(0, .45, .35);
+			for(int i = 0; i < 2; ++i)
+			{
+				GL11.glPushMatrix();
+				GL11.glScaled(.03, .03, .03);
+				GL11.glRotated(90, 1, 0, 0);
+				spike.render(1F);
+				GL11.glPopMatrix();
+				GL11.glTranslated(0, .25, 0);
+			}
+			GL11.glPopMatrix();
+			
+			GL11.glPopMatrix();
 		}
-		GL11.glPopMatrix();
-		
-		GL11.glPopMatrix();
 		
 		// ModelBase.copyModelAngles(rp.getMainModel().bipedHead, spike);
 		//
@@ -244,26 +246,32 @@ public class ZeitheronRenderer implements IPlayerModel
 				if(clopts.renderSpecial)
 					player.drawHead(entitylivingbaseIn, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scale);
 				
-				NBTTagCompound interp = null;
-				if(clopts.customData != null && clopts.customData.hasKey("EyeColor", NBT.TAG_COMPOUND))
-					interp = clopts.customData.getCompoundTag("EyeColor");
-				int rendered = interp != null && interp.hasKey("RainbowCycle", NBT.TAG_INT) ? Rainbow.doIt(0, interp.getInteger("RainbowCycle") * 50) : PlayerInterpolator.getRendered(entitylivingbaseIn, interp);
+				int eyes = clopts.getCustomData().getInteger("RenderEyes");
 				
-				GlStateManager.pushMatrix();
-				
-				UtilsFX.bindTextureURL(URL_EYES);
-				
-				ColorHelper.glColor1i(rendered);
-				
-				GlStateManager.pushMatrix();
-				GlStateManager.translate(0, entitylivingbaseIn.isSneaking() ? -.75 : 0, 0);
-				GlStateManager.scale(1.01F, 1.01F, 1.01F);
-				playerRenderer.getMainModel().bipedHead.render(1F);
-				GlStateManager.popMatrix();
-				
-				GlStateManager.color(1F, 1F, 1F);
-				
-				GlStateManager.popMatrix();
+				if(eyes != 2)
+				{
+					NBTTagCompound interp = null;
+					if(clopts.customData != null && clopts.customData.hasKey("EyeColor", NBT.TAG_COMPOUND))
+						interp = clopts.customData.getCompoundTag("EyeColor");
+					int rendered = interp != null && interp.hasKey("RainbowCycle", NBT.TAG_INT) ? Rainbow.doIt(0, interp.getInteger("RainbowCycle") * 50) : PlayerInterpolator.getRendered(entitylivingbaseIn, interp);
+					
+					GlStateManager.pushMatrix();
+					
+					if(UtilsFX.bindTextureURL(eyes == 0 ? URL_EYES2 : URL_EYES))
+					{
+						ColorHelper.glColor1i(rendered);
+						
+						GlStateManager.pushMatrix();
+						GlStateManager.translate(0, entitylivingbaseIn.isSneaking() ? -.75 : 0, 0);
+						GlStateManager.scale(1.01F, 1.01F, 1.01F);
+						playerRenderer.getMainModel().bipedHead.render(1F);
+						GlStateManager.popMatrix();
+						
+						GlStateManager.color(1F, 1F, 1F);
+					}
+					
+					GlStateManager.popMatrix();
+				}
 			}
 		}
 		

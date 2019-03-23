@@ -421,6 +421,8 @@ public class HammerCore
 			        .stream() //
 			        .filter(r -> r != null && r.getRegistryName() != null) //
 			        .forEach(fr::register);
+		
+		SimpleRegistration.$addRegisterRecipes(fr::register);
 	}
 	
 	@SubscribeEvent

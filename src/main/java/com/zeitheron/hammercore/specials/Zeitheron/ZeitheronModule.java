@@ -67,11 +67,18 @@ public class ZeitheronModule extends PerUserModule
 		CTButton smartEyes = CTButton.create(() -> "'Smart' Eyes: " + I18n.format("options.o" + (HCClientOptions.getOptions().getCustomData().getBoolean("SmartEyes") ? "n" : "ff")), () ->
 		{
 			HCClientOptions c = HCClientOptions.getOptions();
-			c.getCustomData().setBoolean("SmartEyes", !c.getCustomData().getBoolean("SmartEyes"));
+			c.getCustomData().setBoolean("SmartEyes", c.getCustomData().hasKey("SmartEyes") ? !c.getCustomData().getBoolean("SmartEyes") : false);
 			c.saveAndSendToServer();
 		});
 		
-		return new CTButton[] { rage, flight, glowyUsername, smartEyes };
+		CTButton renderEyes = CTButton.create(() -> "Render Eyes: " + HCClientOptions.getOptions().getCustomData().getInteger("RenderEyes"), () ->
+		{
+			HCClientOptions c = HCClientOptions.getOptions();
+			c.getCustomData().setInteger("RenderEyes", (c.getCustomData().getInteger("RenderEyes") + 1) % 3);
+			c.saveAndSendToServer();
+		});
+		
+		return new CTButton[] { rage, flight, glowyUsername, smartEyes, renderEyes };
 	}
 	
 	public OffthreadRunnable worker = null;
