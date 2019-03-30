@@ -286,7 +286,6 @@ public class RenderProxy_Client extends RenderProxy_Common implements IEnchantme
 			HCClientOptions.options.load((JSONObject) IOUtils.jsonparse(new File("hc_options.txt")));
 		} catch(JSONException e)
 		{
-			e.printStackTrace();
 		}
 		
 		loadCAPS();

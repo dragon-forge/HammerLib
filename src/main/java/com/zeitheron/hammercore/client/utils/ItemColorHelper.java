@@ -78,7 +78,6 @@ public class ItemColorHelper
 				}
 			
 		GlStateManager.disableAlpha();
-		GlStateManager.disableRescaleNormal();
 		GlStateManager.disableLighting();
 		GlStateManager.popMatrix();
 		txmgr.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
