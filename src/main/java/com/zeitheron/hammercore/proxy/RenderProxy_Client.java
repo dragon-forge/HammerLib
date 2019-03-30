@@ -401,6 +401,17 @@ public class RenderProxy_Client extends RenderProxy_Common implements IEnchantme
 	
 	private boolean renderPress = false;
 	
+	public static boolean isKeyDownSFW(int keyCode)
+	{
+		try
+		{
+			return Keyboard.isKeyDown(keyCode);
+		} catch(IndexOutOfBoundsException ioobe)
+		{
+		}
+		return false;
+	}
+	
 	@SubscribeEvent
 	public void ctick(ClientTickEvent e)
 	{
@@ -411,7 +422,7 @@ public class RenderProxy_Client extends RenderProxy_Common implements IEnchantme
 		if(km != null)
 			mod = km.isActive(KeyConflictContext.GUI);
 		
-		boolean rp = Keyboard.isKeyDown(BIND_RENDER.getKeyCode()) && mod;
+		boolean rp = isKeyDownSFW(BIND_RENDER.getKeyCode()) && mod;
 		if(rp != renderPress)
 		{
 			renderPress = rp;
