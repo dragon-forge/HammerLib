@@ -1,8 +1,14 @@
 package com.zeitheron.hammercore.client.render.world;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
 import org.lwjgl.util.Rectangle;
+import org.lwjgl.util.glu.GLU;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
@@ -11,8 +17,11 @@ import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec2f;
 
 public class VirtualWorldRenderer
 {
@@ -40,7 +49,7 @@ public class VirtualWorldRenderer
 		BlockRendererDispatcher brd = mc.getBlockRendererDispatcher();
 		Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 		BufferBuilder vb = Tessellator.getInstance().getBuffer();
-		vb.begin(7, DefaultVertexFormats.BLOCK);
+		vb.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
 		
 		for(BlockPos pos : world.getAllPlacedStatePositions())
 			brd.renderBlock(world.getBlockState(pos), pos, world, vb);
@@ -53,8 +62,14 @@ public class VirtualWorldRenderer
 		}
 		
 		Tessellator.getInstance().draw();
+		
+		float p = Minecraft.getMinecraft().getRenderPartialTicks();
+		for(BlockPos pos : world.tiles.toKeyArray())
+			TileEntityRendererDispatcher.instance.render(world.getTileEntity(pos), pos.getX(), pos.getY(), pos.getZ(), p);
+		
 		if(scissorAvailable && shouldCut)
 			GL11.glDisable(GL11.GL_SCISSOR_TEST);
+		
 		GlStateManager.popMatrix();
 		GlStateManager.disableDepth();
 	}

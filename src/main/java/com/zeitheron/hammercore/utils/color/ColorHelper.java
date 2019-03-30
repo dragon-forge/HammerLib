@@ -42,6 +42,16 @@ public class ColorHelper
 		return (((int) (r * 255F)) << 16) | (((int) (g * 255F)) << 8) | ((int) (b * 255F));
 	}
 	
+	public static int packARGB(int a, int r, int g, int b)
+	{
+		return (a << 24) | (r << 16) | (b << 8) | b;
+	}
+	
+	public static int packRGB(int r, int g, int b)
+	{
+		return (r << 16) | (b << 8) | b;
+	}
+	
 	public static float getAlpha(int rgb)
 	{
 		return ((rgb >> 24) & 0xFF) / 255F;

@@ -11,6 +11,7 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -20,12 +21,70 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.oredict.OreDictionary;
 
 /**
  * Contains some utilities to make life with {@link ItemStack}s easier
  */
 public class ItemStackUtil
 {
+	public static ItemStack cycleItemStack(Object input)
+	{
+		NonNullList<ItemStack> q;
+		ItemStack it = ItemStack.EMPTY;
+		
+		if(input instanceof ItemStack)
+		{
+			it = (ItemStack) input;
+			
+			if(it.getMetadata() == OreDictionary.WILDCARD_VALUE && it.getItem().getHasSubtypes())
+			{
+				NonNullList<ItemStack> q2 = NonNullList.create();
+				it.getItem().getSubItems(it.getItem().getCreativeTab(), q2);
+				if(q2 != null && q2.size() > 0)
+				{
+					int md = (int) (System.currentTimeMillis() / 1000 % q2.size());
+					ItemStack it2 = new ItemStack(it.getItem(), 1, md);
+					it2.setTagCompound(it.getTagCompound());
+					it = it2;
+				}
+			} else if(it.getMetadata() == OreDictionary.WILDCARD_VALUE && it.isItemStackDamageable())
+			{
+				int md = (int) (System.currentTimeMillis() / 10 % it.getMaxDamage());
+				ItemStack it2 = new ItemStack(it.getItem(), 1, md);
+				it2.setTagCompound(it.getTagCompound());
+				it = it2;
+			}
+			
+			if(it.getMetadata() != 0 && !it.getHasSubtypes() && !it.isItemStackDamageable())
+				it.setItemDamage(0);
+		} else if(input instanceof ItemStack[])
+		{
+			ItemStack[] q3 = (ItemStack[]) input;
+			if(q3 != null && q3.length > 0)
+			{
+				int idx = (int) (System.currentTimeMillis() / 1000L % q3.length);
+				it = InventoryUtils.cycleItemStack(q3[idx]);
+			}
+		} else if(input instanceof Ingredient)
+			it = InventoryUtils.cycleItemStack(((Ingredient) input).getMatchingStacks());
+		else if(input instanceof List)
+		{
+			List q3 = (List) input;
+			if(q3 != null && q3.size() > 0)
+			{
+				int idx = (int) (System.currentTimeMillis() / 1000L % q3.size());
+				it = InventoryUtils.cycleItemStack(q3.get(idx));
+			}
+		} else if(input instanceof String && !(q = OreDictionary.getOres(input + "")).isEmpty())
+		{
+			int idx = (int) (System.currentTimeMillis() / 1000L % q.size());
+			it = InventoryUtils.cycleItemStack(q.get(idx));
+		}
+		
+		return it;
+	}
+	
 	public static ItemStack compact(IInventory inv, ItemStack stack, IntList founds)
 	{
 		int count = 0;

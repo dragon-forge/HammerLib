@@ -204,6 +204,14 @@ public class RenderUtil
 		renderLightRayEffects(x, y, z, rgba, seed, progress, dstJump, 1.0F, countFancy, countNormal);
 	}
 	
+	public static void setGlClearColorFromInt(int colorValue, int opacity)
+	{
+		int i = (colorValue & 16711680) >> 16;
+		int j = (colorValue & 65280) >> 8;
+		int k = (colorValue & 255);
+		GlStateManager.clearColor(i / 255.0f, j / 255.0f, k / 255.0f, opacity / 255.0f);
+	}
+	
 	public static void renderLightRayEffects(double x, double y, double z, int rgba, long seed, float progress, int dstJump, float scale, int countFancy, int countNormal)
 	{
 		rand.setSeed(seed);

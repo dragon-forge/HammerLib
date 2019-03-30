@@ -1,5 +1,8 @@
 package com.zeitheron.hammercore.client.render.world;
 
+import javax.vecmath.Vector3f;
+
+import com.zeitheron.hammercore.utils.WorldUtil;
 import com.zeitheron.hammercore.utils.XYZMap;
 
 import net.minecraft.block.state.IBlockState;
@@ -21,6 +24,9 @@ public class VirtualWorld implements IBlockAccess
 	public XYZMap<Biome> biomes = new XYZMap();
 	public XYZMap<Integer> colors = new XYZMap();
 	
+	private final Vector3f minPos = new Vector3f(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
+	private final Vector3f maxPos = new Vector3f(Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
+	
 	public BlockPos[] getAllPlacedStatePositions()
 	{
 		return this.states.toKeyArray();
@@ -35,6 +41,7 @@ public class VirtualWorld implements IBlockAccess
 	public void setTileEntity(BlockPos pos, TileEntity tile)
 	{
 		this.tiles.setOnPos(pos, tile);
+		indexPos(pos);
 	}
 	
 	@Override
@@ -64,6 +71,8 @@ public class VirtualWorld implements IBlockAccess
 	public void setBlockState(BlockPos pos, IBlockState state)
 	{
 		this.states.setOnPos(pos, state);
+		if(state.getBlock() != Blocks.AIR)
+			indexPos(pos);
 		if(state.getBlock().hasTileEntity(state))
 			setTileEntity(pos, state.getBlock().createTileEntity(null, state));
 	}
@@ -106,5 +115,56 @@ public class VirtualWorld implements IBlockAccess
 	public boolean isSideSolid(BlockPos pos, EnumFacing side, boolean _unknown)
 	{
 		return getBlockState(pos).isSideSolid(this, pos, side);
+	}
+	
+	private void indexPos(BlockPos pos)
+	{
+		minPos.setX(Math.min(minPos.getX(), pos.getX()));
+		minPos.setY(Math.min(minPos.getY(), pos.getY()));
+		minPos.setZ(Math.min(minPos.getZ(), pos.getZ()));
+		maxPos.setX(Math.max(maxPos.getX(), pos.getX()));
+		maxPos.setY(Math.max(maxPos.getY(), pos.getY()));
+		maxPos.setZ(Math.max(maxPos.getZ(), pos.getZ()));
+	}
+	
+	public void clear()
+	{
+		biomes.clear();
+		colors.clear();
+		states.clear();
+		tiles.clear();
+		
+		minPos.set(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
+		maxPos.set(Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
+	}
+	
+	public Vector3f getSize()
+	{
+		Vector3f result = new Vector3f();
+		result.setX(maxPos.getX() - minPos.getX() + 1);
+		result.setY(maxPos.getY() - minPos.getY() + 1);
+		result.setZ(maxPos.getZ() - minPos.getZ() + 1);
+		return result;
+	}
+	
+	public Vector3f getMinPos()
+	{
+		return minPos;
+	}
+	
+	public Vector3f getMaxPos()
+	{
+		return maxPos;
+	}
+	
+	Object render;
+	
+	@SideOnly(Side.CLIENT)
+	public VirtualWorldRender getRender()
+	{
+		VirtualWorldRender vwr = WorldUtil.cast(render, VirtualWorldRender.class);
+		if(vwr == null)
+			render = vwr = new VirtualWorldRender(this);
+		return vwr;
 	}
 }

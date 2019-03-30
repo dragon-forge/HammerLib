@@ -1,6 +1,5 @@
 package com.zeitheron.hammercore.utils.recipes.helper;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -118,34 +117,34 @@ public abstract class RecipeRegistry
 		FurnaceRecipes.instance().addSmeltingRecipe(in, out, xp);
 	}
 	
-	protected void shaped(ItemStack out, Object... recipeComponents)
+	protected IRecipe shaped(ItemStack out, Object... recipeComponents)
 	{
-		recipe(SimpleRegistration.parseShapedRecipe(out, recipeComponents));
+		return recipe(SimpleRegistration.parseShapedRecipe(out, recipeComponents));
 	}
 	
-	protected void shaped(Item out, Object... recipeComponents)
+	protected IRecipe shaped(Item out, Object... recipeComponents)
 	{
-		recipe(SimpleRegistration.parseShapedRecipe(new ItemStack(out), recipeComponents));
+		return recipe(SimpleRegistration.parseShapedRecipe(new ItemStack(out), recipeComponents));
 	}
 	
-	protected void shaped(Block out, Object... recipeComponents)
+	protected IRecipe shaped(Block out, Object... recipeComponents)
 	{
-		recipe(SimpleRegistration.parseShapedRecipe(new ItemStack(out), recipeComponents));
+		return recipe(SimpleRegistration.parseShapedRecipe(new ItemStack(out), recipeComponents));
 	}
 	
-	protected void shapeless(ItemStack out, Object... recipeComponents)
+	protected IRecipe shapeless(ItemStack out, Object... recipeComponents)
 	{
-		recipe(SimpleRegistration.parseShapelessRecipe(out, recipeComponents));
+		return recipe(SimpleRegistration.parseShapelessRecipe(out, recipeComponents));
 	}
 	
-	protected void shapeless(Item out, Object... recipeComponents)
+	protected IRecipe shapeless(Item out, Object... recipeComponents)
 	{
-		recipe(SimpleRegistration.parseShapelessRecipe(new ItemStack(out), recipeComponents));
+		return recipe(SimpleRegistration.parseShapelessRecipe(new ItemStack(out), recipeComponents));
 	}
 	
-	protected void shapeless(Block out, Object... recipeComponents)
+	protected IRecipe shapeless(Block out, Object... recipeComponents)
 	{
-		recipe(SimpleRegistration.parseShapelessRecipe(new ItemStack(out), recipeComponents));
+		return recipe(SimpleRegistration.parseShapelessRecipe(new ItemStack(out), recipeComponents));
 	}
 	
 	/**
@@ -164,10 +163,11 @@ public abstract class RecipeRegistry
 		return Loader.instance().getIndexedModList().get(getMod());
 	}
 	
-	protected void recipe(IRecipe recipe)
+	protected IRecipe recipe(IRecipe recipe)
 	{
 		if(recipe.getRegistryName() == null)
 			recipe = recipe.setRegistryName(new ResourceLocation("hammercore", getMod() + "_" + getClass().getSimpleName() + "." + recipes.size()));
 		recipes.add(recipe);
+		return recipe;
 	}
 }

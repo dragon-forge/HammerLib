@@ -15,7 +15,7 @@ import com.zeitheron.hammercore.client.utils.RenderUtil;
 import com.zeitheron.hammercore.client.utils.UtilsFX;
 import com.zeitheron.hammercore.client.utils.texture.gui.theme.GuiTheme;
 import com.zeitheron.hammercore.utils.InterItemStack;
-import com.zeitheron.hammercore.utils.InventoryUtils;
+import com.zeitheron.hammercore.utils.ItemStackUtil;
 import com.zeitheron.hammercore.utils.color.ColorHelper;
 import com.zeitheron.hammercore.utils.web.URLLocation;
 
@@ -321,7 +321,7 @@ public class GuiManualRecipe extends GuiScreen implements ITooltipContext
 						GL11.glEnable(2884);
 						GL11.glTranslatef(0.0f, 0.0f, 60 - j * 10);
 						if(items.get(count) != null)
-							itemRenderer.renderItemAndEffectIntoGUI(InventoryUtils.cycleItemStack(items.get(count)), px, py);
+							itemRenderer.renderItemAndEffectIntoGUI(ItemStackUtil.cycleItemStack(items.get(count)), px, py);
 						RenderHelper.enableGUIStandardItemLighting();
 						GL11.glPopMatrix();
 						++count;
@@ -341,7 +341,7 @@ public class GuiManualRecipe extends GuiScreen implements ITooltipContext
 						py = (int) (y + 108 + yoff * (1.0f - sz) - i * 8 * (1.0f - sz) + k * 8 * (1.0f - sz) + j * 50 * (1.0f - sz));
 						if(items.get(count) != null && mposx >= px && mposy >= py && mposx < px + 16.0f * (1.0f - sz) && mposy < py + 16.0f * (1.0f - sz))
 						{
-							ItemStack stack = InventoryUtils.cycleItemStack(items.get(count));
+							ItemStack stack = ItemStackUtil.cycleItemStack(items.get(count));
 							List addtext = stack.getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL);
 							Object[] ref = findRecipeReference(stack);
 							if(ref != null && (!entry.key.equals(ref[0]) || (side % 2 == 0 && ((Integer) ref[1]) != this.page) || (side % 2 == 1 && ((Integer) ref[1]) != this.page)))
@@ -413,13 +413,13 @@ public class GuiManualRecipe extends GuiScreen implements ITooltipContext
 		GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 		RenderHelper.enableGUIStandardItemLighting();
 		GL11.glEnable(2884);
-		itemRenderer.renderItemAndEffectIntoGUI(InventoryUtils.cycleItemStack(recipe.getRecipeOutput()), x + 48 + start, y + 32);
-		itemRenderer.renderItemOverlayIntoGUI(mc.fontRenderer, InventoryUtils.cycleItemStack(recipe.getRecipeOutput()), x + 48 + start, y + 32, null);
+		itemRenderer.renderItemAndEffectIntoGUI(ItemStackUtil.cycleItemStack(recipe.getRecipeOutput()), x + 48 + start, y + 32);
+		itemRenderer.renderItemOverlayIntoGUI(mc.fontRenderer, ItemStackUtil.cycleItemStack(recipe.getRecipeOutput()), x + 48 + start, y + 32, null);
 		RenderHelper.enableGUIStandardItemLighting();
 		GL11.glEnable(2896);
 		GL11.glPopMatrix();
 		if(mposx >= x + 48 + start && mposy >= y + 32 && mposx < x + 48 + start + 16 && mposy < y + 32 + 16)
-			this.drawCustomTooltip(InventoryUtils.cycleItemStack(recipe.getRecipeOutput()).getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL), mx, my, 11);
+			this.drawCustomTooltip(ItemStackUtil.cycleItemStack(recipe.getRecipeOutput()).getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL), mx, my, 11);
 		
 		NonNullList<Ingredient> items = recipe.getIngredients();
 		
@@ -448,7 +448,7 @@ public class GuiManualRecipe extends GuiScreen implements ITooltipContext
 			{
 				for(j = 0; j < rh && j < 3; ++j)
 				{
-					ItemStack stack = InventoryUtils.cycleItemStack(items.get(i + j * rw));
+					ItemStack stack = ItemStackUtil.cycleItemStack(items.get(i + j * rw));
 					if(InterItemStack.isStackNull(stack))
 						continue;
 					GL11.glPushMatrix();
@@ -468,7 +468,7 @@ public class GuiManualRecipe extends GuiScreen implements ITooltipContext
 			{
 				for(j = 0; j < rh && j < 3; ++j)
 				{
-					ItemStack item = InventoryUtils.cycleItemStack(items.get(i + j * rw));
+					ItemStack item = ItemStackUtil.cycleItemStack(items.get(i + j * rw));
 					
 					if(InterItemStack.isStackNull(item) || mposx < x + 16 + start + i * 32 || mposy < y + 76 + j * 32 || mposx >= x + 16 + start + i * 32 + 16 || mposy >= y + 76 + j * 32 + 16)
 						continue;
@@ -503,8 +503,8 @@ public class GuiManualRecipe extends GuiScreen implements ITooltipContext
 				RenderHelper.enableGUIStandardItemLighting();
 				GL11.glEnable(2884);
 				GL11.glTranslated(0, 0, 100);
-				itemRenderer.renderItemAndEffectIntoGUI(InventoryUtils.cycleItemStack(items.get(i)), x + start + 16 + i % 3 * 32, y + 76 + i / 3 * 32);
-				itemRenderer.renderItemOverlayIntoGUI(mc.fontRenderer, InventoryUtils.cycleItemStack(items.get(i)).copy().splitStack(1), x + start + 16 + i % 3 * 32, y + 76 + i / 3 * 32, null);
+				itemRenderer.renderItemAndEffectIntoGUI(ItemStackUtil.cycleItemStack(items.get(i)), x + start + 16 + i % 3 * 32, y + 76 + i / 3 * 32);
+				itemRenderer.renderItemOverlayIntoGUI(mc.fontRenderer, ItemStackUtil.cycleItemStack(items.get(i)).copy().splitStack(1), x + start + 16 + i % 3 * 32, y + 76 + i / 3 * 32, null);
 				RenderHelper.enableGUIStandardItemLighting();
 				GL11.glEnable(2896);
 				GL11.glPopMatrix();
@@ -515,8 +515,8 @@ public class GuiManualRecipe extends GuiScreen implements ITooltipContext
 				if(items.get(i) == null || mposx < x + 16 + start + i % 3 * 32 || mposy < y + 76 + i / 3 * 32 || mposx >= x + 16 + start + i % 3 * 32 + 16 || mposy >= y + 76 + i / 3 * 32 + 16)
 					continue;
 				
-				List addtext = InventoryUtils.cycleItemStack(items.get(i)).getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL);
-				Object[] ref = findRecipeReference(InventoryUtils.cycleItemStack(items.get(i)));
+				List addtext = ItemStackUtil.cycleItemStack(items.get(i)).getTooltip(mc.player, mc.gameSettings.advancedItemTooltips ? TooltipFlags.ADVANCED : TooltipFlags.NORMAL);
+				Object[] ref = findRecipeReference(ItemStackUtil.cycleItemStack(items.get(i)));
 				if(ref != null && (!entry.key.equals(ref[0]) || (side % 2 == 0 && ((Integer) ref[1]) != page) || (side % 2 == 1 && ((Integer) ref[1]) != page)))
 				{
 					addtext.add("\u00a78\u00a7o" + I18n.format("recipe.hammercore:clickthrough"));
@@ -644,7 +644,7 @@ public class GuiManualRecipe extends GuiScreen implements ITooltipContext
 							UtilsFX.bindTextureURL(((URLLocation) res.icon_item).url);
 							RenderUtil.drawFullTexturedModalRect(0, 0, 16, 16);
 						} else
-							mc.getRenderItem().renderItemAndEffectIntoGUI(InventoryUtils.cycleItemStack(res.icon_item), 0, 0);
+							mc.getRenderItem().renderItemAndEffectIntoGUI(ItemStackUtil.cycleItemStack(res.icon_item), 0, 0);
 						
 						GL11.glDisable(2896);
 						GL11.glDepthMask(true);

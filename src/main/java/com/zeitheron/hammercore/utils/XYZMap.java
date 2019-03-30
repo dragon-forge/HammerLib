@@ -5,11 +5,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import it.unimi.dsi.fastutil.longs.Long2ObjectArrayMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import net.minecraft.util.math.BlockPos;
 
 public class XYZMap<T>
 {
-	public final Map<Long, T> VALUES = new HashMap<Long, T>();
+	public final Long2ObjectMap<T> VALUES = new Long2ObjectArrayMap<>();
 	
 	public T getOnPos(int x, int y, int z)
 	{
@@ -38,7 +40,7 @@ public class XYZMap<T>
 			try
 			{
 				List<BlockPos> decoded = new ArrayList<BlockPos>();
-				for(Long l : VALUES.keySet())
+				for(long l : VALUES.keySet())
 					decoded.add(BlockPos.fromLong(l));
 				return decoded.toArray(new BlockPos[0]);
 			} catch(Throwable err)
@@ -46,5 +48,10 @@ public class XYZMap<T>
 				err.printStackTrace();
 			}
 		}
+	}
+	
+	public void clear()
+	{
+		VALUES.clear();
 	}
 }
