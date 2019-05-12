@@ -6,14 +6,13 @@ It also provides extra utility code that has a wide usage
 Include following code into your build.gradle:
 
 >repositories {
->		maven {
->				name = "APengu Maven"
->				url = "https://raw.githubusercontent.com/APengu/PenguLibs/gh-pages"
->		}
+>       maven {
+>               name = "CurseForge"
+>               url = "https://minecraft.curseforge.com/api/maven/"
+>       }
 >}
->
 >dependencies {
->		deobfCompile "apengu:HammerCore:MCVERSION-HCVERSION:deobf"
+>       deobfCompile "hammer-lib:HammerCore-MCVERSION-HCVERSION:deobf"
 >}
 
 Where "MCVERSION" is Minecraft Version and "HCVERSION" is Hammer Core Version starting from 1.9.2.
