@@ -10,7 +10,6 @@ import com.zeitheron.hammercore.client.HammerCoreClient;
 import com.zeitheron.hammercore.client.gui.impl.GuiConfirmAuthority;
 import com.zeitheron.hammercore.client.gui.impl.GuiCustomizeSkinHC;
 import com.zeitheron.hammercore.client.gui.impl.GuiMissingApis;
-import com.zeitheron.hammercore.client.gui.impl.GuiShareToLanImproved;
 import com.zeitheron.hammercore.client.gui.impl.smooth.GuiBrewingStandSmooth;
 import com.zeitheron.hammercore.client.gui.impl.smooth.GuiFurnaceSmooth;
 import com.zeitheron.hammercore.lib.zlib.utils.IndexedMap;
@@ -21,7 +20,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiCustomizeSkin;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.GuiShareToLan;
 import net.minecraft.client.gui.inventory.GuiBrewingStand;
 import net.minecraft.client.gui.inventory.GuiFurnace;
 import net.minecraft.util.ResourceLocation;
@@ -129,18 +127,6 @@ public class RenderGui
 		
 		if(gui instanceof GuiMainMenu && !RequiredDeps.allDepsResolved())
 			gui = new GuiMissingApis();
-		
-		if(gui instanceof GuiShareToLan && HammerCoreConfigs.CustomLANPortInstalled)
-		{
-			try
-			{
-				Field f = gui.getClass().getDeclaredFields()[0];
-				f.setAccessible(true);
-				gui = new GuiShareToLanImproved((GuiScreen) f.get(gui));
-			} catch(Throwable err)
-			{
-			}
-		}
 		
 		smooth:
 		{

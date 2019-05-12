@@ -36,6 +36,7 @@ options.hammercore:skintype.2=Slim
 gui.hammercore:calculatron=Rechnotron vVERSION
 info.hammercore:energy_stored=RF gespeichert
 info.hammercore:changed_mode=ladet
+info.hammercore:witherproof=Wither-proof
 
 battery.hammercore:mode.noshare=Aus
 battery.hammercore:mode.hotbar=Hotbar

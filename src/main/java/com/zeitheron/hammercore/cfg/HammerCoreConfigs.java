@@ -33,14 +33,11 @@ public class HammerCoreConfigs implements IConfigReloadListener
 	
 	public static int iwr_green, iwr_red;
 	
-	public static boolean CustomLANPortInstalled;
-	
 	public static Configuration cfg;
 	
 	@Override
 	public void reloadCustom(Configuration cfgs)
 	{
-		CustomLANPortInstalled = Loader.isModLoaded("customports") || "@VERSION@".contains("VERSION");
 		cfg = cfgs;
 		
 		Property prop = cfgs.get("iWrench", "Green", "22FF22");

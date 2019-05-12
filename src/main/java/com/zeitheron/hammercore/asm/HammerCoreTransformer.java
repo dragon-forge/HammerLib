@@ -34,65 +34,6 @@ public class HammerCoreTransformer implements IClassTransformer
 	{
 		hook((node, obf) ->
 		{
-			String desc = "(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Z)Z";
-			if(obf)
-				desc = "(Lamu;Lco;Z)Z";
-				
-			// InsnList canSnowAtBody = new InsnList();
-			// canSnowAtBody.add(new VarInsnNode(Opcodes.ALOAD, 0));
-			// canSnowAtBody.add(new VarInsnNode(Opcodes.ALOAD, 1));
-			// canSnowAtBody.add(new VarInsnNode(Opcodes.ILOAD, 2));
-			// canSnowAtBody.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-			// "com/pengu/hammercore/asm/SnowfallHooks", "canSnowAtBody",
-			// desc));
-			// canSnowAtBody.add(new InsnNode(Opcodes.IRETURN));
-			
-			// boolean add_func_72853_d = true;
-			
-			for(MethodNode m : node.methods)
-			{
-				// if(m.name.equals("canSnowAtBody"))
-				// {
-				// m.instructions = canSnowAtBody;
-				// HammerCoreCore.ASM_LOG.info("Sending instructions to
-				// World for
-				// function canSnowAtBody");
-				// }
-				
-				// if((m.name.equals("getMoonPhase") ||
-				// m.name.equals("func_72853_d") || m.name.equals("D")) &&
-				// m.desc.equals("()I"))
-				// {
-				// add_func_72853_d = false;
-				// HammerCoreCore.ASM_LOG.info("Sending instructions to
-				// World for
-				// function getMoonPhase");
-				// AnnotationNode sideonly = null;
-				// for(AnnotationNode node : m.visibleAnnotations)
-				// if(node.desc.equals("Lnet/minecraftforge/fml/relauncher/SideOnly;"))
-				// {
-				// sideonly = node;
-				// break;
-				// }
-				// }
-			}
-			
-			// if(add_func_72853_d)
-			// {
-			// asm.info("Sending instructions to World for
-			// function getMoonPhase");
-			//
-			// classNode.methods.add(getMoonPhase(obf ? "D" :
-			// "getMoonPhase"));
-			//
-			// asm.info(" Adding getMoonPhase
-			// (func_72853_d) back
-			// because we are on server.");
-			// }
-		}, "Patching World...", cv("net.minecraft.world.World"));
-		
-		hook((node, obf) ->
-		{
 			MethodSignature sig1 = new MethodSignature("renderItem", "func_180454_a", "a", "(Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/renderer/block/model/IBakedModel;)V");
 			MethodSignature sig2 = new MethodSignature("renderEffect", "func_191966_a", "a", "(Lnet/minecraft/client/renderer/block/model/IBakedModel;)V");
 			MethodSignature sig3 = new MethodSignature("renderItemModel", "func_184394_a", "a", "(Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/renderer/block/model/IBakedModel;Lnet/minecraft/client/renderer/block/model/ItemCameraTransforms$TransformType;Z)V");
@@ -175,54 +116,6 @@ public class HammerCoreTransformer implements IClassTransformer
 		
 		hook((node, obf) ->
 		{
-			String targetMethod;
-			
-			if(obf)
-				targetMethod = "a";
-			else
-				targetMethod = "getSuitableLanPort";
-			
-			for(MethodNode m : node.methods)
-				if(m.name.equals(targetMethod) && m.desc.equals("()I"))
-				{
-					int index = -1;
-					AbstractInsnNode instruction = null;
-					
-					ListIterator<AbstractInsnNode> instructions = m.instructions.iterator();
-					while(instructions.hasNext())
-					{
-						index++;
-						instruction = instructions.next();
-						if(instruction.getOpcode() == 3)
-						{
-							AbstractInsnNode toRemove = m.instructions.get(index);
-							m.instructions.remove(toRemove);
-							
-							InsnList toInject = new InsnList();
-							toInject.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/zeitheron/hammercore/net/LanUtil", "getSuitableLanPort", "()I", false));
-							m.instructions.insertBefore(m.instructions.get(index), toInject);
-							asm.info("Sending instructions to HttpUtil for function getSuitableLanPort");
-						}
-					}
-				}
-		}, "Custom Ports", cv("net.minecraft.util.HttpUtil"));
-		
-		hook((node, obf) ->
-		{
-			for(int i = 0; i < node.methods.size(); ++i)
-			{
-				MethodNode mn = node.methods.get(i);
-				/* Prevent duplicate */
-				if(mn.name.equalsIgnoreCase("onItemTooltip"))
-				{
-					node.methods.remove(i);
-					asm.info("Deleted onItemTooltip (see why: https://goo.gl/L5c8pD )");
-				}
-			}
-		}, "Patching XVLib (TooltipApi)", cv("xmrvizzy.xvlib.api.TooltipApi"));
-		
-		hook((node, obf) ->
-		{
 			for(int i = 0; i < node.methods.size(); ++i)
 			{
 				MethodNode mn = node.methods.get(i);
@@ -234,16 +127,6 @@ public class HammerCoreTransformer implements IClassTransformer
 					
 					// Handle custom splash text
 					list.insertBefore(n, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/zeitheron/hammercore/client/witty/SplashTextHelper", "handle", "(Ljava/lang/String;)Ljava/lang/String;", false));
-					
-					// for(int j = 0; j < list.size(); ++j)
-					// {
-					// String a = "";
-					// AbstractInsnNode n = list.get(j);
-					// if(n instanceof FieldInsnNode)
-					// a = ((FieldInsnNode) n).name + " " + n.getOpcode();
-					// asm.info(j + " - " + n + " |" + opcodeName(n.getOpcode())
-					// + "| " + a);
-					// }
 				}
 			}
 		}, "Patching ForgeHooksClient", cv("net.minecraftforge.client.ForgeHooksClient"));
@@ -309,45 +192,6 @@ public class HammerCoreTransformer implements IClassTransformer
 	@Override
 	public byte[] transform(String name, String transformedName, byte[] basicClass)
 	{
-		// if(name.equals("net.minecraft.block.BlockSnow") ||
-		// name.equals("aqs"))
-		// {
-		// HammerCoreCore.ASM_LOG.info("Transforming
-		// net.minecraft.block.BlockSnow ("
-		// + name + ")...");
-		// ClassNode classNode = ObjectWebUtils.loadClass(basicClass);
-		// boolean obf = name.equals("aqs");
-		// HammerCoreCore.ASM_LOG.info("-We are in " + (obf ? "" : "de") +
-		// "obfuscated minecraft.");
-		//
-		// String desc = "(Lajs;Lco;Latl;Ljava/util/Random;)V";
-		// if(!obf)
-		// desc =
-		// "(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;Ljava/util/Random;)V";
-		//
-		// for(MethodNode m : classNode.methods)
-		// {
-		// if(m.desc.equals(desc) && (m.name.equals("b") ||
-		// m.name.equals("func_180650_b") || m.name.equals("updateTick")))
-		// {
-		// InsnList updateTick = new InsnList();
-		// updateTick.add(new VarInsnNode(Opcodes.ALOAD, 1));
-		// updateTick.add(new VarInsnNode(Opcodes.ALOAD, 2));
-		// updateTick.add(new VarInsnNode(Opcodes.ALOAD, 3));
-		// updateTick.add(new VarInsnNode(Opcodes.ALOAD, 4));
-		// updateTick.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-		// "com/pengu/hammercore/asm/SnowfallHooks", "updateTick", m.desc));
-		// updateTick.add(new InsnNode(Opcodes.RETURN));
-		//
-		// m.instructions = updateTick;
-		// HammerCoreCore.ASM_LOG.info("-Sending instructions to BlockSnow for
-		// function updateTick");
-		// }
-		// }
-		//
-		// return ObjectWebUtils.writeClassToByteArray(classNode);
-		// }
-		
 		return asm.transform(name, transformedName, basicClass);
 	}
 	

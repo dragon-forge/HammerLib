@@ -521,7 +521,6 @@ public class HammerCore
 		for(HCAuthor h : HCAUTHORS)
 			if(h.isAuthor())
 				a.add(h.getUsername());
-		a.add("TehenoPengin");
 		return Collections.unmodifiableList(a);
 	}
 	

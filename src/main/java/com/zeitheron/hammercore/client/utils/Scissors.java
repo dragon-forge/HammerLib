@@ -1,12 +1,9 @@
 package com.zeitheron.hammercore.client.utils;
 
-import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.shader.Framebuffer;
 
 /**
  * Adapted GL scissor for minecraft pixel resolution and adjusts (0;0) to

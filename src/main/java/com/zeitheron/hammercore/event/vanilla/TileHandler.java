@@ -1,7 +1,10 @@
 package com.zeitheron.hammercore.event.vanilla;
 
+import java.util.List;
+
 import com.zeitheron.hammercore.annotations.MCFBus;
 import com.zeitheron.hammercore.event.WrenchEvent;
+import com.zeitheron.hammercore.internal.blocks.IWitherProofBlock;
 import com.zeitheron.hammercore.net.HCNet;
 import com.zeitheron.hammercore.tile.ITileDroppable;
 import com.zeitheron.hammercore.tile.TileSyncable;
@@ -13,14 +16,18 @@ import com.zeitheron.hammercore.utils.wrench.IWrenchable;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.boss.EntityWither;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.Explosion;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.living.LivingDestroyBlockEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.event.world.ExplosionEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
 
 @MCFBus
 public class TileHandler
@@ -88,17 +95,35 @@ public class TileHandler
 		}
 	}
 	
-	private long lastCheck;
+	@SubscribeEvent
+	public void handleWitherBlocks(LivingDestroyBlockEvent e)
+	{
+		if(e.getEntityLiving() instanceof EntityWither)
+		{
+			IBlockState state = e.getState();
+			if(state.getBlock() instanceof IWitherProofBlock && ((IWitherProofBlock) state.getBlock()).isWitherproof(state))
+				e.setCanceled(true);
+		}
+	}
 	
 	@SubscribeEvent
-	public void serverTick(ServerTickEvent evt)
+	public void handleWitherBlocks(ExplosionEvent.Detonate w)
 	{
-		long currentCheck = System.currentTimeMillis() / 50L;
-		
-		if(currentCheck - lastCheck > 40)
+		Explosion expl = w.getExplosion();
+		if(expl != null && expl.getExplosivePlacedBy() instanceof EntityWither)
 		{
-			// TileTesseract.revalidateTesseracts();
-			lastCheck = currentCheck;
+			List<BlockPos> b = w.getAffectedBlocks();
+			for(int i = 0; i < b.size(); ++i)
+			{
+				BlockPos p = b.get(i);
+				IBlockState state = w.getWorld().getBlockState(p);
+				if(state.getBlock() instanceof IWitherProofBlock && ((IWitherProofBlock) state.getBlock()).isWitherproof(state))
+				{
+					b.remove(i);
+					--i;
+					continue;
+				}
+			}
 		}
 	}
 }

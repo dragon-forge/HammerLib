@@ -27,9 +27,6 @@ class CrashUtil implements ICrashCallable
 			items += OreDictionary.getOres(name).size();
 		sb.append("OreDictionary Info: Registered " + OreDictionary.getOreNames().length + " names; " + items + " stacks.\n");
 		
-		if(HammerCoreConfigs.configInstance != null)
-			sb.append("Configuration Info: " + Base64.encodeBytes(Files.readAllBytes(HammerCoreConfigs.configInstance.getSuggestedConfigurationFile().toPath())) + "\n");
-		
 		sb.append("Pastebin Connection: ");
 		try
 		{

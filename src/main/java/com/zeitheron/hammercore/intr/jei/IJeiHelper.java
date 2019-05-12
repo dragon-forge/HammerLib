@@ -84,7 +84,7 @@ public interface IJeiHelper
 		{
 			return null;
 		}
-
+		
 		@Override
 		public ItemStack getSlotUnderMouseInJEI()
 		{

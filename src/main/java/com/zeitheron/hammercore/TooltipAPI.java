@@ -4,11 +4,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.zeitheron.hammercore.internal.blocks.IWitherProofBlock;
 import com.zeitheron.hammercore.internal.items.ITooltipInjector;
 import com.zeitheron.hammercore.utils.math.ExpressionEvaluator;
 
+import net.minecraft.block.Block;
 import net.minecraft.client.resources.I18n;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -19,12 +22,15 @@ public class TooltipAPI
 	private static final ThreadLocal<Map<String, String>> results = ThreadLocal.withInitial(() -> new HashMap<>());
 	private static final ThreadLocal<Map<String, String>> currentVars = ThreadLocal.withInitial(() -> new HashMap<>());
 	
-	@SubscribeEvent
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void tooltipEvt(ItemTooltipEvent evt)
 	{
 		try
 		{
 			List<String> tooltip = evt.getToolTip();
+			
+			if(Block.getBlockFromItem(evt.getItemStack().getItem()) instanceof IWitherProofBlock)
+				tooltip.add(I18n.format("info.hammercore:witherproof"));
 			
 			Map<String, String> currentVars = TooltipAPI.currentVars.get();
 			Map<String, String> results = TooltipAPI.results.get();
