@@ -116,7 +116,7 @@ import net.minecraftforge.registries.IForgeRegistry;
  * <span style="text-decoration: underline;"> <em>This really sounds weird
  * :/</em></span>
  **/
-@Mod(modid = "hammercore", version = "@VERSION@", name = "Hammer Core", guiFactory = "com.zeitheron.hammercore.cfg.gui.GuiConfigFactory", certificateFingerprint = "4d7b29cd19124e986da685107d16ce4b49bc0a97", updateJSON = "https://pastebin.com/raw/JmcqzmEf")
+@Mod(modid = "hammercore", version = "@VERSION@", name = "Hammer Core", guiFactory = "com.zeitheron.hammercore.cfg.gui.GuiConfigFactory", certificateFingerprint = "4d7b29cd19124e986da685107d16ce4b49bc0a97", updateJSON = "http://dccg.herokuapp.com/api/fmluc/247401")
 public class HammerCore
 {
 	public static final List<AttuneResult> closeAfterLogoff = new ArrayList<>();
