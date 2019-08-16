@@ -26,7 +26,6 @@ public interface IPacket
 	 */
 	default void readFromNBT(NBTTagCompound nbt)
 	{
-		
 	}
 	
 	/**
@@ -38,33 +37,6 @@ public interface IPacket
 	 */
 	default void writeToNBT(NBTTagCompound nbt)
 	{
-		
-	}
-	
-	/**
-	 * A universal executor method for this packet.
-	 * 
-	 * @param side
-	 *            The side that this packet was accepted on.
-	 * @param ctx
-	 *            The context that this packet holds. On server, contains sender
-	 *            as an {@link EntityPlayerMP}
-	 * @return Reply packet, or null, if none.
-	 */
-	default IPacket execute(Side side, PacketContext ctx)
-	{
-		if(side == Side.CLIENT)
-			return executeOnClient(ctx);
-		return executeOnServer(ctx);
-	}
-	
-	/**
-	 * @return True if the single method should be called from both client and
-	 *         server ({@link #execute(Side, PacketContext)})
-	 */
-	default boolean refractSidedToUniversal()
-	{
-		return true;
 	}
 	
 	/**
@@ -77,7 +49,19 @@ public interface IPacket
 	@SideOnly(Side.CLIENT)
 	default IPacket executeOnClient(PacketContext net)
 	{
-		return refractSidedToUniversal() ? execute(Side.CLIENT, net) : null;
+		return null;
+	}
+
+	/**
+	 * Executes this packet on client side.
+	 * 
+	 * @param net
+	 *            A context of this packet. Mostly useless in this case.
+	 */
+	@SideOnly(Side.CLIENT)
+	default void executeOnClient2(PacketContext net)
+	{
+		net.withReply(executeOnClient(net));
 	}
 	
 	/**
@@ -90,7 +74,19 @@ public interface IPacket
 	 */
 	default IPacket executeOnServer(PacketContext net)
 	{
-		return refractSidedToUniversal() ? execute(Side.SERVER, net) : null;
+		return null;
+	}
+	
+	/**
+	 * Executes this packet on server side.
+	 * 
+	 * @param net
+	 *            A context of this packet. Contains sender as an
+	 *            {@link EntityPlayerMP}
+	 */
+	default void executeOnServer2(PacketContext net)
+	{
+		net.withReply(executeOnServer(net));
 	}
 	
 	/**

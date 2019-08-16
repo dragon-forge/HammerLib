@@ -22,12 +22,25 @@ public class PacketContext
 	@Nonnull
 	public final Side side;
 	
+	private IPacket reply;
+	
 	public PacketContext(IContextSender sender, PacketHolder holder, MinecraftServer server)
 	{
 		this.sender = sender;
 		this.holder = holder;
 		this.server = server;
 		this.side = FMLCommonHandler.instance().getEffectiveSide();
+	}
+	
+	public PacketContext withReply(IPacket reply)
+	{
+		this.reply = reply;
+		return this;
+	}
+	
+	public IPacket getReply()
+	{
+		return reply;
 	}
 	
 	@Nullable

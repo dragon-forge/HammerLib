@@ -78,14 +78,18 @@ public class PacketHolder
 	public PacketHolder execute(ClientCustomPacketEvent handler)
 	{
 		EntityPlayer player = HammerCore.renderProxy.getClientPlayer();
-		return new PacketHolder(packet.executeOnClient(new PacketContext(new ContextSenderServer(), this, null)), player);
+		PacketContext ctx = new PacketContext(new ContextSenderServer(), this, null);
+		packet.executeOnClient2(ctx);
+		return new PacketHolder(ctx.getReply(), player);
 	}
 	
 	public PacketHolder execute(ServerCustomPacketEvent handler)
 	{
 		MinecraftServer server = FMLCommonHandler.instance().getMinecraftServerInstance();
 		EntityPlayerMP mp = getPlayer(server);
-		return new PacketHolder(packet.executeOnServer(new PacketContext(new ContextSenderPlayerMP(mp), this, server)));
+		PacketContext ctx = new PacketContext(new ContextSenderPlayerMP(mp), this, server);
+		packet.executeOnServer2(ctx);
+		return new PacketHolder(ctx.getReply());
 	}
 	
 	public EntityPlayerMP getPlayer(MinecraftServer server)
