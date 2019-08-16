@@ -32,13 +32,12 @@ public class PacketStopRiding implements IPacket
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public IPacket executeOnClient(PacketContext net)
+	public void executeOnClient2(PacketContext net)
 	{
 		World wor = Minecraft.getMinecraft().world;
 		Entity rider = wor.getEntityByID(a);
 		if(rider != null)
 			rider.dismountRidingEntity();
-		return null;
 	}
 	
 	@Override

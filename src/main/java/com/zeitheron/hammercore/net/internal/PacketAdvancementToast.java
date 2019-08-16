@@ -45,11 +45,10 @@ public class PacketAdvancementToast implements IPacket
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public IPacket executeOnClient(PacketContext net)
+	public void executeOnClient2(PacketContext net)
 	{
 		Advancement adv = Minecraft.getMinecraft().getConnection().getAdvancementManager().getAdvancementList().getAdvancement(advancement);
 		if(adv != null)
 			Minecraft.getMinecraft().getToastGui().add(new AdvancementToast(adv));
-		return null;
 	}
 }

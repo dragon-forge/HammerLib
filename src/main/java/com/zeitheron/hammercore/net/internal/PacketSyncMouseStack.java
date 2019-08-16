@@ -29,12 +29,11 @@ public class PacketSyncMouseStack implements IPacket
 	{
 	}
 	
-	@SideOnly(Side.CLIENT)
 	@Override
-	public IPacket executeOnClient(PacketContext net)
+	@SideOnly(Side.CLIENT)
+	public void executeOnClient2(PacketContext net)
 	{
 		Minecraft.getMinecraft().player.inventory.setItemStack(mouse.copy());
-		return null;
 	}
 	
 	@Override

@@ -9,7 +9,6 @@ import javax.annotation.Nullable;
 
 import com.zeitheron.hammercore.HammerCore;
 import com.zeitheron.hammercore.net.internal.PacketParticle;
-import com.zeitheron.hammercore.net.internal.PacketSwingArm;
 import com.zeitheron.hammercore.net.internal.PacketSyncMouseStack;
 
 import io.netty.buffer.Unpooled;
@@ -21,6 +20,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.play.server.SPacketAnimation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
@@ -109,7 +109,7 @@ public enum HCNet
 	{
 		player.swingArm(hand);
 		if(player instanceof EntityPlayerMP && !player.world.isRemote)
-			INSTANCE.sendTo(new PacketSwingArm(hand), (EntityPlayerMP) player);
+			s_sendTo(new SPacketAnimation(player, hand == EnumHand.MAIN_HAND ? 0 : 3), (EntityPlayerMP) player);
 	}
 	
 	public void init()

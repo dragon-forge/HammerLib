@@ -31,7 +31,7 @@ public class PacketStopRiding2 implements IPacket
 	}
 	
 	@Override
-	public IPacket executeOnServer(PacketContext net)
+	public void executeOnServer2(PacketContext net)
 	{
 		World wor = net.getSender().world;
 		Entity rider = wor.getEntityByID(a);
@@ -42,7 +42,6 @@ public class PacketStopRiding2 implements IPacket
 			if(ridden instanceof EntityPlayerMP)
 				HCNet.INSTANCE.sendTo(new PacketStopRiding(rider), (EntityPlayerMP) ridden);
 		}
-		return null;
 	}
 	
 	@Override

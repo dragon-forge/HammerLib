@@ -54,7 +54,7 @@ public class PacketEditMessage implements IPacket
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public IPacket executeOnClient(PacketContext net)
+	public void executeOnClient2(PacketContext net)
 	{
 		List<FingerprintedChatLine> edited = new ArrayList<>();
 		
@@ -67,7 +67,5 @@ public class PacketEditMessage implements IPacket
 		// If no messages were edited
 		if(edited.isEmpty())
 			new FingerprintedChatLine(Minecraft.getMinecraft().ingameGUI.getUpdateCounter(), text, print).add();
-		
-		return null;
 	}
 }

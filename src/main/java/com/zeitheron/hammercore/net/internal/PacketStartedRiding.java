@@ -33,14 +33,13 @@ public class PacketStartedRiding implements IPacket
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public IPacket executeOnClient(PacketContext net)
+	public void executeOnClient2(PacketContext net)
 	{
 		World wor = Minecraft.getMinecraft().world;
 		Entity rider = wor.getEntityByID(a);
 		Entity ridden = wor.getEntityByID(b);
 		if(rider != null && ridden != null)
 			rider.startRiding(ridden, true);
-		return null;
 	}
 	
 	@Override

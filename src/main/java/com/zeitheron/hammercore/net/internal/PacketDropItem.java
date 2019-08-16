@@ -51,7 +51,7 @@ public class PacketDropItem implements IPacket
 	}
 	
 	@Override
-	public IPacket executeOnServer(PacketContext net)
+	public void executeOnServer2(PacketContext net)
 	{
 		EntityPlayerMP mp = net.getSender();
 		EntityItem ei = new EntityItem(mp.world, mp.posX, mp.posY, mp.posZ, stack);
@@ -59,6 +59,5 @@ public class PacketDropItem implements IPacket
 		if(ei != null)
 			ei.readFromNBT(this.ei);
 		mp.world.spawnEntity(ei);
-		return null;
 	}
 }

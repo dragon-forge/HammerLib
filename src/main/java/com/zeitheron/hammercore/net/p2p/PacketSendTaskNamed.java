@@ -36,7 +36,7 @@ public class PacketSendTaskNamed implements IPacket
 	}
 	
 	@Override
-	public IPacket executeOnServer(PacketContext net)
+	public void executeOnServer2(PacketContext net)
 	{
 		sender = net.sender.asPlayer().getGameProfile().getName();
 		for(String $receiver : receivers)
@@ -45,11 +45,10 @@ public class PacketSendTaskNamed implements IPacket
 			if(receiver != null)
 				HCNet.INSTANCE.sendTo(this, receiver);
 		}
-		return null;
 	}
 	
 	@Override
-	public IPacket executeOnClient(PacketContext net)
+	public void executeOnClient2(PacketContext net)
 	{
 		try
 		{
@@ -60,7 +59,6 @@ public class PacketSendTaskNamed implements IPacket
 		{
 			err.printStackTrace();
 		}
-		return null;
 	}
 	
 	@Override

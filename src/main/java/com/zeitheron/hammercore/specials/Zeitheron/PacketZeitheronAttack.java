@@ -23,10 +23,9 @@ public class PacketZeitheronAttack implements IPacket
 	}
 	
 	@Override
-	public IPacket executeOnClient(PacketContext net)
+	public void executeOnClient2(PacketContext net)
 	{
 		lastAttackTime = time;
-		return null;
 	}
 	
 	@Override

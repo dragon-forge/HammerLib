@@ -12,13 +12,12 @@ public class PacketPlayerReady implements IPacket
 {
 	static
 	{
-		IPacket.handle(PacketPlayerReady.class, () -> new PacketPlayerReady());
+		IPacket.handle(PacketPlayerReady.class, PacketPlayerReady::new);
 	}
 	
 	@Override
-	public IPacket executeOnServer(PacketContext net)
+	public void executeOnServer2(PacketContext net)
 	{
 		MinecraftForge.EVENT_BUS.post(new PlayerLoadReadyEvent(net.getSender()));
-		return null;
 	}
 }

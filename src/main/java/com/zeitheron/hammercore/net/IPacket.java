@@ -49,9 +49,9 @@ public interface IPacket
 	@SideOnly(Side.CLIENT)
 	default IPacket executeOnClient(PacketContext net)
 	{
-		return null;
+		return execute(Side.CLIENT, net);
 	}
-
+	
 	/**
 	 * Executes this packet on client side.
 	 * 
@@ -74,7 +74,7 @@ public interface IPacket
 	 */
 	default IPacket executeOnServer(PacketContext net)
 	{
-		return null;
+		return execute(Side.SERVER, net);
 	}
 	
 	/**
@@ -87,6 +87,11 @@ public interface IPacket
 	default void executeOnServer2(PacketContext net)
 	{
 		net.withReply(executeOnServer(net));
+	}
+	
+	default IPacket execute(Side side, PacketContext net)
+	{
+		return null;
 	}
 	
 	/**

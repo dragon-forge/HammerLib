@@ -37,15 +37,14 @@ public class PacketPing implements IPacket
 	}
 	
 	@Override
-	public IPacket executeOnClient(PacketContext ctx)
+	public void executeOnClient2(PacketContext ctx)
 	{
 		HammerCoreClient.ping = System.currentTimeMillis() - create;
-		return null;
 	}
 	
 	@Override
-	public IPacket executeOnServer(PacketContext ctx)
+	public void executeOnServer2(PacketContext ctx)
 	{
-		return this;
+		ctx.withReply(this);
 	}
 }

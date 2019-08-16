@@ -54,23 +54,23 @@ public class PacketSetBiome implements IPacket
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public IPacket executeOnClient(PacketContext net)
+	public void executeOnClient2(PacketContext net)
 	{
 		BlockPos pos = new BlockPos(x, 0, z);
 		World world = Minecraft.getMinecraft().world;
 		
 		if(world == null)
-			return null;
+			return;
 		
 		Chunk c = world.getChunk(pos);
 		
 		if(c == null)
-			return null;
+			return;
 		
 		byte[] blockBiomeArray = c.getBiomeArray();
 		blockBiomeArray[id] = biome;
 		c.setBiomeArray(blockBiomeArray);
 		
-		return null;
+		return;
 	}
 }

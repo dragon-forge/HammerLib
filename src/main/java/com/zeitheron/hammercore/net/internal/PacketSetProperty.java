@@ -45,23 +45,18 @@ public class PacketSetProperty implements IPacket
 	}
 	
 	@Override
-	public IPacket execute(Side side, PacketContext net)
+	public void executeOnServer2(PacketContext net)
 	{
-		if(side == Side.SERVER)
-		{
-			int dim = nbt.getInteger("Dim");
-			BlockPos pos = BlockPos.fromLong(nbt.getLong("Pos"));
-			NBTTagCompound prop = nbt.getCompoundTag("Data");
-			int id = nbt.getInteger("Id");
-			
-			MinecraftServer server = net.server;
-			WorldServer world = server.getWorld(dim);
-			
-			if(world != null && world.isBlockLoaded(pos) && world.getTileEntity(pos) instanceof TileSyncable)
-				((TileSyncable) world.getTileEntity(pos)).load(id, prop);
-		} else
-			HammerCore.LOG.warn("Attempted to run PacketSetProperty on client. This is not going to work! Use TileSyncable.sync() instead!");
-		return null;
+		int dim = nbt.getInteger("Dim");
+		BlockPos pos = BlockPos.fromLong(nbt.getLong("Pos"));
+		NBTTagCompound prop = nbt.getCompoundTag("Data");
+		int id = nbt.getInteger("Id");
+		
+		MinecraftServer server = net.server;
+		WorldServer world = server.getWorld(dim);
+		
+		if(world != null && world.isBlockLoaded(pos) && world.getTileEntity(pos) instanceof TileSyncable)
+			((TileSyncable) world.getTileEntity(pos)).load(id, prop);
 	}
 	
 	@Override

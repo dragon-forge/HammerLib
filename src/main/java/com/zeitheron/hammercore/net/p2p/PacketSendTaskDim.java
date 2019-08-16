@@ -34,16 +34,15 @@ public class PacketSendTaskDim implements IPacket
 	}
 	
 	@Override
-	public IPacket executeOnServer(PacketContext net)
+	public void executeOnServer2(PacketContext net)
 	{
 		sender = net.sender.asPlayer().getGameProfile().getName();
 		for(int $receiver : receivers)
 			HCNet.INSTANCE.sendToDimension(this, $receiver);
-		return null;
 	}
 	
 	@Override
-	public IPacket executeOnClient(PacketContext net)
+	public void executeOnClient2(PacketContext net)
 	{
 		try
 		{
@@ -54,7 +53,6 @@ public class PacketSendTaskDim implements IPacket
 		{
 			err.printStackTrace();
 		}
-		return null;
 	}
 	
 	@Override

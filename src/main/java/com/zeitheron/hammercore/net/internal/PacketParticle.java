@@ -65,12 +65,11 @@ public class PacketParticle implements IPacket
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public IPacket executeOnClient(PacketContext net)
+	public void executeOnClient2(PacketContext net)
 	{
 		WorldClient wc = Minecraft.getMinecraft().world;
 		if(wc == null || world != wc.provider.getDimension())
-			return null;
+			return;
 		wc.spawnParticle(particle, pos.x, pos.y, pos.z, motion.x, motion.y, motion.z, params);
-		return null;
 	}
 }

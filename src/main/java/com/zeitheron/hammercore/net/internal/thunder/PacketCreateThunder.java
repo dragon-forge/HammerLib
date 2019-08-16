@@ -43,9 +43,8 @@ public class PacketCreateThunder implements IPacket
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public IPacket executeOnClient(PacketContext net)
+	public void executeOnClient2(PacketContext net)
 	{
 		ThunderHelper.thunder(Minecraft.getMinecraft().world, start, end, base, core, aura, Thunder.Fractal.DEFAULT_FRACTAL);
-		return null;
 	}
 }

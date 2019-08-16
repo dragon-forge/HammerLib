@@ -50,12 +50,12 @@ public class PacketTeleportPlayer implements IPacket
 	}
 	
 	@Override
-	public IPacket executeOnServer(PacketContext net)
+	public void executeOnServer2(PacketContext net)
 	{
 		EntityPlayerMP mp = net.getSender();
 		if(mp == null)
-			return null;
+			return;
 		WorldUtil.teleportPlayer(mp, dimension != null ? dimension : mp.world.provider.getDimension(), target.x, target.y, target.z);
-		return null;
+		return;
 	}
 }

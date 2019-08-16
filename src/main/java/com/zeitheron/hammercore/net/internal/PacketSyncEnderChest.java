@@ -43,12 +43,11 @@ public class PacketSyncEnderChest implements IPacket
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public IPacket executeOnClient(PacketContext net)
+	public void executeOnClient2(PacketContext net)
 	{
 		EntityPlayer player = Minecraft.getMinecraft().player;
 		if(player != null)
 			player.getInventoryEnderChest().loadInventoryFromNBT(inventory.saveInventoryToNBT());
 		MinecraftForge.EVENT_BUS.post(new EnderInventoryAcceptEvent(player));
-		return null;
 	}
 }

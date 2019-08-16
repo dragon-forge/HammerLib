@@ -38,7 +38,7 @@ public class PacketSendTaskUUID implements IPacket
 	}
 	
 	@Override
-	public IPacket executeOnServer(PacketContext net)
+	public void executeOnServer2(PacketContext net)
 	{
 		sender = net.getSender().getGameProfile().getName();
 		for(UUID $receiver : receivers)
@@ -47,11 +47,10 @@ public class PacketSendTaskUUID implements IPacket
 			if(receiver != null)
 				HCNet.INSTANCE.sendTo(this, receiver);
 		}
-		return null;
 	}
 	
 	@Override
-	public IPacket executeOnClient(PacketContext net)
+	public void executeOnClient2(PacketContext net)
 	{
 		try
 		{
@@ -62,7 +61,6 @@ public class PacketSendTaskUUID implements IPacket
 		{
 			err.printStackTrace();
 		}
-		return null;
 	}
 	
 	@Override

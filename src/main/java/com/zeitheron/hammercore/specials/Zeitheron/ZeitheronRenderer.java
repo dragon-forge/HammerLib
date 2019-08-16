@@ -261,11 +261,13 @@ public class ZeitheronRenderer implements IPlayerModel
 					{
 						ColorHelper.glColor1i(rendered);
 						
+						GlStateManager.disableLighting();
 						GlStateManager.pushMatrix();
 						GlStateManager.translate(0, entitylivingbaseIn.isSneaking() ? -.75 : 0, 0);
 						GlStateManager.scale(1.01F, 1.01F, 1.01F);
 						playerRenderer.getMainModel().bipedHead.render(1F);
 						GlStateManager.popMatrix();
+						GlStateManager.enableLighting();
 						
 						GlStateManager.color(1F, 1F, 1F);
 					}

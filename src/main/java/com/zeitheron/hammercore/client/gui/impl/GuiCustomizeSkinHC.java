@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import com.zeitheron.hammercore.HammerCore;
 import com.zeitheron.hammercore.client.HCClientOptions;
 import com.zeitheron.hammercore.client.PerUserModule.CTButton;
 import com.zeitheron.hammercore.proxy.RenderProxy_Client;
@@ -25,7 +24,6 @@ public class GuiCustomizeSkinHC extends GuiCustomizeSkin
 	
 	public GuiButton renderSpecial;
 	public GuiButton overrideCape;
-	public GuiButton skinType;
 	public GuiButton cbtn;
 	
 	public Map<GuiButton, CTButton> customBtnMap = new HashMap<>();
@@ -60,7 +58,6 @@ public class GuiCustomizeSkinHC extends GuiCustomizeSkin
 		
 		renderSpecial = initializeAdditional(I18n.format("options.modelPart.hammercore:renderSpecial") + ": " + I18n.format("options.o" + (HCClientOptions.options.renderSpecial ? "n" : "ff")));
 		overrideCape = initializeAdditional(I18n.format("options.modelPart.hammercore:overrideCape") + ": " + I18n.format("options.o" + (HCClientOptions.options.overrideCape ? "n" : "ff")));
-		skinType = initializeAdditional(I18n.format("options.modelPart.hammercore:skinType") + ": " + I18n.format("options.hammercore:skintype." + HCClientOptions.options.skinType));
 		if(customization != null)
 			cbtn = initializeAdditional("Customizations...");
 		
@@ -91,12 +88,6 @@ public class GuiCustomizeSkinHC extends GuiCustomizeSkin
 		{
 			c.overrideCape = !c.overrideCape;
 			overrideCape.displayString = I18n.format("options.modelPart.hammercore:overrideCape") + ": " + I18n.format("options.o" + (c.overrideCape ? "n" : "ff"));
-			
-			c.saveAndSendToServer();
-		} else if(button == skinType)
-		{
-			c.skinType = (c.skinType + 1) % 3;
-			skinType.displayString = I18n.format("options.modelPart.hammercore:skinType") + ": " + I18n.format("options.hammercore:skintype." + HCClientOptions.options.skinType);
 			
 			c.saveAndSendToServer();
 		} else if(cbtn != null && button == cbtn)

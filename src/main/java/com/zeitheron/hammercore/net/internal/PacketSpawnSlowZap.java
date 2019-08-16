@@ -20,10 +20,9 @@ public class PacketSpawnSlowZap implements IPacket
 	}
 	
 	@Override
-	public IPacket execute(Side side, PacketContext ctx)
+	public void executeOnClient2(PacketContext net)
 	{
 		HammerCore.particleProxy.spawnSlowZap(world, start, end, color, maxTicks, ampl);
-		return null;
 	}
 	
 	@Override

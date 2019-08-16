@@ -8,19 +8,12 @@ public class PacketReqOpts implements IPacket
 {
 	static
 	{
-		IPacket.handle(PacketReqOpts.class, () -> new PacketReqOpts());
+		IPacket.handle(PacketReqOpts.class, PacketReqOpts::new);
 	}
 	
 	@Override
-	public IPacket executeOnClient(PacketContext net)
+	public void executeOnClient2(PacketContext net)
 	{
 		RenderProxy_Client.needsClConfigSync = true;
-		return null;
-	}
-	
-	@Override
-	public IPacket executeOnServer(PacketContext net)
-	{
-		return null;
 	}
 }

@@ -6,7 +6,6 @@ import com.zeitheron.hammercore.net.PacketContext;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.fml.relauncher.Side;
 
 public class PacketSpawnZap implements IPacket
 {
@@ -20,10 +19,9 @@ public class PacketSpawnZap implements IPacket
 	}
 	
 	@Override
-	public IPacket execute(Side side, PacketContext ctx)
+	public void executeOnClient2(PacketContext net)
 	{
 		HammerCore.particleProxy.spawnZap(world, start, end, color);
-		return null;
 	}
 	
 	@Override

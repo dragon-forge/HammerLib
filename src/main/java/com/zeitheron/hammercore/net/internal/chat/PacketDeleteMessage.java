@@ -43,9 +43,8 @@ public class PacketDeleteMessage implements IPacket
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public IPacket executeOnClient(PacketContext net)
+	public void executeOnClient2(PacketContext net)
 	{
 		new ArrayList<>(FingerprintedChatLine.getChatLines()).stream().filter(l -> l instanceof FingerprintedChatLine).map(FingerprintedChatLine.class::cast).filter(l -> l.isThisLine(print)).forEach(FingerprintedChatLine::deleteChatLine);
-		return null;
 	}
 }

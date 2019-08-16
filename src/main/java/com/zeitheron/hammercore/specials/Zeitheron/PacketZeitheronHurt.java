@@ -23,10 +23,9 @@ public class PacketZeitheronHurt implements IPacket
 	}
 	
 	@Override
-	public IPacket executeOnClient(PacketContext net)
+	public void executeOnClient2(PacketContext net)
 	{
 		lastHurtTime = time;
-		return null;
 	}
 	
 	@Override
