@@ -95,6 +95,7 @@ import net.minecraftforge.fml.common.event.FMLConstructionEvent;
 import net.minecraftforge.fml.common.event.FMLFingerprintViolationEvent;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLInterModComms;
+import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
@@ -343,6 +344,12 @@ public class HammerCore
 	public void postInit(FMLPostInitializationEvent e)
 	{
 		renderProxy.postInit();
+	}
+	
+	@EventHandler
+	public void loadComplete(FMLLoadCompleteEvent e)
+	{
+		renderProxy.loadComplete();
 	}
 	
 	@EventHandler

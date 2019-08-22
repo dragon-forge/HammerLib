@@ -3,6 +3,7 @@ package com.zeitheron.hammercore.proxy;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -16,10 +17,12 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.input.Keyboard;
 
 import com.google.common.io.Files;
@@ -30,12 +33,15 @@ import com.zeitheron.hammercore.HammerCore;
 import com.zeitheron.hammercore.ServerHCClientPlayerData;
 import com.zeitheron.hammercore.TooltipAPI;
 import com.zeitheron.hammercore.annotations.AtTESR;
+import com.zeitheron.hammercore.api.inconnect.IBlockConnectable;
+import com.zeitheron.hammercore.api.inconnect.InConnectAPI;
 import com.zeitheron.hammercore.cfg.HammerCoreConfigs;
 import com.zeitheron.hammercore.client.HCClientOptions;
 import com.zeitheron.hammercore.client.HammerCoreClient;
 import com.zeitheron.hammercore.client.PerUserModule;
 import com.zeitheron.hammercore.client.gui.impl.GuiPersonalisation;
 import com.zeitheron.hammercore.client.model.HasNoModel;
+import com.zeitheron.hammercore.client.model.mc.BakedConnectModel;
 import com.zeitheron.hammercore.client.particle.RenderHelperImpl;
 import com.zeitheron.hammercore.client.render.Render3D;
 import com.zeitheron.hammercore.client.render.item.TileEntityItemStackRendererHC;
@@ -61,20 +67,29 @@ import com.zeitheron.hammercore.lib.zlib.utils.Threading;
 import com.zeitheron.hammercore.net.PacketContext;
 import com.zeitheron.hammercore.tile.tooltip.own.EntityTooltipRenderEngine;
 import com.zeitheron.hammercore.utils.AnnotatedInstanceUtil;
+import com.zeitheron.hammercore.utils.IdentityHashMapWC;
+import com.zeitheron.hammercore.utils.PositionedStateImplementation;
+import com.zeitheron.hammercore.utils.ReflectionUtil;
 import com.zeitheron.hammercore.utils.WorldUtil;
 import com.zeitheron.hammercore.utils.color.ColorHelper;
 
+import net.minecraft.block.state.BlockStateContainer.StateImplementation;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.gui.GuiNewChat;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.gui.toasts.SystemToast;
+import net.minecraft.client.renderer.BlockModelShapes;
+import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.crash.CrashReport;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
@@ -85,10 +100,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.ReportedException;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.client.event.RenderPlayerEvent;
@@ -117,6 +134,8 @@ public class RenderProxy_Client extends RenderProxy_Common implements IEnchantme
 	private boolean cticked, reloaded;
 	
 	public static PerUserModule module;
+	
+	public static final IdentityHashMapWC<IBlockState, IBakedModel> bakedModelStore = new IdentityHashMapWC<>();
 	
 	@Override
 	public void construct()
@@ -247,6 +266,23 @@ public class RenderProxy_Client extends RenderProxy_Common implements IEnchantme
 				return super.getTabCompletions(server, sender, args, targetPos);
 			}
 		});
+		
+		BiFunction<IBlockAccess, Pair<BlockPos, IBlockState>, IBlockState> extendedState = (world, p) ->
+		{
+			BlockPos pos = p.getKey();
+			IBlockState state = p.getValue();
+			if(state instanceof StateImplementation)
+				return PositionedStateImplementation.convert((StateImplementation) state).withPos(pos, world);
+			return p.getValue();
+		};
+		
+		try
+		{
+			ReflectionUtil.setFinalField(InConnectAPI.class.getDeclaredField("extendedState"), null, extendedState);
+		} catch(ReflectiveOperationException e)
+		{
+			throw new ReportedException(new CrashReport("Unable to provide InConnect API!", e));
+		}
 	}
 	
 	@Override
@@ -708,5 +744,37 @@ public class RenderProxy_Client extends RenderProxy_Common implements IEnchantme
 			curCAPT.start();
 		}
 		return customCapes;
+	}
+	
+	@Override
+	public void loadComplete()
+	{
+		BlockModelShapes shapes = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes();
+		
+		ForgeRegistries.BLOCKS.getValuesCollection().stream() //
+		        .filter(b -> b instanceof IBlockConnectable) //
+		        .flatMap(c -> c.getBlockState().getValidStates().stream()) //
+		        .forEach(state -> bakedModelStore.putConstant(state, new BakedConnectModel(state)));
+		
+		Field modelMap = ReflectionUtil.getField(BlockModelShapes.class, Map.class);
+		bakedModelStore.clear();
+		try
+		{
+			bakedModelStore.putAll(Map.class.cast(modelMap.get(shapes)));
+			ReflectionUtil.setFinalField(modelMap, shapes, bakedModelStore);
+		} catch(ReflectiveOperationException e)
+		{
+		}
+	}
+	
+	@SubscribeEvent
+	public void textureStitch(TextureStitchEvent.Pre e)
+	{
+		TextureMap txMap = e.getMap();
+		
+		ForgeRegistries.BLOCKS.getValuesCollection().stream() //
+		        .filter(b -> b instanceof IBlockConnectable) //
+		        .map(IBlockConnectable.class::cast) //
+		        .forEach(c -> txMap.registerSprite(c.getTxMap()));
 	}
 }

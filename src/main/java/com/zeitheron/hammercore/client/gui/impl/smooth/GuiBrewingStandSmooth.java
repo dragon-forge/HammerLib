@@ -34,22 +34,6 @@ public class GuiBrewingStandSmooth extends GuiBrewingStand
 		this.bs = bs;
 	}
 	
-	public DynGuiTex tex;
-	
-	@Override
-	public void initGui()
-	{
-		super.initGui();
-		
-		GuiTexBakery b = GuiTexBakery.start().body(0, 0, xSize, ySize);
-		for(int o = 0; o < inventorySlots.inventorySlots.size(); ++o)
-		{
-			Slot s = inventorySlots.inventorySlots.get(o);
-			b.slot(s.xPos - 1, s.yPos - 1);
-		}
-		tex = b.bake();
-	}
-	
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY)
 	{
@@ -62,7 +46,7 @@ public class GuiBrewingStandSmooth extends GuiBrewingStand
 		double k = bs.getField(1);
 		double l = MathHelper.clamp((18D * k + 20D - 1D) / 20D, 0, 18);
 		
-		tex.render(i, j);
+        this.drawTexturedModalRect(i, j, 0, 0, this.xSize, this.ySize);
 		
 		int i1 = bs.getField(0);
 		

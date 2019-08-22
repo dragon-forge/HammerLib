@@ -8,6 +8,13 @@ item.hammercore:manual.name=Hammer Core Manual
 
 ###########
 
+###TILES###
+
+tile.hammercore:iron_bordered_cobblestone.name=Iron-Bordered Cobblestone
+tile.hammercore:gold_bordered_cobblestone.name=Gold-Bordered Cobblestone
+
+###########
+
 # Definitions
 definition.hammercore:fe.short=FE
 definition.hammercore:fe.long=Forge Energy

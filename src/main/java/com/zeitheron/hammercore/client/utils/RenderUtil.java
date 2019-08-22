@@ -27,6 +27,24 @@ public class RenderUtil
 {
 	public static double zLevel = 0;
 	
+	public static void drawFullRectangleFit(double x, double y, double width, double height)
+	{
+		int w = GL11.glGetTexLevelParameteri(GL11.GL_TEXTURE_2D, 0, GL11.GL_TEXTURE_WIDTH);
+		int h = GL11.glGetTexLevelParameteri(GL11.GL_TEXTURE_2D, 0, GL11.GL_TEXTURE_HEIGHT);
+		
+		float ws = 1, hs = 1;
+		
+		if(w > h)
+			hs = h / (float) w;
+		if(h > w)
+			ws = w / (float) h;
+		
+		double nw = width * ws;
+		double nh = height * hs;
+		
+		drawFullTexturedModalRect(x + (width - nw) / 2, y + (height - nh) / 2, nw, nh);
+	}
+	
 	public static void drawTexturedModalRect(double x, double y, double texX, double texY, double width, double height)
 	{
 		float n = 0.00390625F;

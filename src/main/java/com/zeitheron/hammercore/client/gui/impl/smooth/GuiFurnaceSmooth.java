@@ -5,8 +5,6 @@ import org.lwjgl.opengl.GL11;
 import com.zeitheron.hammercore.client.gui.GuiWidgets;
 import com.zeitheron.hammercore.client.utils.RenderUtil;
 import com.zeitheron.hammercore.client.utils.UtilsFX;
-import com.zeitheron.hammercore.client.utils.texture.gui.DynGuiTex;
-import com.zeitheron.hammercore.client.utils.texture.gui.GuiTexBakery;
 import com.zeitheron.hammercore.client.utils.texture.gui.theme.GuiTheme;
 import com.zeitheron.hammercore.utils.color.ColorHelper;
 
@@ -14,7 +12,6 @@ import net.minecraft.client.gui.inventory.GuiFurnace;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Slot;
 import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraft.util.ResourceLocation;
 
@@ -34,22 +31,6 @@ public class GuiFurnaceSmooth extends GuiFurnace
 		furn = furnaceInv;
 	}
 	
-	public DynGuiTex tex;
-	
-	@Override
-	public void initGui()
-	{
-		super.initGui();
-		
-		GuiTexBakery b = GuiTexBakery.start().body(0, 0, xSize, ySize);
-		for(int o = 0; o < inventorySlots.inventorySlots.size(); ++o)
-		{
-			Slot s = inventorySlots.inventorySlots.get(o);
-			b.slot(s.xPos - 1, s.yPos - 1);
-		}
-		tex = b.bake();
-	}
-	
 	@Override
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
 	{
@@ -62,9 +43,13 @@ public class GuiFurnaceSmooth extends GuiFurnace
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY)
 	{
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-		UtilsFX.bindTexture("textures/gui/def_widgets.png");
 		
-		tex.render(guiLeft, guiTop);
+		UtilsFX.bindTexture("minecraft", "textures/gui/container/furnace.png");
+        int i = (this.width - this.xSize) / 2;
+        int j = (this.height - this.ySize) / 2;
+        this.drawTexturedModalRect(i, j, 0, 0, this.xSize, this.ySize);
+        
+		UtilsFX.bindTexture("textures/gui/def_widgets.png");
 		
 		int col = GuiTheme.current().slotColor;
 		GL11.glColor4f(ColorHelper.getRed(col), ColorHelper.getGreen(col), ColorHelper.getBlue(col), 1);

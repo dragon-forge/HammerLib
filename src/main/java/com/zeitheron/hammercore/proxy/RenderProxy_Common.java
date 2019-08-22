@@ -18,17 +18,18 @@ public class RenderProxy_Common implements ILoadable
 {
 	public void construct()
 	{
-		
+	}
+	
+	public void loadComplete()
+	{
 	}
 	
 	public void cl_loadOpts(HCClientOptions opts, NBTTagCompound nbt)
 	{
-		
 	}
 	
 	public void cl_saveOpts(HCClientOptions opts, NBTTagCompound nbt)
 	{
-		
 	}
 	
 	public IRenderHelper getRenderHelper()

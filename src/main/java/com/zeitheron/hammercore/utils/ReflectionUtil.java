@@ -6,11 +6,7 @@ import java.lang.reflect.Modifier;
 
 import javax.annotation.Nullable;
 
-/**
- * @deprecated User {@link ReflectionUtil} instead
- */
-@Deprecated
-public class FinalFieldHelper
+public class ReflectionUtil
 {
 	private static Field modifiersField;
 	private static Object reflectionFactory;
@@ -69,5 +65,35 @@ public class FinalFieldHelper
 		}
 		modifiersField.setInt(f, f.getModifiers() & ~Modifier.FINAL);
 		return f;
+	}
+	
+	public static Object getValue(Object object, Class<?> type)
+	{
+		Field field = getField(object.getClass(), type);
+		if(field == null)
+			return null;
+		try
+		{
+			return field.get(object);
+		} catch(Exception e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public static Field getField(Class<?> clazz, Class<?> type)
+	{
+		Field ret = null;
+		for(Field field : clazz.getDeclaredFields())
+		{
+			if(type.isAssignableFrom(field.getType()))
+			{
+				if(ret != null)
+					return null;
+				field.setAccessible(true);
+				ret = field;
+			}
+		}
+		return ret;
 	}
 }

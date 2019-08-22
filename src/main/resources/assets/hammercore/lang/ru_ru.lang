@@ -8,6 +8,13 @@ item.hammercore:manual.name=Инструкция по Hammer Core
 
 ###########
 
+###TILES###
+
+tile.hammercore:iron_bordered_cobblestone.name=Булыжник с железной каймой
+tile.hammercore:gold_bordered_cobblestone.name=Булыжник с золотой каймой
+
+###########
+
 # Definitions
 definition.hammercore:fe.short=ЭФ
 definition.hammercore:fe.long=Энергия Фордж
