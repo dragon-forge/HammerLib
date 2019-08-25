@@ -37,85 +37,36 @@ public class GuiBrewingStandSmooth extends GuiBrewingStand
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY)
 	{
-		GlStateManager.color(1F, 1F, 1F, 1F);
+		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+		UtilsFX.bindTexture("minecraft", "textures/gui/container/brewing_stand.png");
+		int i = (this.width - this.xSize) / 2;
+		int j = (this.height - this.ySize) / 2;
+		this.drawTexturedModalRect(i, j, 0, 0, this.xSize, this.ySize);
+		int k = this.tileBrewingStand.getField(1);
+		float l = MathHelper.clamp((18 * k) / 20F, 0, 18);
 		
-		mc.getTextureManager().bindTexture(BREWING_STAND_GUI_TEXTURE);
+		if(l > 0)
+		{
+			RenderUtil.drawTexturedModalRect(i + 60, j + 44, 176, 29, l, 4);
+		}
 		
-		int i = (width - xSize) / 2;
-		int j = (height - ySize) / 2;
-		double k = bs.getField(1);
-		double l = MathHelper.clamp((18D * k + 20D - 1D) / 20D, 0, 18);
-		
-        this.drawTexturedModalRect(i, j, 0, 0, this.xSize, this.ySize);
-		
-		int i1 = bs.getField(0);
-		
-		UtilsFX.bindTexture("textures/gui/def_widgets.png");
-		
-		int rgb = GuiTheme.CURRENT_THEME.slotCoverLU;
-		GL11.glColor4f(ColorHelper.getRed(rgb), ColorHelper.getGreen(rgb), ColorHelper.getBlue(rgb), 1);
-		drawTexturedModalRect(i + 33, j + 15, 0, 222, 46, 34);
-		
-		rgb = GuiTheme.CURRENT_THEME.slotColor;
-		GL11.glColor4f(ColorHelper.getRed(rgb), ColorHelper.getGreen(rgb), ColorHelper.getBlue(rgb), 1);
-		drawTexturedModalRect(i + 33, j + 15, 46, 222, 46, 34);
-		
-		rgb = GuiTheme.CURRENT_THEME.bodyColor;
-		GL11.glColor4f(ColorHelper.getRed(rgb), ColorHelper.getGreen(rgb), ColorHelper.getBlue(rgb), 1);
-		drawTexturedModalRect(i + 33, j + 15, 92, 222, 46, 34);
-		
-		rgb = GuiTheme.CURRENT_THEME.slotCoverRD;
-		GL11.glColor4f(ColorHelper.getRed(rgb), ColorHelper.getGreen(rgb), ColorHelper.getBlue(rgb), 1);
-		drawTexturedModalRect(i + 18, j + 18, 28, 0, 14, 14);
-		
-		drawTexturedModalRect(i + 60, j + 54, 31, 15, 9, 12);
-		drawTexturedModalRect(i + 83, j + 61, 31, 15, 9, 12);
-		drawTexturedModalRect(i + 106, j + 54, 31, 15, 9, 12);
-		
-		rgb = GuiTheme.CURRENT_THEME.slotCoverRD;
-		GL11.glColor4f(ColorHelper.getRed(rgb), ColorHelper.getGreen(rgb), ColorHelper.getBlue(rgb), 1);
-		RenderUtil.drawTexturedModalRect(i + 72, j + 33, 0, 164, 30, 25);
-		RenderUtil.drawTexturedModalRect(i + 100, j + 17, 48, 195, 7, 26);
-		
-		rgb = GuiTheme.CURRENT_THEME.slotColor;
-		GL11.glColor4f(ColorHelper.getRed(rgb), ColorHelper.getGreen(rgb), ColorHelper.getBlue(rgb), 1);
-		RenderUtil.drawTexturedModalRect(i + 72, j + 33, 30, 164, 30, 25);
-		RenderUtil.drawTexturedModalRect(i + 100, j + 17, 48 + 7, 195, 7, 26);
-		
-		rgb = GuiTheme.CURRENT_THEME.slotCoverLU;
-		GL11.glColor4f(ColorHelper.getRed(rgb), ColorHelper.getGreen(rgb), ColorHelper.getBlue(rgb), 1);
-		RenderUtil.drawTexturedModalRect(i + 72, j + 33, 60, 164, 30, 25);
-		RenderUtil.drawTexturedModalRect(i + 100, j + 17, 48 + 14, 195, 7, 26);
+		int i1 = this.tileBrewingStand.getField(0);
 		
 		if(i1 > 0)
 		{
-			double j1 = (28.0F * (1.0F - i1 / 400.0F));
+			float j1 = 28.0F * (1.0F - (float) i1 / 400.0F);
+			
 			if(j1 > 0)
 			{
-				rgb = GuiTheme.CURRENT_THEME.bodyLayerLU;
-				GL11.glColor4f(ColorHelper.getRed(rgb), ColorHelper.getGreen(rgb), ColorHelper.getBlue(rgb), 1);
-				RenderUtil.drawTexturedModalRect(i + 100, j + 17, 26, 194, 9, j1);
-				
-				rgb = GuiTheme.CURRENT_THEME.bodyLayerRD;
-				GL11.glColor4f(ColorHelper.getRed(rgb), ColorHelper.getGreen(rgb), ColorHelper.getBlue(rgb), 1);
-				RenderUtil.drawTexturedModalRect(i + 102, j + 17, 35, 194, 9, j1);
+				RenderUtil.drawTexturedModalRect(i + 97, j + 16, 176, 0, 9, j1);
 			}
-			j1 = BUBBLELENGTH[i1 / 2 % 7];
+			
+			j1 = (float) BUBBLELENGTH[i1 / 2 % 7];
+			
 			if(j1 > 0)
 			{
-				rgb = GuiTheme.CURRENT_THEME.bodyLayerLU;
-				GL11.glColor4f(ColorHelper.getRed(rgb), ColorHelper.getGreen(rgb), ColorHelper.getBlue(rgb), 1);
-				RenderUtil.drawTexturedModalRect(i + 64, j + 15 + 29 - j1, 11, 194 + 29 - j1, 11, j1);
-				
-				rgb = GuiTheme.CURRENT_THEME.bodyLayerRD;
-				GL11.glColor4f(ColorHelper.getRed(rgb), ColorHelper.getGreen(rgb), ColorHelper.getBlue(rgb), 1);
-				RenderUtil.drawTexturedModalRect(i + 64, j + 15 + 29 - j1, 0, 194 + 29 - j1, 11, j1);
+				RenderUtil.drawTexturedModalRect(i + 63, j + 14 + 29 - j1, 185, 29 - j1, 12, j1);
 			}
 		}
-		
-		GL11.glColor4f(1, 1, 1, 1);
-		mc.getTextureManager().bindTexture(BREWING_STAND_GUI_TEXTURE);
-		if(l > 0)
-			RenderUtil.drawTexturedModalRect(i + 60, j + 44, 176, 29, l, 4);
 	}
 }

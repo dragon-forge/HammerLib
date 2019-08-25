@@ -754,7 +754,7 @@ public class RenderProxy_Client extends RenderProxy_Common implements IEnchantme
 		ForgeRegistries.BLOCKS.getValuesCollection().stream() //
 		        .filter(b -> b instanceof IBlockConnectable) //
 		        .flatMap(c -> c.getBlockState().getValidStates().stream()) //
-		        .forEach(state -> bakedModelStore.putConstant(state, new BakedConnectModel(state)));
+		        .forEach(state -> bakedModelStore.putConstant(state, ((IBlockConnectable) state.getBlock()).getConnectTextureVersion().create(state)));
 		
 		Field modelMap = ReflectionUtil.getField(BlockModelShapes.class, Map.class);
 		bakedModelStore.clear();

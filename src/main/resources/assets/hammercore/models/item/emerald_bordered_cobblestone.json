@@ -1,0 +1,6 @@
+{
+	"parent": "block/cube_all",
+	"textures": {
+		"all": "hammercore:blocks/emerald_bordered_cobblestone"
+	}
+}

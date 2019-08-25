@@ -12,6 +12,8 @@ item.hammercore:manual.name=Инструкция по Hammer Core
 
 tile.hammercore:iron_bordered_cobblestone.name=Булыжник с железной каймой
 tile.hammercore:gold_bordered_cobblestone.name=Булыжник с золотой каймой
+tile.hammercore:diamond_bordered_cobblestone.name=Булыжник с алмазной каймой
+tile.hammercore:emerald_bordered_cobblestone.name=Булыжник с изумрудной каймой
 
 ###########
 
