@@ -96,4 +96,31 @@ public class ReflectionUtil
 		}
 		return ret;
 	}
+	
+	public static Field getField(Class<?> clazz, String name)
+	{
+		Field ret = null;
+		for(Field field : clazz.getDeclaredFields())
+		{
+			if(name.equals(field.getName()))
+			{
+				if(ret != null)
+					return null;
+				field.setAccessible(true);
+				ret = field;
+			}
+		}
+		return ret;
+	}
+	
+	public static Class<?> getCaller()
+	{
+		try
+		{
+			return Class.forName(Thread.currentThread().getStackTrace()[1].getClassName());
+		} catch(ClassNotFoundException e)
+		{
+			return null;
+		}
+	}
 }

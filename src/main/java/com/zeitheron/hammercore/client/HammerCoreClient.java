@@ -3,8 +3,6 @@ package com.zeitheron.hammercore.client;
 import java.io.ByteArrayInputStream;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,11 +10,15 @@ import com.zeitheron.hammercore.event.client.ClientLoadedInEvent;
 import com.zeitheron.hammercore.net.HCNet;
 import com.zeitheron.hammercore.net.internal.PacketPing;
 import com.zeitheron.hammercore.net.internal.PacketPlayerReady;
+import com.zeitheron.hammercore.proxy.RenderProxy_Client;
+import com.zeitheron.hammercore.utils.ReflectionUtil;
 
+import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.resources.IResourcePack;
 import net.minecraft.client.resources.Locale;
+import net.minecraft.client.resources.data.MetadataSerializer;
 import net.minecraft.util.text.translation.LanguageMap;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -35,6 +37,24 @@ public class HammerCoreClient
 	public static void runPingTest()
 	{
 		HCNet.INSTANCE.sendToServer(new PacketPing(System.currentTimeMillis()));
+	}
+	
+	public static MetadataSerializer getMetadataSerializer()
+	{
+		Field mds = ReflectionUtil.getField(Minecraft.class, MetadataSerializer.class);
+		try
+		{
+			return MetadataSerializer.class.cast(mds.get(Minecraft.getMinecraft()));
+		} catch(IllegalArgumentException | IllegalAccessException e)
+		{
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public static void emptyBlockState(Block block)
+	{
+		RenderProxy_Client.EMP.empty(block);
 	}
 	
 	int pingTimer = 40;
@@ -84,6 +104,27 @@ public class HammerCoreClient
 			resourcePackList.setAccessible(true);
 			List<IResourcePack> rps = (List<IResourcePack>) resourcePackList.get(FMLClientHandler.instance());
 			rps.add(3, pack);
+		} catch(ReflectiveOperationException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Call during construction to allow your mod attach builtin resources to
+	 * the game.
+	 * 
+	 * @param pack
+	 *            The resource pack to inject.
+	 */
+	public static void injectResourcePackLast(IResourcePack pack)
+	{
+		try
+		{
+			Field resourcePackList = FMLClientHandler.class.getDeclaredField("resourcePackList");
+			resourcePackList.setAccessible(true);
+			List<IResourcePack> rps = (List<IResourcePack>) resourcePackList.get(FMLClientHandler.instance());
+			rps.add(pack);
 		} catch(ReflectiveOperationException e)
 		{
 			e.printStackTrace();

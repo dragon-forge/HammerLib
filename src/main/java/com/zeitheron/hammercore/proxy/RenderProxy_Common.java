@@ -5,6 +5,7 @@ import com.zeitheron.hammercore.client.utils.IRenderHelper;
 import com.zeitheron.hammercore.net.PacketContext;
 import com.zeitheron.hammercore.utils.ILoadable;
 
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
@@ -67,6 +68,9 @@ public class RenderProxy_Common implements ILoadable
 	
 	public void bindTexture(ResourceLocation texture)
 	{
-		
+	}
+	
+	public void noModel(Block blk)
+	{
 	}
 }

@@ -13,7 +13,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -33,6 +32,7 @@ import com.zeitheron.hammercore.HammerCore;
 import com.zeitheron.hammercore.ServerHCClientPlayerData;
 import com.zeitheron.hammercore.TooltipAPI;
 import com.zeitheron.hammercore.annotations.AtTESR;
+import com.zeitheron.hammercore.api.inconnect.EmptyModelPack;
 import com.zeitheron.hammercore.api.inconnect.IBlockConnectable;
 import com.zeitheron.hammercore.api.inconnect.InConnectAPI;
 import com.zeitheron.hammercore.cfg.HammerCoreConfigs;
@@ -41,7 +41,6 @@ import com.zeitheron.hammercore.client.HammerCoreClient;
 import com.zeitheron.hammercore.client.PerUserModule;
 import com.zeitheron.hammercore.client.gui.impl.GuiPersonalisation;
 import com.zeitheron.hammercore.client.model.HasNoModel;
-import com.zeitheron.hammercore.client.model.mc.BakedConnectModel;
 import com.zeitheron.hammercore.client.particle.RenderHelperImpl;
 import com.zeitheron.hammercore.client.render.Render3D;
 import com.zeitheron.hammercore.client.render.item.TileEntityItemStackRendererHC;
@@ -74,6 +73,7 @@ import com.zeitheron.hammercore.utils.WorldUtil;
 import com.zeitheron.hammercore.utils.color.ColorHelper;
 
 import net.minecraft.block.state.BlockStateContainer.StateImplementation;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
@@ -126,6 +126,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class RenderProxy_Client extends RenderProxy_Common implements IEnchantmentColorManager
 {
+	public static final EmptyModelPack EMP = new EmptyModelPack();
 	public final EntityTooltipRenderEngine tooltipEngine = new EntityTooltipRenderEngine();
 	
 	public static final KeyBinding BIND_RENDER = new KeyBinding("keybind.hammercorerenderstack", KeyConflictContext.GUI, Keyboard.KEY_NUMPAD6, "key.categories.inventory");
@@ -151,6 +152,8 @@ public class RenderProxy_Client extends RenderProxy_Common implements IEnchantme
 		MinecraftForge.EVENT_BUS.register(Stack2ImageRenderer.INSTANCE);
 		
 		TextureFXManager.INSTANCE.preInit();
+		
+		HammerCoreClient.injectResourcePackLast(EMP);
 	}
 	
 	@Override
@@ -771,10 +774,16 @@ public class RenderProxy_Client extends RenderProxy_Common implements IEnchantme
 	public void textureStitch(TextureStitchEvent.Pre e)
 	{
 		TextureMap txMap = e.getMap();
-		
 		ForgeRegistries.BLOCKS.getValuesCollection().stream() //
 		        .filter(b -> b instanceof IBlockConnectable) //
 		        .map(IBlockConnectable.class::cast) //
-		        .forEach(c -> txMap.registerSprite(c.getTxMap()));
+		        .flatMap(IBlockConnectable::getSprites) //
+		        .forEach(txMap::registerSprite);
+	}
+	
+	@Override
+	public void noModel(Block blk)
+	{
+		HammerCoreClient.emptyBlockState(blk);
 	}
 }

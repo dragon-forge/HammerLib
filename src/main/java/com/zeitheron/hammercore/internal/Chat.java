@@ -31,6 +31,11 @@ public class Chat
 		return sendMessageTo(p -> p != null, text);
 	}
 	
+	public static void sendMessageAll(ITextComponent text, ChatFingerprint print)
+	{
+		sendMessageTo(p -> p != null, text, print);
+	}
+	
 	public static void editMessageForAll(ITextComponent text, ChatFingerprint print)
 	{
 		editMessageFor(p -> p != null, text, print);
@@ -46,10 +51,15 @@ public class Chat
 	public static ChatFingerprint sendMessageTo(Predicate<EntityPlayerMP> player, ITextComponent text)
 	{
 		ChatFingerprint print = new ChatFingerprint();
+		sendMessageTo(player, text, print);
+		return print;
+	}
+	
+	public static void sendMessageTo(Predicate<EntityPlayerMP> player, ITextComponent text, ChatFingerprint print)
+	{
 		MinecraftServer mcs = FMLCommonHandler.instance().getMinecraftServerInstance();
 		if(mcs != null)
 			mcs.getPlayerList().getPlayers().stream().filter(player).forEach(mp -> HCNet.INSTANCE.sendTo(new PacketSendMessage().withPrint(print).withText(text), mp));
-		return print;
 	}
 	
 	public static void editMessageFor(Predicate<EntityPlayerMP> player, ITextComponent text, ChatFingerprint print)
@@ -170,6 +180,7 @@ public class Chat
 			this.lineComponent = lineComponent;
 		}
 		
+		@SideOnly(Side.CLIENT)
 		public static List<ChatLine> getChatLines()
 		{
 			Field field = GuiNewChat.class.getDeclaredFields()[3];
@@ -184,12 +195,14 @@ public class Chat
 			}
 		}
 		
+		@SideOnly(Side.CLIENT)
 		public static void deleteChatLine(ChatLine line)
 		{
 			Minecraft.getMinecraft().ingameGUI.getChatGUI().drawnChatLines.remove(line);
 			getChatLines().remove(line);
 		}
 		
+		@SideOnly(Side.CLIENT)
 		public void add()
 		{
 			getChatLines().add(0, this);

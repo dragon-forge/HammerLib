@@ -31,6 +31,9 @@ public class HammerCoreConfigs implements IConfigReloadListener
 	@ModConfigPropertyBool(name = "Always Spawn Dragon Egg", category = "Vanilla Improvements", defaultValue = true, comment = "Should Hammer Core force-spawn Ender Dragon Egg on Ender Dragon death?")
 	public static boolean vanilla_alwaysSpawnDragonEggs = true;
 	
+	@ModConfigPropertyBool(name = "Register Connected Blocks", category = "Hammer Core", defaultValue = true, comment = "Should Hammer Core register connected blocks?")
+	public static boolean hc_registerConnectedBlocks = true;
+	
 	public static int iwr_green, iwr_red;
 	
 	public static Configuration cfg;

@@ -4,6 +4,7 @@ import java.io.File;
 
 import com.zeitheron.hammercore.HammerCore;
 import com.zeitheron.hammercore.net.PacketContext;
+import com.zeitheron.hammercore.utils.base.Cast;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -24,11 +25,10 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 
 public class WorldUtil
 {
+	@Deprecated
 	public static <T> T cast(Object obj, Class<T> to)
 	{
-		if(obj != null && to.isAssignableFrom(obj.getClass()))
-			return (T) obj;
-		return null;
+		return Cast.cast(obj, to);
 	}
 	
 	public static int getMoonPhase(World world)

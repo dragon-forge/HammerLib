@@ -201,10 +201,10 @@ public class HammerCore
 	{
 		LOG.warn("*****************************");
 		LOG.warn("WARNING: Somebody has been tampering with HammerCore jar!");
-		LOG.warn("It is highly recommended that you redownload mod from https://minecraft.curseforge.com/projects/247401 !");
+		LOG.warn("It is highly recommended that you redownload mod from https://www.curseforge.com/projects/247401 !");
 		LOG.warn("*****************************");
 		invalidCertificate = true;
-		invalidCertificates.put("hammercore", "https://minecraft.curseforge.com/projects/247401");
+		invalidCertificates.put("hammercore", "https://www.curseforge.com/projects/247401");
 	}
 	
 	@EventHandler

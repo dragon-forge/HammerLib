@@ -1,5 +1,11 @@
 package com.zeitheron.hammercore.utils;
 
+import java.util.concurrent.atomic.AtomicReference;
+
+/**
+ * @deprecated use {@link AtomicReference} instead.
+ */
+@Deprecated
 public class DynamicObject<OBJ>
 {
 	private OBJ obj;

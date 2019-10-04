@@ -7,22 +7,25 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.google.common.collect.Maps;
+import com.zeitheron.hammercore.HammerCore;
+import com.zeitheron.hammercore.annotations.PreRegisterHook;
 import com.zeitheron.hammercore.annotations.RecipeRegister;
+import com.zeitheron.hammercore.annotations.RegisterIf;
 import com.zeitheron.hammercore.api.INoItemBlock;
 import com.zeitheron.hammercore.api.ITileBlock;
+import com.zeitheron.hammercore.api.blocks.INoBlockstate;
 import com.zeitheron.hammercore.api.multipart.BlockMultipartProvider;
 import com.zeitheron.hammercore.internal.blocks.IItemBlock;
 import com.zeitheron.hammercore.internal.init.ItemsHC;
 import com.zeitheron.hammercore.utils.IRegisterListener;
+import com.zeitheron.hammercore.utils.ReflectionUtil;
 import com.zeitheron.hammercore.utils.SoundObject;
-import com.zeitheron.hammercore.utils.WorldUtil;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
@@ -36,7 +39,6 @@ import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraft.item.crafting.ShapelessRecipes;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
@@ -164,9 +166,22 @@ public class SimpleRegistration
 	
 	public static void registerFieldItemsFrom(Class<?> owner, String modid, CreativeTabs tab)
 	{
+		for(Method m : owner.getDeclaredMethods())
+			if(m.getAnnotation(PreRegisterHook.class) != null && m.getParameterCount() == 0 && Modifier.isStatic(m.getModifiers()))
+			{
+				m.setAccessible(true);
+				try
+				{
+					m.invoke(null);
+				} catch(IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		
 		Field[] fs = owner.getDeclaredFields();
 		for(Field f : fs)
-			if(Item.class.isAssignableFrom(f.getType()))
+			if(Item.class.isAssignableFrom(f.getType()) && doRegister(f))
 				try
 				{
 					f.setAccessible(true);
@@ -176,11 +191,32 @@ public class SimpleRegistration
 				}
 	}
 	
+	public static void disableIf(boolean statement, Object instance)
+	{
+		if(statement)
+			for(Field f : ReflectionUtil.getCaller().getDeclaredFields())
+				if(Modifier.isStatic(f.getModifiers()))
+					ReflectionUtil.setStaticFinalField(f, null);
+	}
+	
 	public static void registerFieldBlocksFrom(Class<?> owner, String modid, CreativeTabs tab)
 	{
+		for(Method m : owner.getDeclaredMethods())
+			if(m.getAnnotation(PreRegisterHook.class) != null && m.getParameterCount() == 0 && Modifier.isStatic(m.getModifiers()))
+			{
+				m.setAccessible(true);
+				try
+				{
+					m.invoke(null);
+				} catch(IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		
 		Field[] fs = owner.getDeclaredFields();
 		for(Field f : fs)
-			if(Block.class.isAssignableFrom(f.getType()))
+			if(Block.class.isAssignableFrom(f.getType()) && doRegister(f))
 				try
 				{
 					f.setAccessible(true);
@@ -192,9 +228,22 @@ public class SimpleRegistration
 	
 	public static void registerFieldSoundsFrom(Class<?> owner)
 	{
+		for(Method m : owner.getDeclaredMethods())
+			if(m.getAnnotation(PreRegisterHook.class) != null && m.getParameterCount() == 0 && Modifier.isStatic(m.getModifiers()))
+			{
+				m.setAccessible(true);
+				try
+				{
+					m.invoke(null);
+				} catch(IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		
 		Field[] fs = owner.getDeclaredFields();
 		for(Field f : fs)
-			if(SoundObject.class.isAssignableFrom(f.getType()))
+			if(SoundObject.class.isAssignableFrom(f.getType()) && doRegister(f))
 				try
 				{
 					f.setAccessible(true);
@@ -202,6 +251,27 @@ public class SimpleRegistration
 				} catch(Throwable err)
 				{
 				}
+	}
+	
+	public static boolean doRegister(Field f)
+	{
+		RegisterIf statement = f.getAnnotation(RegisterIf.class);
+		if(statement != null)
+		{
+			String parse = statement.value();
+			int i;
+			String cls = parse.substring(0, i = parse.lastIndexOf('.'));
+			String fld = parse.substring(i + 1);
+			try
+			{
+				boolean value = ReflectionUtil.getField(Class.forName(cls), fld).getBoolean(null);
+				return statement.invert() ? !value : value;
+			} catch(IllegalArgumentException | IllegalAccessException | ClassNotFoundException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		return true;
 	}
 	
 	/**
@@ -228,7 +298,6 @@ public class SimpleRegistration
 		ForgeRegistries.ITEMS.register(item);
 		if(item instanceof IRegisterListener)
 			((IRegisterListener) item).onRegistered();
-		
 		ItemsHC.items.add(item);
 	}
 	
@@ -253,10 +322,17 @@ public class SimpleRegistration
 		block.setRegistryName(modid, name);
 		ForgeRegistries.BLOCKS.register(block);
 		if(!(block instanceof INoItemBlock))
+		{
 			ForgeRegistries.ITEMS.register(ib.setRegistryName(block.getRegistryName()));
+			if(ib instanceof IRegisterListener)
+				((IRegisterListener) ib).onRegistered();
+		}
 		
 		if(block instanceof IRegisterListener)
 			((IRegisterListener) block).onRegistered();
+		
+		if(block instanceof INoBlockstate)
+			HammerCore.renderProxy.noModel(block);
 		
 		if(block instanceof ITileBlock)
 		{

@@ -2,6 +2,7 @@ package com.zeitheron.hammercore.internal.blocks;
 
 import com.zeitheron.hammercore.api.INoItemBlock;
 import com.zeitheron.hammercore.api.ITileBlock;
+import com.zeitheron.hammercore.api.blocks.INoBlockstate;
 import com.zeitheron.hammercore.event.LyingItemPickedUpEvent;
 import com.zeitheron.hammercore.internal.init.BlocksHC;
 import com.zeitheron.hammercore.tile.TileLyingItem;
@@ -27,7 +28,7 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 
-public class BlockLyingItem extends Block implements ITileEntityProvider, ITileBlock<TileLyingItem>, INoItemBlock
+public class BlockLyingItem extends Block implements ITileEntityProvider, ITileBlock<TileLyingItem>, INoItemBlock, INoBlockstate
 {
 	public BlockLyingItem()
 	{

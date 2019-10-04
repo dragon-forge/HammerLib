@@ -6,23 +6,19 @@ public interface IWittyComment
 {
 	String get();
 	
-	public static IWittyComment ofStatic(String text)
+	static IWittyComment ofStatic(String text)
 	{
 		return () -> text;
 	}
 	
-	public static IWittyComment translated(String text, Object... parameters)
+	static IWittyComment translated(String text, Object... parameters)
 	{
 		return () -> I18n.format(text, parameters);
 	}
 	
-	public static IWittyComment delayed(long ms, String... lines)
+	static IWittyComment delayed(long ms, String... lines)
 	{
 		final long frs = ms * lines.length;
-		return () ->
-		{
-			int c = (int) ((System.currentTimeMillis() % frs) / ms);
-			return lines[c];
-		};
+		return () -> lines[(int) ((System.currentTimeMillis() % frs) / ms)];
 	}
 }

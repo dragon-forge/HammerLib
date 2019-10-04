@@ -2,8 +2,6 @@ package com.zeitheron.hammercore.asm;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.ListIterator;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
@@ -189,9 +187,23 @@ public class HammerCoreTransformer implements IClassTransformer
 		}, "Patching EntityLivingBase", cv("net.minecraft.entity.EntityLivingBase"));
 	}
 	
+	final GlASM gl = new GlASM(asm);
+	
 	@Override
 	public byte[] transform(String name, String transformedName, byte[] basicClass)
 	{
+		if(transformedName.equals("net.minecraft.client.renderer.ChunkRenderContainer"))
+			return gl.patchRenderChunkASM(name, basicClass, name.compareTo(transformedName) != 0, transformedName);
+		if(transformedName.equals("net.minecraft.client.renderer.entity.RenderManager"))
+			return gl.patchRenderManagerASM(name, basicClass, name.compareTo(transformedName) != 0, transformedName);
+		if(transformedName.equals("net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher"))
+			return gl.patchTERendererASM(name, basicClass, name.compareTo(transformedName) != 0, transformedName);
+		if(transformedName.equals("net.minecraft.client.renderer.GlStateManager"))
+			return gl.patchGlStateManagerASM(name, basicClass, name.compareTo(transformedName) != 0, transformedName);
+		if(transformedName.equals("net.minecraft.profiler.Profiler"))
+			return gl.patchProfilerASM(name, basicClass, name.compareTo(transformedName) != 0, transformedName);
+		if(transformedName.compareTo("net.minecraftforge.client.ForgeHooksClient") == 0)
+			return gl.patchForgeHooksASM(name, basicClass, name.compareTo(transformedName) != 0, transformedName);
 		return asm.transform(name, transformedName, basicClass);
 	}
 	

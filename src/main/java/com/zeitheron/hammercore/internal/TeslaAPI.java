@@ -6,6 +6,10 @@ import java.util.List;
 
 import net.minecraft.tileentity.TileEntity;
 
+/**
+ * @deprecated Tesla has been dead not supported.
+ */
+@Deprecated
 public class TeslaAPI
 {
 	public static Class ITeslaConsumer = teslaClassExists("ITeslaConsumer");

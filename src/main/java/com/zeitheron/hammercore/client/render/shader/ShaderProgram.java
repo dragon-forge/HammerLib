@@ -1,20 +1,6 @@
 package com.zeitheron.hammercore.client.render.shader;
 
-import static org.lwjgl.opengl.ARBShaderObjects.GL_OBJECT_COMPILE_STATUS_ARB;
-import static org.lwjgl.opengl.ARBShaderObjects.GL_OBJECT_INFO_LOG_LENGTH_ARB;
-import static org.lwjgl.opengl.ARBShaderObjects.GL_OBJECT_LINK_STATUS_ARB;
-import static org.lwjgl.opengl.ARBShaderObjects.GL_OBJECT_VALIDATE_STATUS_ARB;
-import static org.lwjgl.opengl.ARBShaderObjects.glAttachObjectARB;
-import static org.lwjgl.opengl.ARBShaderObjects.glCompileShaderARB;
-import static org.lwjgl.opengl.ARBShaderObjects.glCreateProgramObjectARB;
-import static org.lwjgl.opengl.ARBShaderObjects.glCreateShaderObjectARB;
-import static org.lwjgl.opengl.ARBShaderObjects.glDeleteObjectARB;
-import static org.lwjgl.opengl.ARBShaderObjects.glGetInfoLogARB;
-import static org.lwjgl.opengl.ARBShaderObjects.glGetObjectParameteriARB;
-import static org.lwjgl.opengl.ARBShaderObjects.glLinkProgramARB;
-import static org.lwjgl.opengl.ARBShaderObjects.glShaderSourceARB;
-import static org.lwjgl.opengl.ARBShaderObjects.glUseProgramObjectARB;
-import static org.lwjgl.opengl.ARBShaderObjects.glValidateProgramARB;
+import static org.lwjgl.opengl.ARBShaderObjects.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -30,7 +16,6 @@ import org.lwjgl.util.vector.Matrix4f;
 
 public class ShaderProgram
 {
-	
 	private int programID;
 	public HCShaderPipeline pipeline = new HCShaderPipeline(this);
 	private ArrayList<IShaderOperation> ops = new ArrayList<>();
@@ -39,9 +24,7 @@ public class ShaderProgram
 	{
 		programID = glCreateProgramObjectARB();
 		if(programID == 0)
-		{
 			throw new RuntimeException("Unable to allocate shader program object.");
-		}
 	}
 	
 	public void attachShaderOperation(IShaderOperation operation)
@@ -79,7 +62,6 @@ public class ShaderProgram
 	{
 		pipeline.reset();
 		pipeline.setPipeline(ops);
-		
 		bindShader();
 		pipeline.operate();
 		unbindShader();
@@ -99,28 +81,21 @@ public class ShaderProgram
 	{
 		InputStream stream = ShaderProgram.class.getResourceAsStream(resource);
 		if(stream == null)
-		{
 			throw new RuntimeException("Unable to locate resource: " + resource);
-		}
-		
 		return attach(shaderType, stream);
 	}
 	
 	public ShaderProgram attach(int shaderType, InputStream stream)
 	{
 		if(stream == null)
-		{
 			throw new RuntimeException("Invalid shader inputstream");
-		}
 		
 		int shaderID = 0;
 		try
 		{
 			shaderID = glCreateShaderObjectARB(shaderType);
 			if(shaderID == 0)
-			{
 				throw new RuntimeException("Unable to allocate shader object.");
-			}
 			
 			try
 			{
@@ -132,9 +107,7 @@ public class ShaderProgram
 			
 			glCompileShaderARB(shaderID);
 			if(glGetObjectParameteriARB(shaderID, GL_OBJECT_COMPILE_STATUS_ARB) == GL11.GL_FALSE)
-			{
 				throw new RuntimeException("Error compiling shader: " + getInfoLog(shaderID));
-			}
 			
 			glAttachObjectARB(programID, shaderID);
 		} catch(RuntimeException e)
@@ -154,15 +127,10 @@ public class ShaderProgram
 	{
 		glLinkProgramARB(programID);
 		if(glGetObjectParameteriARB(programID, GL_OBJECT_LINK_STATUS_ARB) == GL11.GL_FALSE)
-		{
 			throw new RuntimeException("Error linking program: " + getInfoLog(programID));
-		}
-		
 		glValidateProgramARB(programID);
 		if(glGetObjectParameteriARB(programID, GL_OBJECT_VALIDATE_STATUS_ARB) == GL11.GL_FALSE)
-		{
 			throw new RuntimeException("Error validating program: " + getInfoLog(programID));
-		}
 		return this;
 	}
 	

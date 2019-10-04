@@ -20,24 +20,7 @@ class CrashUtil implements ICrashCallable
 	{
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append("FluidDictionary Info: Registered " + FluidDictionary.getFluidNames().length + " fluids.\n");
-		
-		int items = 0;
-		for(String name : OreDictionary.getOreNames())
-			items += OreDictionary.getOres(name).size();
-		sb.append("OreDictionary Info: Registered " + OreDictionary.getOreNames().length + " names; " + items + " stacks.\n");
-		
-		sb.append("Pastebin Connection: ");
-		try
-		{
-			String text = HttpRequest.get("https://pastebin.com/raw/ZQaapJ54").connectTimeout(500).body();
-			if(!text.startsWith("["))
-				sb.append("Failed!");
-			sb.append("Okay.\n");
-		} catch(Throwable err)
-		{
-			sb.append("Failed!\n");
-		}
+		sb.append("\n");
 		
 		sb.append("Dependent Mods:");
 		
@@ -50,7 +33,6 @@ class CrashUtil implements ICrashCallable
 					++f;
 					continue withMods;
 				}
-		
 		if(f == 0)
 			sb.append(" None.");
 		
@@ -62,6 +44,6 @@ class CrashUtil implements ICrashCallable
 	@Override
 	public String getLabel()
 	{
-		return "Hammer Core Information";
+		return "HammerCore Debug Information";
 	}
 }

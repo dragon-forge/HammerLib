@@ -7,11 +7,13 @@ import java.util.Random;
 import com.zeitheron.hammercore.HammerCore;
 import com.zeitheron.hammercore.api.INoItemBlock;
 import com.zeitheron.hammercore.api.ITileBlock;
+import com.zeitheron.hammercore.api.blocks.INoBlockstate;
 import com.zeitheron.hammercore.api.mhb.BlockTraceable;
 import com.zeitheron.hammercore.api.mhb.ICubeManager;
 import com.zeitheron.hammercore.api.multipart.ItemBlockMultipartProvider;
 import com.zeitheron.hammercore.api.multipart.MultipartSignature;
 import com.zeitheron.hammercore.utils.WorldUtil;
+import com.zeitheron.hammercore.utils.base.Cast;
 import com.zeitheron.hammercore.utils.math.vec.Cuboid6;
 
 import net.minecraft.block.ITileEntityProvider;
@@ -43,7 +45,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class BlockMultipart extends BlockTraceable implements ITileEntityProvider, ICubeManager, INoItemBlock, ITileBlock<TileMultipart>
+public class BlockMultipart extends BlockTraceable implements ITileEntityProvider, ICubeManager, INoItemBlock, ITileBlock<TileMultipart>, INoBlockstate
 {
 	private static final Cuboid6[] EMPTY_CUBOID_ARRAY = new Cuboid6[0];
 	
@@ -63,7 +65,7 @@ public class BlockMultipart extends BlockTraceable implements ITileEntityProvide
 	@Override
 	public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player)
 	{
-		TileMultipart tmp = WorldUtil.cast(world.getTileEntity(pos), TileMultipart.class);
+		TileMultipart tmp = Cast.cast(world.getTileEntity(pos));
 		Cuboid6 cbd = getCuboidFromPlayer(player, pos);
 		
 		if(tmp != null && cbd != null)
