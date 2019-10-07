@@ -116,7 +116,7 @@ public class ItemColorHelper
 				}
 	}
 	
-	public static int getCustomColor()
+	public static int getCustomColor(int prev)
 	{
 		if(!(target.getItem() instanceof ICustomEnchantColorItem))
 		{
@@ -132,14 +132,14 @@ public class ItemColorHelper
 			}
 		}
 		
-		return getColorFromStack(target);
+		return getColorFromStack(target, prev);
 	}
 	
-	public static int getColorFromStack(ItemStack stack)
+	public static int getColorFromStack(ItemStack stack, int prev)
 	{
 		if(stack.isEmpty())
-			return DEFAULT_GLINT_COLOR;
-		int retColor = DEFAULT_GLINT_COLOR;
+			return prev;
+		int retColor = prev;
 		boolean truncate = true;
 		
 		if(stack.getItem() instanceof ICustomEnchantColorItem)

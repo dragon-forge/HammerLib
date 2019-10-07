@@ -65,10 +65,7 @@ public class HammerCoreTransformer implements IClassTransformer
 					
 					if(n.getOpcode() == 18 && ((LdcInsnNode) n).cst.equals(-8372020))
 					{
-						InsnList newInstructions = new InsnList();
-						newInstructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/zeitheron/hammercore/client/utils/ItemColorHelper", "getCustomColor", "()I", false));
-						insn.insertBefore(n, newInstructions);
-						insn.remove(n);
+						insn.insert(n, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/zeitheron/hammercore/client/utils/ItemColorHelper", "getCustomColor", "(I)I", false));
 						worked = true;
 					}
 				}
@@ -129,44 +126,6 @@ public class HammerCoreTransformer implements IClassTransformer
 			}
 		}, "Patching ForgeHooksClient", cv("net.minecraftforge.client.ForgeHooksClient"));
 		
-		// Apparently Forge now has this feature. I'll leave this here just in
-		// case users use old Forge (that didn't add this feature)
-		hook((node, obf) ->
-		{
-			MethodSignature fillWithLoot = new MethodSignature("fillWithLoot", "func_184281_d", "d", "(Lnet/minecraft/entity/player/EntityPlayer;)V");
-			
-			for(int i = 0; i < node.methods.size(); ++i)
-			{
-				MethodNode mn = node.methods.get(i);
-				
-				if(fillWithLoot.isThisMethod(mn))
-				{
-					String desc = "(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/EntityPlayer;)V";
-					if(obf)
-						desc = MethodSignature.obfuscate(desc);
-					InsnList fwl = mn.instructions;
-					
-					MethodInsnNode nd = fwl.get(62) instanceof MethodInsnNode ? (MethodInsnNode) fwl.get(62) : null;
-					
-					if(nd != null)
-					{
-						InsnList list = new InsnList();
-						
-						MethodInsnNode nnnd;
-						list.add(new VarInsnNode(Opcodes.ALOAD, 4));
-						list.add(new VarInsnNode(Opcodes.ALOAD, 1));
-						String dsc = obf ? fillWithLoot.obfDesc : fillWithLoot.funcDesc;
-						dsc = dsc.substring(0, dsc.length() - 2) + ")L" + nd.owner + ";";
-						list.add(nnnd = new MethodInsnNode(Opcodes.INVOKEVIRTUAL, nd.owner, obf ? "a" : "withPlayer", dsc, false));
-						list.add(new InsnNode(Opcodes.POP));
-						fwl.insertBefore(fwl.get(64), list);
-					}
-					
-					asm.info("Modified method 'fillWithLoot': added 'withPlayer(player)' after 'withLuck(player.getLuck())'");
-				}
-			}
-		}, "Patching TileEntityLockableLoot", cv("net.minecraft.tileentity.TileEntityLockableLoot"));
-		
 		hook((node, obf) ->
 		{
 			MethodSignature onItemUseFinish = new MethodSignature("onItemUseFinish", "func_71036_o", "v", "()V");
@@ -185,6 +144,30 @@ public class HammerCoreTransformer implements IClassTransformer
 				}
 			}
 		}, "Patching EntityLivingBase", cv("net.minecraft.entity.EntityLivingBase"));
+		
+		hook((node, obf) ->
+		{
+			for(MethodNode mn : node.methods)
+				if((mn.name.equals("postRenderBlocks") || mn.name.equals("func_178584_a") || mn.name.equals("a")) && mn.desc.startsWith("(L") && mn.desc.contains(";FFFL") && mn.desc.endsWith(";)V"))
+				{
+					InsnList insns = new InsnList();
+					
+					insns.add(new VarInsnNode(Opcodes.ALOAD, 0));
+					insns.add(new VarInsnNode(Opcodes.ALOAD, 1));
+					insns.add(new VarInsnNode(Opcodes.FLOAD, 2));
+					insns.add(new VarInsnNode(Opcodes.FLOAD, 3));
+					insns.add(new VarInsnNode(Opcodes.FLOAD, 4));
+					insns.add(new VarInsnNode(Opcodes.ALOAD, 5));
+					insns.add(new VarInsnNode(Opcodes.ALOAD, 6));
+					
+					System.out.println("set desc: "  + mn.desc.replaceFirst("[(L]", "(L" + node.name + ";"));
+					insns.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/zeitheron/hammercore/asm/McHooks", "postRenderChunk", mn.desc.replaceFirst("[(L]", "(L" + node.name + ";"), false));
+					
+					mn.instructions.insert(insns);
+					
+					asm.info("Modified method 'postRenderChunk': added event call.");
+				}
+		}, "Patching RenderChunk", cv("net.minecraft.client.renderer.chunk.RenderChunk"));
 	}
 	
 	final GlASM gl = new GlASM(asm);
