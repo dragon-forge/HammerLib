@@ -16,6 +16,8 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
+import com.zeitheron.hammercore.asm.HammerCoreTransformer.MethodSignature;
+
 public class GlASM
 {
 	final TransformerSystem asm;
@@ -35,7 +37,7 @@ public class GlASM
 		if(obfuscated)
 		{
 			targetMethod = "handleCameraTransforms";
-			transformTypeName = "Lnet/minecraft/client/renderer/block/model/ItemCameraTransforms$TransformType;";
+			transformTypeName = "Lbwc$b;";
 		} else
 		{
 			targetMethod = "handleCameraTransforms";
@@ -87,20 +89,14 @@ public class GlASM
 		
 		String enableLighting = "";
 		String disableLighting = "";
-		String enableFog = "";
-		String disableFog = "";
 		if(obfuscated)
 		{
 			enableLighting = "func_179145_e";
 			disableLighting = "func_179140_f";
-			enableFog = "func_179127_m";
-			disableFog = "func_179106_n";
 		} else
 		{
 			enableLighting = "enableLighting";
 			disableLighting = "disableLighting";
-			enableFog = "enableFog";
-			disableFog = "disableFog";
 		}
 		
 		ClassNode classNode = new ClassNode();
@@ -111,14 +107,16 @@ public class GlASM
 		
 		for(MethodNode m : methods)
 		{
-			if(m.name.compareTo(enableLighting) == 0)
+			if(m.desc.compareTo("()V") != 0)
+				continue;
+			if(m.name.compareTo(enableLighting) == 0 || m.name.compareTo("e") == 0)
 			{
 				InsnList code = m.instructions;
 				MethodInsnNode method = new MethodInsnNode(Opcodes.INVOKESTATIC, "com/zeitheron/hammercore/asm/McHooks", "enableLighting", "()V", false);
 				code.insertBefore(code.get(2), method);
 				asm.info("Patched enableLighting!");
 			}
-			if(m.name.compareTo(disableLighting) == 0)
+			if(m.name.compareTo(disableLighting) == 0 || m.name.compareTo("f") == 0)
 			{
 				InsnList code = m.instructions;
 				MethodInsnNode method = new MethodInsnNode(Opcodes.INVOKESTATIC, "com/zeitheron/hammercore/asm/McHooks", "disableLighting", "()V", false);
@@ -143,9 +141,9 @@ public class GlASM
 		String targetDesc = "";
 		if(obfuscated)
 		{
-			targetMethod = "func_180546_a";
-			entityName = "Lnet/minecraft/tileentity/TileEntity;";
-			targetDesc = "(Lnet/minecraft/tileentity/TileEntity;FI)V";
+			targetMethod = "a";
+			entityName = "Lavj;";
+			targetDesc = "(Lavj;FI)V";
 		} else
 		{
 			targetMethod = "render";
@@ -206,9 +204,9 @@ public class GlASM
 		String targetDesc = "";
 		if(obfuscated)
 		{
-			targetMethod = "func_188391_a";
-			entityName = "Lnet/minecraft/entity/Entity;";
-			targetDesc = "(Lnet/minecraft/entity/Entity;DDDFFZ)V";
+			targetMethod = "a";
+			entityName = "Lvg;";
+			targetDesc = "(Lvg;DDDFFZ)V";
 		} else
 		{
 			targetMethod = "renderEntity";
@@ -265,19 +263,19 @@ public class GlASM
 		
 		String targetMethod = "";
 		if(obfuscated)
-			targetMethod = "func_76318_c";
+			targetMethod = "c";
 		else
 			targetMethod = "endStartSection";
 		
 		String targetMethod2 = "";
 		if(obfuscated)
-			targetMethod2 = "func_76320_a";
+			targetMethod2 = "a";
 		else
 			targetMethod2 = "startSection";
 		
 		String targetMethod3 = "";
 		if(obfuscated)
-			targetMethod3 = "func_76319_b";
+			targetMethod3 = "b";
 		else
 			targetMethod3 = "endSection";
 		
@@ -381,17 +379,7 @@ public class GlASM
 		asm.info("Transforming " + transformedName + " (" + name + ")...");
 		asm.push();
 		
-		String renderChunkName = "";
-		String targetMethod = "";
-		if(obfuscated)
-		{
-			targetMethod = "func_178003_a";
-			renderChunkName = "Lnet/minecraft/client/renderer/chunk/RenderChunk;";
-		} else
-		{
-			targetMethod = "preRenderChunk";
-			renderChunkName = "Lnet/minecraft/client/renderer/chunk/RenderChunk;";
-		}
+		MethodSignature preRenderChunk = new MethodSignature("preRenderChunk", "func_178003_a", "a", "(Lnet/minecraft/client/renderer/chunk/RenderChunk;)V", "(Lbxr;)V");
 		
 		ClassNode classNode = new ClassNode();
 		ClassReader classReader = new ClassReader(bytes);
@@ -401,7 +389,7 @@ public class GlASM
 		
 		for(MethodNode m : methods)
 		{
-			if(m.name.compareTo(targetMethod) == 0 && m.desc.compareTo("(" + renderChunkName + ")V") == 0)
+			if(preRenderChunk.isThisMethod(m))
 			{
 				InsnList code = m.instructions;
 				List<LocalVariableNode> vars = m.localVariables;
@@ -411,7 +399,7 @@ public class GlASM
 				for(int i = 0; i < vars.size() && paramloc == -1; i++)
 				{
 					LocalVariableNode p = vars.get(i);
-					if(p.desc.compareTo(renderChunkName) == 0)
+					if(preRenderChunk.isThisDesc("(" + p.desc + ")V"))
 						paramloc = i;
 				}
 				@Nullable
@@ -429,7 +417,7 @@ public class GlASM
 				if(returnNode != null && paramloc > -1)
 				{
 					code.insertBefore(returnNode, new VarInsnNode(Opcodes.ALOAD, paramloc));
-					MethodInsnNode method = new MethodInsnNode(Opcodes.INVOKESTATIC, "com/zeitheron/hammercore/asm/McHooks", "preRenderChunk", "(" + renderChunkName + ")V", false);
+					MethodInsnNode method = new MethodInsnNode(Opcodes.INVOKESTATIC, "com/zeitheron/hammercore/asm/McHooks", "preRenderChunk", m.desc, false);
 					code.insertBefore(returnNode, method);
 					asm.info("Patched preRenderChunk!");
 				}

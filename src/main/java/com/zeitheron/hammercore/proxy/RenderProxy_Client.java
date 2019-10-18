@@ -2,12 +2,14 @@ package com.zeitheron.hammercore.proxy;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -35,6 +37,7 @@ import com.zeitheron.hammercore.annotations.AtTESR;
 import com.zeitheron.hammercore.api.inconnect.EmptyModelPack;
 import com.zeitheron.hammercore.api.inconnect.IBlockConnectable;
 import com.zeitheron.hammercore.api.inconnect.InConnectAPI;
+import com.zeitheron.hammercore.asm.HammerCoreTransformer;
 import com.zeitheron.hammercore.cfg.HammerCoreConfigs;
 import com.zeitheron.hammercore.client.HCClientOptions;
 import com.zeitheron.hammercore.client.HammerCoreClient;
@@ -255,6 +258,71 @@ public class RenderProxy_Client extends RenderProxy_Common implements IEnchantme
 						renderMod(args[0], args.length > 1 ? parseInt(args[1], 1, 1024) : 1024);
 				} else
 					throw new CommandException("Modid not specified!");
+			}
+			
+			@Override
+			public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos targetPos)
+			{
+				if(args.length == 1)
+				{
+					List<String> l = new ArrayList<>(Loader.instance().getActiveModList().stream().map(mc -> mc.getModId()).collect(Collectors.toList()));
+					l.add("ALL");
+					return getListOfStringsMatchingLastWord(args, l);
+				}
+				return super.getTabCompletions(server, sender, args, targetPos);
+			}
+		});
+		
+		ClientCommandHandler.instance.registerCommand(new CommandBase()
+		{
+			@Override
+			public int getRequiredPermissionLevel()
+			{
+				return 0;
+			}
+			
+			@Override
+			public boolean checkPermission(MinecraftServer server, ICommandSender sender)
+			{
+				return sender instanceof EntityPlayer;
+			}
+			
+			@Override
+			public String getUsage(ICommandSender sender)
+			{
+				return "/hc_export_mapping";
+			}
+			
+			@Override
+			public String getName()
+			{
+				return "hc_export_mapping";
+			}
+			
+			@Override
+			public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
+			{
+				sender.sendMessage(new TextComponentString("Located " + HammerCoreTransformer.MC_CLASS_MAP.size() + " classes, exporting."));
+				
+				List<String> deobf = new ArrayList<>(HammerCoreTransformer.MC_CLASS_MAP.keySet());
+				deobf.sort(Comparator.comparing(String::toString));
+				
+				int entry = 0;
+				
+				try(FileOutputStream fos = new FileOutputStream(new File("hc_asm.properties")))
+				{
+					for(entry = 0; entry < deobf.size(); ++entry)
+					{
+						String s = deobf.get(entry);
+						String o = HammerCoreTransformer.MC_CLASS_MAP.get(s);
+						fos.write((s + "=" + o + System.lineSeparator()).getBytes());
+					}
+				} catch(Throwable err)
+				{
+					sender.sendMessage(new TextComponentString("Entry " + (entry + 1) + " failed to export: " + err));
+					sender.sendMessage(new TextComponentString("See console for details."));
+					err.printStackTrace();
+				}
 			}
 			
 			@Override

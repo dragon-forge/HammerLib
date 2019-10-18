@@ -2,6 +2,8 @@ package com.zeitheron.hammercore.asm;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
@@ -160,7 +162,6 @@ public class HammerCoreTransformer implements IClassTransformer
 					insns.add(new VarInsnNode(Opcodes.ALOAD, 5));
 					insns.add(new VarInsnNode(Opcodes.ALOAD, 6));
 					
-					System.out.println("set desc: "  + mn.desc.replaceFirst("[(L]", "(L" + node.name + ";"));
 					insns.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/zeitheron/hammercore/asm/McHooks", "postRenderChunk", mn.desc.replaceFirst("[(L]", "(L" + node.name + ";"), false));
 					
 					mn.instructions.insert(insns);
@@ -172,18 +173,22 @@ public class HammerCoreTransformer implements IClassTransformer
 	
 	final GlASM gl = new GlASM(asm);
 	
+	public static final Map<String, String> MC_CLASS_MAP = new HashMap<String, String>();
+	
 	@Override
 	public byte[] transform(String name, String transformedName, byte[] basicClass)
 	{
-		if(transformedName.equals("net.minecraft.client.renderer.ChunkRenderContainer"))
+		if(transformedName.startsWith("net.minecraft.") && name.compareTo(transformedName) != 0)
+			MC_CLASS_MAP.put(transformedName, name);
+		if(transformedName.compareTo("net.minecraft.client.renderer.ChunkRenderContainer") == 0)
 			return gl.patchRenderChunkASM(name, basicClass, name.compareTo(transformedName) != 0, transformedName);
-		if(transformedName.equals("net.minecraft.client.renderer.entity.RenderManager"))
+		if(transformedName.compareTo("net.minecraft.client.renderer.entity.RenderManager") == 0)
 			return gl.patchRenderManagerASM(name, basicClass, name.compareTo(transformedName) != 0, transformedName);
-		if(transformedName.equals("net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher"))
+		if(transformedName.compareTo("net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher") == 0)
 			return gl.patchTERendererASM(name, basicClass, name.compareTo(transformedName) != 0, transformedName);
-		if(transformedName.equals("net.minecraft.client.renderer.GlStateManager"))
+		if(transformedName.compareTo("net.minecraft.client.renderer.GlStateManager") == 0)
 			return gl.patchGlStateManagerASM(name, basicClass, name.compareTo(transformedName) != 0, transformedName);
-		if(transformedName.equals("net.minecraft.profiler.Profiler"))
+		if(transformedName.compareTo("net.minecraft.profiler.Profiler") == 0)
 			return gl.patchProfilerASM(name, basicClass, name.compareTo(transformedName) != 0, transformedName);
 		if(transformedName.compareTo("net.minecraftforge.client.ForgeHooksClient") == 0)
 			return gl.patchForgeHooksASM(name, basicClass, name.compareTo(transformedName) != 0, transformedName);
@@ -208,7 +213,7 @@ public class HammerCoreTransformer implements IClassTransformer
 	
 	public static Predicate<String> cv(String c)
 	{
-		return s -> c.equalsIgnoreCase(s);
+		return s -> c.compareTo(s) == 0;
 	}
 	
 	public static void hook(BiConsumer<ClassNode, Boolean> handle, String desc, Predicate<String> acceptor)
@@ -250,13 +255,22 @@ public class HammerCoreTransformer implements IClassTransformer
 		return func_72853_d;
 	}
 	
-	private static class MethodSignature
+	public static class MethodSignature
 	{
 		String funcName;
 		String srgName;
 		String obfName;
 		String funcDesc;
 		String obfDesc;
+		
+		public MethodSignature(String funcName, String srgName, String obfName, String funcDesc, String obfDesc)
+		{
+			this.funcName = funcName;
+			this.srgName = srgName;
+			this.obfName = obfName;
+			this.funcDesc = funcDesc;
+			this.obfDesc = obfDesc;
+		}
 		
 		public MethodSignature(String funcName, String srgName, String obfName, String funcDesc)
 		{
@@ -282,6 +296,11 @@ public class HammerCoreTransformer implements IClassTransformer
 				desc = desc.replaceAll(s, CLASS_MAPPINGS.get(s));
 			}
 			return desc;
+		}
+		
+		public boolean isThisDesc(String desc)
+		{
+			return this.obfDesc.compareTo(desc) == 0 || this.funcDesc.compareTo(desc) == 0;
 		}
 		
 		public boolean isThisMethod(MethodNode node)
