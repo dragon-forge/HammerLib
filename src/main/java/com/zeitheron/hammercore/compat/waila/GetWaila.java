@@ -1,4 +1,4 @@
-package com.zeitheron.hammercore.intr.waila;
+package com.zeitheron.hammercore.compat.waila;
 
 import java.awt.Dimension;
 import java.util.ArrayList;

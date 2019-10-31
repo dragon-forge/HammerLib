@@ -1,23 +1,38 @@
 package com.zeitheron.hammercore.asm;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.FieldInsnNode;
+import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.IntInsnNode;
+import org.objectweb.asm.tree.JumpInsnNode;
+import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LdcInsnNode;
+import org.objectweb.asm.tree.LineNumberNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 import com.zeitheron.hammercore.asm.TransformerSystem.iASMHook;
+import com.zeitheron.hammercore.lib.zlib.json.JSONObject;
 
 import net.minecraft.launchwrapper.IClassTransformer;
 
@@ -169,6 +184,45 @@ public class HammerCoreTransformer implements IClassTransformer
 					asm.info("Modified method 'postRenderChunk': added event call.");
 				}
 		}, "Patching RenderChunk", cv("net.minecraft.client.renderer.chunk.RenderChunk"));
+		
+		hook((node, obf) ->
+		{
+			MethodSignature atk = new MethodSignature("attackEntityFrom", "func_70097_a", "a", "(Lnet/minecraft/util/DamageSource;F)Z", "(Lur;F)Z");
+			for(MethodNode mn : node.methods)
+				if(atk.isThisMethod(mn))
+				{
+					InsnList insns = new InsnList();
+					
+					insns.add(new VarInsnNode(Opcodes.ALOAD, 0));
+					insns.add(new VarInsnNode(Opcodes.ALOAD, 1));
+					insns.add(new VarInsnNode(Opcodes.FLOAD, 2));
+					insns.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/zeitheron/hammercore/asm/McHooks", "attackEntityItem", "(" + (obf ? "Lacl;Lur;" : "L" + node.name + ";Lnet/minecraft/util/DamageSource;") + "F)Z", false));
+					LabelNode n1 = new LabelNode();
+					insns.add(new JumpInsnNode(Opcodes.IFEQ, n1));
+					insns.add(new InsnNode(Opcodes.H_PUTFIELD));
+					insns.add(new InsnNode(Opcodes.IRETURN));
+					insns.add(n1);
+					
+					mn.instructions.insert(insns);
+					
+					asm.info("Modified method 'attackEntityFrom': added event call.");
+				}
+		}, "Patching EntityItem", cv("net.minecraft.entity.item.EntityItem"));
+	}
+	
+	public static void save(ClassNode node)
+	{
+		File dir = new File("HammerCore", "asm");
+		dir = new File(dir, node.name + ".class");
+		dir.mkdirs();
+		dir.delete();
+		try
+		{
+			ObjectWebUtils.writeClassToFile(node, dir);
+		} catch(IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
 	final GlASM gl = new GlASM(asm);
@@ -193,22 +247,6 @@ public class HammerCoreTransformer implements IClassTransformer
 		if(transformedName.compareTo("net.minecraftforge.client.ForgeHooksClient") == 0)
 			return gl.patchForgeHooksASM(name, basicClass, name.compareTo(transformedName) != 0, transformedName);
 		return asm.transform(name, transformedName, basicClass);
-	}
-	
-	private static String opcodeName(int ops)
-	{
-		Field[] f = Opcodes.class.getDeclaredFields();
-		
-		for(Field g : f)
-			try
-			{
-				if(g.getInt(null) == ops)
-					return g.getName();
-			} catch(Throwable err)
-			{
-			}
-		
-		return "?";
 	}
 	
 	public static Predicate<String> cv(String c)
@@ -307,5 +345,126 @@ public class HammerCoreTransformer implements IClassTransformer
 		{
 			return (node.name.equals(funcName) || node.name.equals(obfName) || node.name.equals(srgName)) && (node.desc.equals(funcDesc) || node.desc.equals(obfDesc));
 		}
+	}
+	
+	public static void toString(ClassNode classNode, MethodNode $)
+	{
+		StringBuilder builder = new StringBuilder();
+		builder.append("ClassBuilder builder = ObjectWebASM.classBuilder(\"name.to.ur.Cls\");\n\n");
+		builder.append("builder.extendsClass(" + JSONObject.quote(classNode.superName).replaceAll("/", ".") + ");\n");
+		for(String implement : classNode.interfaces)
+			builder.append("builder.implementsClass(" + JSONObject.quote(implement).replaceAll("/", ".") + ");\n");
+		
+		for(FieldNode node : classNode.fields)
+		{
+			String val = "null";
+			if(node.value instanceof String)
+				val = JSONObject.quote(node.value.toString());
+			else
+				val = Objects.toString(node.value);
+			builder.append("\nbuilder.field(new FieldNode(" + node.access + ", " + JSONObject.quote(node.name) + ", " + JSONObject.quote(node.desc) + ", " + JSONObject.quote(node.signature) + ", " + val + "));");
+		}
+		
+		builder.append("\n");
+		
+		for(MethodNode node : classNode.methods)
+		{
+			if($ != null && node != $)
+				continue;
+			Map<Label, String> nodes = new HashMap<>();
+			String mnodes = "new MethodNode(" + node.access + ", " + JSONObject.quote(node.name) + ", " + JSONObject.quote(node.desc) + ", " + JSONObject.quote(node.signature) + ", new String" + (node.exceptions.isEmpty() ? "[0]" : "[]" + node.exceptions.toString().replaceAll("[", "{").replaceAll("]", "}")) + ")";
+			builder.append("\nbuilder.method(" + mnodes + ", node ->\n{");
+			Consumer<String> toList = ln -> builder.append("\n\tinsn.add(" + ln + ");");
+			builder.append("\n\tInsnList insn = node.instructions;");
+			for(AbstractInsnNode i : node.instructions.toArray())
+				if(i instanceof LabelNode)
+					toString(classNode, i, nodes, toList, ln -> builder.append("\n\t" + ln), true);
+			for(AbstractInsnNode i : node.instructions.toArray())
+				toString(classNode, i, nodes, toList, ln -> builder.append("\n\t" + ln), false);
+			builder.append("\n});\n");
+		}
+		
+		builder.append("\nClass<?> generatedClass = builder.buildClass();");
+		
+		System.out.println(builder.toString());
+	}
+	
+	public static void toString(ClassNode classNode, AbstractInsnNode node, Map<Label, String> nodes, Consumer<String> toList, Consumer<String> append, boolean prerun)
+	{
+		if(node instanceof LabelNode)
+		{
+			Label lbl = ((LabelNode) node).getLabel();
+			String var = nodes.containsKey(lbl) ? nodes.get(lbl) : "l" + nodes.size();
+			if(prerun)
+				append.accept("LabelNode " + var + " = new LabelNode();");
+			else
+				toList.accept(var);
+			nodes.put(lbl, var);
+		} else if(node instanceof LineNumberNode)
+		{
+			LineNumberNode nd = (LineNumberNode) node;
+			String var = nodes.get(nd.start.getLabel());
+			toList.accept("new LineNumberNode(" + nd.line + ", " + (var == null ? "new LabelNode()" : var) + ")");
+		} else if(node instanceof MethodInsnNode)
+		{
+			MethodInsnNode nd = (MethodInsnNode) node;
+			toList.accept("new MethodInsnNode(" + opcodeName(nd.getOpcode()) + ", \"" + nd.owner + "\", \"" + nd.name + "\", \"" + nd.desc + "\")");
+		} else if(node instanceof VarInsnNode)
+		{
+			VarInsnNode nd = (VarInsnNode) node;
+			toList.accept("new VarInsnNode(" + opcodeName(nd.getOpcode()) + ", " + nd.var + ")");
+		} else if(node instanceof TypeInsnNode)
+		{
+			TypeInsnNode nd = (TypeInsnNode) node;
+			toList.accept("new TypeInsnNode(" + opcodeName(nd.getOpcode()) + ", \"" + nd.desc + "\")");
+		} else if(node instanceof LdcInsnNode)
+		{
+			LdcInsnNode nd = (LdcInsnNode) node;
+			Object tostr = nd.cst;
+			String str = tostr.toString();
+			if(tostr instanceof Type)
+			{
+				Type type = (Type) tostr;
+				str = type.toString();
+			} else if(tostr instanceof String)
+				str = JSONObject.quote(tostr.toString());
+			toList.accept("new LdcInsnNode(" + str + ")");
+		} else if(node instanceof IntInsnNode)
+		{
+			IntInsnNode nd = (IntInsnNode) node;
+			toList.accept("new IntInsnNode(" + opcodeName(nd.getOpcode()) + ", " + nd.operand + ")");
+		} else if(node instanceof FieldInsnNode)
+		{
+			FieldInsnNode nd = (FieldInsnNode) node;
+			String owner = nd.owner.compareTo(classNode.name) == 0 ? "builder.cname()" : JSONObject.quote(nd.owner);
+			toList.accept("new FieldInsnNode(" + opcodeName(nd.getOpcode()) + ", " + owner + ", " + JSONObject.quote(nd.name) + "," + JSONObject.quote(nd.desc) + ")");
+		} else if(node instanceof InsnNode)
+		{
+			InsnNode nd = (InsnNode) node;
+			toList.accept("new InsnNode(" + opcodeName(nd.getOpcode()) + ")");
+		} else if(node instanceof JumpInsnNode)
+		{
+			JumpInsnNode nd = (JumpInsnNode) node;
+			String var = nodes.get(nd.label.getLabel());
+			toList.accept("new JumpInsnNode(" + opcodeName(nd.getOpcode()) + ", " + (var == null ? "new LabelNode()" : var) + ")");
+		} else
+			append.accept("// Failed to parse: " + node.toString() + " @OP " + opcodeName(node.getOpcode()));
+	}
+	
+	public static String opcodeName(int opcode)
+	{
+		for(Field f : Opcodes.class.getDeclaredFields())
+			if(Modifier.isStatic(f.getModifiers()) && int.class.isAssignableFrom(f.getType()))
+			{
+				try
+				{
+					if(f.getInt(null) == opcode)
+						return "Opcodes." + f.getName();
+				} catch(IllegalArgumentException | IllegalAccessException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		return "0x" + Integer.toHexString(opcode);
 	}
 }

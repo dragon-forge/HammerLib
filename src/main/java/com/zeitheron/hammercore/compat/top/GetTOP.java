@@ -1,4 +1,4 @@
-package com.zeitheron.hammercore.intr.top;
+package com.zeitheron.hammercore.compat.top;
 
 import java.util.ArrayList;
 import java.util.List;

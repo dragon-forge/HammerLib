@@ -1,4 +1,4 @@
-package com.zeitheron.hammercore.intr.jei;
+package com.zeitheron.hammercore.compat.jei;
 
 import org.lwjgl.opengl.GL11;
 

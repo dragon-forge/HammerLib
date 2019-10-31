@@ -336,8 +336,8 @@ public class HammerCore
 		
 		StructureAPI.registerSpawnableStructure(new ResourceLocation("hammercore", "well"));
 		
-		FMLInterModComms.sendFunctionMessage("theoneprobe", "getTheOneProbe", "com.zeitheron.hammercore.intr.top.GetTOP");
-		FMLInterModComms.sendMessage("waila", "register", "com.zeitheron.hammercore.intr.waila.GetWaila.register");
+		FMLInterModComms.sendFunctionMessage("theoneprobe", "getTheOneProbe", "com.zeitheron.hammercore.compat.top.GetTOP");
+		FMLInterModComms.sendMessage("waila", "register", "com.zeitheron.hammercore.compat.waila.GetWaila.register");
 	}
 	
 	@EventHandler
