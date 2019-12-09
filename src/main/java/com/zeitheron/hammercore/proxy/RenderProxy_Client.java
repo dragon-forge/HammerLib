@@ -799,7 +799,7 @@ public class RenderProxy_Client extends RenderProxy_Common implements IEnchantme
 				{
 					try
 					{
-						JSONObject arr = (JSONObject) IOUtils.downloadjsonOrLoadFromInternal("https://pastebin.com/raw/zjtZm2np", "/assets/hammercore/io/capes.json");
+						JSONObject arr = (JSONObject) IOUtils.downloadjson("https://raw.githubusercontent.com/Zeitheron/HCCapes/master/index.json");
 						for(String key : arr.keySet())
 							customCapes.put(key, arr.getString(key));
 					} catch(JSONException e)

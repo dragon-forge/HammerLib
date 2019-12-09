@@ -1,33 +1,22 @@
 package com.zeitheron.hammercore.client.utils.texture;
 
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.util.ResourceLocation;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class ClientSkinManager
 {
 	private static final Map<String, String> playerSTs = new HashMap<>();
 	
-	public static final Field playerTextures = NetworkPlayerInfo.class.getDeclaredFields()[1];
-	public static final Field skinType = NetworkPlayerInfo.class.getDeclaredFields()[5];
-	static
-	{
-		playerTextures.setAccessible(true);
-		skinType.setAccessible(true);
-	}
-	
 	/**
 	 * Gets the texture map for certain player. It may be modified.
-	 * 
-	 * @param acp
-	 *            The player
+	 *
+	 * @param acp The player
 	 * @return The skin map
 	 */
 	public static Map<Type, ResourceLocation> getPlayerMap(AbstractClientPlayer acp)
@@ -35,19 +24,8 @@ public class ClientSkinManager
 		NetworkPlayerInfo npi = Minecraft.getMinecraft().getConnection().getPlayerInfo(acp.getUniqueID());
 		String uuids = acp.getUniqueID().toString();
 		if(!playerSTs.containsKey(uuids))
-			try
-			{
-				playerSTs.put(uuids, "" + skinType.get(npi));
-			} catch(Throwable e)
-			{
-			}
-		try
-		{
-			return (Map<Type, ResourceLocation>) playerTextures.get(npi);
-		} catch(Throwable err)
-		{
-		}
-		return null;
+			playerSTs.put(uuids, npi.skinType);
+		return npi.playerTextures;
 	}
 	
 	public static boolean bindTexture(AbstractClientPlayer acp, Type type, ResourceLocation location)

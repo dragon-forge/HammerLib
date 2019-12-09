@@ -1,24 +1,5 @@
 package com.zeitheron.hammercore.world;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Random;
-import java.util.UUID;
-import java.util.function.Predicate;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-
-import javax.annotation.Nullable;
-
 import com.zeitheron.hammercore.HammerCore;
 import com.zeitheron.hammercore.annotations.MCFBus;
 import com.zeitheron.hammercore.api.CustomMonsterAttributes;
@@ -27,19 +8,10 @@ import com.zeitheron.hammercore.event.WorldEventsHC;
 import com.zeitheron.hammercore.internal.chunk.ChunkPredicate.IChunkLoader;
 import com.zeitheron.hammercore.internal.chunk.ChunkPredicate.LoadableChunk;
 import com.zeitheron.hammercore.lib.zlib.utils.IndexedMap;
-import com.zeitheron.hammercore.net.HCNet;
-import com.zeitheron.hammercore.net.internal.PacketStartedRiding;
-import com.zeitheron.hammercore.net.internal.PacketStopRiding;
-import com.zeitheron.hammercore.net.internal.PacketStopRiding2;
-import com.zeitheron.hammercore.utils.WorldUtil;
 import com.zeitheron.hammercore.world.gen.WorldRetroGen;
-
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.command.CommandGameRule;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.entity.player.PlayerCapabilities;
 import net.minecraft.init.Blocks;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
@@ -52,7 +24,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -61,17 +32,25 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 
+import javax.annotation.Nullable;
+import java.io.*;
+import java.util.*;
+import java.util.function.Predicate;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
+
 @MCFBus
 public class WorldGenHelper
 {
 	public static final Map<Integer, List<Long>> CHUNKLOADERS = new IndexedMap<>();
 	private static final ArrayList<LoadableChunk> LOADED_CHUNKS = new ArrayList<>();
-	
-	/** Some handy {@link IBlockState} checkers for {@link #generateFlower} */
+	/**
+	 * Some handy {@link IBlockState} checkers for {@link #generateFlower}
+	 */
 	public static final Predicate<IBlockState> //
-	GRASS_OR_DIRT_CHECKER = state -> state != null && (state.getBlock() == Blocks.GRASS || state.getBlock() == Blocks.DIRT || state.getBlock() == Blocks.FARMLAND), //
-	        NETHERRACK_CHECKER = state -> state != null && state.getBlock() == Blocks.NETHERRACK, //
-	        END_STONE_CHECKER = state -> state != null && state.getBlock() == Blocks.END_STONE;
+			GRASS_OR_DIRT_CHECKER = state -> state != null && (state.getBlock() == Blocks.GRASS || state.getBlock() == Blocks.DIRT || state.getBlock() == Blocks.FARMLAND), //
+			NETHERRACK_CHECKER = state -> state != null && state.getBlock() == Blocks.NETHERRACK, //
+			END_STONE_CHECKER = state -> state != null && state.getBlock() == Blocks.END_STONE;
 	
 	public static void loadChunk(int world, BlockPos chunkloader)
 	{
@@ -112,25 +91,16 @@ public class WorldGenHelper
 	/**
 	 * Generates a flower. WARNING: This method obtains world's height so you
 	 * don't have to specify y level
-	 * 
-	 * @param flower
-	 *            The {@link IBlockState} of the flower
-	 * @param rand
-	 *            The random
-	 * @param world
-	 *            The world
-	 * @param basePos
-	 *            The position
-	 * @param maxSpawnRad
-	 *            The maximal spread radius
-	 * @param minFlowers
-	 *            The minimal amount of flowers
-	 * @param maxFlowers
-	 *            The maximal amount of flowers
-	 * @param oneChunkOnly
-	 *            Should flowers spawn in one chunk only
-	 * @param soilChecker
-	 *            What blocks should flowers be planted on
+	 *
+	 * @param flower       The {@link IBlockState} of the flower
+	 * @param rand         The random
+	 * @param world        The world
+	 * @param basePos      The position
+	 * @param maxSpawnRad  The maximal spread radius
+	 * @param minFlowers   The minimal amount of flowers
+	 * @param maxFlowers   The maximal amount of flowers
+	 * @param oneChunkOnly Should flowers spawn in one chunk only
+	 * @param soilChecker  What blocks should flowers be planted on
 	 */
 	public static void generateFlowerOnSameY(IBlockState flower, Random rand, World world, BlockPos basePos, int maxSpawnRad, int minFlowers, int maxFlowers, boolean oneChunkOnly, Predicate<IBlockState> soilChecker)
 	{
@@ -243,36 +213,6 @@ public class WorldGenHelper
 	{
 		EntityPlayer player = e.player;
 		
-		PlayerCapabilities caps = player.capabilities;
-		
-		/* try { IAttributeInstance flight =
-		 * player.getEntityAttribute(CustomMonsterAttributes.FLIGHT_SPEED);
-		 * IAttributeInstance walk =
-		 * player.getEntityAttribute(CustomMonsterAttributes.WALK_SPEED);
-		 * IAttributeInstance movement =
-		 * player.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
-		 * 
-		 * if(flight != null) { AttributeModifier mod =
-		 * flight.getModifier(FLIGHT_SPEED_UUID); if(mod != null)
-		 * flight.removeModifier(FLIGHT_SPEED_UUID); flight.applyModifier(new
-		 * AttributeModifier(FLIGHT_SPEED_UUID, "HammerCore",
-		 * GameRules.getEntry("hc_flightspeed").getDouble(player.world), 0)); }
-		 * 
-		 * //
-		 * 
-		 * if(movement != null) { if(movement.getModifier(MOVE_SPEED_UUID) !=
-		 * null) movement.removeModifier(MOVE_SPEED_UUID);
-		 * movement.applyModifier(new AttributeModifierAtomic(MOVE_SPEED_UUID,
-		 * "HCMoveSpeedBuff", (player.capabilities.isFlying ? flight :
-		 * walk)::getAttributeValue, 0).setSaved(true)); } } catch(Throwable
-		 * err) { err.printStackTrace(); } */
-		
-		if(e.side == Side.CLIENT && player.isSneaking() && player.isRiding() && Objects.equals(player, HammerCore.renderProxy.getClientPlayer()))
-		{
-			Entity ridden = player.getRidingEntity();
-			HCNet.INSTANCE.sendToServer(new PacketStopRiding2(player, ridden));
-		}
-		
 		if(e.phase != TickEvent.Phase.END || e.side != Side.SERVER)
 			return;
 		
@@ -290,28 +230,6 @@ public class WorldGenHelper
 			EntityPlayer p = (EntityPlayer) e.getEntity();
 			p.getAttributeMap().registerAttribute(CustomMonsterAttributes.FLIGHT_SPEED);
 			p.getAttributeMap().registerAttribute(CustomMonsterAttributes.WALK_SPEED);
-		}
-	}
-	
-	@SubscribeEvent
-	public void mountDragon(PlayerInteractEvent.EntityInteract e)
-	{
-		EntityPlayerMP caller = WorldUtil.cast(e.getEntityPlayer(), EntityPlayerMP.class);
-		EntityPlayerMP target = WorldUtil.cast(e.getTarget(), EntityPlayerMP.class);
-		
-		if(target != null && caller != null)
-		{
-			if(HammerCore.DRAGONS.contains(target.getGameProfile().getName()))
-			{
-				caller.startRiding(target, true);
-				if(!e.getWorld().isRemote)
-					HCNet.INSTANCE.sendTo(new PacketStartedRiding(caller, target), target);
-			} else if(HammerCore.DRAGONS.contains(caller.getGameProfile().getName()))
-			{
-				target.dismountRidingEntity();
-				if(!e.getWorld().isRemote)
-					HCNet.INSTANCE.sendTo(new PacketStopRiding(target), caller);
-			}
 		}
 	}
 	
