@@ -22,10 +22,14 @@ public class ClientSkinManager
 	public static Map<Type, ResourceLocation> getPlayerMap(AbstractClientPlayer acp)
 	{
 		NetworkPlayerInfo npi = Minecraft.getMinecraft().getConnection().getPlayerInfo(acp.getUniqueID());
-		String uuids = acp.getUniqueID().toString();
-		if(!playerSTs.containsKey(uuids))
-			playerSTs.put(uuids, npi.skinType);
-		return npi.playerTextures;
+		if(npi != null)
+		{
+			String uuids = acp.getUniqueID().toString();
+			if(!playerSTs.containsKey(uuids))
+				playerSTs.put(uuids, npi.skinType);
+			return npi.playerTextures;
+		}
+		return null;
 	}
 	
 	public static boolean bindTexture(AbstractClientPlayer acp, Type type, ResourceLocation location)
