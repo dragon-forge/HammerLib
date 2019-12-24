@@ -18,24 +18,22 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 public class GameRules
 {
 	public static final Map<String, GameRuleEntry> entries = new HashMap<>();
-	
+
 	/**
 	 * Registers a gamerule to the game. Call under
 	 * {@link FMLPreInitializationEvent}
-	 * 
-	 * @param entry
-	 *            The entry to register
+	 *
+	 * @param entry The entry to register
 	 */
 	public static void registerGameRule(GameRuleEntry entry)
 	{
 		entries.put(entry.name, entry);
 	}
-	
+
 	/**
 	 * Gets the registered gamerule by the id.
-	 * 
-	 * @param name
-	 *            The name of custom gamerule to obtain
+	 *
+	 * @param name The name of custom gamerule to obtain
 	 * @return The registered gamerule, or NIL
 	 */
 	@Nonnull
@@ -43,18 +41,17 @@ public class GameRules
 	{
 		return entries.getOrDefault(name, GameRuleEntry.NIL);
 	}
-	
+
 	/**
 	 * Internal method.
-	 * 
-	 * @param server
-	 *            The server
+	 *
+	 * @param server The server
 	 */
 	public static void load(MinecraftServer server)
 	{
 
 	}
-	
+
 	/**
 	 * Internal method.
 	 */
@@ -64,32 +61,28 @@ public class GameRules
 		//
 		//
 	}
-	
+
 	/**
 	 * The class for the game rule.
 	 */
 	public static class GameRuleEntry
 	{
 		private static final GameRuleEntry NIL = new GameRuleEntry("unknown", "", "gamerules.hc_unknown", ValueType.STRING_VALUE);
-		
+
 		public final String name, i18nDesc;
 		public final Object defVal;
 		public final ValueType type;
-		
+
 		/**
 		 * Creates a gamerule entry, register with
 		 * {@link GameRules#registerGameRule(GameRuleEntry)} at
 		 * {@link FMLPreInitializationEvent}.
-		 * 
-		 * @param name
-		 *            the name of gamerule (will be used as 2nd argument in
-		 *            /gamerule command)
-		 * @param defValue
-		 *            the default value of this gamerule
-		 * @param i18nDesc
-		 *            the description of this gamerule.
-		 * @param type
-		 *            the value type of this gamerule.
+		 *
+		 * @param name     the name of gamerule (will be used as 2nd argument in
+		 *                 /gamerule command)
+		 * @param defValue the default value of this gamerule
+		 * @param i18nDesc the description of this gamerule.
+		 * @param type     the value type of this gamerule.
 		 */
 		public GameRuleEntry(String name, Object defValue, String i18nDesc, ValueType type)
 		{
@@ -98,7 +91,7 @@ public class GameRules
 			this.defVal = defValue;
 			this.type = type;
 		}
-		
+
 		public String getValue(World world)
 		{
 			if(this == NIL)
@@ -107,7 +100,7 @@ public class GameRules
 				return (String) defVal;
 			return world.getGameRules().getString(name);
 		}
-		
+
 		public int getInt(World world)
 		{
 			if(this == NIL)
@@ -118,7 +111,7 @@ public class GameRules
 				return (int) defVal;
 			return world.getGameRules().getInt(name);
 		}
-		
+
 		public boolean getBool(World world)
 		{
 			if(this == NIL)
@@ -129,7 +122,7 @@ public class GameRules
 				return (boolean) defVal;
 			return world.getGameRules().getBoolean(name);
 		}
-		
+
 		public double getDouble(World world)
 		{
 			if(this == NIL)
@@ -137,7 +130,7 @@ public class GameRules
 			if(type != ValueType.DECIMAL_VALUE)
 				return 0;
 			if(!world.getGameRules().hasRule(name))
-				return (double) defVal;
+				return ((Number) defVal).doubleValue();
 			try
 			{
 				return Double.parseDouble(getValue(world));
@@ -147,7 +140,7 @@ public class GameRules
 			}
 			return 0;
 		}
-		
+
 		public float getFloat(World world)
 		{
 			if(this == NIL)
@@ -155,7 +148,7 @@ public class GameRules
 			if(type != ValueType.DECIMAL_VALUE && !name.equals("hc_falldamagemult"))
 				return 0;
 			if(!world.getGameRules().hasRule(name))
-				return (float) defVal;
+				return ((Number) defVal).floatValue();
 			try
 			{
 				return Float.parseFloat(getValue(world));
@@ -166,21 +159,21 @@ public class GameRules
 			return 0;
 		}
 	}
-	
+
 	public static enum ValueType
 	{
 		STRING_VALUE(0), //
 		BOOLEAN_VALUE(1), //
 		INT_VALUE(2), //
 		DECIMAL_VALUE(0);
-		
+
 		final int ord;
-		
+
 		private ValueType(int ord)
 		{
 			this.ord = ord;
 		}
-		
+
 		public net.minecraft.world.GameRules.ValueType toNM()
 		{
 			return net.minecraft.world.GameRules.ValueType.values()[ord];
