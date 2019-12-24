@@ -152,7 +152,7 @@ curseforge {
 
 task signJar(type: SignJar, dependsOn: reobfJar) {
     onlyIf {
-        project.hasProperty('keyStore')
+        project.hasProperty('keyStorePass')
     }
     keyStore = project.findProperty('keyStore')
     alias = project.findProperty('keyStoreAlias')
@@ -164,7 +164,7 @@ task signJar(type: SignJar, dependsOn: reobfJar) {
 
 task signDeobfJar(type: SignJar, dependsOn: deobfJar) {
     onlyIf {
-        project.hasProperty('keyStore')
+        project.hasProperty('keyStorePass')
     }
     keyStore = project.findProperty('keyStore')
     alias = project.findProperty('keyStoreAlias')
@@ -176,7 +176,7 @@ task signDeobfJar(type: SignJar, dependsOn: deobfJar) {
 
 task signSrcJar(type: SignJar, dependsOn: srcJar) {
     onlyIf {
-        project.hasProperty('keyStore')
+        project.hasProperty('keyStorePass')
     }
     keyStore = project.findProperty('keyStore')
     alias = project.findProperty('keyStoreAlias')
