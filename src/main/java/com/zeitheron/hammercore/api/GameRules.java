@@ -52,24 +52,7 @@ public class GameRules
 	 */
 	public static void load(MinecraftServer server)
 	{
-		WorldServer ws = server.getWorld(0);
-		net.minecraft.world.GameRules gr = ws != null ? ws.getGameRules() : null;
-		if(gr == null)
-		{
-			HammerCore.LOG.error("Unable to get GameRule map!");
-			return;
-		}
-		
-		HammerCore.LOG.info("Injecting GameRules...");
-		
-		// Loads rules if they are not present already
-		entries.values().forEach(e ->
-		{
-			String val = e.defVal;
-			if(gr.hasRule(e.name))
-				val = gr.getString(e.name);
-			gr.addGameRule(e.name, val, e.type.toNM());
-		});
+
 	}
 	
 	/**
@@ -89,7 +72,8 @@ public class GameRules
 	{
 		private static final GameRuleEntry NIL = new GameRuleEntry("unknown", "", "gamerules.hc_unknown", ValueType.STRING_VALUE);
 		
-		public final String name, defVal, i18nDesc;
+		public final String name, i18nDesc;
+		public final Object defVal;
 		public final ValueType type;
 		
 		/**
@@ -107,7 +91,7 @@ public class GameRules
 		 * @param type
 		 *            the value type of this gamerule.
 		 */
-		public GameRuleEntry(String name, String defValue, String i18nDesc, ValueType type)
+		public GameRuleEntry(String name, Object defValue, String i18nDesc, ValueType type)
 		{
 			this.i18nDesc = i18nDesc;
 			this.name = name;
@@ -119,6 +103,8 @@ public class GameRules
 		{
 			if(this == NIL)
 				return "";
+			if(!world.getGameRules().hasRule(name))
+				return (String) defVal;
 			return world.getGameRules().getString(name);
 		}
 		
@@ -128,6 +114,8 @@ public class GameRules
 				return 0;
 			if(type != ValueType.INT_VALUE)
 				return 0;
+			if(!world.getGameRules().hasRule(name))
+				return (int) defVal;
 			return world.getGameRules().getInt(name);
 		}
 		
@@ -137,6 +125,8 @@ public class GameRules
 				return false;
 			if(type != ValueType.BOOLEAN_VALUE)
 				return false;
+			if(!world.getGameRules().hasRule(name))
+				return (boolean) defVal;
 			return world.getGameRules().getBoolean(name);
 		}
 		
@@ -146,6 +136,8 @@ public class GameRules
 				return 0;
 			if(type != ValueType.DECIMAL_VALUE)
 				return 0;
+			if(!world.getGameRules().hasRule(name))
+				return (double) defVal;
 			try
 			{
 				return Double.parseDouble(getValue(world));
@@ -162,6 +154,8 @@ public class GameRules
 				return 0;
 			if(type != ValueType.DECIMAL_VALUE && !name.equals("hc_falldamagemult"))
 				return 0;
+			if(!world.getGameRules().hasRule(name))
+				return (float) defVal;
 			try
 			{
 				return Float.parseFloat(getValue(world));
