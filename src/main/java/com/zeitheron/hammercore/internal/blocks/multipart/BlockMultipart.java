@@ -9,7 +9,6 @@ import com.zeitheron.hammercore.api.mhb.BlockTraceable;
 import com.zeitheron.hammercore.api.mhb.ICubeManager;
 import com.zeitheron.hammercore.api.multipart.ItemBlockMultipartProvider;
 import com.zeitheron.hammercore.api.multipart.MultipartSignature;
-import com.zeitheron.hammercore.utils.WorldUtil;
 import com.zeitheron.hammercore.utils.base.Cast;
 import com.zeitheron.hammercore.utils.math.vec.Cuboid6;
 import net.minecraft.block.ITileEntityProvider;
@@ -121,7 +120,7 @@ public class BlockMultipart
 			EntityPlayer player = (EntityPlayer) entity;
 
 			Cuboid6 cbd = getCuboidFromPlayer(player, pos);
-			TileMultipart tmp = WorldUtil.cast(world.getTileEntity(pos), TileMultipart.class);
+			TileMultipart tmp = Cast.cast(world.getTileEntity(pos), TileMultipart.class);
 			if(tmp != null && cbd != null)
 			{
 				MultipartSignature s = tmp.getSignature(cbd.center().toVec3d());
@@ -171,14 +170,14 @@ public class BlockMultipart
 	@Override
 	public Cuboid6[] getCuboids(World world, BlockPos pos, IBlockState state)
 	{
-		TileMultipart tmp = WorldUtil.cast(world.getTileEntity(pos), TileMultipart.class);
+		TileMultipart tmp = Cast.cast(world.getTileEntity(pos), TileMultipart.class);
 		return tmp != null ? tmp.getCuboids() : EMPTY_CUBOID_ARRAY;
 	}
 
 	@Override
 	public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos)
 	{
-		TileMultipart tmp = WorldUtil.cast(world.getTileEntity(pos), TileMultipart.class);
+		TileMultipart tmp = Cast.cast(world.getTileEntity(pos), TileMultipart.class);
 		return tmp != null ? tmp.getLightLevel() : 0;
 	}
 
@@ -198,7 +197,7 @@ public class BlockMultipart
 	public boolean onBoxActivated(int boxID, Cuboid6 box, World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
 	{
 		Cuboid6 cbd = getCuboidFromPlayer(playerIn, pos);
-		TileMultipart tmp = WorldUtil.cast(worldIn.getTileEntity(pos), TileMultipart.class);
+		TileMultipart tmp = Cast.cast(worldIn.getTileEntity(pos), TileMultipart.class);
 		boolean activated = tmp != null ? tmp.onBoxActivated(boxID, cbd, worldIn, pos, state, playerIn, hand, facing, hitX, hitY, hitZ) : false;
 		if(!activated)
 		{
@@ -217,7 +216,7 @@ public class BlockMultipart
 	public float getPlayerRelativeBlockHardness(IBlockState state, EntityPlayer player, World worldIn, BlockPos pos)
 	{
 		Cuboid6 cbd = getCuboidFromPlayer(player, pos);
-		TileMultipart tmp = WorldUtil.cast(worldIn.getTileEntity(pos), TileMultipart.class);
+		TileMultipart tmp = Cast.cast(worldIn.getTileEntity(pos), TileMultipart.class);
 
 		if(tmp != null && cbd != null)
 		{
@@ -230,14 +229,14 @@ public class BlockMultipart
 	@Override
 	public int getWeakPower(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
 	{
-		TileMultipart tmp = WorldUtil.cast(blockAccess.getTileEntity(pos), TileMultipart.class);
+		TileMultipart tmp = Cast.cast(blockAccess.getTileEntity(pos), TileMultipart.class);
 		return tmp != null ? tmp.getWeakPower(side) : 0;
 	}
 
 	@Override
 	public int getStrongPower(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
 	{
-		TileMultipart tmp = WorldUtil.cast(blockAccess.getTileEntity(pos), TileMultipart.class);
+		TileMultipart tmp = Cast.cast(blockAccess.getTileEntity(pos), TileMultipart.class);
 		return tmp != null ? tmp.getStrongPower(side) : 0;
 	}
 
@@ -245,7 +244,7 @@ public class BlockMultipart
 	@SideOnly(Side.CLIENT)
 	public boolean addHitEffects(IBlockState state, World world, RayTraceResult target, ParticleManager manager)
 	{
-		TileMultipart tmp = WorldUtil.cast(world.getTileEntity(target.getBlockPos()), TileMultipart.class);
+		TileMultipart tmp = Cast.cast(world.getTileEntity(target.getBlockPos()), TileMultipart.class);
 		Cuboid6 cbd = getCuboidFromRTR(world, com.zeitheron.hammercore.raytracer.RayTracer.retrace(HammerCore.renderProxy.getClientPlayer()));
 		if(tmp != null && cbd != null)
 		{
@@ -260,7 +259,7 @@ public class BlockMultipart
 	@SideOnly(Side.CLIENT)
 	public boolean addDestroyEffects(World world, BlockPos pos, ParticleManager manager)
 	{
-		TileMultipart tmp = WorldUtil.cast(world.getTileEntity(pos), TileMultipart.class);
+		TileMultipart tmp = Cast.cast(world.getTileEntity(pos), TileMultipart.class);
 		if(tmp != null)
 			for(MultipartSignature s : tmp.signatures())
 				s.addDestroyEffects(world, pos, manager);
@@ -280,10 +279,11 @@ public class BlockMultipart
 	@Override
 	public boolean canConnectRedstone(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side)
 	{
-		TileMultipart tmp = WorldUtil.cast(world.getTileEntity(pos), TileMultipart.class);
-		for(MultipartSignature s : tmp.signatures())
-			if(s != null && s.canConnectRedstone(side))
-				return true;
+		TileMultipart tmp = Cast.cast(world.getTileEntity(pos), TileMultipart.class);
+		if(tmp != null)
+			for(MultipartSignature s : tmp.signatures())
+				if(s != null && s.canConnectRedstone(side))
+					return true;
 		return false;
 	}
 
@@ -302,8 +302,8 @@ public class BlockMultipart
 	@Override
 	public void dropBlockAsItemWithChance(World worldIn, BlockPos pos, IBlockState state, float chance, int fortune)
 	{
-		TileMultipart tmp = WorldUtil.cast(worldIn.getTileEntity(pos), TileMultipart.class);
-		if(tmp != null)
+		TileMultipart tmp = Cast.cast(worldIn.getTileEntity(pos), TileMultipart.class);
+		if(!worldIn.isRemote && tmp != null)
 			for(MultipartSignature s : tmp.signatures())
 				tmp.removeMultipart(s, true); // Drop everything!
 	}
@@ -311,7 +311,7 @@ public class BlockMultipart
 	@Override
 	public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
 	{
-		TileMultipart tmp = WorldUtil.cast(worldIn.getTileEntity(pos), TileMultipart.class);
+		TileMultipart tmp = Cast.cast(worldIn.getTileEntity(pos), TileMultipart.class);
 		if(tmp != null)
 			tmp.randomDisplayTick(rand);
 	}
@@ -319,7 +319,7 @@ public class BlockMultipart
 	@Override
 	public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor)
 	{
-		TileMultipart tmp = WorldUtil.cast(world.getTileEntity(pos), TileMultipart.class);
+		TileMultipart tmp = Cast.cast(world.getTileEntity(pos), TileMultipart.class);
 		if(tmp != null)
 			for(MultipartSignature sign : tmp.signatures())
 				sign.onNeighborChange(world, pos, neighbor);
@@ -337,10 +337,11 @@ public class BlockMultipart
 	{
 		if(evt.getState().getBlock() == this)
 		{
-			TileMultipart tmp = WorldUtil.cast(evt.getWorld().getTileEntity(evt.getPos()), TileMultipart.class);
-
+			TileMultipart tmp = Cast.cast(evt.getWorld().getTileEntity(evt.getPos()), TileMultipart.class);
 			if(tmp != null)
 			{
+				if(evt.getWorld().isRemote)
+					evt.setCanceled(true);
 				Cuboid6 cbd = getCuboidFromPlayer(evt.getPlayer(), evt.getPos());
 				if(cbd != null)
 				{
