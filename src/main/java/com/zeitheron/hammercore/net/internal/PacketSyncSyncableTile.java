@@ -75,7 +75,11 @@ public class PacketSyncSyncableTile implements IPacket
 				}
 			
 			if(sync != null)
+			{
+				sync.onPreSync(nbt);
 				sync.handleUpdateTag(nbt);
+				sync.onSynced();
+			}
 		}
 		return null;
 	}

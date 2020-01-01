@@ -18,6 +18,7 @@ import net.minecraft.world.IBlockAccess;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -39,7 +40,13 @@ public class BakedMultipartModel
 				TileMultipart tmp = (TileMultipart) tile;
 				Consumer<BakedQuad> qc = quads::add;
 				Function<String, TextureAtlasSprite> sf = Minecraft.getMinecraft().getTextureMapBlocks()::getAtlasSprite;
-				tmp.signatures().stream().filter(Predicates.instanceOf(IMultipartBaked.class)).map(s -> (IMultipartBaked) s).filter(b -> b.acceptsFacing(side)).forEach(b -> b.generateBakedQuads(qc, sf, BakedConnectModel.FACE_BAKERY, side, rand));
+				AtomicInteger ti = new AtomicInteger();
+				tmp.signatures().stream().filter(Predicates.instanceOf(IMultipartBaked.class)).map(s -> (IMultipartBaked) s).forEach(b ->
+				{
+					if(b.acceptsFacing(side))
+						b.generateBakedQuads(qc, sf, BakedConnectModel.FACE_BAKERY, side, rand, ti.get());
+					ti.addAndGet(b.getBakedModelTintCount());
+				});
 			}
 		}
 		return quads;

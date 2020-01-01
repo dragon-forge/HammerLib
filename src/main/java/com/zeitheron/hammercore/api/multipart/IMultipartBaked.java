@@ -19,7 +19,20 @@ public interface IMultipartBaked
 	}
 
 	@SideOnly(Side.CLIENT)
-	default void generateBakedQuads(Consumer<BakedQuad> quadConsumer, Function<String, TextureAtlasSprite> spriteFunction, FaceBakery bakery, @Nullable EnumFacing side, long rand)
+	default void generateBakedQuads(Consumer<BakedQuad> quadConsumer, Function<String, TextureAtlasSprite> spriteFunction, FaceBakery bakery, @Nullable EnumFacing side, long rand, int startTintIndex)
 	{
+	}
+
+	/**
+	 * Get the amount of tint colors reserved
+	 */
+	default int getBakedModelTintCount()
+	{
+		return 0;
+	}
+
+	default int getColorByTint(int tintIndex)
+	{
+		return 0xFFFFFF;
 	}
 }

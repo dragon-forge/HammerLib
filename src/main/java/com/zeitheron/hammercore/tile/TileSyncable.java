@@ -91,6 +91,16 @@ public abstract class TileSyncable extends TileEntity implements IPropertyChange
 		if(world != null && !world.isRemote) // Apply sync only if server
 			HCNet.INSTANCE.sendToAllAround(new PacketSyncSyncableTile(this), getSyncPoint(260));
 	}
+
+	@SideOnly(Side.CLIENT)
+	public void onPreSync(NBTTagCompound nbt)
+	{
+	}
+
+	@SideOnly(Side.CLIENT)
+	public void onSynced()
+	{
+	}
 	
 	@Override
 	public NBTTagCompound getUpdateTag()

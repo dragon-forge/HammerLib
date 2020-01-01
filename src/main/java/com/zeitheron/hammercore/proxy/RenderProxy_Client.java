@@ -11,6 +11,9 @@ import com.zeitheron.hammercore.annotations.AtTESR;
 import com.zeitheron.hammercore.api.inconnect.EmptyModelPack;
 import com.zeitheron.hammercore.api.inconnect.IBlockConnectable;
 import com.zeitheron.hammercore.api.inconnect.InConnectAPI;
+import com.zeitheron.hammercore.api.multipart.IMultipartBaked;
+import com.zeitheron.hammercore.api.multipart.MultipartAPI;
+import com.zeitheron.hammercore.api.multipart.MultipartSignature;
 import com.zeitheron.hammercore.asm.HammerCoreTransformer;
 import com.zeitheron.hammercore.cfg.HammerCoreConfigs;
 import com.zeitheron.hammercore.client.HCClientOptions;
@@ -32,6 +35,7 @@ import com.zeitheron.hammercore.client.utils.texture.TextureUtils;
 import com.zeitheron.hammercore.client.utils.texture.gui.theme.GuiTheme;
 import com.zeitheron.hammercore.client.witty.SplashTextHelper;
 import com.zeitheron.hammercore.compat.jei.IJeiHelper;
+import com.zeitheron.hammercore.internal.blocks.multipart.TileMultipart;
 import com.zeitheron.hammercore.internal.init.BlocksHC;
 import com.zeitheron.hammercore.internal.init.ItemsHC;
 import com.zeitheron.hammercore.lib.zlib.error.JSONException;
@@ -40,7 +44,11 @@ import com.zeitheron.hammercore.lib.zlib.json.JSONObject;
 import com.zeitheron.hammercore.lib.zlib.utils.Threading;
 import com.zeitheron.hammercore.net.PacketContext;
 import com.zeitheron.hammercore.tile.tooltip.own.EntityTooltipRenderEngine;
-import com.zeitheron.hammercore.utils.*;
+import com.zeitheron.hammercore.utils.AnnotatedInstanceUtil;
+import com.zeitheron.hammercore.utils.IdentityHashMapWC;
+import com.zeitheron.hammercore.utils.PositionedStateImplementation;
+import com.zeitheron.hammercore.utils.ReflectionUtil;
+import com.zeitheron.hammercore.utils.base.Cast;
 import com.zeitheron.hammercore.utils.color.ColorHelper;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.BlockStateContainer.StateImplementation;
@@ -363,6 +371,31 @@ public class RenderProxy_Client
 		for(Item i : ItemsHC.rendered_items)
 			Minecraft.getMinecraft().getRenderItem().registerItem(i, 0, "chest");
 
+		Minecraft.getMinecraft().getBlockColors().registerBlockColorHandler((state, world, pos, tintIndex) ->
+		{
+			TileMultipart tmp = MultipartAPI.getMultipart(world, pos);
+			if(tmp != null)
+			{
+				List<MultipartSignature> signatures = tmp.signatures();
+				for(int i = 0; i < signatures.size(); ++i)
+				{
+					MultipartSignature sign = signatures.get(i);
+					if(sign instanceof IMultipartBaked)
+					{
+						IMultipartBaked baked = (IMultipartBaked) sign;
+						int c = baked.getBakedModelTintCount();
+						if(tintIndex >= c)
+						{
+							tintIndex -= c;
+							continue;
+						} else
+							return baked.getColorByTint(tintIndex);
+					}
+				}
+			}
+			return 0xFFFFFF;
+		}, BlocksHC.MULTIPART);
+
 		HammerCore.LOG.info("Registering TESRs...");
 		for(TESR t : tesrs)
 		{
@@ -523,7 +556,7 @@ public class RenderProxy_Client
 			if(rp)
 			{
 				GuiScreen gs = Minecraft.getMinecraft().currentScreen;
-				GuiContainer gc = WorldUtil.cast(gs, GuiContainer.class);
+				GuiContainer gc = Cast.cast(gs, GuiContainer.class);
 
 				ITextComponent a = new TextComponentString("Renderer"), b = null;
 
@@ -706,7 +739,7 @@ public class RenderProxy_Client
 	@SubscribeEvent
 	public void renderPlayer(RenderPlayerEvent.Pre rpe)
 	{
-		AbstractClientPlayer acp = WorldUtil.cast(rpe.getEntityPlayer(), AbstractClientPlayer.class);
+		AbstractClientPlayer acp = Cast.cast(rpe.getEntityPlayer(), AbstractClientPlayer.class);
 		if(acp == null)
 			return;
 		GameProfile gp = rpe.getEntityPlayer().getGameProfile();
