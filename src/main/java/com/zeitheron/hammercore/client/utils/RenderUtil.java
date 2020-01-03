@@ -1,14 +1,8 @@
 package com.zeitheron.hammercore.client.utils;
 
-import java.util.Random;
-import java.util.function.Function;
-
-import org.lwjgl.opengl.GL11;
-
 import com.zeitheron.hammercore.utils.color.Color;
 import com.zeitheron.hammercore.utils.color.ColorHelper;
 import com.zeitheron.hammercore.utils.math.vec.Vector3;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -21,30 +15,65 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.lwjgl.opengl.GL11;
+
+import java.util.Random;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
 
 @SideOnly(Side.CLIENT)
 public class RenderUtil
 {
 	public static double zLevel = 0;
-	
+
+	public static void glTask(Runnable task)
+	{
+		try
+		{
+			Minecraft.getMinecraft().addScheduledTask(task).get();
+		} catch(InterruptedException e)
+		{
+			e.printStackTrace();
+		} catch(ExecutionException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public static <T> T glTask(Callable<T> task)
+	{
+		try
+		{
+			return Minecraft.getMinecraft().addScheduledTask(task).get();
+		} catch(InterruptedException e)
+		{
+			e.printStackTrace();
+		} catch(ExecutionException e)
+		{
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 	public static void drawFullRectangleFit(double x, double y, double width, double height)
 	{
 		int w = GL11.glGetTexLevelParameteri(GL11.GL_TEXTURE_2D, 0, GL11.GL_TEXTURE_WIDTH);
 		int h = GL11.glGetTexLevelParameteri(GL11.GL_TEXTURE_2D, 0, GL11.GL_TEXTURE_HEIGHT);
-		
+
 		float ws = 1, hs = 1;
-		
+
 		if(w > h)
 			hs = h / (float) w;
 		if(h > w)
 			ws = w / (float) h;
-		
+
 		double nw = width * ws;
 		double nh = height * hs;
-		
+
 		drawFullTexturedModalRect(x + (width - nw) / 2, y + (height - nh) / 2, nw, nh);
 	}
-	
+
 	public static void drawTexturedModalRect(double x, double y, double texX, double texY, double width, double height)
 	{
 		float n = 0.00390625F;
@@ -57,26 +86,26 @@ public class RenderUtil
 		vb.pos(x, y, zLevel).tex(texX * n, texY * n).endVertex();
 		tess.draw();
 	}
-	
+
 	public static void drawFullTexturedModalRect(double x, double y, double width, double height)
 	{
 		float n = 0.00390625F;
 		Tessellator tess = Tessellator.getInstance();
 		BufferBuilder vb = tess.getBuffer();
 		vb.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
-		
+
 		vb.pos(x, y + height, zLevel).tex(0, 1).endVertex();
 		vb.pos(x + width, y + height, zLevel).tex(1, 1).endVertex();
 		vb.pos(x + width, y, zLevel).tex(1, 0).endVertex();
 		vb.pos(x, y, zLevel).tex(0, 0).endVertex();
-		
+
 		tess.draw();
 	}
-	
+
 	public static void drawColoredModalRect(double x, double y, double width, double height, int rgb)
 	{
 		float r = ColorHelper.getRed(rgb), g = ColorHelper.getGreen(rgb), b = ColorHelper.getBlue(rgb), a = ColorHelper.getAlpha(rgb);
-		
+
 		float n = 0.00390625F;
 		Tessellator tess = Tessellator.getInstance();
 		BufferBuilder vb = tess.getBuffer();
@@ -87,7 +116,7 @@ public class RenderUtil
 		vb.pos(x, y, zLevel).color(r, g, b, a).endVertex();
 		tess.draw();
 	}
-	
+
 	public static void drawTexturedModalRect(double x, double y, double texX, double texY, double width, double height, double zLevel)
 	{
 		float n = 0.00390625F;
@@ -100,7 +129,7 @@ public class RenderUtil
 		vb.pos(x, y, zLevel).tex(texX * n, texY * n).endVertex();
 		tess.draw();
 	}
-	
+
 	public static void drawTexturedModalRect(double xCoord, double yCoord, TextureAtlasSprite textureSprite, double widthIn, double heightIn)
 	{
 		Tessellator tessellator = Tessellator.getInstance();
@@ -112,7 +141,7 @@ public class RenderUtil
 		vertexbuffer.pos(xCoord, yCoord, 0).tex(textureSprite.getMinU(), textureSprite.getMinV()).endVertex();
 		tessellator.draw();
 	}
-	
+
 	public static void drawGradientRect(double left, double top, double width, double height, int startColor, int endColor)
 	{
 		float f = (startColor >> 24 & 255) / 255F;
@@ -141,7 +170,7 @@ public class RenderUtil
 		GlStateManager.enableAlpha();
 		GlStateManager.enableTexture2D();
 	}
-	
+
 	public static void drawGradientRect(double left, double top, double width, double height, int startColor, int endColor, double zLevel)
 	{
 		float f = (startColor >> 24 & 255) / 255F;
@@ -170,12 +199,12 @@ public class RenderUtil
 		GlStateManager.enableAlpha();
 		GlStateManager.enableTexture2D();
 	}
-	
+
 	public static void drawTextRGBA(FontRenderer font, String s, int x, int y, int r, int g, int b, int a)
 	{
 		font.drawString(s, x, y, Color.packARGB(r, g, b, a));
 	}
-	
+
 	public static void drawLine(Vector3 start, Vector3 end, int color, float size)
 	{
 		GlStateManager.enableAlpha();
@@ -192,7 +221,7 @@ public class RenderUtil
 		GlStateManager.enableTexture2D();
 		Color.glColourRGBA(0xFFFFFFFF);
 	}
-	
+
 	public static void drawBrokenLine(int color, float size, Vector3... points)
 	{
 		GlStateManager.enableAlpha();
@@ -209,19 +238,19 @@ public class RenderUtil
 		GlStateManager.enableTexture2D();
 		Color.glColourRGBA(0xFFFFFFFF);
 	}
-	
+
 	private static final Random rand = new Random();
-	
+
 	public static void renderColorfulLightRayEffects(double x, double y, double z, Function<Integer, Integer> rgba, long seed, float progress, int dstJump, int countFancy, int countNormal)
 	{
 		renderColorfulLightRayEffects(x, y, z, rgba, seed, progress, dstJump, 1.0F, countFancy, countNormal);
 	}
-	
+
 	public static void renderLightRayEffects(double x, double y, double z, int rgba, long seed, float progress, int dstJump, int countFancy, int countNormal)
 	{
 		renderLightRayEffects(x, y, z, rgba, seed, progress, dstJump, 1.0F, countFancy, countNormal);
 	}
-	
+
 	public static void setGlClearColorFromInt(int colorValue, int opacity)
 	{
 		int i = (colorValue & 16711680) >> 16;
@@ -229,25 +258,25 @@ public class RenderUtil
 		int k = (colorValue & 255);
 		GlStateManager.clearColor(i / 255.0f, j / 255.0f, k / 255.0f, opacity / 255.0f);
 	}
-	
+
 	public static void renderLightRayEffects(double x, double y, double z, int rgba, long seed, float progress, int dstJump, float scale, int countFancy, int countNormal)
 	{
 		rand.setSeed(seed);
 		GL11.glPushMatrix();
 		GL11.glTranslated(x, y, z);
-		
+
 		int fc = Minecraft.getMinecraft().gameSettings.fancyGraphics ? countFancy : countNormal;
-		
+
 		Tessellator tes = Tessellator.getInstance();
 		BufferBuilder vb = tes.getBuffer();
-		
+
 		float r = ColorHelper.getRed(rgba);
 		float g = ColorHelper.getGreen(rgba);
 		float b = ColorHelper.getBlue(rgba);
 		float a = ColorHelper.getAlpha(rgba);
-		
+
 		RenderHelper.disableStandardItemLighting();
-		
+
 		GL11.glDisable(3553);
 		GL11.glShadeModel(7425);
 		GL11.glEnable(3042);
@@ -255,7 +284,7 @@ public class RenderUtil
 		GL11.glDisable(3008);
 		GL11.glDepthMask(false);
 		GL11.glPushMatrix();
-		
+
 		for(int i = 0; i < fc; i++)
 		{
 			GL11.glRotatef(rand.nextFloat() * 360.0F, 1.0F, 0.0F, 0.0F);
@@ -276,7 +305,7 @@ public class RenderUtil
 			vb.pos(-0.7D * f4, fa, -0.5F * f4).color(r, g, b, 0).endVertex();
 			tes.draw();
 		}
-		
+
 		GL11.glPopMatrix();
 		GL11.glDepthMask(true);
 		GL11.glBlendFunc(770, 771);
@@ -285,23 +314,23 @@ public class RenderUtil
 		GL11.glEnable(3553);
 		GL11.glEnable(3008);
 		RenderHelper.enableStandardItemLighting();
-		
+
 		GL11.glPopMatrix();
 	}
-	
+
 	public static void renderColorfulLightRayEffects(double x, double y, double z, Function<Integer, Integer> rgba, long seed, float progress, int dstJump, float scale, int countFancy, int countNormal)
 	{
 		rand.setSeed(seed);
 		GL11.glPushMatrix();
 		GL11.glTranslated(x, y, z);
-		
+
 		int fc = Minecraft.getMinecraft().gameSettings.fancyGraphics ? countFancy : countNormal;
-		
+
 		Tessellator tes = Tessellator.getInstance();
 		BufferBuilder vb = tes.getBuffer();
-		
+
 		RenderHelper.disableStandardItemLighting();
-		
+
 		GL11.glDisable(3553);
 		GL11.glShadeModel(7425);
 		GL11.glEnable(3042);
@@ -309,16 +338,16 @@ public class RenderUtil
 		GL11.glDisable(3008);
 		GL11.glDepthMask(false);
 		GL11.glPushMatrix();
-		
+
 		for(int i = 0; i < fc; i++)
 		{
 			int irgba = rgba.apply(i);
-			
+
 			float r = ColorHelper.getRed(irgba);
 			float g = ColorHelper.getGreen(irgba);
 			float b = ColorHelper.getBlue(irgba);
 			float a = ColorHelper.getAlpha(irgba);
-			
+
 			GL11.glRotatef(rand.nextFloat() * 360.0F, 1.0F, 0.0F, 0.0F);
 			GL11.glRotatef(rand.nextFloat() * 360.0F, 0.0F, 1.0F, 0.0F);
 			GL11.glRotatef(rand.nextFloat() * 360.0F, 0.0F, 0.0F, 1.0F);
@@ -337,7 +366,7 @@ public class RenderUtil
 			vb.pos(-0.7D * f4, fa, -0.5F * f4).color(r, g, b, 0).endVertex();
 			tes.draw();
 		}
-		
+
 		GL11.glPopMatrix();
 		GL11.glDepthMask(true);
 		GL11.glBlendFunc(770, 771);
@@ -347,25 +376,25 @@ public class RenderUtil
 		GL11.glEnable(3553);
 		GL11.glEnable(3008);
 		RenderHelper.enableStandardItemLighting();
-		
+
 		GL11.glPopMatrix();
 	}
-	
+
 	public static void drawHorizontalGradientRect(float left, float top, float width, float height, int startColor, int endColor)
 	{
 		float f = (float) (startColor >> 24 & 255) / 255.0F;
 		float f1 = (float) (startColor >> 16 & 255) / 255.0F;
 		float f2 = (float) (startColor >> 8 & 255) / 255.0F;
 		float f3 = (float) (startColor & 255) / 255.0F;
-		
+
 		float f4 = (float) (endColor >> 24 & 255) / 255.0F;
 		float f5 = (float) (endColor >> 16 & 255) / 255.0F;
 		float f6 = (float) (endColor >> 8 & 255) / 255.0F;
 		float f7 = (float) (endColor & 255) / 255.0F;
-		
+
 		float right = left + width;
 		float bottom = top + height;
-		
+
 		GlStateManager.disableTexture2D();
 		GlStateManager.enableBlend();
 		GlStateManager.disableAlpha();
@@ -384,22 +413,22 @@ public class RenderUtil
 		GlStateManager.enableAlpha();
 		GlStateManager.enableTexture2D();
 	}
-	
+
 	public static void drawVerticalGradientRect(float left, float top, float width, float height, int startColor, int endColor)
 	{
 		float f = (float) (startColor >> 24 & 255) / 255.0F;
 		float f1 = (float) (startColor >> 16 & 255) / 255.0F;
 		float f2 = (float) (startColor >> 8 & 255) / 255.0F;
 		float f3 = (float) (startColor & 255) / 255.0F;
-		
+
 		float f4 = (float) (endColor >> 24 & 255) / 255.0F;
 		float f5 = (float) (endColor >> 16 & 255) / 255.0F;
 		float f6 = (float) (endColor >> 8 & 255) / 255.0F;
 		float f7 = (float) (endColor & 255) / 255.0F;
-		
+
 		float right = left + width;
 		float bottom = top + height;
-		
+
 		GlStateManager.disableTexture2D();
 		GlStateManager.enableBlend();
 		GlStateManager.disableAlpha();
@@ -418,7 +447,7 @@ public class RenderUtil
 		GlStateManager.enableAlpha();
 		GlStateManager.enableTexture2D();
 	}
-	
+
 	public static class PlayerRenderUtil
 	{
 		public static void rotateIfSneaking(EntityPlayer player)
@@ -426,33 +455,33 @@ public class RenderUtil
 			if(player.isSneaking())
 				applySneakingRotation();
 		}
-		
+
 		public static void applySneakingRotation()
 		{
 			GlStateManager.translate(0F, 0.2F, 0F);
 			GlStateManager.rotate(90F / (float) Math.PI, 1.0F, 0.0F, 0.0F);
 		}
-		
+
 		public static void translateToHeadLevel(EntityPlayer player)
 		{
 			GlStateManager.translate(0, -player.getDefaultEyeHeight(), 0);
 			if(player.isSneaking())
 				GlStateManager.translate(0.25F * MathHelper.sin(player.rotationPitch * (float) Math.PI / 180), 0.25F * MathHelper.cos(player.rotationPitch * (float) Math.PI / 180), 0F);
 		}
-		
+
 		public static void translateToFace()
 		{
 			GlStateManager.rotate(90F, 0F, 1F, 0F);
 			GlStateManager.rotate(180F, 1F, 0F, 0F);
 			GlStateManager.translate(0f, -4.35f, -1.27f);
 		}
-		
+
 		public static void defaultTransforms()
 		{
 			GlStateManager.translate(0.0, 3.0, 1.0);
 			GlStateManager.scale(0.55, 0.55, 0.55);
 		}
-		
+
 		public static void translateToChest()
 		{
 			GlStateManager.rotate(180F, 1F, 0F, 0F);

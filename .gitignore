@@ -17,7 +17,7 @@ out
 build
 .gradle
 # I had to exclude this file.
-gradle.properties
+*.properties
 
 # other
 eclipse

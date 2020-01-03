@@ -8,6 +8,7 @@ import com.zeitheron.hammercore.HammerCore;
 import com.zeitheron.hammercore.ServerHCClientPlayerData;
 import com.zeitheron.hammercore.TooltipAPI;
 import com.zeitheron.hammercore.annotations.AtTESR;
+import com.zeitheron.hammercore.api.events.ResourceManagerReloadEvent;
 import com.zeitheron.hammercore.api.inconnect.EmptyModelPack;
 import com.zeitheron.hammercore.api.inconnect.IBlockConnectable;
 import com.zeitheron.hammercore.api.inconnect.InConnectAPI;
@@ -63,6 +64,8 @@ import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.resources.IReloadableResourceManager;
+import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -88,6 +91,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
+import net.minecraftforge.client.resource.IResourceType;
+import net.minecraftforge.client.resource.ISelectiveResourceReloadListener;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.common.MinecraftForge;
@@ -117,12 +122,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @SideOnly(Side.CLIENT)
 public class RenderProxy_Client
 		extends RenderProxy_Common
-		implements IEnchantmentColorManager
+		implements IEnchantmentColorManager, ISelectiveResourceReloadListener
 {
 	public static final EmptyModelPack EMP = new EmptyModelPack();
 	public final EntityTooltipRenderEngine tooltipEngine = new EntityTooltipRenderEngine();
@@ -148,6 +154,7 @@ public class RenderProxy_Client
 		MinecraftForge.EVENT_BUS.register(new SplashTextHelper());
 		MinecraftForge.EVENT_BUS.register(new HammerCoreClient());
 		MinecraftForge.EVENT_BUS.register(Stack2ImageRenderer.INSTANCE);
+		((IReloadableResourceManager) Minecraft.getMinecraft().getResourceManager()).registerReloadListener(this);
 
 		TextureFXManager.INSTANCE.preInit();
 
@@ -875,5 +882,11 @@ public class RenderProxy_Client
 	public void noModel(Block blk)
 	{
 		HammerCoreClient.emptyBlockState(blk);
+	}
+
+	@Override
+	public void onResourceManagerReload(IResourceManager resourceManager, Predicate<IResourceType> resourcePredicate)
+	{
+		MinecraftForge.EVENT_BUS.post(new ResourceManagerReloadEvent(resourceManager, resourcePredicate));
 	}
 }

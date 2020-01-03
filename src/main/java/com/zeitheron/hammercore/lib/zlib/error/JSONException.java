@@ -15,7 +15,8 @@ package com.zeitheron.hammercore.lib.zlib.error;
  * Although this is a checked exception, it is rarely recoverable. Most callers
  * should simply wrap this exception in an unchecked exception and rethrow.
  */
-public class JSONException extends Exception
+public class JSONException
+		extends RuntimeException
 {
 	private static final long serialVersionUID = -8223333936049224309L;
 
