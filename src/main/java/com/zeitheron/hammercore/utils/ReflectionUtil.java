@@ -1,10 +1,9 @@
 package com.zeitheron.hammercore.utils;
 
+import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-
-import javax.annotation.Nullable;
 
 public class ReflectionUtil
 {
@@ -12,7 +11,7 @@ public class ReflectionUtil
 	private static Object reflectionFactory;
 	private static Method newFieldAccessor;
 	private static Method fieldAccessorSet;
-	
+
 	public static boolean setStaticFinalField(Class<?> cls, String var, Object val)
 	{
 		try
@@ -24,7 +23,7 @@ public class ReflectionUtil
 		}
 		return false;
 	}
-	
+
 	public static boolean setStaticFinalField(Field f, Object val)
 	{
 		try
@@ -38,7 +37,7 @@ public class ReflectionUtil
 		}
 		return false;
 	}
-	
+
 	public static boolean setFinalField(Field f, @Nullable Object instance, Object thing) throws ReflectiveOperationException
 	{
 		if(Modifier.isFinal(f.getModifiers()))
@@ -50,7 +49,7 @@ public class ReflectionUtil
 		}
 		return false;
 	}
-	
+
 	private static Field makeWritable(Field f) throws ReflectiveOperationException
 	{
 		f.setAccessible(true);
@@ -66,7 +65,7 @@ public class ReflectionUtil
 		modifiersField.setInt(f, f.getModifiers() & ~Modifier.FINAL);
 		return f;
 	}
-	
+
 	public static Object getValue(Object object, Class<?> type)
 	{
 		Field field = getField(object.getClass(), type);
@@ -80,7 +79,7 @@ public class ReflectionUtil
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	public static Field getField(Class<?> clazz, Class<?> type)
 	{
 		Field ret = null;
@@ -96,7 +95,25 @@ public class ReflectionUtil
 		}
 		return ret;
 	}
-	
+
+	public static Field getFieldByValue(Class<?> clazz, Object instance, Object value)
+	{
+		for(Field field : clazz.getDeclaredFields())
+			if(!Modifier.isStatic(field.getModifiers()) && field.getType().isAssignableFrom(value.getClass()))
+			{
+				field.setAccessible(true);
+				try
+				{
+					if(field.get(instance) == value)
+						return field;
+				} catch(IllegalAccessException e)
+				{
+					continue;
+				}
+			}
+		return null;
+	}
+
 	public static Field getField(Class<?> clazz, String name)
 	{
 		Field ret = null;
@@ -112,7 +129,7 @@ public class ReflectionUtil
 		}
 		return ret;
 	}
-	
+
 	public static Class<?> getCaller()
 	{
 		try

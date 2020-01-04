@@ -856,14 +856,19 @@ public class RenderProxy_Client
 
 		bakedModelStore.putConstant(BlocksHC.MULTIPART.getDefaultState(), new BakedMultipartModel());
 
-		Field modelMap = ReflectionUtil.getField(BlockModelShapes.class, Map.class);
 		bakedModelStore.clear();
 		try
 		{
-			bakedModelStore.putAll(Map.class.cast(modelMap.get(shapes)));
-			ReflectionUtil.setFinalField(modelMap, shapes, bakedModelStore);
-		} catch(ReflectiveOperationException e)
+			bakedModelStore.putAll(shapes.bakedModelStore);
+			Field modelMap = ReflectionUtil.getFieldByValue(BlockModelShapes.class, shapes, shapes.bakedModelStore);
+			if(modelMap != null)
+				ReflectionUtil.setFinalField(modelMap, shapes, bakedModelStore);
+			else
+				HammerCore.LOG.info("UNABLE TO FIND bakedModelStore IN " + BlockModelShapes.class + "!! CUSTOM MODEL LOADING IS CORRUPTED!!");
+		} catch(Throwable e)
 		{
+			HammerCore.LOG.info("EXCEPTION HAPPENED WHILE HOOKING INTO " + BlockModelShapes.class + "!! CUSTOM MODEL LOADING IS CORRUPTED!!");
+			e.printStackTrace();
 		}
 	}
 
