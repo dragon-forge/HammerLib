@@ -61,7 +61,7 @@ public class WavefrontLoader
 			{
 				if(res == null)
 					throw new FileNotFoundException("assets/" + path.getNamespace() + "/" + path.getPath());
-				else return loadModel(res.getInputStream());
+				else return loadModel(res.getInputStream(), 1 / 16F);
 			} catch(IOException ioe)
 			{
 				ioe.printStackTrace();
@@ -86,16 +86,17 @@ public class WavefrontLoader
 	 * @param stream the stream to be loaded
 	 * @return the loaded <code>WavefrontMesh</code>
 	 */
-	public static WavefrontMesh loadModel(InputStream stream)
+	public static WavefrontMesh loadModel(InputStream stream, float scale)
 	{
-		return loadModel(new Scanner(stream));
+		return loadModel(new Scanner(stream), scale);
 	}
 
 	/**
 	 * @param sc the <code>WavefrontMesh</code> to be loaded
+	 * @param scale the scale of the newly loaded model
 	 * @return the loaded <code>WavefrontMesh</code>
 	 */
-	public static WavefrontMesh loadModel(Scanner sc)
+	public static WavefrontMesh loadModel(Scanner sc, float scale)
 	{
 		WavefrontMesh model = new WavefrontMesh();
 		while(sc.hasNextLine())
@@ -110,9 +111,9 @@ public class WavefrontLoader
 				{
 					case "v":
 						model.getVertices().add(new Vector3f(
-								Float.parseFloat(split[1]),
-								Float.parseFloat(split[2]),
-								Float.parseFloat(split[3])
+								Float.parseFloat(split[1]) * scale,
+								Float.parseFloat(split[2]) * scale,
+								Float.parseFloat(split[3]) * scale
 						));
 						break;
 					case "vn":
