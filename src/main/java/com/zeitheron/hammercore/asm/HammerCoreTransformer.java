@@ -120,12 +120,21 @@ public class HammerCoreTransformer implements IClassTransformer
 				newInstructions.add(new VarInsnNode(Opcodes.ILOAD, 2));
 				newInstructions.add(new VarInsnNode(Opcodes.ILOAD, 3));
 				newInstructions.add(new VarInsnNode(Opcodes.ALOAD, 4));
-				newInstructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/zeitheron/hammercore/client/utils/ItemColorHelper", "renderItemModelIntoGUI", method.desc, false));
+				newInstructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/zeitheron/hammercore/client/utils/ItemColorHelper", "renderItemModelIntoGUIPre", method.desc, false));
 				insn.insert(newInstructions);
+
+				newInstructions = new InsnList();
+				newInstructions.add(new VarInsnNode(Opcodes.ALOAD, 1));
+				newInstructions.add(new VarInsnNode(Opcodes.ILOAD, 2));
+				newInstructions.add(new VarInsnNode(Opcodes.ILOAD, 3));
+				newInstructions.add(new VarInsnNode(Opcodes.ALOAD, 4));
+				newInstructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/zeitheron/hammercore/client/utils/ItemColorHelper", "renderItemModelIntoGUIPost", method.desc, false));
+				insn.insertBefore(insn.getLast(), newInstructions);
+
 				asm.info("Sending instructions to RenderItem for function renderItemModelIntoGUI");
 			}
 		}, "Coloring Item Glint...", cv("net.minecraft.client.renderer.RenderItem"));
-		
+
 		hook((node, obf) ->
 		{
 			for(int i = 0; i < node.methods.size(); ++i)

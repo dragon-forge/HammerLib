@@ -1,9 +1,14 @@
 package com.zeitheron.hammercore.utils.base;
 
-import com.zeitheron.hammercore.utils.WorldUtil;
+import java.util.Optional;
 
 public class Cast
 {
+	public static <T> Optional<T> optionally(Object obj, Class<T> to)
+	{
+		return Optional.ofNullable(cast(obj, to));
+	}
+
 	public static <T> T cast(Object v)
 	{
 		try
@@ -14,11 +19,11 @@ public class Cast
 			return null;
 		}
 	}
-	
+
 	public static <T> T cast(Object obj, Class<T> to)
 	{
 		if(obj != null && to.isAssignableFrom(obj.getClass()))
-			return (T) obj;
+			return to.cast(obj);
 		return null;
 	}
 }
