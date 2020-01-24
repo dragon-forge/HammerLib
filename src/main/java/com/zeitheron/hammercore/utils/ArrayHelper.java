@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -46,5 +47,13 @@ public class ArrayHelper
 		for(T[] ts : tmat)
 			a = merge(a, ts);
 		return a;
+	}
+
+	public static <SRC, DST> DST[] transform(SRC[] src, Function<SRC, DST> transformer, IntFunction<DST[]> arrayFactory)
+	{
+		DST[] dst = arrayFactory.apply(src.length);
+		for(int i = 0; i < src.length; ++i)
+			dst[i] = transformer.apply(src[i]);
+		return dst;
 	}
 }

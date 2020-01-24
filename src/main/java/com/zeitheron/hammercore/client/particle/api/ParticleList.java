@@ -139,7 +139,7 @@ public class ParticleList
 				ArrayDeque<Particle>[][] particles = Minecraft.getMinecraft().effectRenderer.fxLayers;
 				for(ArrayDeque<Particle>[] layer : particles)
 					for(ArrayDeque<Particle> deque : layer)
-						for(Particle p : deque.clone())
+						for(Particle p : deque)
 							if(p instanceof ParticleGrouped)
 							{
 								// Move grouped particles to custom render engine

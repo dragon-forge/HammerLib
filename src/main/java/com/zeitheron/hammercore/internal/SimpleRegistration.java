@@ -1,17 +1,5 @@
 package com.zeitheron.hammercore.internal;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
 import com.google.common.collect.Maps;
 import com.zeitheron.hammercore.HammerCore;
 import com.zeitheron.hammercore.annotations.PreRegisterHook;
@@ -19,6 +7,7 @@ import com.zeitheron.hammercore.annotations.RecipeRegister;
 import com.zeitheron.hammercore.annotations.RegisterIf;
 import com.zeitheron.hammercore.api.INoItemBlock;
 import com.zeitheron.hammercore.api.ITileBlock;
+import com.zeitheron.hammercore.api.blocks.IBlockItemRegisterListener;
 import com.zeitheron.hammercore.api.blocks.INoBlockstate;
 import com.zeitheron.hammercore.api.multipart.BlockMultipartProvider;
 import com.zeitheron.hammercore.internal.blocks.IItemBlock;
@@ -26,7 +15,6 @@ import com.zeitheron.hammercore.internal.init.ItemsHC;
 import com.zeitheron.hammercore.utils.IRegisterListener;
 import com.zeitheron.hammercore.utils.ReflectionUtil;
 import com.zeitheron.hammercore.utils.SoundObject;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.creativetab.CreativeTabs;
@@ -46,6 +34,13 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.oredict.OreIngredient;
 
+import java.lang.reflect.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
 public class SimpleRegistration
 {
 	public static ShapedRecipes parseShapedRecipe(ItemStack stack, Object... recipeComponents)
@@ -56,11 +51,11 @@ public class SimpleRegistration
 		int i = 0;
 		int j = 0;
 		int k = 0;
-		
+
 		if(recipeComponents[i] instanceof String[])
 		{
 			String[] astring = ((String[]) recipeComponents[i++]);
-			
+
 			for(String s2 : astring)
 			{
 				++k;
@@ -77,14 +72,14 @@ public class SimpleRegistration
 				s = s + s1;
 			}
 		}
-		
+
 		Map<Character, Ingredient> map;
-		
+
 		for(map = Maps.<Character, Ingredient> newHashMap(); i < recipeComponents.length; i += 2)
 		{
 			Character character = (Character) recipeComponents[i];
 			Ingredient ingr = null;
-			
+
 			if(recipeComponents[i + 1] instanceof Item)
 				ingr = Ingredient.fromItem((Item) recipeComponents[i + 1]);
 			else if(recipeComponents[i + 1] instanceof Block)
@@ -101,31 +96,29 @@ public class SimpleRegistration
 				ingr = new OreIngredient(recipeComponents[i + 1] + "");
 			else if(recipeComponents[i + 1] instanceof Ingredient)
 				ingr = (Ingredient) recipeComponents[i + 1];
-			
+
 			map.put(character, ingr);
 		}
-		
+
 		NonNullList<Ingredient> aitemstack = NonNullList.withSize(j * k, Ingredient.EMPTY);
-		
+
 		for(int l = 0; l < j * k; ++l)
 		{
 			char c0 = s.charAt(l);
-			
+
 			if(map.containsKey(Character.valueOf(c0)))
 				aitemstack.set(l, map.get(Character.valueOf(c0)));
 		}
-		
+
 		return new ShapedRecipes(name, j, k, aitemstack, stack);
 	}
-	
+
 	/**
 	 * This should only be used for registering recipes for vanilla objects and
 	 * not mod-specific objects.
-	 * 
-	 * @param stack
-	 *            The output stack.
-	 * @param recipeComponents
-	 *            The recipe components.
+	 *
+	 * @param stack            The output stack.
+	 * @param recipeComponents The recipe components.
 	 * @return The parsed recipe
 	 */
 	public static ShapelessRecipes parseShapelessRecipe(ItemStack stack, Object... recipeComponents)
@@ -133,11 +126,11 @@ public class SimpleRegistration
 		ModContainer mc = Loader.instance().activeModContainer();
 		String name = (mc != null ? mc.getModId() : "hammercore") + ":" + stack.getTranslationKey();
 		NonNullList<Ingredient> list = NonNullList.create();
-		
+
 		for(Object object : recipeComponents)
 		{
 			Ingredient ingr = null;
-			
+
 			if(object instanceof Item)
 				ingr = Ingredient.fromItem((Item) object);
 			else if(object instanceof Block)
@@ -154,16 +147,16 @@ public class SimpleRegistration
 				ingr = new OreIngredient(object + "");
 			else if(object instanceof Ingredient)
 				ingr = (Ingredient) object;
-			
+
 			if(ingr != null)
 				list.add(ingr);
 			else
 				throw new IllegalArgumentException("Invalid shapeless recipe: unknown type " + object.getClass().getName() + "!");
 		}
-		
+
 		return new ShapelessRecipes(name, stack, list);
 	}
-	
+
 	public static void registerFieldItemsFrom(Class<?> owner, String modid, CreativeTabs tab)
 	{
 		for(Method m : owner.getDeclaredMethods())
@@ -178,7 +171,7 @@ public class SimpleRegistration
 					e.printStackTrace();
 				}
 			}
-		
+
 		Field[] fs = owner.getDeclaredFields();
 		for(Field f : fs)
 			if(Item.class.isAssignableFrom(f.getType()) && doRegister(f))
@@ -190,7 +183,7 @@ public class SimpleRegistration
 				{
 				}
 	}
-	
+
 	public static void disableIf(boolean statement, Object instance)
 	{
 		if(statement)
@@ -198,7 +191,7 @@ public class SimpleRegistration
 				if(Modifier.isStatic(f.getModifiers()))
 					ReflectionUtil.setStaticFinalField(f, null);
 	}
-	
+
 	public static void registerFieldBlocksFrom(Class<?> owner, String modid, CreativeTabs tab)
 	{
 		for(Method m : owner.getDeclaredMethods())
@@ -213,7 +206,7 @@ public class SimpleRegistration
 					e.printStackTrace();
 				}
 			}
-		
+
 		Field[] fs = owner.getDeclaredFields();
 		for(Field f : fs)
 			if(Block.class.isAssignableFrom(f.getType()) && doRegister(f))
@@ -225,7 +218,7 @@ public class SimpleRegistration
 				{
 				}
 	}
-	
+
 	public static void registerFieldSoundsFrom(Class<?> owner)
 	{
 		for(Method m : owner.getDeclaredMethods())
@@ -240,7 +233,7 @@ public class SimpleRegistration
 					e.printStackTrace();
 				}
 			}
-		
+
 		Field[] fs = owner.getDeclaredFields();
 		for(Field f : fs)
 			if(SoundObject.class.isAssignableFrom(f.getType()) && doRegister(f))
@@ -252,7 +245,7 @@ public class SimpleRegistration
 				{
 				}
 	}
-	
+
 	public static boolean doRegister(Field f)
 	{
 		RegisterIf statement = f.getAnnotation(RegisterIf.class);
@@ -273,19 +266,18 @@ public class SimpleRegistration
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Registers {@link SoundObject} to registry and populates
 	 * {@link SoundObject} with {@link SoundEvent}.
-	 * 
-	 * @param sound
-	 *            The object containing a pahth to sound object
+	 *
+	 * @param sound The object containing a pahth to sound object
 	 **/
 	public static void registerSound(SoundObject sound)
 	{
 		GameRegistry.findRegistry(SoundEvent.class).register(sound.sound = new SoundEvent(sound.name).setRegistryName(sound.name));
 	}
-	
+
 	public static void registerItem(Item item, String modid, CreativeTabs tab)
 	{
 		if(item == null)
@@ -300,7 +292,7 @@ public class SimpleRegistration
 			((IRegisterListener) item).onRegistered();
 		ItemsHC.items.add(item);
 	}
-	
+
 	public static void registerBlock(Block block, String modid, CreativeTabs tab)
 	{
 		if(block == null)
@@ -308,17 +300,17 @@ public class SimpleRegistration
 		String name = block.getTranslationKey().substring("tile.".length());
 		block.setTranslationKey(modid + ":" + name);
 		block.setCreativeTab(tab);
-		
+
 		// ItemBlockDefinition
-		Item ib = null;
-		
+		Item ib;
+
 		if(block instanceof BlockMultipartProvider)
 			ib = ((BlockMultipartProvider) block).createItem();
 		else if(block instanceof IItemBlock)
 			ib = ((IItemBlock) block).getItemBlock();
 		else
 			ib = new ItemBlock(block);
-		
+
 		block.setRegistryName(modid, name);
 		ForgeRegistries.BLOCKS.register(block);
 		if(!(block instanceof INoItemBlock))
@@ -326,18 +318,20 @@ public class SimpleRegistration
 			ForgeRegistries.ITEMS.register(ib.setRegistryName(block.getRegistryName()));
 			if(ib instanceof IRegisterListener)
 				((IRegisterListener) ib).onRegistered();
+			if(block instanceof IBlockItemRegisterListener)
+				((IBlockItemRegisterListener) block).onItemBlockRegistered(ib);
 		}
-		
+
 		if(block instanceof IRegisterListener)
 			((IRegisterListener) block).onRegistered();
-		
+
 		if(block instanceof INoBlockstate)
 			HammerCore.renderProxy.noModel(block);
-		
+
 		if(block instanceof ITileBlock)
 		{
 			Class c = ((ITileBlock) block).getTileClass();
-			
+
 			// Better registration of tiles. Maybe this will fix tile
 			// disappearing?
 			TileEntity.register(modid + ":" + c.getName().substring(c.getName().lastIndexOf(".") + 1).toLowerCase(), c);
@@ -351,7 +345,7 @@ public class SimpleRegistration
 				TileEntity.register(modid + ":" + c.getName().substring(c.getName().lastIndexOf(".") + 1).toLowerCase(), c);
 			}
 		}
-		
+
 		if(!(block instanceof INoItemBlock))
 		{
 			Item i = Item.getItemFromBlock(block);
@@ -361,9 +355,9 @@ public class SimpleRegistration
 				ItemsHC.items.add(i);
 		}
 	}
-	
+
 	private static final List<Supplier<List<IRecipe>>> RECIPE_GENERATORS = new ArrayList<>();
-	
+
 	public static void registerConstantRecipes(Class<?> base)
 	{
 		for(Method m : base.getDeclaredMethods())
@@ -379,7 +373,7 @@ public class SimpleRegistration
 					{
 						m.setAccessible(true);
 						final Method $ = m;
-						
+
 						RECIPE_GENERATORS.add(() ->
 						{
 							List<IRecipe> recipes = new ArrayList<>();
@@ -397,7 +391,7 @@ public class SimpleRegistration
 			}
 		}
 	}
-	
+
 	public static void $addRegisterRecipes(Consumer<IRecipe> registry)
 	{
 		for(Supplier<List<IRecipe>> recipes : RECIPE_GENERATORS)
