@@ -1,17 +1,12 @@
 package com.zeitheron.hammercore.api.inconnect;
 
-import java.util.Objects;
-import java.util.stream.Stream;
-
-import javax.annotation.Nullable;
-
 import com.google.common.base.Predicates;
 import com.zeitheron.hammercore.api.blocks.INoBlockstate;
 import com.zeitheron.hammercore.api.inconnect.InConnectAPI.TextureAtlasSpritePartial;
-
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -19,7 +14,12 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public interface IBlockConnectable extends INoBlockstate
+import javax.annotation.Nullable;
+import java.util.Objects;
+import java.util.stream.Stream;
+
+public interface IBlockConnectable
+		extends INoBlockstate
 {
 	/**
 	 * Please represent texture path to your texture. <br>
@@ -27,7 +27,7 @@ public interface IBlockConnectable extends INoBlockstate
 	 */
 	@SideOnly(Side.CLIENT)
 	ResourceLocation getTxMap();
-	
+
 	/**
 	 * New way of representing multiple texture paths to the texture. Starting
 	 * from zero. If your texture doesn't have specified texture, please return
@@ -38,7 +38,7 @@ public interface IBlockConnectable extends INoBlockstate
 	{
 		return layer == 0 ? getTxMap() : layer == 1 ? new ResourceLocation(getTxMap().getNamespace(), getTxMap().getPath() + "2") : null;
 	}
-	
+
 	default Stream<ResourceLocation> getSprites()
 	{
 		Stream.Builder<ResourceLocation> builder = Stream.builder();
@@ -47,7 +47,7 @@ public interface IBlockConnectable extends INoBlockstate
 			builder.add(getTx(i, null, BlockPos.ORIGIN));
 		return builder.build().filter(Predicates.notNull());
 	}
-	
+
 	/**
 	 * Please represent texture sprite of your particle texture. <br>
 	 * Example: <code>return getSprite("minecraft:blocks/bedrock")</code>
@@ -74,14 +74,20 @@ public interface IBlockConnectable extends INoBlockstate
 		}
 		return null;
 	}
-	
+
 	AxisAlignedBB getBlockShape(IBlockAccess world, BlockPos pos, IBlockState state);
-	
+
 	default EnumConnTexVersion getConnectTextureVersion()
 	{
 		return EnumConnTexVersion.V1;
 	}
-	
+
+	@SideOnly(Side.CLIENT)
+	default TextureAtlasSprite getSpriteForFace(IBlockAccess world, BlockPos pos, IBlockState state, EnumFacing face, long rand, int layer)
+	{
+		return getSprite(getTx(layer, world, pos).toString());
+	}
+
 	@SideOnly(Side.CLIENT)
 	static TextureAtlasSprite getSprite(String path)
 	{

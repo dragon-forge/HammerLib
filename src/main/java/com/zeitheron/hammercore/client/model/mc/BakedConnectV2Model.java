@@ -102,7 +102,7 @@ public class BakedConnectV2Model implements IBakedModel
 			{
 				try
 				{
-					TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(ct.getTxMap().toString());
+					TextureAtlasSprite sprite = ct.getSpriteForFace(world, pos, state, side, rand, 0);
 					
 					AxisAlignedBB aabb = ct.getBlockShape(world, pos, pstate);
 					
