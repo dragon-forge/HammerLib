@@ -1,10 +1,13 @@
 package com.zeitheron.hammercore.api.lighting;
 
+import com.zeitheron.hammercore.client.utils.gl.IGLBufferStream;
+import com.zeitheron.hammercore.client.utils.gl.IGLWritable;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
 public class ColoredLight
+		implements IGLWritable
 {
 	public float x;
 	public float y;
@@ -33,6 +36,20 @@ public class ColoredLight
 		y = (float) (entity.prevPosY + (entity.posY - entity.prevPosY) * partialTicks);
 		z = (float) (entity.prevPosZ + (entity.posZ - entity.prevPosZ) * partialTicks);
 		return this;
+	}
+
+	@Override
+	public int getFloatSize()
+	{
+		return 8;
+	}
+
+	@Override
+	public void writeFloats(IGLBufferStream<Float> stream)
+	{
+		stream.putAll(r, g, b, a);
+		stream.putAll(x, y, z);
+		stream.put(radius);
 	}
 
 	public static Builder builder()

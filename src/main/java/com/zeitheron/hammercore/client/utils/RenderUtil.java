@@ -1,5 +1,6 @@
 package com.zeitheron.hammercore.client.utils;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import com.zeitheron.hammercore.utils.color.Color;
 import com.zeitheron.hammercore.utils.color.ColorHelper;
 import com.zeitheron.hammercore.utils.math.vec.Vector3;
@@ -54,6 +55,16 @@ public class RenderUtil
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	public static void glTaskAsync(Runnable task)
+	{
+		Minecraft.getMinecraft().addScheduledTask(task);
+	}
+
+	public static <T> ListenableFuture<T> glTaskAsync(Callable<T> task)
+	{
+		return Minecraft.getMinecraft().addScheduledTask(task);
 	}
 
 	public static void drawFullRectangleFit(double x, double y, double width, double height)
