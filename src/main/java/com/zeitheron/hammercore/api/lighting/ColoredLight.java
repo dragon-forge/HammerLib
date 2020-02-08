@@ -142,6 +142,17 @@ public class ColoredLight
 			return this;
 		}
 
+		public Builder alpha(int alpha)
+		{
+			return alpha(alpha / 255F);
+		}
+
+		public Builder alpha(float alpha)
+		{
+			this.a = alpha;
+			return this;
+		}
+
 		public Builder radius(float radius)
 		{
 			this.radius = radius;

@@ -2,7 +2,6 @@ package com.zeitheron.hammercore.api.inconnect;
 
 import com.google.common.base.Predicates;
 import com.zeitheron.hammercore.api.blocks.INoBlockstate;
-import com.zeitheron.hammercore.api.inconnect.InConnectAPI.TextureAtlasSpritePartial;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -59,18 +58,15 @@ public interface IBlockConnectable
 		if(ctv == EnumConnTexVersion.V1)
 		{
 			TextureAtlasSprite sprite = getSprite(Objects.toString(getTx(0, null, BlockPos.ORIGIN)));
-			TextureAtlasSpritePartial partial = new TextureAtlasSpritePartial(sprite.getIconName(), 0.375F, 0.375F, 0.25F, 0.25F);
-			partial.copyFrom(sprite);
+			return InConnectAPI.partial(sprite, 0.375F, 0.375F, 0.25F, 0.25F);
 		} else if(ctv == EnumConnTexVersion.V2)
 		{
 			TextureAtlasSprite sprite = getSprite(Objects.toString(getTx(0, null, BlockPos.ORIGIN)));
-			TextureAtlasSpritePartial partial = new TextureAtlasSpritePartial(sprite.getIconName(), 0, 0, 0.25F, 0.25F);
-			partial.copyFrom(sprite);
+			return InConnectAPI.partial(sprite, 0, 0, 0.25F, 0.25F);
 		} else if(ctv == EnumConnTexVersion.V3)
 		{
 			TextureAtlasSprite sprite = getSprite(Objects.toString(getTx(0, null, BlockPos.ORIGIN)));
-			TextureAtlasSpritePartial partial = new TextureAtlasSpritePartial(sprite.getIconName(), 0.25F, 0.5F, 0.25F, 0.25F);
-			partial.copyFrom(sprite);
+			return InConnectAPI.partial(sprite, 0.25F, 0.5F, 0.25F, 0.25F);
 		}
 		return null;
 	}
