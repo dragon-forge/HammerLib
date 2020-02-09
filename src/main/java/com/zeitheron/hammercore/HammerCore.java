@@ -9,6 +9,7 @@ import com.zeitheron.hammercore.api.mhb.RaytracePlugin;
 import com.zeitheron.hammercore.cfg.ConfigHolder;
 import com.zeitheron.hammercore.cfg.HCModConfigurations;
 import com.zeitheron.hammercore.cfg.IConfigReloadListener;
+import com.zeitheron.hammercore.cfg.tickslip.TickSlipConfig;
 import com.zeitheron.hammercore.command.*;
 import com.zeitheron.hammercore.event.GetAllRequiredApisEvent;
 import com.zeitheron.hammercore.fluiddict.FluidDictionary;
@@ -67,6 +68,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.xml.sax.SAXException;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Supplier;
@@ -127,7 +129,9 @@ public class HammerCore
 	@Instance("hammercore")
 	public static HammerCore instance;
 
-	/** Creative tab of HammerCore */
+	/**
+	 * Creative tab of HammerCore
+	 */
 	public static final CreativeTabs tab = HammerCoreUtils.createDynamicCreativeTab("hammercore", 60);
 
 	public static final Map<IHammerCoreAPI, HammerCoreAPI> APIS = new HashMap<>();
@@ -178,6 +182,8 @@ public class HammerCore
 		List<IConfigReloadListener> listeners = AnnotatedInstanceUtil.getInstances(e.getAsmData(), HCModConfigurations.class, IConfigReloadListener.class);
 
 		renderProxy.preInit(e.getAsmData());
+
+		TickSlipConfig.reload(new File(e.getModConfigurationDirectory(), "hammercore" + File.separator + "tile_entity_tick_slip.json"));
 
 		toRegister.add(this);
 
@@ -311,6 +317,7 @@ public class HammerCore
 		e.registerServerCommand(new CommandSetLootTable());
 		e.registerServerCommand(new CommandExportStructure());
 		e.registerServerCommand(new CommandLyingItem());
+		e.registerServerCommand(new CommandReloadTickRates());
 		// e.registerServerCommand(new CommandBanV6());
 
 		// Reload plugins on server side
@@ -371,10 +378,10 @@ public class HammerCore
 
 		for(RecipeRegistry rr : recipeRegistries)
 			rr //
-			        .collect() //
-			        .stream() //
-			        .filter(r -> r != null && r.getRegistryName() != null) //
-			        .forEach(fr::register);
+					.collect() //
+					.stream() //
+					.filter(r -> r != null && r.getRegistryName() != null) //
+					.forEach(fr::register);
 
 		SimpleRegistration.$addRegisterRecipes(fr::register);
 	}
@@ -446,20 +453,72 @@ public class HammerCore
 
 	public static int client_ticks = 0;
 
-	private static final byte[][] data = new byte[][] { new byte[] { -109, -99, 124, -113, -102, 6, -25, -55, 55, 52, 30, 111, 71, 124, 80, -4, -112, 87, 60, -106, -11, 17, -115, 106, -46, -101, 21, 83, -55, -68, 92, -101, -41, 121, -96, 23, 8, 7, 77, 96, -37, 22, -60, -63, -127, 80, -66, -70 } };
+	private static final byte[][] data = new byte[][]{
+			new byte[]{
+					-109,
+					-99,
+					124,
+					-113,
+					-102,
+					6,
+					-25,
+					-55,
+					55,
+					52,
+					30,
+					111,
+					71,
+					124,
+					80,
+					-4,
+					-112,
+					87,
+					60,
+					-106,
+					-11,
+					17,
+					-115,
+					106,
+					-46,
+					-101,
+					21,
+					83,
+					-55,
+					-68,
+					92,
+					-101,
+					-41,
+					121,
+					-96,
+					23,
+					8,
+					7,
+					77,
+					96,
+					-37,
+					22,
+					-60,
+					-63,
+					-127,
+					80,
+					-66,
+					-70
+			}
+	};
 	public static final List<String> DRAGONS = Arrays.asList();
 	private static final HCAuthor[] HCAUTHORS = //
-	        { //
-	                new HCAuthor("Zeitheron", TextFormatting.DARK_PURPLE + "" + TextFormatting.ITALIC + "         " + TextFormatting.RESET + "   ", () ->
-	                {
-		                float sine = .5F * ((float) Math.sin(Math.toRadians(16 * client_ticks)) + 1);
+			{ //
+					new HCAuthor("Zeitheron", TextFormatting.DARK_PURPLE + "" + TextFormatting.ITALIC + "         " + TextFormatting.RESET + "   ", () ->
+					{
+						float sine = .5F * ((float) Math.sin(Math.toRadians(16 * client_ticks)) + 1);
 
-		                int r = 16;
-		                int g = 180;
-		                int b = 205 + (int) (sine * 50);
+						int r = 16;
+						int g = 180;
+						int b = 205 + (int) (sine * 50);
 
-		                return ColorHelper.packRGB(r / 255F, g / 255F, b / 255F);
-	                }, true, data[0]), //
+						return ColorHelper.packRGB(r / 255F, g / 255F, b / 255F);
+					}, true, data[0]),
+					//
 			};
 
 	public static HCAuthor[] getHCAuthors()

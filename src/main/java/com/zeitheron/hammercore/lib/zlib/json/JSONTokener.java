@@ -1,13 +1,24 @@
 package com.zeitheron.hammercore.lib.zlib.json;
 
 import com.zeitheron.hammercore.lib.zlib.error.JSONException;
+import com.zeitheron.hammercore.lib.zlib.io.IOUtils;
+import com.zeitheron.hammercore.utils.base.Cast;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Optional;
 
 public class JSONTokener
 {
 	public String in;
-	
+
 	private int pos;
-	
+
+	public JSONTokener(InputStream in) throws IOException
+	{
+		this(new String(IOUtils.pipeOut(in)));
+	}
+
 	public JSONTokener(String in)
 	{
 		if(in != null && in.startsWith("\ufeff"))
@@ -16,31 +27,41 @@ public class JSONTokener
 		}
 		this.in = in;
 	}
-	
+
+	public Optional<JSONObject> nextValueOBJ() throws JSONException
+	{
+		return Cast.optionally(nextValue(), JSONObject.class);
+	}
+
+	public Optional<JSONArray> nextValueARR() throws JSONException
+	{
+		return Cast.optionally(nextValue(), JSONArray.class);
+	}
+
 	public Object nextValue() throws JSONException
 	{
 		int c = nextCleanInternal();
 		switch(c)
 		{
-		case -1:
-			throw syntaxError("End of input");
-			
-		case '{':
-			return readObject();
-		
-		case '[':
-			return readArray();
-		
-		case '\'':
-		case '"':
-			return nextString((char) c);
-		
-		default:
-			pos--;
-			return readLiteral();
+			case -1:
+				throw syntaxError("End of input");
+
+			case '{':
+				return readObject();
+
+			case '[':
+				return readArray();
+
+			case '\'':
+			case '"':
+				return nextString((char) c);
+
+			default:
+				pos--;
+				return readLiteral();
 		}
 	}
-	
+
 	private int nextCleanInternal() throws JSONException
 	{
 		while(pos < in.length())
@@ -48,51 +69,51 @@ public class JSONTokener
 			int c = in.charAt(pos++);
 			switch(c)
 			{
-			case '\t':
-			case ' ':
-			case '\n':
-			case '\r':
-				continue;
-			
-			case '/':
-				if(pos == in.length())
-				{
-					return c;
-				}
-				
-				char peek = in.charAt(pos);
-				switch(peek)
-				{
-				case '*':
-					pos++;
-					int commentEnd = in.indexOf("*/", pos);
-					if(commentEnd == -1)
-					{
-						throw syntaxError("Unterminated comment");
-					}
-					pos = commentEnd + 2;
+				case '\t':
+				case ' ':
+				case '\n':
+				case '\r':
 					continue;
-				
+
 				case '/':
-					pos++;
+					if(pos == in.length())
+					{
+						return c;
+					}
+
+					char peek = in.charAt(pos);
+					switch(peek)
+					{
+						case '*':
+							pos++;
+							int commentEnd = in.indexOf("*/", pos);
+							if(commentEnd == -1)
+							{
+								throw syntaxError("Unterminated comment");
+							}
+							pos = commentEnd + 2;
+							continue;
+
+						case '/':
+							pos++;
+							skipToEndOfLine();
+							continue;
+
+						default:
+							return c;
+					}
+				case '#':
 					skipToEndOfLine();
 					continue;
-				
+
 				default:
 					return c;
-				}
-			case '#':
-				skipToEndOfLine();
-				continue;
-			
-			default:
-				return c;
 			}
 		}
-		
+
 		return -1;
 	}
-	
+
 	private void skipToEndOfLine()
 	{
 		for(; pos < in.length(); pos++)
@@ -105,13 +126,13 @@ public class JSONTokener
 			}
 		}
 	}
-	
+
 	public String nextString(char quote) throws JSONException
 	{
 		StringBuilder builder = null;
-		
+
 		int start = pos;
-		
+
 		while(pos < in.length())
 		{
 			int c = in.charAt(pos++);
@@ -126,7 +147,7 @@ public class JSONTokener
 					return builder.toString();
 				}
 			}
-			
+
 			if(c == '\\')
 			{
 				if(pos == in.length())
@@ -142,57 +163,57 @@ public class JSONTokener
 				start = pos;
 			}
 		}
-		
+
 		throw syntaxError("Unterminated string");
 	}
-	
+
 	private char readEscapeCharacter() throws JSONException
 	{
 		char escaped = in.charAt(pos++);
 		switch(escaped)
 		{
-		case 'u':
-			if(pos + 4 > in.length())
-			{
-				throw syntaxError("Unterminated escape sequence");
-			}
-			String hex = in.substring(pos, pos + 4);
-			pos += 4;
-			try
-			{
-				return (char) Integer.parseInt(hex, 16);
-			} catch(NumberFormatException nfe)
-			{
-				throw syntaxError("Invalid escape sequence: " + hex);
-			}
-			
-		case 't':
-			return '\t';
-		
-		case 'b':
-			return '\b';
-		
-		case 'n':
-			return '\n';
-		
-		case 'r':
-			return '\r';
-		
-		case 'f':
-			return '\f';
-		
-		case '\'':
-		case '"':
-		case '\\':
-		default:
-			return escaped;
+			case 'u':
+				if(pos + 4 > in.length())
+				{
+					throw syntaxError("Unterminated escape sequence");
+				}
+				String hex = in.substring(pos, pos + 4);
+				pos += 4;
+				try
+				{
+					return (char) Integer.parseInt(hex, 16);
+				} catch(NumberFormatException nfe)
+				{
+					throw syntaxError("Invalid escape sequence: " + hex);
+				}
+
+			case 't':
+				return '\t';
+
+			case 'b':
+				return '\b';
+
+			case 'n':
+				return '\n';
+
+			case 'r':
+				return '\r';
+
+			case 'f':
+				return '\f';
+
+			case '\'':
+			case '"':
+			case '\\':
+			default:
+				return escaped;
 		}
 	}
-	
+
 	private Object readLiteral() throws JSONException
 	{
 		String literal = nextToInternal("{}[]/\\:,=;# \t\f");
-		
+
 		if(literal.length() == 0)
 		{
 			throw syntaxError("Expected literal value");
@@ -206,7 +227,7 @@ public class JSONTokener
 		{
 			return Boolean.FALSE;
 		}
-		
+
 		if(literal.indexOf('.') == -1)
 		{
 			int base = 10;
@@ -234,17 +255,17 @@ public class JSONTokener
 			{
 			}
 		}
-		
+
 		try
 		{
 			return Double.valueOf(literal);
 		} catch(NumberFormatException ignored)
 		{
 		}
-		
+
 		return new String(literal);
 	}
-	
+
 	private String nextToInternal(String excluded)
 	{
 		int start = pos;
@@ -258,11 +279,11 @@ public class JSONTokener
 		}
 		return in.substring(start);
 	}
-	
+
 	private JSONObject readObject() throws JSONException
 	{
 		JSONObject result = new JSONObject();
-		
+
 		int first = nextCleanInternal();
 		if(first == '}')
 		{
@@ -271,7 +292,7 @@ public class JSONTokener
 		{
 			pos--;
 		}
-		
+
 		while(true)
 		{
 			Object name = nextValue();
@@ -285,7 +306,7 @@ public class JSONTokener
 					throw syntaxError("Names must be strings, but " + name + " is of type " + name.getClass().getName());
 				}
 			}
-			
+
 			int separator = nextCleanInternal();
 			if(separator != ':' && separator != '=')
 			{
@@ -295,87 +316,87 @@ public class JSONTokener
 			{
 				pos++;
 			}
-			
+
 			result.put((String) name, nextValue());
-			
+
 			switch(nextCleanInternal())
 			{
-			case '}':
-				return result;
-			case ';':
-			case ',':
-				continue;
-			default:
-				throw syntaxError("Unterminated object");
+				case '}':
+					return result;
+				case ';':
+				case ',':
+					continue;
+				default:
+					throw syntaxError("Unterminated object");
 			}
 		}
 	}
-	
+
 	private JSONArray readArray() throws JSONException
 	{
 		JSONArray result = new JSONArray();
-		
+
 		/* to cover input that ends with ",]". */
 		boolean hasTrailingSeparator = false;
-		
+
 		while(true)
 		{
 			switch(nextCleanInternal())
 			{
-			case -1:
-				throw syntaxError("Unterminated array");
-			case ']':
-				if(hasTrailingSeparator)
-				{
+				case -1:
+					throw syntaxError("Unterminated array");
+				case ']':
+					if(hasTrailingSeparator)
+					{
+						result.put(null);
+					}
+					return result;
+				case ',':
+				case ';':
 					result.put(null);
-				}
-				return result;
-			case ',':
-			case ';':
-				result.put(null);
-				hasTrailingSeparator = true;
-				continue;
-			default:
-				pos--;
+					hasTrailingSeparator = true;
+					continue;
+				default:
+					pos--;
 			}
-			
+
 			result.put(nextValue());
-			
+
 			switch(nextCleanInternal())
 			{
-			case ']':
-				return result;
-			case ',':
-			case ';':
-				hasTrailingSeparator = true;
-				continue;
-			default:
-				throw syntaxError("Unterminated array");
+				case ']':
+					return result;
+				case ',':
+				case ';':
+					hasTrailingSeparator = true;
+					continue;
+				default:
+					throw syntaxError("Unterminated array");
 			}
 		}
 	}
-	
+
 	public JSONException syntaxError(String message)
 	{
 		return new JSONException(message + this);
 	}
-	
+
 	@Override
 	public String toString()
 	{
 		return " at character " + pos + " of " + in;
 	}
-	
+
 	public boolean more()
 	{
 		return pos < in.length();
 	}
-	
+
 	public char next()
 	{
 		return pos < in.length() ? in.charAt(pos++) : '\0';
 	}
-	
+
 	public char next(char c) throws JSONException
 	{
 		char result = next();
@@ -383,13 +404,13 @@ public class JSONTokener
 			throw syntaxError("Expected " + c + " but was " + result);
 		return result;
 	}
-	
+
 	public char nextClean() throws JSONException
 	{
 		int nextCleanInt = nextCleanInternal();
 		return nextCleanInt == -1 ? '\0' : (char) nextCleanInt;
 	}
-	
+
 	public String next(int length) throws JSONException
 	{
 		if(pos + length > in.length())
@@ -398,25 +419,25 @@ public class JSONTokener
 		pos += length;
 		return result;
 	}
-	
+
 	public String nextTo(String excluded)
 	{
 		if(excluded == null)
 			throw new NullPointerException("excluded == null");
 		return nextToInternal(excluded).trim();
 	}
-	
+
 	public String nextTo(char excluded)
 	{
 		return nextToInternal(String.valueOf(excluded)).trim();
 	}
-	
+
 	public void skipPast(String thru)
 	{
 		int thruStart = in.indexOf(thru, pos);
 		pos = thruStart == -1 ? in.length() : (thruStart + thru.length());
 	}
-	
+
 	public char skipTo(char to)
 	{
 		int index = in.indexOf(to, pos);
@@ -427,13 +448,13 @@ public class JSONTokener
 		} else
 			return '\0';
 	}
-	
+
 	public void back()
 	{
 		if(--pos == -1)
 			pos = 0;
 	}
-	
+
 	public static int dehexchar(char hex)
 	{
 		if(hex >= '0' && hex <= '9')

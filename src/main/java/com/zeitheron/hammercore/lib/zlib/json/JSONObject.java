@@ -1,20 +1,15 @@
 package com.zeitheron.hammercore.lib.zlib.json;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import com.zeitheron.hammercore.lib.zlib.error.JSONException;
 
-import java.util.Set;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.stream.Stream;
 
 public class JSONObject
 {
 	private static final Double NEGATIVE_ZERO = -0d;
-	
+
 	public static final Object NULL = new Object()
 	{
 		@Override
@@ -22,21 +17,21 @@ public class JSONObject
 		{
 			return o == this || o == null;
 		}
-		
+
 		@Override
 		public String toString()
 		{
 			return "null";
 		}
 	};
-	
+
 	private final LinkedHashMap<String, Object> nameValuePairs;
-	
+
 	public JSONObject()
 	{
 		nameValuePairs = new LinkedHashMap<String, Object>();
 	}
-	
+
 	public JSONObject(Map<?, ?> copyFrom)
 	{
 		this();
@@ -49,7 +44,7 @@ public class JSONObject
 			nameValuePairs.put(key, wrap(entry.getValue()));
 		}
 	}
-	
+
 	public JSONObject(JSONTokener readFrom) throws JSONException
 	{
 		Object object = readFrom.nextValue();
@@ -58,12 +53,12 @@ public class JSONObject
 		else
 			throw JSON.typeMismatch(object, "JSONObject");
 	}
-	
+
 	public JSONObject(String json) throws JSONException
 	{
 		this(new JSONTokener(json));
 	}
-	
+
 	public JSONObject(JSONObject copyFrom, String[] names) throws JSONException
 	{
 		this();
@@ -74,36 +69,36 @@ public class JSONObject
 				nameValuePairs.put(name, value);
 		}
 	}
-	
+
 	public int length()
 	{
 		return nameValuePairs.size();
 	}
-	
+
 	public JSONObject put(String name, boolean value) throws JSONException
 	{
 		nameValuePairs.put(checkName(name), value);
 		return this;
 	}
-	
+
 	public JSONObject put(String name, double value) throws JSONException
 	{
 		nameValuePairs.put(checkName(name), JSON.checkDouble(value));
 		return this;
 	}
-	
+
 	public JSONObject put(String name, int value) throws JSONException
 	{
 		nameValuePairs.put(checkName(name), value);
 		return this;
 	}
-	
+
 	public JSONObject put(String name, long value) throws JSONException
 	{
 		nameValuePairs.put(checkName(name), value);
 		return this;
 	}
-	
+
 	public JSONObject put(String name, Object value) throws JSONException
 	{
 		if(value == null)
@@ -116,20 +111,20 @@ public class JSONObject
 		nameValuePairs.put(checkName(name), value);
 		return this;
 	}
-	
+
 	public JSONObject putOpt(String name, Object value) throws JSONException
 	{
 		if(name == null || value == null)
 			return this;
 		return put(name, value);
 	}
-	
+
 	public JSONObject accumulate(String name, Object value) throws JSONException
 	{
 		Object current = nameValuePairs.get(checkName(name));
 		if(current == null)
 			return put(name, value);
-		
+
 		if(current instanceof JSONArray)
 		{
 			JSONArray array = (JSONArray) current;
@@ -143,7 +138,7 @@ public class JSONObject
 		}
 		return this;
 	}
-	
+
 	public JSONObject append(String name, Object value) throws JSONException
 	{
 		Object current = nameValuePairs.get(checkName(name));
@@ -160,30 +155,30 @@ public class JSONObject
 		array.checkedPut(value);
 		return this;
 	}
-	
+
 	String checkName(String name) throws JSONException
 	{
 		if(name == null)
 			throw new JSONException("Names must be non-null");
 		return name;
 	}
-	
+
 	public Object remove(String name)
 	{
 		return nameValuePairs.remove(name);
 	}
-	
+
 	public boolean isNull(String name)
 	{
 		Object value = nameValuePairs.get(name);
 		return value == null || value == NULL;
 	}
-	
+
 	public boolean has(String name)
 	{
 		return nameValuePairs.containsKey(name);
 	}
-	
+
 	public Object get(String name) throws JSONException
 	{
 		Object result = nameValuePairs.get(name);
@@ -191,12 +186,12 @@ public class JSONObject
 			throw new JSONException("No value for " + name);
 		return result;
 	}
-	
+
 	public Object opt(String name)
 	{
 		return nameValuePairs.get(name);
 	}
-	
+
 	public boolean getBoolean(String name) throws JSONException
 	{
 		Object object = get(name);
@@ -205,27 +200,22 @@ public class JSONObject
 			throw JSON.typeMismatch(name, object, "boolean");
 		return result;
 	}
-	
+
 	/**
-	 * @param name
-	 *            The name
-	 * 
+	 * @param name The name
 	 * @return the value mapped by {@code name} if it exists and is a boolean or
-	 *         can be coerced to a boolean, or false otherwise.
+	 * can be coerced to a boolean, or false otherwise.
 	 */
 	public boolean optBoolean(String name)
 	{
 		return optBoolean(name, false);
 	}
-	
+
 	/**
-	 * @param name
-	 *            The name
-	 * @param fallback
-	 *            The fallback
-	 * 
+	 * @param name     The name
+	 * @param fallback The fallback
 	 * @return the value mapped by {@code name} if it exists and is a boolean or
-	 *         can be coerced to a boolean, or {@code fallback} otherwise.
+	 * can be coerced to a boolean, or {@code fallback} otherwise.
 	 */
 	public boolean optBoolean(String name, boolean fallback)
 	{
@@ -233,17 +223,13 @@ public class JSONObject
 		Boolean result = JSON.toBoolean(object);
 		return result != null ? result : fallback;
 	}
-	
+
 	/**
-	 * @param name
-	 *            The name
-	 * 
+	 * @param name The name
 	 * @return the value mapped by {@code name} if it exists and is a double or
-	 *         can be coerced to a double, or throws otherwise.
-	 *
-	 * @throws JSONException
-	 *             if the mapping doesn't exist or cannot be coerced to a
-	 *             double.
+	 * can be coerced to a double, or throws otherwise.
+	 * @throws JSONException if the mapping doesn't exist or cannot be coerced to a
+	 *                       double.
 	 */
 	public double getDouble(String name) throws JSONException
 	{
@@ -255,27 +241,22 @@ public class JSONObject
 		}
 		return result;
 	}
-	
+
 	/**
-	 * @param name
-	 *            The name
-	 * 
+	 * @param name The name
 	 * @return the value mapped by {@code name} if it exists and is a double or
-	 *         can be coerced to a double, or {@code NaN} otherwise.
+	 * can be coerced to a double, or {@code NaN} otherwise.
 	 */
 	public double optDouble(String name)
 	{
 		return optDouble(name, Double.NaN);
 	}
-	
+
 	/**
-	 * @param name
-	 *            The name
-	 * @param fallback
-	 *            The fallback
-	 * 
+	 * @param name     The name
+	 * @param fallback The fallback
 	 * @return the value mapped by {@code name} if it exists and is a double or
-	 *         can be coerced to a double, or {@code fallback} otherwise.
+	 * can be coerced to a double, or {@code fallback} otherwise.
 	 */
 	public double optDouble(String name, double fallback)
 	{
@@ -283,16 +264,12 @@ public class JSONObject
 		Double result = JSON.toDouble(object);
 		return result != null ? result : fallback;
 	}
-	
+
 	/**
-	 * @param name
-	 *            The name
-	 * 
+	 * @param name The name
 	 * @return the value mapped by {@code name} if it exists and is an int or
-	 *         can be coerced to an int, or throws otherwise.
-	 *
-	 * @throws JSONException
-	 *             if the mapping doesn't exist or cannot be coerced to an int.
+	 * can be coerced to an int, or throws otherwise.
+	 * @throws JSONException if the mapping doesn't exist or cannot be coerced to an int.
 	 */
 	public int getInt(String name) throws JSONException
 	{
@@ -304,27 +281,22 @@ public class JSONObject
 		}
 		return result;
 	}
-	
+
 	/**
-	 * @param name
-	 *            The name
-	 * 
+	 * @param name The name
 	 * @return the value mapped by {@code name} if it exists and is an int or
-	 *         can be coerced to an int, or 0 otherwise.
+	 * can be coerced to an int, or 0 otherwise.
 	 */
 	public int optInt(String name)
 	{
 		return optInt(name, 0);
 	}
-	
+
 	/**
-	 * @param name
-	 *            The name
-	 * @param fallback
-	 *            The Fallback
-	 * 
+	 * @param name     The name
+	 * @param fallback The Fallback
 	 * @return the value mapped by {@code name} if it exists and is an int or
-	 *         can be coerced to an int, or {@code fallback} otherwise.
+	 * can be coerced to an int, or {@code fallback} otherwise.
 	 */
 	public int optInt(String name, int fallback)
 	{
@@ -332,19 +304,15 @@ public class JSONObject
 		Integer result = JSON.toInteger(object);
 		return result != null ? result : fallback;
 	}
-	
+
 	/**
-	 * @param name
-	 *            The name
-	 * 
+	 * @param name The name
 	 * @return the value mapped by {@code name} if it exists and is a long or
-	 *         can be coerced to a long, or throws otherwise. Note that JSON
-	 *         represents numbers as doubles, so this is
-	 *         <a href="#lossy">lossy</a>; use strings to transfer numbers via
-	 *         JSON.
-	 *
-	 * @throws JSONException
-	 *             if the mapping doesn't exist or cannot be coerced to a long.
+	 * can be coerced to a long, or throws otherwise. Note that JSON
+	 * represents numbers as doubles, so this is
+	 * <a href="#lossy">lossy</a>; use strings to transfer numbers via
+	 * JSON.
+	 * @throws JSONException if the mapping doesn't exist or cannot be coerced to a long.
 	 */
 	public long getLong(String name) throws JSONException
 	{
@@ -356,33 +324,28 @@ public class JSONObject
 		}
 		return result;
 	}
-	
+
 	/**
-	 * @param name
-	 *            The name
-	 * 
+	 * @param name The name
 	 * @return the value mapped by {@code name} if it exists and is a long or
-	 *         can be coerced to a long, or 0 otherwise. Note that JSON
-	 *         represents numbers as doubles, so this is
-	 *         <a href="#lossy">lossy</a>; use strings to transfer numbers via
-	 *         JSON.
+	 * can be coerced to a long, or 0 otherwise. Note that JSON
+	 * represents numbers as doubles, so this is
+	 * <a href="#lossy">lossy</a>; use strings to transfer numbers via
+	 * JSON.
 	 */
 	public long optLong(String name)
 	{
 		return optLong(name, 0L);
 	}
-	
+
 	/**
-	 * @param name
-	 *            The name
-	 * @param fallback
-	 *            The Fallback
-	 * 
+	 * @param name     The name
+	 * @param fallback The Fallback
 	 * @return the value mapped by {@code name} if it exists and is a long or
-	 *         can be coerced to a long, or {@code fallback} otherwise. Note
-	 *         that JSON represents numbers as doubles, so this is
-	 *         <a href="#lossy">lossy</a>; use strings to transfer numbers via
-	 *         JSON.
+	 * can be coerced to a long, or {@code fallback} otherwise. Note
+	 * that JSON represents numbers as doubles, so this is
+	 * <a href="#lossy">lossy</a>; use strings to transfer numbers via
+	 * JSON.
 	 */
 	public long optLong(String name, long fallback)
 	{
@@ -390,16 +353,12 @@ public class JSONObject
 		Long result = JSON.toLong(object);
 		return result != null ? result : fallback;
 	}
-	
+
 	/**
-	 * @param name
-	 *            The name
-	 * 
+	 * @param name The name
 	 * @return the value mapped by {@code name} if it exists, coercing it if
-	 *         necessary, or throws if no such mapping exists.
-	 *
-	 * @throws JSONException
-	 *             if no such mapping exists.
+	 * necessary, or throws if no such mapping exists.
+	 * @throws JSONException if no such mapping exists.
 	 */
 	public String getString(String name) throws JSONException
 	{
@@ -411,27 +370,22 @@ public class JSONObject
 		}
 		return result;
 	}
-	
+
 	/**
-	 * @param name
-	 *            The name
-	 * 
+	 * @param name The name
 	 * @return the value mapped by {@code name} if it exists, coercing it if
-	 *         necessary, or the empty string if no such mapping exists.
+	 * necessary, or the empty string if no such mapping exists.
 	 */
 	public String optString(String name)
 	{
 		return optString(name, "");
 	}
-	
+
 	/**
-	 * @param name
-	 *            The name
-	 * @param fallback
-	 *            The Fallback
-	 * 
+	 * @param name     The name
+	 * @param fallback The Fallback
 	 * @return the value mapped by {@code name} if it exists, coercing it if
-	 *         necessary, or {@code fallback} if no such mapping exists.
+	 * necessary, or {@code fallback} if no such mapping exists.
 	 */
 	public String optString(String name, String fallback)
 	{
@@ -439,7 +393,7 @@ public class JSONObject
 		String result = JSON.toString(object);
 		return result != null ? result : fallback;
 	}
-	
+
 	public JSONArray getJSONArray(String name) throws JSONException
 	{
 		Object object = get(name);
@@ -448,13 +402,13 @@ public class JSONObject
 		else
 			throw JSON.typeMismatch(name, object, "JSONArray");
 	}
-	
+
 	public JSONArray optJSONArray(String name)
 	{
 		Object object = opt(name);
 		return object instanceof JSONArray ? (JSONArray) object : null;
 	}
-	
+
 	public JSONObject getJSONObject(String name) throws JSONException
 	{
 		Object object = get(name);
@@ -463,13 +417,13 @@ public class JSONObject
 		else
 			throw JSON.typeMismatch(name, object, "JSONObject");
 	}
-	
+
 	public JSONObject optJSONObject(String name)
 	{
 		Object object = opt(name);
 		return object instanceof JSONObject ? (JSONObject) object : null;
 	}
-	
+
 	public JSONArray toJSONArray(JSONArray names) throws JSONException
 	{
 		JSONArray result = new JSONArray();
@@ -485,22 +439,22 @@ public class JSONObject
 		}
 		return result;
 	}
-	
+
 	public Iterator<String> keys()
 	{
 		return nameValuePairs.keySet().iterator();
 	}
-	
+
 	public Set<String> keySet()
 	{
 		return nameValuePairs.keySet();
 	}
-	
+
 	public JSONArray names()
 	{
 		return nameValuePairs.isEmpty() ? null : new JSONArray(new ArrayList<String>(nameValuePairs.keySet()));
 	}
-	
+
 	@Override
 	public String toString()
 	{
@@ -514,14 +468,14 @@ public class JSONObject
 			return null;
 		}
 	}
-	
+
 	public String toString(int indentSpaces) throws JSONException
 	{
 		JSONStringer stringer = new JSONStringer(indentSpaces);
 		writeTo(stringer);
 		return stringer.toString();
 	}
-	
+
 	void writeTo(JSONStringer stringer) throws JSONException
 	{
 		stringer.object();
@@ -529,7 +483,7 @@ public class JSONObject
 			stringer.key(entry.getKey()).value(entry.getValue());
 		stringer.endObject();
 	}
-	
+
 	public static String numberToString(Number number) throws JSONException
 	{
 		if(number == null)
@@ -543,7 +497,7 @@ public class JSONObject
 			return Long.toString(longValue);
 		return number.toString();
 	}
-	
+
 	public static String quote(String data)
 	{
 		if(data == null)
@@ -560,7 +514,7 @@ public class JSONObject
 			throw new AssertionError();
 		}
 	}
-	
+
 	public static Object wrap(Object o)
 	{
 		if(o == null)
@@ -585,5 +539,10 @@ public class JSONObject
 		{
 		}
 		return null;
+	}
+
+	public Stream<String> keyStream()
+	{
+		return keySet().stream();
 	}
 }
