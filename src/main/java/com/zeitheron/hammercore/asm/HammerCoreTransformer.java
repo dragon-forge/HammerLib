@@ -8,14 +8,10 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -30,8 +26,30 @@ public class HammerCoreTransformer
 
 	public static final TransformerSystem asm = new TransformerSystem();
 
+	public static final boolean CFG_ASM_WORLD_ITICKABLE_OVERRIDE;
+
 	static
 	{
+		Properties props = new Properties();
+		File asmDir = new File("asm");
+		if(!asmDir.isDirectory()) asmDir.mkdirs();
+		File propsXML = new File(asmDir, "hammercore.xml");
+		if(propsXML.isFile()) try(InputStream in = new FileInputStream(propsXML))
+		{
+			props.loadFromXML(in);
+		} catch(IOException e)
+		{
+			e.printStackTrace();
+		}
+		CFG_ASM_WORLD_ITICKABLE_OVERRIDE = parsePropertyBool(props, "World.ITickable.Override", true, "Should HammerCore transform world update method: Enhance ITickable.update method call with TickSlip technology? This is probably incompatible with Sponge.");
+		try(OutputStream out = new FileOutputStream(propsXML))
+		{
+			props.storeToXML(out, "What ASM parts should be active in Hammer Core?");
+		} catch(IOException ioe)
+		{
+			ioe.printStackTrace();
+		}
+
 		hook((node, obf) ->
 		{
 			MethodSignature sig1 = new MethodSignature("renderItem", "func_180454_a", "a", "(Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/renderer/block/model/IBakedModel;)V");
@@ -219,8 +237,12 @@ public class HammerCoreTransformer
 						MethodInsnNode min = (MethodInsnNode) inode;
 						if(min.owner.compareTo(itickableDeobf) == 0 || min.owner.compareTo(itickableObf) == 0)
 						{
-							insns.set(min, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/zeitheron/hammercore/asm/McHooks", "tickTile", "(L" + (obf ? itickableObf : itickableDeobf) + ";)V", false));
-							asm.info("Modified method '" + mn.name + "', replaced " + min.owner + "." + min.name + min.desc + " with HC call.");
+							if(CFG_ASM_WORLD_ITICKABLE_OVERRIDE)
+							{
+								insns.set(min, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/zeitheron/hammercore/asm/McHooks", "tickTile", "(L" + (obf ? itickableObf : itickableDeobf) + ";)V", false));
+								asm.info("Modified method '" + mn.name + "', replaced " + min.owner + "." + min.name + min.desc + " with HC call.");
+							} else
+								asm.info("NOT modified method '" + mn.name + "', replaced " + min.owner + "." + min.name + min.desc + " with HC call. (disabled in hc-asm.xml)");
 						}
 					}
 				}
@@ -484,5 +506,20 @@ public class HammerCoreTransformer
 				}
 			}
 		return "0x" + Integer.toHexString(opcode);
+	}
+
+	public static boolean parsePropertyBool(Properties props, String key, boolean defValue, String comment)
+	{
+		props.setProperty(key + "_comment", comment);
+		if(props.getProperty(key) == null) props.setProperty(key, Boolean.toString(defValue));
+		String val = props.getProperty(key);
+		try
+		{
+			return Boolean.parseBoolean(val);
+		} catch(Throwable err)
+		{
+			props.setProperty(key, Boolean.toString(defValue));
+		}
+		return defValue;
 	}
 }
