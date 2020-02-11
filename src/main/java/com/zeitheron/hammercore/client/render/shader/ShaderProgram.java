@@ -16,11 +16,11 @@ import java.util.function.Function;
 
 import static org.lwjgl.opengl.ARBShaderObjects.*;
 
+@Deprecated
 public class ShaderProgram
 {
 	private int programID;
-	public HCShaderPipeline pipeline = new HCShaderPipeline(this);
-	private ArrayList<IShaderOperation> ops = new ArrayList<>();
+	private final ArrayList<IShaderOperation> ops = new ArrayList<>();
 
 	public ShaderProgram()
 	{
@@ -48,25 +48,13 @@ public class ShaderProgram
 	 */
 	public void freeBindShader()
 	{
-		pipeline.reset();
-		pipeline.setPipeline(ops);
-
 		glUseProgramObjectARB(programID);
-		pipeline.operate();
+		for(IShaderOperation op : ops) op.operate(this);
 	}
 
 	public static void unbindShader()
 	{
 		glUseProgramObjectARB(0);
-	}
-
-	public void runShader()
-	{
-		pipeline.reset();
-		pipeline.setPipeline(ops);
-		bindShader();
-		pipeline.operate();
-		unbindShader();
 	}
 
 	public ShaderProgram attachVert(String resource)

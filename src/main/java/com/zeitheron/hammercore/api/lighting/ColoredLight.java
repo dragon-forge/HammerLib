@@ -9,13 +9,10 @@ import net.minecraft.util.math.Vec3d;
 public class ColoredLight
 		implements IGLWritable
 {
-	public float x;
-	public float y;
-	public float z;
-	public float r;
-	public float g;
-	public float b;
-	public float a;
+	public static final int FLOAT_SIZE = 3 + 4 + 1;
+
+	public float x, y, z;
+	public float r, g, b, a;
 	public float radius;
 
 	public ColoredLight(float x, float y, float z, float r, float g, float b, float a, float radius)

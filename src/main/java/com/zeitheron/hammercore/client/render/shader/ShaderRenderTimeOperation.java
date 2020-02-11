@@ -10,13 +10,13 @@ public class ShaderRenderTimeOperation implements IShaderOperation
 {
 	public static final int operationID = HCShaderPipeline.registerOperation();
 	private final HashMap<ShaderProgram, Float> shaderRenderTimeCache = new HashMap<>();
-	
+
 	@Override
 	public boolean load(ShaderProgram program)
 	{
 		return true;
 	}
-	
+
 	@Override
 	public void operate(ShaderProgram program)
 	{
@@ -28,7 +28,7 @@ public class ShaderRenderTimeOperation implements IShaderOperation
 			shaderRenderTimeCache.put(program, renderTime);
 		}
 	}
-	
+
 	@Override
 	public int operationID()
 	{

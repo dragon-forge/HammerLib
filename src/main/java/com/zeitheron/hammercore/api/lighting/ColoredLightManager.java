@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Function;
+import java.util.function.IntSupplier;
 import java.util.stream.Stream;
 
 public class ColoredLightManager
@@ -28,6 +29,8 @@ public class ColoredLightManager
 
 	public static final BooleanSupplier UNBIND_TERRAIN = () -> false;
 	public static final BooleanSupplier UNBIND_ENTITY = () -> false;
+
+	public static IntSupplier UNIFORM_LIGHT_COUNT = () -> 0;
 
 	public static int LAST_LIGHTS;
 

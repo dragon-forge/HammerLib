@@ -1,23 +1,21 @@
 package com.zeitheron.hammercore.client.render.shader.impl;
 
-import org.lwjgl.opengl.ARBShaderObjects;
-
 import com.zeitheron.hammercore.client.render.shader.HCShaderPipeline;
-import com.zeitheron.hammercore.client.render.shader.ShaderProgram;
 import com.zeitheron.hammercore.client.render.shader.IShaderOperation;
+import com.zeitheron.hammercore.client.render.shader.ShaderProgram;
 import com.zeitheron.hammercore.client.utils.RenderUtil;
 import com.zeitheron.hammercore.client.utils.UtilsFX;
 import com.zeitheron.hammercore.client.utils.texture.TextureAtlasSpriteFull;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
+import org.lwjgl.opengl.ARBShaderObjects;
 
 public class ShaderEnderField
 {
 	public static ShaderProgram endShader;
 	public static EnderFieldOperation operation;
-	
+
 	public static void reloadShader()
 	{
 		try
@@ -34,7 +32,7 @@ public class ShaderEnderField
 			err.printStackTrace();
 		}
 	}
-	
+
 	public static void renderIntoGui(double xCoord, double yCoord, double widthIn, double heightIn)
 	{
 		if(useShaders() && endShader == null)
@@ -46,7 +44,7 @@ public class ShaderEnderField
 		if(useShaders())
 			ShaderProgram.unbindShader();
 	}
-	
+
 	public static void finishDrawWithShaders(Tessellator tess)
 	{
 		if(useShaders() && endShader == null)
@@ -58,22 +56,23 @@ public class ShaderEnderField
 		if(useShaders())
 			ShaderProgram.unbindShader();
 	}
-	
-	public static class EnderFieldOperation implements IShaderOperation
+
+	public static class EnderFieldOperation
+			implements IShaderOperation
 	{
 		public final int op;
-		
+
 		public EnderFieldOperation(int op)
 		{
 			this.op = op;
 		}
-		
+
 		@Override
 		public boolean load(ShaderProgram program)
 		{
 			return true;
 		}
-		
+
 		@Override
 		public void operate(ShaderProgram program)
 		{
@@ -82,14 +81,14 @@ public class ShaderEnderField
 			ARBShaderObjects.glUniform1fARB(program.getUniformLoc("pitch"), 0);
 			ARBShaderObjects.glUniform4fARB(program.getUniformLoc("color"), 0.044F, 0.036F, 0.063F, 1F);
 		}
-		
+
 		@Override
 		public int operationID()
 		{
 			return op;
 		}
 	}
-	
+
 	public static boolean useShaders()
 	{
 		return OpenGlHelper.shadersSupported;
