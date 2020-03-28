@@ -31,8 +31,8 @@ configFile.withReader {
 }
 
 version = "${config.mod_version}"
-group = "com.pengu.hammercore"
-archivesBaseName = "HammerCore-${config.minecraft_version}"
+group = "tk.zeitheron.hammerlib"
+archivesBaseName = "HammerLib-${config.minecraft_version}"
 
 sourceCompatibility = targetCompatibility = "1.8"
 compileJava {

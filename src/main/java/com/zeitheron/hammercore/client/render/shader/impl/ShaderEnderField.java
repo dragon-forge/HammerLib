@@ -11,6 +11,11 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
 import org.lwjgl.opengl.ARBShaderObjects;
 
+
+/**
+ * @deprecated moved to {@link com.zeitheron.hammercore.client.shaders.GLSLEnderField} with new shader flow.
+ */
+@Deprecated
 public class ShaderEnderField
 {
 	public static ShaderProgram endShader;

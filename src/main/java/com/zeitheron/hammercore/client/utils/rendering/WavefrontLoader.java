@@ -19,7 +19,6 @@ import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
 import javax.annotation.Nullable;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -55,13 +54,16 @@ public class WavefrontLoader
 	 */
 	public static WavefrontMeshProvider getMeshProvider(ResourceLocation path)
 	{
-		return MESH_PROVIDERS.computeIfAbsent(path, rl0 -> new WavefrontMeshProvider(() -> LOADED_MESHES.computeIfAbsent(path, rl ->
+		return getMeshProvider(path, 1 / 16F);
+	}
+
+	public static WavefrontMeshProvider getMeshProvider(ResourceLocation path, float scale)
+	{
+		return MESH_PROVIDERS.computeIfAbsent(new ResourceLocation(path.toString() + scale), rl0 -> new WavefrontMeshProvider(() -> LOADED_MESHES.computeIfAbsent(path, rl ->
 		{
 			try(IResource res = Minecraft.getMinecraft().getResourceManager().getResource(path))
 			{
-				if(res == null)
-					throw new FileNotFoundException("assets/" + path.getNamespace() + "/" + path.getPath());
-				else return loadModel(res.getInputStream(), 1 / 16F);
+				return loadModel(res.getInputStream(), scale);
 			} catch(IOException ioe)
 			{
 				ioe.printStackTrace();
@@ -92,7 +94,7 @@ public class WavefrontLoader
 	}
 
 	/**
-	 * @param sc the <code>WavefrontMesh</code> to be loaded
+	 * @param sc    the <code>WavefrontMesh</code> to be loaded
 	 * @param scale the scale of the newly loaded model
 	 * @return the loaded <code>WavefrontMesh</code>
 	 */
