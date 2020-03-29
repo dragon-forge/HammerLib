@@ -166,7 +166,7 @@ public class VariableShaderProgram
 
 		if(!compilationErrors.isEmpty())
 		{
-			GL20.glDeleteProgram(program);
+			if(program != null) GL20.glDeleteProgram(program);
 			program = null;
 			hasCompiled = false;
 			compilationFailed = true;
