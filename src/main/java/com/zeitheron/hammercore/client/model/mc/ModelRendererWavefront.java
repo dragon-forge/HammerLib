@@ -163,7 +163,8 @@ public class ModelRendererWavefront
 
 	public void dispose()
 	{
-		list.delete();
+		if(list != null)
+			list.delete();
 	}
 
 	@Override

@@ -159,6 +159,8 @@ public class RenderProxy_Client
 		TextureFXManager.INSTANCE.preInit();
 
 		HammerCoreClient.injectResourcePackLast(EMP);
+
+		hasConstructed = true;
 	}
 
 	@Override
@@ -889,9 +891,12 @@ public class RenderProxy_Client
 		HammerCoreClient.emptyBlockState(blk);
 	}
 
+	private static boolean hasConstructed;
+
 	@Override
 	public void onResourceManagerReload(IResourceManager resourceManager, Predicate<IResourceType> resourcePredicate)
 	{
-		MinecraftForge.EVENT_BUS.post(new ResourceManagerReloadEvent(resourceManager, resourcePredicate));
+		if(hasConstructed)
+			MinecraftForge.EVENT_BUS.post(new ResourceManagerReloadEvent(resourceManager, resourcePredicate));
 	}
 }
