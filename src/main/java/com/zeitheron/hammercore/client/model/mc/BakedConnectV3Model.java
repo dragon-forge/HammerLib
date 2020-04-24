@@ -269,8 +269,18 @@ public class BakedConnectV3Model
 							quads.add(FACE_BAKERY.makeBakedQuad( //
 									new Vector3f((float) aabb.minX * 16F, (float) aabb.minY * 16F, (float) aabb.minZ * 16F), //
 									new Vector3f((float) aabb.maxX * 16F, (float) aabb.maxY * 16F, (float) aabb.maxZ * 16F), //
-									new BlockPartFace(null, 0, "#0", EnumConnectedTextureV3Part.CORNER_LU.asFaceUV()), //
-									i ? sprite2 : sprite, side, ModelRotation.X0_Y0, null, false, true));
+									new BlockPartFace(null, 0, "#0", !a && !c ? new BlockFaceUV(new float[]{
+											12,
+											4,
+											16,
+											8
+									}, 0) : !b && !c ? new BlockFaceUV(new float[]{
+											8,
+											12,
+											12,
+											16
+									}, 0) : EnumConnectedTextureV3Part.CORNER_LU.asFaceUV()), //
+									i || ((!b || !a) && !c) ? sprite2 : sprite, side, ModelRotation.X0_Y0, null, false, true));
 
 						a = north;
 						b = up;
@@ -281,8 +291,18 @@ public class BakedConnectV3Model
 							quads.add(FACE_BAKERY.makeBakedQuad( //
 									new Vector3f((float) aabb.minX * 16F, (float) aabb.minY * 16F, (float) aabb.minZ * 16F), //
 									new Vector3f((float) aabb.maxX * 16F, (float) aabb.maxY * 16F, (float) aabb.maxZ * 16F), //
-									new BlockPartFace(null, 0, "#0", EnumConnectedTextureV3Part.CORNER_RU.asFaceUV()), //
-									i ? sprite2 : sprite, side, ModelRotation.X0_Y0, null, false, true));
+									new BlockPartFace(null, 0, "#0", !a && !c ? new BlockFaceUV(new float[]{
+											8,
+											4,
+											12,
+											8
+									}, 0) : !b && !c ? new BlockFaceUV(new float[]{
+											0,
+											12,
+											4,
+											16
+									}, 0) : EnumConnectedTextureV3Part.CORNER_RU.asFaceUV()), //
+									i || ((!b || !a) && !c) ? sprite2 : sprite, side, ModelRotation.X0_Y0, null, false, true));
 
 						a = down;
 						b = north;
@@ -293,8 +313,18 @@ public class BakedConnectV3Model
 							quads.add(FACE_BAKERY.makeBakedQuad( //
 									new Vector3f((float) aabb.minX * 16F, (float) aabb.minY * 16F, (float) aabb.minZ * 16F), //
 									new Vector3f((float) aabb.maxX * 16F, (float) aabb.maxY * 16F, (float) aabb.maxZ * 16F), //
-									new BlockPartFace(null, 0, "#0", EnumConnectedTextureV3Part.CORNER_RD.asFaceUV()), //
-									i ? sprite2 : sprite, side, ModelRotation.X0_Y0, null, false, true));
+									new BlockPartFace(null, 0, "#0", !a && !c ? new BlockFaceUV(new float[]{
+											0,
+											0,
+											4,
+											4
+									}, 0) : !b && !c ? new BlockFaceUV(new float[]{
+											8,
+											8,
+											12,
+											12
+									}, 0) : EnumConnectedTextureV3Part.CORNER_RD.asFaceUV()), //
+									i || ((!b || !a) && !c) ? sprite2 : sprite, side, ModelRotation.X0_Y0, null, false, true));
 
 						a = south;
 						b = down;
@@ -305,8 +335,18 @@ public class BakedConnectV3Model
 							quads.add(FACE_BAKERY.makeBakedQuad( //
 									new Vector3f((float) aabb.minX * 16F, (float) aabb.minY * 16F, (float) aabb.minZ * 16F), //
 									new Vector3f((float) aabb.maxX * 16F, (float) aabb.maxY * 16F, (float) aabb.maxZ * 16F), //
-									new BlockPartFace(null, 0, "#0", EnumConnectedTextureV3Part.CORNER_LD.asFaceUV()), //
-									i ? sprite2 : sprite, side, ModelRotation.X0_Y0, null, false, true));
+									new BlockPartFace(null, 0, "#0", !a && !c ? new BlockFaceUV(new float[]{
+											12,
+											8,
+											16,
+											12
+									}, 0) : !b && !c ? new BlockFaceUV(new float[]{
+											8,
+											0,
+											12,
+											4
+									}, 0) : EnumConnectedTextureV3Part.CORNER_LD.asFaceUV()), //
+									i || ((!b || !a) && !c) ? sprite2 : sprite, side, ModelRotation.X0_Y0, null, false, true));
 					}
 
 					if(side.getAxis() == Axis.Y)
@@ -355,8 +395,18 @@ public class BakedConnectV3Model
 							quads.add(FACE_BAKERY.makeBakedQuad( //
 									new Vector3f((float) aabb.minX * 16F, (float) aabb.minY * 16F, (float) aabb.minZ * 16F), //
 									new Vector3f((float) aabb.maxX * 16F, (float) aabb.maxY * 16F, (float) aabb.maxZ * 16F), //
-									new BlockPartFace(null, 0, "#0", EnumConnectedTextureV3Part.CORNER_LU.asFaceUV()), //
-									i ? sprite2 : sprite, side, ModelRotation.X0_Y0, null, false, true));
+									new BlockPartFace(null, 0, "#0", !a && !c ? new BlockFaceUV(new float[]{
+											12,
+											4,
+											16,
+											8
+									}, 0) : !b && !c ? new BlockFaceUV(new float[]{
+											4,
+											12,
+											8,
+											16
+									}, 0) : EnumConnectedTextureV3Part.CORNER_LU.asFaceUV()), //
+									i || ((!b || !a) && !c) ? sprite2 : sprite, side, ModelRotation.X0_Y0, null, false, true));
 
 						a = east;
 						b = north;
@@ -367,8 +417,18 @@ public class BakedConnectV3Model
 							quads.add(FACE_BAKERY.makeBakedQuad( //
 									new Vector3f((float) aabb.minX * 16F, (float) aabb.minY * 16F, (float) aabb.minZ * 16F), //
 									new Vector3f((float) aabb.maxX * 16F, (float) aabb.maxY * 16F, (float) aabb.maxZ * 16F), //
-									new BlockPartFace(null, 0, "#0", EnumConnectedTextureV3Part.CORNER_RU.asFaceUV()), //
-									i ? sprite2 : sprite, side, ModelRotation.X0_Y0, null, false, true));
+									new BlockPartFace(null, 0, "#0", !a && !c ? new BlockFaceUV(new float[]{
+											8,
+											4,
+											12,
+											8
+									}, 0) : !b && !c ? new BlockFaceUV(new float[]{
+											12,
+											12,
+											16,
+											16
+									}, 0) : EnumConnectedTextureV3Part.CORNER_RU.asFaceUV()), //
+									i || ((!b || !a) && !c) ? sprite2 : sprite, side, ModelRotation.X0_Y0, null, false, true));
 
 						a = south;
 						b = east;
@@ -379,8 +439,18 @@ public class BakedConnectV3Model
 							quads.add(FACE_BAKERY.makeBakedQuad( //
 									new Vector3f((float) aabb.minX * 16F, (float) aabb.minY * 16F, (float) aabb.minZ * 16F), //
 									new Vector3f((float) aabb.maxX * 16F, (float) aabb.maxY * 16F, (float) aabb.maxZ * 16F), //
-									new BlockPartFace(null, 0, "#0", EnumConnectedTextureV3Part.CORNER_RD.asFaceUV()), //
-									i ? sprite2 : sprite, side, ModelRotation.X0_Y0, null, false, true));
+									new BlockPartFace(null, 0, "#0", !a && !c ? new BlockFaceUV(new float[]{
+											0,
+											0,
+											4,
+											4
+									}, 0) : !b && !c ? new BlockFaceUV(new float[]{
+											8,
+											8,
+											12,
+											12
+									}, 0) : EnumConnectedTextureV3Part.CORNER_RD.asFaceUV()), //
+									i || ((!b || !a) && !c) ? sprite2 : sprite, side, ModelRotation.X0_Y0, null, false, true));
 
 						a = west;
 						b = south;
@@ -391,8 +461,18 @@ public class BakedConnectV3Model
 							quads.add(FACE_BAKERY.makeBakedQuad( //
 									new Vector3f((float) aabb.minX * 16F, (float) aabb.minY * 16F, (float) aabb.minZ * 16F), //
 									new Vector3f((float) aabb.maxX * 16F, (float) aabb.maxY * 16F, (float) aabb.maxZ * 16F), //
-									new BlockPartFace(null, 0, "#0", EnumConnectedTextureV3Part.CORNER_LD.asFaceUV()), //
-									i ? sprite2 : sprite, side, ModelRotation.X0_Y0, null, false, true));
+									new BlockPartFace(null, 0, "#0", !a && !c ? new BlockFaceUV(new float[]{
+											12,
+											8,
+											16,
+											12
+									}, 0) : !b && !c ? new BlockFaceUV(new float[]{
+											4,
+											0,
+											8,
+											4
+									}, 0) : EnumConnectedTextureV3Part.CORNER_LD.asFaceUV()), //
+									i || ((!b || !a) && !c) ? sprite2 : sprite, side, ModelRotation.X0_Y0, null, false, true));
 					}
 
 					if(side.getAxis() == Axis.Z)
@@ -438,11 +518,22 @@ public class BakedConnectV3Model
 						boolean i = !a && !b && c;
 
 						if((a && b) || (a && !c) || i || (b && !c))
-							quads.add(FACE_BAKERY.makeBakedQuad( //
-									new Vector3f((float) aabb.minX * 16F, (float) aabb.minY * 16F, (float) aabb.minZ * 16F), //
-									new Vector3f((float) aabb.maxX * 16F, (float) aabb.maxY * 16F, (float) aabb.maxZ * 16F), //
-									new BlockPartFace(null, 0, "#0", EnumConnectedTextureV3Part.CORNER_LU.asFaceUV()), //
-									i ? sprite2 : sprite, side, ModelRotation.X0_Y0, null, false, true));
+							if((a && b) || (a && !c) || i || (b && !c))
+								quads.add(FACE_BAKERY.makeBakedQuad( //
+										new Vector3f((float) aabb.minX * 16F, (float) aabb.minY * 16F, (float) aabb.minZ * 16F), //
+										new Vector3f((float) aabb.maxX * 16F, (float) aabb.maxY * 16F, (float) aabb.maxZ * 16F), //
+										new BlockPartFace(null, 0, "#0", !a && !c ? new BlockFaceUV(new float[]{
+												12,
+												4,
+												16,
+												8
+										}, 0) : !b && !c ? new BlockFaceUV(new float[]{
+												8,
+												12,
+												12,
+												16
+										}, 0) : EnumConnectedTextureV3Part.CORNER_LU.asFaceUV()), //
+										i || ((!b || !a) && !c) ? sprite2 : sprite, side, ModelRotation.X0_Y0, null, false, true));
 
 						a = east;
 						b = up;
@@ -453,8 +544,18 @@ public class BakedConnectV3Model
 							quads.add(FACE_BAKERY.makeBakedQuad( //
 									new Vector3f((float) aabb.minX * 16F, (float) aabb.minY * 16F, (float) aabb.minZ * 16F), //
 									new Vector3f((float) aabb.maxX * 16F, (float) aabb.maxY * 16F, (float) aabb.maxZ * 16F), //
-									new BlockPartFace(null, 0, "#0", EnumConnectedTextureV3Part.CORNER_RU.asFaceUV()), //
-									i ? sprite2 : sprite, side, ModelRotation.X0_Y0, null, false, true));
+									new BlockPartFace(null, 0, "#0", !a && !c ? new BlockFaceUV(new float[]{
+											8,
+											4,
+											12,
+											8
+									}, 0) : !b && !c ? new BlockFaceUV(new float[]{
+											0,
+											12,
+											4,
+											16
+									}, 0) : EnumConnectedTextureV3Part.CORNER_RU.asFaceUV()), //
+									i || ((!b || !a) && !c) ? sprite2 : sprite, side, ModelRotation.X0_Y0, null, false, true));
 
 						a = down;
 						b = east;
@@ -465,8 +566,18 @@ public class BakedConnectV3Model
 							quads.add(FACE_BAKERY.makeBakedQuad( //
 									new Vector3f((float) aabb.minX * 16F, (float) aabb.minY * 16F, (float) aabb.minZ * 16F), //
 									new Vector3f((float) aabb.maxX * 16F, (float) aabb.maxY * 16F, (float) aabb.maxZ * 16F), //
-									new BlockPartFace(null, 0, "#0", EnumConnectedTextureV3Part.CORNER_RD.asFaceUV()), //
-									i ? sprite2 : sprite, side, ModelRotation.X0_Y0, null, false, true));
+									new BlockPartFace(null, 0, "#0", !a && !c ? new BlockFaceUV(new float[]{
+											0,
+											0,
+											4,
+											4
+									}, 0) : !b && !c ? new BlockFaceUV(new float[]{
+											8,
+											8,
+											12,
+											12
+									}, 0) : EnumConnectedTextureV3Part.CORNER_RD.asFaceUV()), //
+									i || ((!b || !a) && !c) ? sprite2 : sprite, side, ModelRotation.X0_Y0, null, false, true));
 
 						a = west;
 						b = down;
@@ -477,8 +588,18 @@ public class BakedConnectV3Model
 							quads.add(FACE_BAKERY.makeBakedQuad( //
 									new Vector3f((float) aabb.minX * 16F, (float) aabb.minY * 16F, (float) aabb.minZ * 16F), //
 									new Vector3f((float) aabb.maxX * 16F, (float) aabb.maxY * 16F, (float) aabb.maxZ * 16F), //
-									new BlockPartFace(null, 0, "#0", EnumConnectedTextureV3Part.CORNER_LD.asFaceUV()), //
-									i ? sprite2 : sprite, side, ModelRotation.X0_Y0, null, false, true));
+									new BlockPartFace(null, 0, "#0", !a && !c ? new BlockFaceUV(new float[]{
+											12,
+											8,
+											16,
+											12
+									}, 0) : !b && !c ? new BlockFaceUV(new float[]{
+											8,
+											0,
+											12,
+											4
+									}, 0) : EnumConnectedTextureV3Part.CORNER_LD.asFaceUV()), //
+									i || ((!b || !a) && !c) ? sprite2 : sprite, side, ModelRotation.X0_Y0, null, false, true));
 					}
 				} catch(Throwable err)
 				{
