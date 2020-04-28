@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.IResource;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.resource.VanillaResourceType;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -22,6 +23,7 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -54,7 +56,7 @@ public class WavefrontLoader
 	 */
 	public static WavefrontMeshProvider getMeshProvider(ResourceLocation path)
 	{
-		return getMeshProvider(path, 1 / 16F);
+		return getMeshProvider(path, 1F);
 	}
 
 	public static WavefrontMeshProvider getMeshProvider(ResourceLocation path, float scale)
@@ -167,14 +169,62 @@ public class WavefrontLoader
 	{
 		final Supplier<WavefrontMesh> meshSupplier;
 
+		Consumer<WavefrontMesh> customHandler;
+		boolean normalizeCenter = false;
+		Vec3d center;
+
 		public WavefrontMeshProvider(Supplier<WavefrontMesh> meshSupplier)
 		{
 			this.meshSupplier = meshSupplier;
 		}
 
+		public WavefrontMeshProvider(WavefrontMeshProvider origin)
+		{
+			this.meshSupplier = origin.meshSupplier;
+			this.normalizeCenter = origin.normalizeCenter;
+			if(origin.center != null)
+				this.center = new Vec3d(origin.center.x, origin.center.y, origin.center.z);
+			this.customHandler = origin.customHandler;
+		}
+
+		public WavefrontMeshProvider withCustomHandler(Consumer<WavefrontMesh> handler)
+		{
+			WavefrontMeshProvider prov = new WavefrontMeshProvider(this);
+			prov.customHandler = this.customHandler != null ? this.customHandler.andThen(handler) : handler;
+			return prov;
+		}
+
+		public WavefrontMeshProvider centered()
+		{
+			WavefrontMeshProvider prov = new WavefrontMeshProvider(this);
+			prov.normalizeCenter = true;
+			return prov;
+		}
+
+		public WavefrontMeshProvider center(Vec3d center)
+		{
+			WavefrontMeshProvider prov = new WavefrontMeshProvider(this);
+			prov.center = center;
+			prov.normalizeCenter = true;
+			return prov;
+		}
+
 		public WavefrontMesh getMesh()
 		{
-			return meshSupplier.get();
+			WavefrontMesh mesh = meshSupplier.get();
+
+			if(normalizeCenter)
+			{
+				Vector3f modelCenter = mesh.getModelCenter();
+
+				if(center != null)
+					mesh.offsetVertices(new Vector3f((float) center.x - modelCenter.x, (float) center.y - modelCenter.y, (float) center.z - modelCenter.z));
+				else
+					mesh.offsetVertices(new Vector3f(-modelCenter.x, -modelCenter.y, -modelCenter.z));
+			}
+
+			if(customHandler != null) customHandler.accept(mesh);
+			return mesh;
 		}
 
 		@Override
@@ -249,6 +299,29 @@ public class WavefrontLoader
 		public List<Face> getFaces()
 		{
 			return this.faces;
+		}
+
+		public void offsetVertices(Vector3f by)
+		{
+			for(Vector3f vertex : vertices)
+			{
+				vertex.x += by.x;
+				vertex.y += by.y;
+				vertex.z += by.z;
+			}
+		}
+
+		public Vector3f getModelCenter()
+		{
+			float avgX = 0, avgY = 0, avgZ = 0;
+			int total = vertices.size();
+			for(Vector3f vertex : vertices)
+			{
+				avgX += vertex.x;
+				avgY += vertex.y;
+				avgZ += vertex.z;
+			}
+			return total == 0 ? new Vector3f(0, 0, 0) : new Vector3f(avgX / total, avgY / total, avgZ / total);
 		}
 
 		public boolean isSmoothShadingEnabled()

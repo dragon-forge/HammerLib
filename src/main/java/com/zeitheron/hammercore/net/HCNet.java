@@ -1,18 +1,11 @@
 package com.zeitheron.hammercore.net;
 
-import java.lang.reflect.Constructor;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Supplier;
-
-import javax.annotation.Nullable;
-
 import com.zeitheron.hammercore.HammerCore;
 import com.zeitheron.hammercore.net.internal.PacketParticle;
 import com.zeitheron.hammercore.net.internal.PacketSyncMouseStack;
-
 import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -39,24 +32,30 @@ import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.Nullable;
+import java.lang.reflect.Constructor;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Supplier;
+
 public enum HCNet
 {
 	INSTANCE;
-	
+
 	public final String ch_name = "hammercore2";
 	final FMLEventChannel channel = NetworkRegistry.INSTANCE.newEventDrivenChannel(ch_name);
-	
+
 	@SideOnly(Side.CLIENT)
 	public static void c_sendToServer(Packet<?> packet)
 	{
 		HammerCore.pipelineProxy.sendToServer(packet);
 	}
-	
+
 	public static void s_sendTo(Packet<?> packet, EntityPlayerMP player)
 	{
 		HammerCore.pipelineProxy.sendTo(packet, player);
 	}
-	
+
 	public static void s_sendToDimension(Packet<?> packet, int dim)
 	{
 		MinecraftServer mcs = FMLCommonHandler.instance().getMinecraftServerInstance();
@@ -67,7 +66,7 @@ public enum HCNet
 				sw.getPlayers(EntityPlayerMP.class, p -> !(p instanceof FakePlayer)).forEach(player -> s_sendTo(packet, player));
 		}
 	}
-	
+
 	public static void setMouseStack(EntityPlayer player, ItemStack stack)
 	{
 		if(player != null)
@@ -77,12 +76,12 @@ public enum HCNet
 			player.inventory.setItemStack(stack);
 		}
 	}
-	
+
 	public static ItemStack getMouseStack(EntityPlayer player)
 	{
 		return player != null ? player.inventory.getItemStack() : ItemStack.EMPTY;
 	}
-	
+
 	public static void spawnParticle(World world, EnumParticleTypes particle, double x, double y, double z, double motionX, double motionY, double motionZ, int... args)
 	{
 		PacketParticle pp = new PacketParticle(world, particle, new Vec3d(x, y, z), new Vec3d(motionX, motionY, motionZ), args);
@@ -96,14 +95,12 @@ public enum HCNet
 			{
 			}
 	}
-	
+
 	/**
 	 * Swings the player's arms on server AND client if called from server.
-	 * 
-	 * @param player
-	 *            The player
-	 * @param hand
-	 *            The hand to swing
+	 *
+	 * @param player The player
+	 * @param hand   The hand to swing
 	 */
 	public static void swingArm(EntityPlayer player, EnumHand hand)
 	{
@@ -111,19 +108,19 @@ public enum HCNet
 		if(player instanceof EntityPlayerMP && !player.world.isRemote)
 			s_sendTo(new SPacketAnimation(player, hand == EnumHand.MAIN_HAND ? 0 : 3), (EntityPlayerMP) player);
 	}
-	
+
 	public void init()
 	{
 		channel.register(this);
 	}
-	
+
 	private final Map<Class<? extends IPacket>, Supplier<? extends IPacket>> reconstruction = new HashMap<>();
-	
+
 	public <T extends IPacket> void handle(Class<T> t, Supplier<T> nev)
 	{
 		reconstruction.put(t, nev);
 	}
-	
+
 	public <T extends IPacket> T newPacket(Class<T> t)
 	{
 		Supplier sup = reconstruction.get(t);
@@ -139,27 +136,27 @@ public enum HCNet
 		}
 		return null;
 	}
-	
+
 	public void sendToAll(IPacket packet)
 	{
 		channel.sendToAll(wrap(new PacketHolder(packet), null));
 	}
-	
+
 	public void sendTo(IPacket packet, EntityPlayerMP player)
 	{
 		channel.sendTo(wrap(new PacketHolder(packet), null), player);
 	}
-	
+
 	public void sendToAllAround(IPacket packet, TargetPoint point)
 	{
 		channel.sendToAllAround(wrap(new PacketHolder(packet), null), point);
 	}
-	
+
 	public void sendToDimension(IPacket packet, int dimensionId)
 	{
 		channel.sendToDimension(wrap(new PacketHolder(packet), null), dimensionId);
 	}
-	
+
 	@SideOnly(Side.CLIENT)
 	public void sendToServer(IPacket packet)
 	{
@@ -167,7 +164,7 @@ public enum HCNet
 		if(ep != null)
 			channel.sendToServer(wrap(new PacketHolder(packet, ep), null));
 	}
-	
+
 	public static NBTTagCompound writePacket(IPacket packet, NBTTagCompound nbt)
 	{
 		if(packet == null)
@@ -178,7 +175,7 @@ public enum HCNet
 		nbt.setString("Class", packet.getClass().getCanonicalName());
 		return nbt;
 	}
-	
+
 	public static IPacket readPacket(NBTTagCompound nbt)
 	{
 		try
@@ -192,12 +189,22 @@ public enum HCNet
 		}
 		return null;
 	}
-	
+
+	public static TargetPoint point(Entity entity, double range)
+	{
+		return point(entity.world, new Vec3d(entity.posX + entity.width / 2F, entity.posY + entity.height / 2F, entity.posZ + entity.width / 2F), range);
+	}
+
+	public static TargetPoint point(World world, Vec3d pos, double range)
+	{
+		return new TargetPoint(world.provider.getDimension(), pos.x, pos.y, pos.z, range);
+	}
+
 	private FMLProxyPacket wrap(PacketHolder pkt, Side target)
 	{
 		return wrap(pkt, target, null);
 	}
-	
+
 	private FMLProxyPacket wrap(PacketHolder pkt, Side target, @Nullable FMLProxyPacket origin)
 	{
 		PacketBuffer buf = new PacketBuffer(Unpooled.buffer());
@@ -209,7 +216,7 @@ public enum HCNet
 			fmlpp.setTarget(target);
 		return fmlpp;
 	}
-	
+
 	private PacketHolder unwrap(FMLProxyPacket pkt)
 	{
 		PacketBuffer payload = new PacketBuffer(pkt.payload());
@@ -223,7 +230,7 @@ public enum HCNet
 		payload.release();
 		return nbt != null ? new PacketHolder(nbt) : null;
 	}
-	
+
 	@SubscribeEvent
 	public void packetToClient(ClientCustomPacketEvent e)
 	{
@@ -241,7 +248,7 @@ public enum HCNet
 		else
 			task.run();
 	}
-	
+
 	@SubscribeEvent
 	public void packetToServer(ServerCustomPacketEvent e)
 	{
@@ -259,7 +266,7 @@ public enum HCNet
 		else
 			task.run();
 	}
-	
+
 	private Side oppositeSide(Side s)
 	{
 		return s == Side.CLIENT ? Side.SERVER : Side.CLIENT;
