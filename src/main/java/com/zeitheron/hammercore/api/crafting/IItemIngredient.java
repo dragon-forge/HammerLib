@@ -1,6 +1,7 @@
 package com.zeitheron.hammercore.api.crafting;
 
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.crafting.Ingredient;
 
 /**
  * An item implementation of {@link IBaseIngredient} that allows for items to be
@@ -29,4 +30,9 @@ public interface IItemIngredient<T extends IItemIngredient> extends IBaseIngredi
 	 * @return if the content was taken.
 	 */
 	boolean takeFrom(IInventory inv, IngredientStack<T> stack);
+	
+	/**
+	 * Transforms this ingredient to vanilla item ingredient for easier management.
+	 */
+	Ingredient asIngredient();
 }

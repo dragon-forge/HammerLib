@@ -1,24 +1,18 @@
 package com.zeitheron.hammercore.compat.top;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
-
 import com.zeitheron.hammercore.HammerCore;
 import com.zeitheron.hammercore.tile.tooltip.ITooltipTile;
 import com.zeitheron.hammercore.tile.tooltip.ProgressBar;
 import com.zeitheron.hammercore.tile.tooltip.eTooltipEngine;
 import com.zeitheron.hammercore.utils.WorldLocation;
-
-import mcjty.theoneprobe.api.IProbeHitData;
-import mcjty.theoneprobe.api.IProbeInfo;
-import mcjty.theoneprobe.api.IProbeInfoProvider;
-import mcjty.theoneprobe.api.IProgressStyle;
-import mcjty.theoneprobe.api.ITheOneProbe;
-import mcjty.theoneprobe.api.ProbeMode;
+import mcjty.theoneprobe.api.*;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
 
 public class GetTOP implements IProbeInfoProvider, Function<ITheOneProbe, Void>
 {

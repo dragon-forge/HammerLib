@@ -8,6 +8,8 @@ import java.util.Map;
  */
 public class EnergyUnit
 {
+	private static final Map<String, EnergyUnit> UNITS = new HashMap<>();
+	
 	public static final EnergyUnit RF = getUnit("rf", 1);
 	public static final EnergyUnit FE = getUnit("fe", 1);
 	public static final EnergyUnit TESLA = getUnit("tesla", 1);
@@ -21,8 +23,6 @@ public class EnergyUnit
 	 * EMC costs.
 	 */
 	public static final EnergyUnit EMC = getUnit("emc", 125);
-	
-	private static final Map<String, EnergyUnit> UNITS = new HashMap<>();
 	
 	/**
 	 * Gets the unit, or registers one, if not found.

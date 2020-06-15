@@ -1,13 +1,13 @@
 package com.zeitheron.hammercore.api.crafting.impl;
 
 import com.zeitheron.hammercore.api.EnergyUnit;
-import com.zeitheron.hammercore.api.crafting.INumericalIngredient;
+import com.zeitheron.hammercore.api.crafting.IEnergyIngredient;
 
 /**
- * An energy implementation of {@link INumericalIngredient} that involves FE in
+ * An energy implementation of {@link IEnergyIngredient} that involves FE in
  * recipes.
  */
-public class EnergyIngredient implements INumericalIngredient<Double>
+public class EnergyIngredient implements IEnergyIngredient<Double>
 {
 	public double x;
 	public EnergyUnit unit;
@@ -33,8 +33,8 @@ public class EnergyIngredient implements INumericalIngredient<Double>
 	}
 	
 	@Override
-	public double toRFRatio()
+	public EnergyUnit getUnit()
 	{
-		return unit.toRF;
+		return unit;
 	}
 }

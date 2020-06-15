@@ -1,2 +1,2 @@
-gradlew setupDecompWorkspace eclipse
+gradlew setupDecompWorkspace idea
 pause

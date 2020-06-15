@@ -1,17 +1,16 @@
 package com.zeitheron.hammercore.api.crafting.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.zeitheron.hammercore.api.EnergyUnit;
 import com.zeitheron.hammercore.api.crafting.IBaseIngredient;
 import com.zeitheron.hammercore.api.crafting.IGeneralRecipe;
-
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreIngredient;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple implementation for {@link IGeneralRecipe} featuring inputs to output
@@ -22,13 +21,10 @@ public class BaseGeneralRecipe implements IGeneralRecipe
 	public final ItemStack output;
 	public final NonNullList<IBaseIngredient> ingredients;
 	
-	public BaseGeneralRecipe(ItemStack output, IBaseIngredient... ingredients)
+	public BaseGeneralRecipe(ItemStack output, NonNullList<IBaseIngredient> ingredients)
 	{
 		this.output = output;
-		
-		this.ingredients = NonNullList.withSize(ingredients.length, new EnergyIngredient(0, EnergyUnit.RF));
-		for(int i = 0; i < ingredients.length; ++i)
-			this.ingredients.set(i, ingredients[i]);
+		this.ingredients = ingredients;
 	}
 	
 	@Override
@@ -43,22 +39,23 @@ public class BaseGeneralRecipe implements IGeneralRecipe
 		return output;
 	}
 	
+	public static BaseGeneralRecipe.Builder builder() { return new BaseGeneralRecipe.Builder(); }
+	
 	/**
 	 * A Builder class for {@link BaseGeneralRecipe}. allows to register inputs,
 	 * fluids, energy and set output for a recipe, then build it.
 	 */
 	public static class Builder
 	{
-		private NonNullList<Ingredient> inputItems = NonNullList.create();
-		private NonNullList<FluidStack> inputFluid = NonNullList.create();
-		private NonNullList<ItemStack> output = NonNullList.withSize(1, ItemStack.EMPTY);
+		private final NonNullList<Ingredient> inputItems = NonNullList.create();
+		private final NonNullList<FluidStack> inputFluid = NonNullList.create();
+		private final NonNullList<ItemStack> output = NonNullList.withSize(1, ItemStack.EMPTY);
 		private double RF;
 		
 		/**
 		 * Adds an ingredient to input list.
-		 * 
-		 * @param ing
-		 *            the ingredient to be added
+		 *
+		 * @param ing the ingredient to be added
 		 * @return this builder, for convenience.
 		 */
 		public Builder addInput(Ingredient ing)
@@ -69,9 +66,8 @@ public class BaseGeneralRecipe implements IGeneralRecipe
 		
 		/**
 		 * Adds an Ore Dictionary entry to input list.
-		 * 
-		 * @param oredict
-		 *            the entry to be added as ingredient
+		 *
+		 * @param oredict the entry to be added as ingredient
 		 * @return this builder, for convenience.
 		 */
 		public Builder addInput(String oredict)
@@ -82,9 +78,8 @@ public class BaseGeneralRecipe implements IGeneralRecipe
 		
 		/**
 		 * Adds an fluid to input list.
-		 * 
-		 * @param stack
-		 *            the fluid to be added to fluid list
+		 *
+		 * @param stack the fluid to be added to fluid list
 		 * @return this builder, for convenience.
 		 */
 		public Builder addInput(FluidStack stack)
@@ -95,11 +90,9 @@ public class BaseGeneralRecipe implements IGeneralRecipe
 		
 		/**
 		 * Sets energy value in desired unit.
-		 * 
-		 * @param amount
-		 *            the amount of energy
-		 * @param unit
-		 *            the unit of energy
+		 *
+		 * @param amount the amount of energy
+		 * @param unit   the unit of energy
 		 * @return this builder, for convenience.
 		 */
 		public Builder setEnergy(double amount, EnergyUnit unit)
@@ -110,11 +103,9 @@ public class BaseGeneralRecipe implements IGeneralRecipe
 		
 		/**
 		 * Adds energy to the builder, in desired units.
-		 * 
-		 * @param amount
-		 *            the amount of energy
-		 * @param unit
-		 *            the unit of energy
+		 *
+		 * @param amount the amount of energy
+		 * @param unit   the unit of energy
 		 * @return this builder, for convenience.
 		 */
 		public Builder addEnergy(double amount, EnergyUnit unit)
@@ -125,9 +116,8 @@ public class BaseGeneralRecipe implements IGeneralRecipe
 		
 		/**
 		 * Sets recipe output.
-		 * 
-		 * @param stack
-		 *            the output stack
+		 *
+		 * @param stack the output stack
 		 * @return this builder, for convenience.
 		 */
 		public Builder withOutput(ItemStack stack)
@@ -138,9 +128,8 @@ public class BaseGeneralRecipe implements IGeneralRecipe
 		
 		/**
 		 * Retrieves the energy amount needed to perform the recipe in units.
-		 * 
-		 * @param unit
-		 *            the unit the we retrieve energy in.
+		 *
+		 * @param unit the unit the we retrieve energy in.
 		 * @return the amount of energy
 		 */
 		public double getEnergy(EnergyUnit unit)
@@ -150,19 +139,16 @@ public class BaseGeneralRecipe implements IGeneralRecipe
 		
 		/**
 		 * Builds the recipe
-		 * 
+		 *
 		 * @return the newly built {@link BaseGeneralRecipe}
 		 */
 		public BaseGeneralRecipe build()
 		{
-			List<IBaseIngredient> ings = new ArrayList<>();
-			if(RF > 0)
-				ings.add(new EnergyIngredient(RF, EnergyUnit.RF));
-			for(FluidStack stack : inputFluid)
-				ings.add(new FluidStackIngredient(stack));
-			for(Ingredient ing : inputItems)
-				ings.add(new MCIngredient(ing));
-			return new BaseGeneralRecipe(output.get(0), ings.toArray(new IBaseIngredient[ings.size()]));
+			NonNullList<IBaseIngredient> ings = NonNullList.create();
+			if(RF > 0) ings.add(new EnergyIngredient(RF, EnergyUnit.RF));
+			for(FluidStack stack : inputFluid) ings.add(new FluidStackIngredient(stack));
+			for(Ingredient ing : inputItems) ings.add(new MCIngredient(ing));
+			return new BaseGeneralRecipe(output.get(0), ings);
 		}
 	}
 }

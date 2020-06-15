@@ -10,6 +10,7 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.nbt.NBTTagCompound;
@@ -28,6 +29,17 @@ import net.minecraftforge.oredict.OreDictionary;
  */
 public class ItemStackUtil
 {
+	public static void setItem(ItemStack stack, Item newItem)
+	{
+		try
+		{
+			ReflectionUtil.setFinalField(ReflectionUtil.getField(ItemStack.class, Item.class), stack, newItem);
+		} catch(ReflectiveOperationException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
 	public static ItemStack cycleItemStack(Object input)
 	{
 		NonNullList<ItemStack> q;

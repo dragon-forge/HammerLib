@@ -55,6 +55,10 @@ repositories {
 		url = "http://tehnut.info/maven"
 	}
 	maven {
+		name = "HWYLA TEMP"
+		url = "https://raw.github.com/TehNut/temporary-maven-thing/master/maven"
+	}
+	maven {
 		name "TheOneProbe"
 		url "http://maven.tterrag.com/"
 	}
@@ -65,7 +69,7 @@ repositories {
 }
 
 dependencies {
-	deobfCompile "mcp.mobius.waila:Hwyla:1.8.24-B39_1.12"
+	deobfCompile "mcp.mobius.waila:Hwyla:1.8.26-B41_1.12.2"
 	deobfCompile "mcjty.theoneprobe:TheOneProbe-1.12:1.12-1.4.22-13"
     deobfCompile "mezz.jei:jei_${config.minecraft_version}:${config.jei_version}:api"
 	deobfCompile "com.azanor.baubles:Baubles:1.12-1.5.2"

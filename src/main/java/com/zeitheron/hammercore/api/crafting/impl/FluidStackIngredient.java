@@ -1,16 +1,17 @@
 package com.zeitheron.hammercore.api.crafting.impl;
 
-import com.zeitheron.hammercore.api.crafting.ICustomIngredient;
 import com.zeitheron.hammercore.api.crafting.IFluidIngredient;
 import com.zeitheron.hammercore.api.crafting.IngredientStack;
-
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidTank;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * The fluid ingredient implementation.
  */
-public class FluidStackIngredient implements ICustomIngredient<FluidStack>, IFluidIngredient<FluidStackIngredient>
+public class FluidStackIngredient implements IFluidIngredient<FluidStackIngredient>
 {
 	public FluidStack stack;
 	
@@ -41,14 +42,8 @@ public class FluidStackIngredient implements ICustomIngredient<FluidStack>, IFlu
 	}
 	
 	@Override
-	public FluidStack getCopy()
+	public List<FluidStack> asIngredient()
 	{
-		return stack.copy();
-	}
-	
-	@Override
-	public FluidStack getOrigin()
-	{
-		return stack;
+		return Collections.singletonList(stack != null ? stack.copy() : null);
 	}
 }
