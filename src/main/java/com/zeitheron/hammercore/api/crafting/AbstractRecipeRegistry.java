@@ -1,5 +1,6 @@
 package com.zeitheron.hammercore.api.crafting;
 
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.LoaderState;
 
@@ -18,11 +19,14 @@ public abstract class AbstractRecipeRegistry<T extends IGeneralRecipe, C extends
 	protected final Class<T> type;
 	protected final C container;
 	
-	public AbstractRecipeRegistry(Class<T> type, C container)
+	private final ResourceLocation id;
+	
+	public AbstractRecipeRegistry(Class<T> type, C container, ResourceLocation id)
 	{
 		if(Loader.instance().hasReachedState(LoaderState.INITIALIZATION))
 			throw new IllegalStateException("Attempted to create recipe registry for type " + type.getName() + " too late! Please do it in construct or preInit!");
 		
+		this.id = id;
 		this.type = type;
 		this.container = container;
 		ALL_REGISTRIES.add(this);
@@ -42,5 +46,10 @@ public abstract class AbstractRecipeRegistry<T extends IGeneralRecipe, C extends
 	public static List<AbstractRecipeRegistry<?, ?, ?>> getAllRegistries()
 	{
 		return ALL_REGISTRIES_VIEW;
+	}
+	
+	public ResourceLocation getRegistryId()
+	{
+		return id;
 	}
 }

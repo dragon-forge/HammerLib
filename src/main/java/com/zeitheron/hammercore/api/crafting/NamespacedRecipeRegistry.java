@@ -12,9 +12,9 @@ import java.util.Collections;
  */
 public class NamespacedRecipeRegistry<T extends INameableRecipe> extends AbstractRecipeRegistry<T, NamespacedRecipeRegistry.NamespacedRecipeContainer<T>, ResourceLocation>
 {
-	public NamespacedRecipeRegistry(Class<T> type)
+	public NamespacedRecipeRegistry(Class<T> type, ResourceLocation id)
 	{
-		super(type, new NamespacedRecipeContainer<>(type));
+		super(type, new NamespacedRecipeContainer<>(type), id);
 	}
 	
 	@Override

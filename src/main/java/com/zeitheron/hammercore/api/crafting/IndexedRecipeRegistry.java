@@ -2,6 +2,7 @@ package com.zeitheron.hammercore.api.crafting;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import net.minecraft.util.ResourceLocation;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -13,9 +14,9 @@ import java.util.function.IntSupplier;
  */
 public class IndexedRecipeRegistry<T extends IGeneralRecipe> extends AbstractRecipeRegistry<T, IndexedRecipeRegistry.IndexedRecipeContainer<T>, IntSupplier>
 {
-	public IndexedRecipeRegistry(Class<T> type)
+	public IndexedRecipeRegistry(Class<T> type, ResourceLocation id)
 	{
-		super(type, new IndexedRecipeContainer<>(type));
+		super(type, new IndexedRecipeContainer<>(type), id);
 	}
 	
 	@Override
