@@ -7,4 +7,4 @@ release_type=release
 jei_version=4.11.0.206
 
 project_id=247401
-startGitRev=ebd28659bf2630cf6c2e6a20afca1aab7b1a67aa
+start_git_commit=ebd28659bf2630cf6c2e6a20afca1aab7b1a67aa
