@@ -24,13 +24,11 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
+import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
-import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
-import net.minecraftforge.fml.relauncher.Side;
 
 import javax.annotation.Nullable;
 import java.io.*;
@@ -209,17 +207,10 @@ public class WorldGenHelper
 	public static final UUID MOVE_SPEED_UUID = UUID.fromString("08B6A944-A002-4715-BE52-E2DBAF61C4E9");
 	
 	@SubscribeEvent
-	public void playerTick(PlayerTickEvent e)
+	public void chunkLoad(ChunkEvent.Load e)
 	{
-		EntityPlayer player = e.player;
-		
-		if(e.phase != TickEvent.Phase.END || e.side != Side.SERVER)
-			return;
-		
-		if(player != null && !player.world.isRemote && player.ticksExisted % 10 == 0)
-			for(int x = -4; x < 4; ++x)
-				for(int z = -4; z < 4; ++z)
-					WorldRetroGen.generateChunk(player.world.getChunk(player.getPosition().add(x * 16, 0, z * 16)));
+		if(!e.getWorld().isRemote)
+			WorldRetroGen.generateChunk(e.getChunk());
 	}
 	
 	@SubscribeEvent
