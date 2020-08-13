@@ -18,6 +18,7 @@ public class WorldTintHandler
 	private static final IntList modifiers = new IntArrayList();
 
 	public static float tintRed, tintGreen, tintBlue, tintIntensity;
+	public static float saturation;
 
 	@SubscribeEvent
 	public static void renderTick(TickEvent.RenderTickEvent e)
@@ -27,6 +28,7 @@ public class WorldTintHandler
 			modifiers.clear();
 			WorldTintEvent e2 = new WorldTintEvent(modifiers);
 			MinecraftForge.EVENT_BUS.post(e2);
+			saturation = e2.getFinalSaturation();
 			int tc = e2.getFinalColor();
 			tintIntensity = e2.getIntensity();
 			tintRed = ColorHelper.getRed(tc);

@@ -14,6 +14,8 @@ public class WorldTintEvent
 	private float intensity = 0F;
 	private IntList modifiers;
 
+	private float saturation;
+
 	public WorldTintEvent(IntList modifiers)
 	{
 		this.modifiers = modifiers;
@@ -40,6 +42,21 @@ public class WorldTintEvent
 			return ColorHelper.packRGB(rt / modifiers.size(), gt / modifiers.size(), bt / modifiers.size());
 		}
 		return baseColor;
+	}
+
+	public void setSaturation(float saturation)
+	{
+		this.saturation = saturation;
+	}
+
+	public void multSaturation(float mult)
+	{
+		saturation *= mult;
+	}
+
+	public float getFinalSaturation()
+	{
+		return saturation;
 	}
 
 	/**
