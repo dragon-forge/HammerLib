@@ -14,7 +14,7 @@ public class WorldTintEvent
 	private float intensity = 0F;
 	private IntList modifiers;
 
-	private float saturation;
+	private float saturation = 1F;
 
 	public WorldTintEvent(IntList modifiers)
 	{
