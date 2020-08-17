@@ -52,7 +52,7 @@ public class UtilsFX
 				{
 					BufferedImage bufferedimage = TextureUtil.readBufferedImage(input);
 					Minecraft.getMinecraft().addScheduledTask(() -> TexLocUploader.upload(loca, bufferedimage));
-				} catch(IOException ioe)
+				} catch(Throwable ioe)
 				{
 					HammerCore.LOG.error("Failed to load texture from url \"" + url + "\"", ioe);
 				}

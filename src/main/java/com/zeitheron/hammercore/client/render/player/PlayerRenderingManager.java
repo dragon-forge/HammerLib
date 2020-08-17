@@ -3,8 +3,6 @@ package com.zeitheron.hammercore.client.render.player;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.zeitheron.hammercore.specials.Zeitheron.ZeitheronRenderer;
-
 public class PlayerRenderingManager
 {
 	private static final IPlayerModel EMPTY = player ->
@@ -15,7 +13,6 @@ public class PlayerRenderingManager
 	
 	static
 	{
-		bind(new ZeitheronRenderer(), "Zeitheron");
 	}
 	
 	public static void bind(IPlayerModel type, String username)

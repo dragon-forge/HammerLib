@@ -19,8 +19,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class TooltipAPI
 {
-	private static final ThreadLocal<Map<String, String>> results = ThreadLocal.withInitial(() -> new HashMap<>());
-	private static final ThreadLocal<Map<String, String>> currentVars = ThreadLocal.withInitial(() -> new HashMap<>());
+	private static final ThreadLocal<Map<String, String>> results = ThreadLocal.withInitial(HashMap::new);
+	private static final ThreadLocal<Map<String, String>> currentVars = ThreadLocal.withInitial(HashMap::new);
 	
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void tooltipEvt(ItemTooltipEvent evt)

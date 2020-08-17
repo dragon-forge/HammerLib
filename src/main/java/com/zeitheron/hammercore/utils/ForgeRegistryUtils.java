@@ -124,27 +124,28 @@ public class ForgeRegistryUtils
 	{
 		V val = registry.getObject(key);
 		
-		IntIdentityHashBiMap<V> ids = null;
-		Map<V, K> inverseObjectRegistry = null;
-		Map<K, V> registryObjects = null;
+		IntIdentityHashBiMap ids;
+		Map<V, K> inverseObjectRegistry;
+		Map<K, V> registryObjects;
 		
 		try
 		{
 			Field f = RegistryNamespaced.class.getDeclaredFields()[0];
 			f.setAccessible(true);
-			ids = (IntIdentityHashBiMap<V>) f.get(registry);
+			ids = (IntIdentityHashBiMap) f.get(registry);
+
 			{
-				final IntIdentityHashBiMap<V> idsf = ids;
-				
-				IntIdentityHashBiMap<V> ids2 = new IntIdentityHashBiMap<V>(256);
-				
-				ids.forEach(va ->
+				IntIdentityHashBiMap ids2 = new IntIdentityHashBiMap(256);
+
+				for(Object va : ids)
 				{
-					if(va != val) // Skip the value that we return
-						ids2.put(va, idsf.getId(va));
-				});
-				
-				FinalFieldHelper.setFinalField(f, registry, ids2);
+					if(va != val)
+					{
+						ids2.put(va, ids.getId(va));
+					}
+				}
+
+				ReflectionUtil.setFinalField(f, registry, ids2);
 			}
 			
 			f = RegistryNamespaced.class.getDeclaredFields()[1];
