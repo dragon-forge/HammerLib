@@ -2,8 +2,10 @@ package com.zeitheron.hammercore.api.crafting.impl;
 
 import com.zeitheron.hammercore.api.EnergyUnit;
 import com.zeitheron.hammercore.api.crafting.IBaseIngredient;
+import com.zeitheron.hammercore.api.crafting.ICraftingResult;
 import com.zeitheron.hammercore.api.crafting.IGeneralRecipe;
 import com.zeitheron.hammercore.api.crafting.INameableRecipe;
+import com.zeitheron.hammercore.utils.charging.fe.FECharge;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.NonNullList;
@@ -18,10 +20,10 @@ import net.minecraftforge.oredict.OreIngredient;
 public class BaseNameableRecipe implements INameableRecipe
 {
 	public final ResourceLocation id;
-	public final ItemStack output;
+	public final ICraftingResult<?> output;
 	public final NonNullList<IBaseIngredient> ingredients;
 	
-	public BaseNameableRecipe(ResourceLocation id, ItemStack output, NonNullList<IBaseIngredient> ingredients)
+	public BaseNameableRecipe(ResourceLocation id, ICraftingResult<?> output, NonNullList<IBaseIngredient> ingredients)
 	{
 		this.id = id;
 		this.output = output;
@@ -41,7 +43,7 @@ public class BaseNameableRecipe implements INameableRecipe
 	}
 	
 	@Override
-	public ItemStack getRecipeOutputOriginal()
+	public ICraftingResult<?> getRecipeOutputOriginal()
 	{
 		return output;
 	}
@@ -57,7 +59,7 @@ public class BaseNameableRecipe implements INameableRecipe
 		private final ResourceLocation id;
 		private final NonNullList<Ingredient> inputItems = NonNullList.create();
 		private final NonNullList<FluidStack> inputFluid = NonNullList.create();
-		private final NonNullList<ItemStack> output = NonNullList.withSize(1, ItemStack.EMPTY);
+		private ICraftingResult<?> output;
 		private double RF;
 		
 		public Builder(ResourceLocation id)
@@ -136,7 +138,43 @@ public class BaseNameableRecipe implements INameableRecipe
 		 */
 		public Builder withOutput(ItemStack stack)
 		{
-			output.set(0, stack);
+			output = new ItemStackResult(stack);
+			return this;
+		}
+		
+		/**
+		 * Sets recipe output.
+		 *
+		 * @param stack the output stack
+		 * @return this builder, for convenience.
+		 */
+		public Builder withOutput(FluidStack stack)
+		{
+			output = new FluidStackResult(stack);
+			return this;
+		}
+		
+		/**
+		 * Sets recipe output.
+		 *
+		 * @param FE the output energy
+		 * @return this builder, for convenience.
+		 */
+		public Builder withOutput(int FE)
+		{
+			output = new ForgeEnergyResult(new FECharge(FE));
+			return this;
+		}
+		
+		/**
+		 * Sets recipe output.
+		 *
+		 * @param stack the output stack
+		 * @return this builder, for convenience.
+		 */
+		public Builder withOutput(ICraftingResult<?> stack)
+		{
+			output = stack;
 			return this;
 		}
 		
@@ -162,7 +200,7 @@ public class BaseNameableRecipe implements INameableRecipe
 			if(RF > 0) ings.add(new EnergyIngredient(RF, EnergyUnit.RF));
 			for(FluidStack stack : inputFluid) ings.add(new FluidStackIngredient(stack));
 			for(Ingredient ing : inputItems) ings.add(new MCIngredient(ing));
-			return new BaseNameableRecipe(id, output.get(0), ings);
+			return new BaseNameableRecipe(id, output, ings);
 		}
 	}
 }

@@ -2,15 +2,14 @@ package com.zeitheron.hammercore.api.crafting.impl;
 
 import com.zeitheron.hammercore.api.EnergyUnit;
 import com.zeitheron.hammercore.api.crafting.IBaseIngredient;
+import com.zeitheron.hammercore.api.crafting.ICraftingResult;
 import com.zeitheron.hammercore.api.crafting.IGeneralRecipe;
+import com.zeitheron.hammercore.utils.charging.fe.FECharge;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreIngredient;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A simple implementation for {@link IGeneralRecipe} featuring inputs to output
@@ -18,10 +17,10 @@ import java.util.List;
  */
 public class BaseGeneralRecipe implements IGeneralRecipe
 {
-	public final ItemStack output;
+	public final ICraftingResult<?> output;
 	public final NonNullList<IBaseIngredient> ingredients;
 	
-	public BaseGeneralRecipe(ItemStack output, NonNullList<IBaseIngredient> ingredients)
+	public BaseGeneralRecipe(ICraftingResult<?> output, NonNullList<IBaseIngredient> ingredients)
 	{
 		this.output = output;
 		this.ingredients = ingredients;
@@ -34,7 +33,7 @@ public class BaseGeneralRecipe implements IGeneralRecipe
 	}
 	
 	@Override
-	public ItemStack getRecipeOutputOriginal()
+	public ICraftingResult<?> getRecipeOutputOriginal()
 	{
 		return output;
 	}
@@ -49,7 +48,7 @@ public class BaseGeneralRecipe implements IGeneralRecipe
 	{
 		private final NonNullList<Ingredient> inputItems = NonNullList.create();
 		private final NonNullList<FluidStack> inputFluid = NonNullList.create();
-		private final NonNullList<ItemStack> output = NonNullList.withSize(1, ItemStack.EMPTY);
+		private ICraftingResult<?> output;
 		private double RF;
 		
 		/**
@@ -122,7 +121,43 @@ public class BaseGeneralRecipe implements IGeneralRecipe
 		 */
 		public Builder withOutput(ItemStack stack)
 		{
-			output.set(0, stack);
+			output = new ItemStackResult(stack);
+			return this;
+		}
+		
+		/**
+		 * Sets recipe output.
+		 *
+		 * @param stack the output stack
+		 * @return this builder, for convenience.
+		 */
+		public Builder withOutput(FluidStack stack)
+		{
+			output = new FluidStackResult(stack);
+			return this;
+		}
+		
+		/**
+		 * Sets recipe output.
+		 *
+		 * @param FE the output energy
+		 * @return this builder, for convenience.
+		 */
+		public Builder withOutput(int FE)
+		{
+			output = new ForgeEnergyResult(new FECharge(FE));
+			return this;
+		}
+		
+		/**
+		 * Sets recipe output.
+		 *
+		 * @param stack the output stack
+		 * @return this builder, for convenience.
+		 */
+		public Builder withOutput(ICraftingResult<?> stack)
+		{
+			output = stack;
 			return this;
 		}
 		
@@ -148,7 +183,7 @@ public class BaseGeneralRecipe implements IGeneralRecipe
 			if(RF > 0) ings.add(new EnergyIngredient(RF, EnergyUnit.RF));
 			for(FluidStack stack : inputFluid) ings.add(new FluidStackIngredient(stack));
 			for(Ingredient ing : inputItems) ings.add(new MCIngredient(ing));
-			return new BaseGeneralRecipe(output.get(0), ings);
+			return new BaseGeneralRecipe(output, ings);
 		}
 	}
 }

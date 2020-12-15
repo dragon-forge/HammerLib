@@ -1,5 +1,6 @@
 package com.zeitheron.hammercore.api.crafting;
 
+import com.zeitheron.hammercore.api.crafting.impl.ItemStackResult;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
@@ -17,18 +18,19 @@ public interface IGeneralRecipe
 	NonNullList<IBaseIngredient> getIngredients();
 	
 	/**
-	 * Gives original instance of the item that may be tweaked.
-	 * To set a new item, use {@link com.zeitheron.hammercore.utils.ItemStackUtil#setItem(ItemStack, Item)}, other properties are tweakable directly.
-	 *
 	 * @return the original result item for this recipe.
 	 */
-	ItemStack getRecipeOutputOriginal();
+	ICraftingResult<?> getRecipeOutputOriginal();
 	
 	/**
-	 * @return a result item for this recipe.
+	 * @return a result as item for this recipe.
 	 */
+	@Deprecated
 	default ItemStack getRecipeOutput()
 	{
-		return getRecipeOutputOriginal().copy();
+		ICraftingResult<?> result = getRecipeOutputOriginal();
+		if(ItemStack.class.isAssignableFrom(result.getType()))
+			return ItemStack.class.cast(result.getBaseOutput());
+		return ItemStack.EMPTY;
 	}
 }

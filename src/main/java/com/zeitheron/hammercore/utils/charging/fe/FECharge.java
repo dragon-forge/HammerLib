@@ -23,7 +23,7 @@ public class FECharge extends AbstractCharge
 	}
 	
 	@Override
-	public AbstractCharge copy()
+	public FECharge copy()
 	{
 		return new FECharge(FE);
 	}
