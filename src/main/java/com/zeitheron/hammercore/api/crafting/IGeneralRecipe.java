@@ -1,7 +1,5 @@
 package com.zeitheron.hammercore.api.crafting;
 
-import com.zeitheron.hammercore.api.crafting.impl.ItemStackResult;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 
@@ -20,7 +18,7 @@ public interface IGeneralRecipe
 	/**
 	 * @return the original result item for this recipe.
 	 */
-	ICraftingResult<?> getRecipeOutputOriginal();
+	ICraftingResult<?> getResult();
 	
 	/**
 	 * @return a result as item for this recipe.
@@ -28,7 +26,7 @@ public interface IGeneralRecipe
 	@Deprecated
 	default ItemStack getRecipeOutput()
 	{
-		ICraftingResult<?> result = getRecipeOutputOriginal();
+		ICraftingResult<?> result = getResult();
 		if(ItemStack.class.isAssignableFrom(result.getType()))
 			return ItemStack.class.cast(result.getBaseOutput());
 		return ItemStack.EMPTY;

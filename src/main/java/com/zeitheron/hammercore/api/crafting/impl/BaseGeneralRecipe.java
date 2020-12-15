@@ -33,7 +33,7 @@ public class BaseGeneralRecipe implements IGeneralRecipe
 	}
 	
 	@Override
-	public ICraftingResult<?> getRecipeOutputOriginal()
+	public ICraftingResult<?> getResult()
 	{
 		return output;
 	}

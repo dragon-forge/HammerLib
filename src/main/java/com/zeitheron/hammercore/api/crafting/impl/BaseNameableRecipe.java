@@ -43,7 +43,7 @@ public class BaseNameableRecipe implements INameableRecipe
 	}
 	
 	@Override
-	public ICraftingResult<?> getRecipeOutputOriginal()
+	public ICraftingResult<?> getResult()
 	{
 		return output;
 	}

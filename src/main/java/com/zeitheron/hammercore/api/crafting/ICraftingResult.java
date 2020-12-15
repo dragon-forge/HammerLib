@@ -17,9 +17,19 @@ public interface ICraftingResult<R>
 	 * Return array, consisting of {@link ItemStack}, {@link net.minecraftforge.fluids.FluidStack}
 	 * and {@link com.zeitheron.hammercore.utils.charging.fe.FECharge}. Other objects might not map.
 	 */
-	default Object[] getAllResults(ICraftingExecutor executor)
+	default Object[] getAllOutputs(ICraftingExecutor executor)
 	{
 		return new Object[]{getOutput(executor)};
+	}
+	
+	/**
+	 * Gets all components of the result.
+	 * Return array, consisting of {@link ItemStack}, {@link net.minecraftforge.fluids.FluidStack}
+	 * and {@link com.zeitheron.hammercore.utils.charging.fe.FECharge}. Other objects might not map.
+	 */
+	default Object[] getAllBaseOutputs()
+	{
+		return hasBaseOutput() ? new Object[]{getBaseOutput()} : new Object[0];
 	}
 	
 	/**
