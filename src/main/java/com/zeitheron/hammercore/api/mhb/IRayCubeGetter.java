@@ -28,7 +28,7 @@ public interface IRayCubeGetter
 	 *            The target block
 	 * @return an array of hard-coded cuboids for a block
 	 */
-	public Cuboid6[] getBoundCubes6(BlockTraceable target);
+	Cuboid6[] getBoundCubes6(BlockTraceable target);
 	
 	/**
 	 * @param target
@@ -36,7 +36,7 @@ public interface IRayCubeGetter
 	 * @return a manager for retrieving cuboids based on world and position
 	 *         (used for dynamic cuboids like cables)
 	 */
-	public ICubeManager getBoundCubeManager(BlockTraceable target);
+	ICubeManager getBoundCubeManager(BlockTraceable target);
 	
 	/**
 	 * @param world
@@ -61,7 +61,7 @@ public interface IRayCubeGetter
 		return null;
 	}
 	
-	public static class Instance
+	class Instance
 	{
 		public static IRayCubeGetter getter;
 	}

@@ -15,7 +15,6 @@ import com.zeitheron.hammercore.event.GetAllRequiredApisEvent;
 import com.zeitheron.hammercore.fluiddict.FluidDictionary;
 import com.zeitheron.hammercore.internal.GuiManager;
 import com.zeitheron.hammercore.internal.SimpleRegistration;
-import com.zeitheron.hammercore.internal.capabilities.CapabilityEJ;
 import com.zeitheron.hammercore.internal.chunk.ChunkLoaderHC;
 import com.zeitheron.hammercore.internal.init.BlocksHC;
 import com.zeitheron.hammercore.internal.init.ItemsHC;
@@ -187,10 +186,7 @@ public class HammerCore
 
 		toRegister.add(this);
 
-		ProgressBar bar = ProgressManager.push("Loading", 7 + apis.size() + toRegister.size() + listeners.size());
-
-		bar.step("Registering EJ");
-		CapabilityEJ.register();
+		ProgressBar bar = ProgressManager.push("Loading", 6 + apis.size() + toRegister.size() + listeners.size());
 
 		bar.step("Registering Chunk Storage");
 		PerChunkDataManager.register();

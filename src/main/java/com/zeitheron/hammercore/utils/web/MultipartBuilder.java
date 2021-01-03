@@ -4,6 +4,7 @@ import java.io.IOError;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -29,13 +30,7 @@ public class MultipartBuilder
 	
 	public MultipartBuilder addPart(String name, String text)
 	{
-		try
-		{
-			return addPart(new MultipartEntity(name, null, "text/txt", text.getBytes("UFT-8")));
-		} catch(UnsupportedEncodingException e)
-		{
-			return addPart(new MultipartEntity(name, null, "text/txt", text.getBytes()));
-		}
+		return addPart(new MultipartEntity(name, null, "text/txt", text.getBytes(StandardCharsets.UTF_8)));
 	}
 	
 	public void writeMultipart(OutputStream target) throws IOException

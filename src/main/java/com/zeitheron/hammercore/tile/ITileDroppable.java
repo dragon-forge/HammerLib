@@ -6,5 +6,5 @@ import net.minecraft.world.World;
 
 public interface ITileDroppable
 {
-	public void createDrop(EntityPlayer player, World world, BlockPos pos);
+	void createDrop(EntityPlayer player, World world, BlockPos pos);
 }

@@ -106,8 +106,8 @@ public class SimpleRegistration
 		{
 			char c0 = s.charAt(l);
 
-			if(map.containsKey(Character.valueOf(c0)))
-				aitemstack.set(l, map.get(Character.valueOf(c0)));
+			if(map.containsKey(c0))
+				aitemstack.set(l, map.get(c0));
 		}
 
 		return new ShapedRecipes(name, j, k, aitemstack, stack);
@@ -275,7 +275,7 @@ public class SimpleRegistration
 	 **/
 	public static void registerSound(SoundObject sound)
 	{
-		GameRegistry.findRegistry(SoundEvent.class).register(sound.sound = new SoundEvent(sound.name).setRegistryName(sound.name));
+		ForgeRegistries.SOUND_EVENTS.register(sound.sound = new SoundEvent(sound.name).setRegistryName(sound.name));
 	}
 
 	public static void registerItem(Item item, String modid, CreativeTabs tab)

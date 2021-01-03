@@ -35,7 +35,7 @@ public class PerChunkDataManager
 			{
 				instance.deserializeNBT((NBTTagCompound) instance);
 			}
-		}, () -> new ChunkData());
+		}, ChunkData::new);
 	}
 	
 	public static IChunkData getData(Chunk chunk)
