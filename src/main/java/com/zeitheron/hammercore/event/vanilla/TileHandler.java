@@ -1,6 +1,5 @@
 package com.zeitheron.hammercore.event.vanilla;
 
-import com.zeitheron.hammercore.annotations.MCFBus;
 import com.zeitheron.hammercore.event.WrenchEvent;
 import com.zeitheron.hammercore.internal.blocks.IWitherProofBlock;
 import com.zeitheron.hammercore.net.HCNet;
@@ -29,6 +28,7 @@ import net.minecraftforge.event.entity.living.LivingDestroyBlockEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.ExplosionEvent;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -36,11 +36,11 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.List;
 
-@MCFBus
+@Mod.EventBusSubscriber
 public class TileHandler
 {
 	@SubscribeEvent
-	public void breakBlock(BlockEvent.BreakEvent evt)
+	public static void breakBlock(BlockEvent.BreakEvent evt)
 	{
 		IBlockState state = evt.getState();
 		if(state.getBlock() instanceof ITileDroppable)
@@ -51,7 +51,7 @@ public class TileHandler
 	}
 
 	@SubscribeEvent(priority = EventPriority.NORMAL)
-	public void playerInteract(PlayerInteractEvent.RightClickBlock evt)
+	public static void playerInteract(PlayerInteractEvent.RightClickBlock evt)
 	{
 		EntityPlayer player = evt.getEntityPlayer();
 
@@ -81,7 +81,7 @@ public class TileHandler
 	}
 
 	@SubscribeEvent
-	public void placeBlock(BlockEvent.PlaceEvent evt)
+	public static void placeBlock(BlockEvent.PlaceEvent evt)
 	{
 		TileEntity te = evt.getWorld().getTileEntity(evt.getPos());
 
@@ -103,7 +103,7 @@ public class TileHandler
 	}
 
 	@SubscribeEvent
-	public void handleWitherBlocks(LivingDestroyBlockEvent e)
+	public static void handleWitherBlocks(LivingDestroyBlockEvent e)
 	{
 		if(e.getEntityLiving() instanceof EntityWither)
 		{
@@ -114,7 +114,7 @@ public class TileHandler
 	}
 
 	@SubscribeEvent
-	public void handleWitherBlocks(ExplosionEvent.Detonate w)
+	public static void handleWitherBlocks(ExplosionEvent.Detonate w)
 	{
 		Explosion expl = w.getExplosion();
 		if(expl != null && expl.getExplosivePlacedBy() instanceof EntityWither)
@@ -136,7 +136,7 @@ public class TileHandler
 
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
-	public void overrideBlockHiglight(DrawBlockHighlightEvent e)
+	public static void overrideBlockHiglight(DrawBlockHighlightEvent e)
 	{
 		RayTraceResult rtr = e.getTarget();
 		if(rtr != null && rtr.typeOfHit == RayTraceResult.Type.BLOCK)

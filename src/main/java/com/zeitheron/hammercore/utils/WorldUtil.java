@@ -31,14 +31,9 @@ public class WorldUtil
 		return Cast.cast(obj, to);
 	}
 	
-	public static int getMoonPhase(World world)
-	{
-		return (int) ((world.getWorldTime() / 24000L % 8L + 8L) % 8);
-	}
-	
 	public static EnumMoonPhase getEMoonPhase(World world)
 	{
-		return EnumMoonPhase.values()[getMoonPhase(world) % EnumMoonPhase.values().length];
+		return EnumMoonPhase.getMoonPhase(world);
 	}
 	
 	public static World getWorld(PacketContext context, int dim)

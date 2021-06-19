@@ -31,13 +31,7 @@ public class ItemStackUtil
 {
 	public static void setItem(ItemStack stack, Item newItem)
 	{
-		try
-		{
-			ReflectionUtil.setFinalField(ReflectionUtil.getField(ItemStack.class, Item.class), stack, newItem);
-		} catch(ReflectiveOperationException e)
-		{
-			e.printStackTrace();
-		}
+		stack.item = newItem;
 	}
 	
 	public static ItemStack cycleItemStack(Object input)
@@ -76,22 +70,22 @@ public class ItemStackUtil
 			if(q3 != null && q3.length > 0)
 			{
 				int idx = (int) (System.currentTimeMillis() / 1000L % q3.length);
-				it = InventoryUtils.cycleItemStack(q3[idx]);
+				it = ItemStackUtil.cycleItemStack(q3[idx]);
 			}
 		} else if(input instanceof Ingredient)
-			it = InventoryUtils.cycleItemStack(((Ingredient) input).getMatchingStacks());
+			it = ItemStackUtil.cycleItemStack(((Ingredient) input).getMatchingStacks());
 		else if(input instanceof List)
 		{
 			List q3 = (List) input;
 			if(q3 != null && q3.size() > 0)
 			{
 				int idx = (int) (System.currentTimeMillis() / 1000L % q3.size());
-				it = InventoryUtils.cycleItemStack(q3.get(idx));
+				it = ItemStackUtil.cycleItemStack(q3.get(idx));
 			}
 		} else if(input instanceof String && !(q = OreDictionary.getOres(input + "")).isEmpty())
 		{
 			int idx = (int) (System.currentTimeMillis() / 1000L % q.size());
-			it = InventoryUtils.cycleItemStack(q.get(idx));
+			it = ItemStackUtil.cycleItemStack(q.get(idx));
 		}
 		
 		return it;

@@ -41,15 +41,7 @@ public class HammerCoreClient
 	
 	public static MetadataSerializer getMetadataSerializer()
 	{
-		Field mds = ReflectionUtil.getField(Minecraft.class, MetadataSerializer.class);
-		try
-		{
-			return MetadataSerializer.class.cast(mds.get(Minecraft.getMinecraft()));
-		} catch(IllegalArgumentException | IllegalAccessException e)
-		{
-			e.printStackTrace();
-		}
-		return null;
+		return Minecraft.getMinecraft().metadataSerializer;
 	}
 	
 	public static void emptyBlockState(Block block)

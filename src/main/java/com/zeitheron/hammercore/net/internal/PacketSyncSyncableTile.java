@@ -4,7 +4,7 @@ import com.zeitheron.hammercore.net.IPacket;
 import com.zeitheron.hammercore.net.MainThreaded;
 import com.zeitheron.hammercore.net.PacketContext;
 import com.zeitheron.hammercore.tile.TileSyncable;
-import com.zeitheron.hammercore.utils.StrPos;
+import com.zeitheron.hammercore.utils.WritablePos;
 import com.zeitheron.hammercore.utils.WorldUtil;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -33,7 +33,7 @@ public class PacketSyncSyncableTile implements IPacket
 	public PacketSyncSyncableTile(TileSyncable tile)
 	{
 		nbt = tile.getUpdateTag();
-		pos = StrPos.toStr(tile.getPos());
+		pos = WritablePos.toStr(tile.getPos());
 		world = tile.getWorld().provider.getDimension();
 		clazz = tile.getClass().getName();
 	}
@@ -58,7 +58,7 @@ public class PacketSyncSyncableTile implements IPacket
 	public IPacket execute(Side side, PacketContext net)
 	{
 		World world = WorldUtil.getWorld(net, this.world);
-		BlockPos pos = StrPos.fromStr(this.pos);
+		BlockPos pos = WritablePos.fromStr(this.pos);
 		if(world != null && world.isAreaLoaded(pos, pos) /* prevent
 		                                                  * crashing... */)
 		{

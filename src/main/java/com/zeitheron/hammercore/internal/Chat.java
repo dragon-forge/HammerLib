@@ -1,20 +1,11 @@
 package com.zeitheron.hammercore.internal;
 
-import java.lang.reflect.Field;
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
 import com.zeitheron.hammercore.net.HCNet;
 import com.zeitheron.hammercore.net.internal.chat.PacketDeleteMessage;
 import com.zeitheron.hammercore.net.internal.chat.PacketEditMessage;
 import com.zeitheron.hammercore.net.internal.chat.PacketSendMessage;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ChatLine;
-import net.minecraft.client.gui.GuiNewChat;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
@@ -24,26 +15,32 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.List;
+import java.util.Objects;
+import java.util.Random;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
 public class Chat
 {
 	public static ChatFingerprint sendMessageAll(ITextComponent text)
 	{
-		return sendMessageTo(p -> p != null, text);
+		return sendMessageTo(Objects::nonNull, text);
 	}
 	
 	public static void sendMessageAll(ITextComponent text, ChatFingerprint print)
 	{
-		sendMessageTo(p -> p != null, text, print);
+		sendMessageTo(Objects::nonNull, text, print);
 	}
 	
 	public static void editMessageForAll(ITextComponent text, ChatFingerprint print)
 	{
-		editMessageFor(p -> p != null, text, print);
+		editMessageFor(Objects::nonNull, text, print);
 	}
 	
 	public static void deleteMessageForAll(ChatFingerprint print)
 	{
-		deleteMessageFor(p -> p != null, print);
+		deleteMessageFor(Objects::nonNull, print);
 	}
 	
 	//
@@ -146,7 +143,7 @@ public class Chat
 		@Override
 		public boolean equals(Object obj)
 		{
-			return obj instanceof ChatFingerprint ? ((ChatFingerprint) obj).l == l : false;
+			return obj instanceof ChatFingerprint && ((ChatFingerprint) obj).l == l;
 		}
 	}
 	
@@ -183,16 +180,7 @@ public class Chat
 		@SideOnly(Side.CLIENT)
 		public static List<ChatLine> getChatLines()
 		{
-			Field field = GuiNewChat.class.getDeclaredFields()[3];
-			field.setAccessible(true);
-			
-			try
-			{
-				return (List<ChatLine>) field.get(Minecraft.getMinecraft().ingameGUI.getChatGUI());
-			} catch(Throwable err)
-			{
-				return Minecraft.getMinecraft().ingameGUI.getChatGUI().drawnChatLines;
-			}
+			return Minecraft.getMinecraft().ingameGUI.getChatGUI().chatLines;
 		}
 		
 		@SideOnly(Side.CLIENT)

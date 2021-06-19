@@ -14,7 +14,7 @@ public class VersionCompareTool
 	public EnumVersionLevel compare(VersionCompareTool other)
 	{
 		int level = version.compareTo(other.version);
-		return level == 1 ? EnumVersionLevel.NEWER : level == -1 ? EnumVersionLevel.OLDER : EnumVersionLevel.SAME;
+		return level > 0 ? EnumVersionLevel.NEWER : level < 0 ? EnumVersionLevel.OLDER : EnumVersionLevel.SAME;
 	}
 	
 	public enum EnumVersionLevel

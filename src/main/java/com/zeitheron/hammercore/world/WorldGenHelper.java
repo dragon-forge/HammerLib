@@ -25,6 +25,7 @@ import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
@@ -38,7 +39,7 @@ import java.util.function.Predicate;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-@MCFBus
+@Mod.EventBusSubscriber
 public class WorldGenHelper
 {
 	public static final Map<Integer, List<Long>> CHUNKLOADERS = new IndexedMap<>();
@@ -208,7 +209,7 @@ public class WorldGenHelper
 	public static final UUID MOVE_SPEED_UUID = UUID.fromString("08B6A944-A002-4715-BE52-E2DBAF61C4E9");
 
 	@SubscribeEvent
-	public void chunkLoad(TickEvent.PlayerTickEvent e)
+	public static void chunkLoad(TickEvent.PlayerTickEvent e)
 	{
 		EntityPlayer player = e.player;
 		if(e.phase != TickEvent.Phase.END || e.side != Side.SERVER)
@@ -224,7 +225,7 @@ public class WorldGenHelper
 	}
 
 	@SubscribeEvent
-	public void entityInit(EntityEvent.EntityConstructing e)
+	public static void entityInit(EntityEvent.EntityConstructing e)
 	{
 		if(e.getEntity() instanceof EntityPlayer)
 		{
@@ -235,9 +236,15 @@ public class WorldGenHelper
 	}
 
 	@SubscribeEvent
-	public void worldSaveEvt(WorldEvent.Save evt)
+	public static void worldSaveEvt(WorldEvent.Save evt)
 	{
 		threadSaveCustomData(evt.getWorld());
+	}
+
+	@SubscribeEvent
+	public static void worldLoadEvt(WorldEvent.Load evt)
+	{
+		threadLoadCustomData(evt.getWorld());
 	}
 
 	public static void threadSaveCustomData(World world)
@@ -248,7 +255,7 @@ public class WorldGenHelper
 			{
 				ObjectOutputStream o = new ObjectOutputStream(new GZIPOutputStream(new FileOutputStream(getBlockSaveFile(world))));
 				o.writeObject(CHUNKLOADERS);
-				IndexedMap<String, Serializable> pars = new IndexedMap<String, Serializable>();
+				IndexedMap<String, Serializable> pars = new IndexedMap<>();
 				MinecraftForge.EVENT_BUS.post(new WorldEventsHC.SaveData(world, pars));
 				o.writeObject(pars);
 				o.close();
@@ -283,8 +290,8 @@ public class WorldGenHelper
 						HammerCore.LOG.warn("Failed to load HammerCore custom data!");
 						err.printStackTrace();
 					} else
-						HammerCore.LOG.warn("HammerCore custom data file not found!");
-					pars = new IndexedMap<String, Serializable>();
+						HammerCore.LOG.warn("HammerCore custom data file not found! (this is not an issue!)");
+					pars = new IndexedMap<>();
 				}
 				MinecraftForge.EVENT_BUS.post(new WorldEventsHC.LoadData(world, pars));
 			} catch(Throwable err)
@@ -296,19 +303,13 @@ public class WorldGenHelper
 	}
 
 	@SubscribeEvent
-	public void worldLoadEvt(WorldEvent.Load evt)
-	{
-		threadLoadCustomData(evt.getWorld());
-	}
-
-	@SubscribeEvent
-	public void livingFall(LivingFallEvent e)
+	public static void livingFall(LivingFallEvent e)
 	{
 		e.setDamageMultiplier(e.getDamageMultiplier() * GameRules.getEntry("hc_falldamagemult").getFloat(e.getEntity().world));
 	}
 
 	@SubscribeEvent
-	public void commandEvent(CommandEvent ce)
+	public static void commandEvent(CommandEvent ce)
 	{
 		if(ce.getCommand() instanceof CommandGameRule)
 		{
@@ -327,7 +328,7 @@ public class WorldGenHelper
 	}
 
 	@SubscribeEvent
-	public void worldUpdate(WorldTickEvent e)
+	public static void worldUpdate(WorldTickEvent e)
 	{
 		if(e.phase == Phase.START)
 		{

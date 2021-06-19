@@ -1,5 +1,7 @@
 package com.zeitheron.hammercore.api.inconnect;
 
+import com.zeitheron.hammercore.utils.PositionedStateImplementation;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.math.BlockPos;
@@ -12,7 +14,14 @@ import java.util.function.BiFunction;
 
 public class InConnectAPI
 {
-	public static final BiFunction<IBlockAccess, Pair<BlockPos, IBlockState>, IBlockState> extendedState = (w, p) -> p.getValue();
+	public static final BiFunction<IBlockAccess, Pair<BlockPos, IBlockState>, IBlockState> extendedState = (world, p) ->
+	{
+		BlockPos pos = p.getKey();
+		IBlockState state = p.getValue();
+		if(state instanceof BlockStateContainer.StateImplementation)
+			return PositionedStateImplementation.convert((BlockStateContainer.StateImplementation) state).withPos(pos, world);
+		return p.getValue();
+	};
 
 	public static IBlockState makeExtendedPositionedState(IBlockAccess world, BlockPos pos, IBlockState state)
 	{

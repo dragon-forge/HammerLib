@@ -10,6 +10,7 @@ import com.zeitheron.hammercore.net.PacketContext;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.fml.relauncher.Side;
 
@@ -23,13 +24,13 @@ public class PacketUpdateDirtyVariables implements IPacket
 		IPacket.handle(PacketUpdateDirtyVariables.class, PacketUpdateDirtyVariables::new);
 	}
 	
-	public PacketUpdateDirtyVariables(Map<String, IVariable> vars)
+	public PacketUpdateDirtyVariables(Map<ResourceLocation, IVariable<?>> vars)
 	{
 		nbt = new NBTTagList();
-		for(String key : vars.keySet())
+		for(ResourceLocation key : vars.keySet())
 		{
 			NBTTagCompound tag = new NBTTagCompound();
-			tag.setString("Id", key);
+			tag.setString("Id", key.toString());
 			tag.setTag("Data", vars.get(key).writeToNBT(new NBTTagCompound()));
 			nbt.appendTag(tag);
 		}
@@ -46,7 +47,7 @@ public class PacketUpdateDirtyVariables implements IPacket
 		for(int i = 0; i < list.tagCount(); ++i)
 		{
 			NBTTagCompound nbt = list.getCompoundTagAt(i);
-			IVariable var = VariableManager.getVariable(nbt.getString("Id"));
+			IVariable<?> var = VariableManager.getVariable(new ResourceLocation(nbt.getString("Id")));
 			if(var != null)
 				var.readFromNBT(nbt.getCompoundTag("Data"));
 		}

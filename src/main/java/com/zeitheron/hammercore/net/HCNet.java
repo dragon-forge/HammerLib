@@ -19,7 +19,6 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -60,11 +59,9 @@ public enum HCNet
 	{
 		MinecraftServer mcs = FMLCommonHandler.instance().getMinecraftServerInstance();
 		if(mcs != null)
-		{
-			WorldServer sw = mcs.getWorld(dim);
-			if(sw != null)
-				sw.getPlayers(EntityPlayerMP.class, p -> !(p instanceof FakePlayer)).forEach(player -> s_sendTo(packet, player));
-		}
+			mcs.getWorld(dim)
+					.getPlayers(EntityPlayerMP.class, p -> !(p instanceof FakePlayer))
+					.forEach(player -> s_sendTo(packet, player));
 	}
 
 	public static void setMouseStack(EntityPlayer player, ItemStack stack)
@@ -93,6 +90,7 @@ public enum HCNet
 				pp.executeOnClient(null);
 			} catch(Throwable err)
 			{
+				err.printStackTrace();
 			}
 	}
 
@@ -171,8 +169,8 @@ public enum HCNet
 			return nbt;
 		NBTTagCompound data;
 		packet.writeToNBT(data = new NBTTagCompound());
-		nbt.setTag("Data", data);
-		nbt.setString("Class", packet.getClass().getCanonicalName());
+		nbt.setTag("D", data);
+		nbt.setString("C", packet.getClass().getCanonicalName());
 		return nbt;
 	}
 
@@ -180,12 +178,13 @@ public enum HCNet
 	{
 		try
 		{
-			Class<? extends IPacket> pktc = Class.forName(nbt.getString("Class")).asSubclass(IPacket.class);
+			Class<? extends IPacket> pktc = Class.forName(nbt.getString("C")).asSubclass(IPacket.class);
 			IPacket pkt = INSTANCE.newPacket(pktc);
-			pkt.readFromNBT(nbt.getCompoundTag("Data"));
+			pkt.readFromNBT(nbt.getCompoundTag("D"));
 			return pkt;
 		} catch(Throwable err)
 		{
+			err.printStackTrace();
 		}
 		return null;
 	}
@@ -226,6 +225,7 @@ public enum HCNet
 			nbt = payload.readCompoundTag();
 		} catch(Throwable err)
 		{
+			err.printStackTrace();
 		}
 		payload.release();
 		return nbt != null ? new PacketHolder(nbt) : null;
@@ -236,6 +236,7 @@ public enum HCNet
 	{
 		FMLProxyPacket fmlpp = e.getPacket();
 		PacketHolder pkt = unwrap(fmlpp);
+		if(pkt == null) return;
 		NetworkManager networker = e.getManager();
 		Runnable task = () ->
 		{
@@ -254,6 +255,7 @@ public enum HCNet
 	{
 		FMLProxyPacket fmlpp = e.getPacket();
 		PacketHolder pkt = unwrap(fmlpp);
+		if(pkt == null) return;
 		NetworkManager networker = e.getManager();
 		Runnable task = () ->
 		{

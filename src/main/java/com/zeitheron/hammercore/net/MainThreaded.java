@@ -7,7 +7,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * Marks a packet class to run on main thread
+ * Marks an {@link IPacket} or @{@link com.zeitheron.hammercore.net.transport.ITransportAcceptor} class to run on main thread
  */
 @Retention(RUNTIME)
 @Target(TYPE)

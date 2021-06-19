@@ -49,11 +49,11 @@ public class PacketRequestFurther implements IPacket
 					return new PacketTransport(id, s.pending.remove(0));
 				else
 				{
-					s.end();
+					s.end(side, ctx);
 					return new PacketTransportEnd(id);
 				}
 			else
-				s.end();
+				s.end(side, ctx);
 		}
 		
 		return null;

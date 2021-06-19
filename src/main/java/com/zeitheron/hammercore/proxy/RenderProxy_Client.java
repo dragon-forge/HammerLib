@@ -11,7 +11,6 @@ import com.zeitheron.hammercore.annotations.AtTESR;
 import com.zeitheron.hammercore.api.events.ResourceManagerReloadEvent;
 import com.zeitheron.hammercore.api.inconnect.EmptyModelPack;
 import com.zeitheron.hammercore.api.inconnect.IBlockConnectable;
-import com.zeitheron.hammercore.api.inconnect.InConnectAPI;
 import com.zeitheron.hammercore.api.multipart.IMultipartBaked;
 import com.zeitheron.hammercore.api.multipart.MultipartAPI;
 import com.zeitheron.hammercore.api.multipart.MultipartSignature;
@@ -70,7 +69,6 @@ import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.crash.CrashReport;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
@@ -81,7 +79,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.NonNullList;
-import net.minecraft.util.ReportedException;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
@@ -341,23 +338,6 @@ public class RenderProxy_Client
 				return super.getTabCompletions(server, sender, args, targetPos);
 			}
 		});
-
-		BiFunction<IBlockAccess, Pair<BlockPos, IBlockState>, IBlockState> extendedState = (world, p) ->
-		{
-			BlockPos pos = p.getKey();
-			IBlockState state = p.getValue();
-			if(state instanceof StateImplementation)
-				return PositionedStateImplementation.convert((StateImplementation) state).withPos(pos, world);
-			return p.getValue();
-		};
-
-		try
-		{
-			ReflectionUtil.setFinalField(InConnectAPI.class.getDeclaredField("extendedState"), null, extendedState);
-		} catch(ReflectiveOperationException e)
-		{
-			throw new ReportedException(new CrashReport("Unable to provide InConnect API!", e));
-		}
 	}
 
 	@Override
@@ -553,12 +533,7 @@ public class RenderProxy_Client
 	{
 		cticked = true;
 
-		boolean mod = true;
-		KeyModifier km = BIND_RENDER.getKeyModifier();
-		if(km != null)
-			mod = km.isActive(KeyConflictContext.GUI);
-
-		boolean rp = isKeyDownSFW(BIND_RENDER.getKeyCode()) && mod;
+		boolean rp = BIND_RENDER.isKeyDown();
 		if(rp != renderPress)
 		{
 			renderPress = rp;
@@ -611,10 +586,9 @@ public class RenderProxy_Client
 							b = new TextComponentString("Slot under mouse is empty!");
 					} else
 						b = new TextComponentString("Mouse doesn't hover any slot!");
-				} else
-					b = new TextComponentString(gs == null ? "GUI is not open." : "Gui is not container.");
+				}
 
-				if(a != null && b != null)
+				if(b != null)
 					SystemToast.addOrUpdate(Minecraft.getMinecraft().getToastGui(), SystemToast.Type.NARRATOR_TOGGLE, a, b);
 			}
 		}
