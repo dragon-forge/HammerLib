@@ -48,8 +48,11 @@ public class PacketUpdateDirtyVariables implements IPacket
 		{
 			NBTTagCompound nbt = list.getCompoundTagAt(i);
 			IVariable<?> var = VariableManager.getVariable(new ResourceLocation(nbt.getString("Id")));
-			if(var != null)
+			if(var != null && var.direction().allowedTo(side))
+			{
 				var.readFromNBT(nbt.getCompoundTag("Data"));
+				var.notifyUpdate(side);
+			}
 		}
 		return null;
 	}

@@ -1,63 +1,40 @@
 package com.zeitheron.hammercore.internal.variables.types;
 
-import com.zeitheron.hammercore.internal.variables.IVariable;
+import com.zeitheron.hammercore.internal.variables.BaseVariable;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.util.Constants;
 
 import java.util.Objects;
 
 public class VariableString
-		implements IVariable<String>
+		extends BaseVariable<String>
 {
-	final ResourceLocation id;
-	String var, prevVar;
-
 	public VariableString(ResourceLocation id)
 	{
-		this.id = id;
+		super(id);
 	}
 
 	@Override
-	public String get()
+	protected boolean hasChanged(String old, String updated)
 	{
-		return var;
-	}
-
-	@Override
-	public void set(String t)
-	{
-		prevVar = var;
-		var = t;
+		return !Objects.equals(old, updated);
 	}
 
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
 	{
-		nbt.setString("Var", var);
+		String val = storage.get();
+		if(val != null) nbt.setString("Var", val);
 		return nbt;
 	}
 
 	@Override
 	public void readFromNBT(NBTTagCompound nbt)
 	{
-		var = nbt.getString("Var");
-	}
-
-	@Override
-	public boolean hasChanged()
-	{
-		return !Objects.equals(var, prevVar);
-	}
-
-	@Override
-	public void setNotChanged()
-	{
-		prevVar = var;
-	}
-
-	@Override
-	public ResourceLocation getId()
-	{
-		return id;
+		if(nbt.hasKey("Var", Constants.NBT.TAG_STRING))
+			storage.set(nbt.getString("Var"));
+		else
+			storage.set(null);
 	}
 }
