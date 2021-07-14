@@ -1,0 +1,9 @@
+{
+	"parent": "hammerlib:block/orientable",
+	"textures": {
+		"top": "hammerlib:block/machine_down",
+		"front": "hammerlib:block/test_machine_front",
+		"side": "hammerlib:block/machine_side",
+		"down": "hammerlib:block/machine_down"
+	}
+}

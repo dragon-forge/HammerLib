@@ -1,0 +1,34 @@
+{
+	"variants": {
+		"enabled=false,facing=north": {
+			"model": "hammerlib:block/test_machine"
+		},
+		"enabled=false,facing=south": {
+			"model": "hammerlib:block/test_machine",
+			"y": 180
+		},
+		"enabled=false,facing=west": {
+			"model": "hammerlib:block/test_machine",
+			"y": 270
+		},
+		"enabled=false,facing=east": {
+			"model": "hammerlib:block/test_machine",
+			"y": 90
+		},
+		"enabled=true,facing=north": {
+			"model": "hammerlib:block/test_machine_active"
+		},
+		"enabled=true,facing=south": {
+			"model": "hammerlib:block/test_machine_active",
+			"y": 180
+		},
+		"enabled=true,facing=west": {
+			"model": "hammerlib:block/test_machine_active",
+			"y": 270
+		},
+		"enabled=true,facing=east": {
+			"model": "hammerlib:block/test_machine_active",
+			"y": 90
+		}
+	}
+}

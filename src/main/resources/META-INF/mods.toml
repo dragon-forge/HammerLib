@@ -1,0 +1,28 @@
+modLoader="javafml"
+loaderVersion="[36,)"
+issueTrackerURL="https://gitlab.com/DragonForge/HammerLib/issues"
+license="All rights reserved"
+[[mods]]
+modId="hammerlib"
+version="${file.jarVersion}"
+displayName="HammerLib"
+updateJSONURL="http://dccg.herokuapp.com/api/fmluc/247401"
+displayURL="http://dccg.herokuapp.com/api/fmlhp/247401"
+logoFile="logo.png" #optional
+authors="Zeitheron" #optional
+description='''
+HammerLib is an essential tool for developing mods easily.
+Packed with a lot of utilities, this library provides nearly anything a modder would need, in one handy mod!
+'''
+[[dependencies.hammerlib]]
+    modId="forge"
+    mandatory=true
+    versionRange="[36,)"
+    ordering="NONE" # NONE/BEFORE/AFTER
+    side="BOTH"
+[[dependencies.hammerlib]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.16.5]"
+    ordering="NONE"
+    side="BOTH"

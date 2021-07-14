@@ -1,0 +1,26 @@
+# Mod Info
+mod_id=hammerlib
+archive_name=HammerLib
+mod_name=Hammer Lib
+mod_version=16.2.8
+
+# Maven Info
+maven_group=org.zeith.hammerlib
+
+# MC Info
+mc_version=1.16.5
+forge_version=36.1.32
+
+# MCP Info
+mcp_ch=official
+mcp_vr=1.16.5
+
+# Misc Info
+java=1.8
+certificateFingerprint=9f5e2a811a8332a842b34f6967b7db0ac4f24856
+
+# Project ID on CurseForge
+cf_project=247401
+
+# alpha, beta, release
+release_type=release
