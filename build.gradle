@@ -27,7 +27,7 @@ configFile.withReader {
     def prop = new Properties()
     prop.load(it)
     project.ext.config = new ConfigSlurper().parse(prop)
-    project.ext.hasConfig = { key ->
+    project.ext.hasConfig = { String key ->
         return config.isSet(key);
     }
 }
@@ -167,6 +167,8 @@ curseforge {
 }
 
 import net.minecraftforge.gradle.common.task.SignJar
+import java.nio.file.Files
+import java.nio.file.StandardOpenOption
 
 task signJar(type: SignJar, dependsOn: jar) {
     onlyIf {
@@ -187,7 +189,7 @@ def reobfArtifact = artifacts.add('default', reobfFile) {
 }
 
 jar.finalizedBy('reobfJar')
-publish.dependsOn('reobfJar')
+publish.dependsOn('build')
 
 build.dependsOn signJar
 
@@ -211,4 +213,25 @@ publishing {
             url "file:///SERVER//Maven"
         }
     }
+}
+
+// This piece of garbage will ensure that the build number is updated after build is executed.
+tasks.build.doLast {
+    if(!hasConfig("build_candidate") || !Boolean.parseBoolean(config.build_candidate))
+    {
+        def buildTxt = configFile.toPath();
+        List<String> lines = Files.readAllLines buildTxt;
+        lines.replaceAll { String ln ->
+            if(ln.startsWith("mod_version"))
+            {
+                def version = ln.split("=")[1];
+                def dot = version.lastIndexOf('.') + 1;
+                def newVersion = version.substring(0, dot);
+                def lastOne = Integer.parseInt(version.substring(dot)) + 1;
+                return "mod_version=" + newVersion + lastOne;
+            }
+            return ln;
+        }
+        Files.write buildTxt, lines, StandardOpenOption.CREATE;
+    } else println "Build candidate enabled, we are not increasing build number after this."
 }

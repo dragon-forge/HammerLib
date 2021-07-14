@@ -32,6 +32,8 @@ import org.zeith.hammerlib.api.inv.IScreenContainer;
 import org.zeith.hammerlib.api.lighting.ColoredLight;
 import org.zeith.hammerlib.api.lighting.HandleLightOverrideEvent;
 import org.zeith.hammerlib.api.lighting.impl.IGlowingEntity;
+import org.zeith.hammerlib.client.render.tile.ITESR;
+import org.zeith.hammerlib.client.render.tile.TESRBase;
 import org.zeith.hammerlib.event.ResourceManagerReloadEvent;
 import org.zeith.hammerlib.net.Network;
 import org.zeith.hammerlib.net.packets.PingServerPacket;
@@ -40,7 +42,6 @@ import org.zeith.hammerlib.util.java.ReflectionUtil;
 import org.zeith.hammerlib.util.mcf.LogicalSidePredictor;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -121,48 +122,44 @@ public class HLClientProxy
 
 						HammerLib.LOG.info("Registering TESR for tile " + type.getRegistryName());
 
-						Class<? extends TileEntityRenderer<?>> tesrCls = ReflectionUtil.fetchClass(tesr);
+						Class<?> anyTesr = ReflectionUtil.fetchClass(tesr);
+
 						TileEntityRendererDispatcher terd = TileEntityRendererDispatcher.instance;
 
 						TileEntityRenderer<?> theTesr = null;
 
-						for(Constructor<?> ctr : tesrCls.getDeclaredConstructors())
+						if(ITESR.class.isAssignableFrom(anyTesr))
 						{
-							if(ctr.getParameterCount() == 0)
+							try
+							{
+								Constructor<?> ctor = anyTesr.getDeclaredConstructor();
+								ctor.setAccessible(true);
+								theTesr = new TESRBase<>(terd, (ITESR<?>) ctor.newInstance());
+							} catch(ReflectiveOperationException err)
+							{
+								err.printStackTrace();
+							}
+						}
+
+						if(theTesr == null)
+						{
+							for(Constructor<?> ctr : anyTesr.getDeclaredConstructors())
 							{
 								try
 								{
-									theTesr = (TileEntityRenderer<?>) ctr.newInstance();
-								} catch(InstantiationException instantiationException)
+									if(ctr.getParameterCount() == 0)
+										theTesr = (TileEntityRenderer<?>) ctr.newInstance();
+									else if(ctr.getParameterCount() == 1 && ctr.getParameterTypes()[0] == TileEntityRendererDispatcher.class)
+										theTesr = (TileEntityRenderer<?>) ctr.newInstance(terd);
+								} catch(ReflectiveOperationException err)
 								{
-									instantiationException.printStackTrace();
-								} catch(IllegalAccessException illegalAccessException)
-								{
-									illegalAccessException.printStackTrace();
-								} catch(InvocationTargetException invocationTargetException)
-								{
-									invocationTargetException.printStackTrace();
-								}
-							} else if(ctr.getParameterCount() == 1 && ctr.getParameterTypes()[0] == TileEntityRendererDispatcher.class)
-							{
-								try
-								{
-									theTesr = (TileEntityRenderer<?>) ctr.newInstance(terd);
-								} catch(InstantiationException instantiationException)
-								{
-									instantiationException.printStackTrace();
-								} catch(IllegalAccessException illegalAccessException)
-								{
-									illegalAccessException.printStackTrace();
-								} catch(InvocationTargetException invocationTargetException)
-								{
-									invocationTargetException.printStackTrace();
+									err.printStackTrace();
 								}
 							}
 						}
 
 						if(theTesr == null)
-							throw new RuntimeException("Unable to find a valid constructor for " + type.getRegistryName() + "'s TESR " + tesrCls);
+							throw new RuntimeException("Unable to find a valid constructor for " + type.getRegistryName() + "'s TESR " + anyTesr);
 
 						terd.setSpecialRendererInternal(type, Cast.cast(theTesr));
 					});
