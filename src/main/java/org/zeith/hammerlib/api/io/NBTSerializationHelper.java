@@ -78,7 +78,7 @@ public class NBTSerializationHelper
 		Class<?> type = instance.getClass();
 		CompoundNBT nbt = new CompoundNBT();
 
-		for(Field field : type.getDeclaredFields())
+		for(Field field : ReflectionUtil.getFieldsUpTo(type, null))
 		{
 			field.setAccessible(true);
 			NBTSerializable nbts = field.getAnnotation(NBTSerializable.class);
@@ -129,7 +129,7 @@ public class NBTSerializationHelper
 	public static void deserialize(Object instance, CompoundNBT nbt)
 	{
 		Class<?> type = instance.getClass();
-		for(Field field : type.getDeclaredFields())
+		for(Field field : ReflectionUtil.getFieldsUpTo(type, null))
 		{
 			field.setAccessible(true);
 			NBTSerializable nbts = field.getAnnotation(NBTSerializable.class);

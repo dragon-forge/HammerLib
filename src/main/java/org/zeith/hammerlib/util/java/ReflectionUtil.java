@@ -1,7 +1,9 @@
 package org.zeith.hammerlib.util.java;
 
+import com.google.common.collect.Lists;
 import org.objectweb.asm.Type;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.lang.reflect.*;
 import java.util.ArrayList;
@@ -84,6 +86,24 @@ public class ReflectionUtil
 		{
 			return null;
 		}
+	}
+
+	public static Iterable<Field> getFieldsUpTo(@Nonnull Class<?> startClass,
+												@Nullable Class<?> exclusiveParent)
+	{
+
+		List<Field> currentClassFields = Lists.newArrayList(startClass.getDeclaredFields());
+		Class<?> parentClass = startClass.getSuperclass();
+
+		if(parentClass != null &&
+				(exclusiveParent == null || !(parentClass.equals(exclusiveParent))))
+		{
+			List<Field> parentClassFields =
+					(List<Field>) getFieldsUpTo(parentClass, exclusiveParent);
+			currentClassFields.addAll(parentClassFields);
+		}
+
+		return currentClassFields;
 	}
 
 	@Deprecated
