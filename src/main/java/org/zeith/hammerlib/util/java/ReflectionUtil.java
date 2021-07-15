@@ -65,9 +65,14 @@ public class ReflectionUtil
 		return new java.lang.reflect.Type[0];
 	}
 
+	public static Class<?> fetchClassAny(Type type)
+	{
+		return fetchClass(type.getSort() < Type.ARRAY ? type.getClassName() : type.getInternalName().replace('/', '.'));
+	}
+
 	public static <T> Class<T> fetchClass(Type type)
 	{
-		return fetchClass(type.getClassName());
+		return fetchClass(type.getSort() < Type.ARRAY ? type.getClassName() : type.getInternalName().replace('/', '.'));
 	}
 
 	public static <T> Class<T> fetchClass(String name)

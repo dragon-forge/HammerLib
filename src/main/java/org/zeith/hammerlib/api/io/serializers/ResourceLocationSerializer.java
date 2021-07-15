@@ -3,7 +3,9 @@ package org.zeith.hammerlib.api.io.serializers;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.util.Constants;
+import org.zeith.hammerlib.api.io.NBTSerializer;
 
+@NBTSerializer(ResourceLocation.class)
 public class ResourceLocationSerializer
 		implements INBTSerializer<ResourceLocation>
 {

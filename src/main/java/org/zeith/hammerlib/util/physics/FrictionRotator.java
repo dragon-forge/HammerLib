@@ -1,23 +1,25 @@
 package org.zeith.hammerlib.util.physics;
 
+import org.zeith.hammerlib.api.io.IAutoNBTSerializable;
+import org.zeith.hammerlib.api.io.NBTSerializable;
+
 public class FrictionRotator
+		implements IAutoNBTSerializable
 {
-	public float rotation;
+	@NBTSerializable("current_speed")
+	public float currentSpeed;
+	@NBTSerializable
+	public float rotation, speed, friction = 1;
 	public float prevRotation;
 
-	public float friction = 1;
-
-	public float currentSpeed;
-	public float speed;
+	public void speedupTo(float dstSpeed, float maxStep)
+	{
+		speedup(Math.min(maxStep, dstSpeed - speed));
+	}
 
 	public void speedup(float speed)
 	{
 		this.speed += speed;
-	}
-
-	public void slowdown(float speed)
-	{
-		this.speed -= speed;
 	}
 
 	public float getActualRotation(float partialTime)

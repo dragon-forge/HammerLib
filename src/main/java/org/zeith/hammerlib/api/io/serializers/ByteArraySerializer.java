@@ -2,7 +2,9 @@ package org.zeith.hammerlib.api.io.serializers;
 
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraftforge.common.util.Constants;
+import org.zeith.hammerlib.api.io.NBTSerializer;
 
+@NBTSerializer(byte[].class)
 public class ByteArraySerializer
 		implements INBTSerializer<byte[]>
 {

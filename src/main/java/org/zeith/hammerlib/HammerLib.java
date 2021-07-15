@@ -29,6 +29,7 @@ import org.zeith.hammerlib.annotations.Setup;
 import org.zeith.hammerlib.annotations.SimplyRegister;
 import org.zeith.hammerlib.annotations.TileRenderer;
 import org.zeith.hammerlib.api.IRecipeProvider;
+import org.zeith.hammerlib.api.io.NBTSerializationHelper;
 import org.zeith.hammerlib.api.multipart.MultipartBlock;
 import org.zeith.hammerlib.core.adapter.LanguageAdapter;
 import org.zeith.hammerlib.core.adapter.RegistryAdapter;
@@ -121,6 +122,8 @@ public class HammerLib
 						.ifPresent(b -> b.addListener((Consumer<FMLCommonSetupEvent>) event -> RegistryAdapter.setup(event, registerer, data.getMemberName())));
 			}
 		});
+
+		NBTSerializationHelper.construct();
 	}
 
 	@SubscribeEvent

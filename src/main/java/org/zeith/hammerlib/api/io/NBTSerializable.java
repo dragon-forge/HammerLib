@@ -9,4 +9,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface NBTSerializable
 {
+	/**
+	 * Serialized name (how it is going to be named in the NBT tag) of the annotated field.
+	 */
+	String value() default "";
 }

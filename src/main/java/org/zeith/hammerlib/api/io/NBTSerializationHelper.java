@@ -3,32 +3,36 @@ package org.zeith.hammerlib.api.io;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import net.minecraft.nbt.*;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.INBTSerializable;
+import net.minecraftforge.fml.unsafe.UnsafeHacks;
+import org.objectweb.asm.Type;
 import org.zeith.hammerlib.HammerLib;
-import org.zeith.hammerlib.api.io.serializers.*;
+import org.zeith.hammerlib.api.io.serializers.BooleanSerializer;
+import org.zeith.hammerlib.api.io.serializers.EnumNBTSerializer;
+import org.zeith.hammerlib.api.io.serializers.INBTSerializer;
+import org.zeith.hammerlib.api.io.serializers.NumberSerializer;
 import org.zeith.hammerlib.util.java.Cast;
+import org.zeith.hammerlib.util.java.ReflectionUtil;
+import org.zeith.hammerlib.util.mcf.ScanDataHelper;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 public class NBTSerializationHelper
 {
 	private static final BiMap<Class<?>, INBTSerializer<?>> SERIALIZER_MAP = HashBiMap.create();
-	private static final BiMap<INBTSerializer<?>, Class<?>> SERIALIZER_MAP_INVERSE = SERIALIZER_MAP.inverse();
 
 	public static <T> void registerSerializer(Class<T> type, INBTSerializer<T> serializer)
 	{
-		SERIALIZER_MAP.put(type, serializer);
+		SERIALIZER_MAP.putIfAbsent(type, serializer);
 	}
 
-	static
+	public static void construct()
 	{
 		registerSerializer(Boolean.class, new BooleanSerializer<>());
 		registerSerializer(Byte.class, new NumberSerializer<>(Constants.NBT.TAG_BYTE, ByteNBT::valueOf, ByteNBT::getAsByte));
@@ -48,13 +52,25 @@ public class NBTSerializationHelper
 
 		registerSerializer(BigInteger.class, new NumberSerializer<>(Constants.NBT.TAG_BYTE_ARRAY, b -> new ByteArrayNBT(b.toByteArray()), (ByteArrayNBT nbt) -> new BigInteger(nbt.getAsByteArray())));
 		registerSerializer(BigDecimal.class, new NumberSerializer<>(Constants.NBT.TAG_BYTE_ARRAY, b -> new ByteArrayNBT(b.toString().getBytes(StandardCharsets.UTF_8)), (ByteArrayNBT nbt) -> new BigDecimal(new String(nbt.getAsByteArray(), StandardCharsets.UTF_8))));
-		registerSerializer(String.class, new StringSerializer());
-		registerSerializer(byte[].class, new ByteArraySerializer());
-		registerSerializer(int[].class, new IntArraySerializer());
-		registerSerializer(long[].class, new LongArraySerializer());
-		registerSerializer(BlockPos.class, new BlockPosSerializer());
-		registerSerializer(Vector3d.class, new Vec3dSerializer());
-		registerSerializer(ResourceLocation.class, new ResourceLocationSerializer());
+
+		ScanDataHelper.lookupAnnotatedObjects(NBTSerializer.class).forEach(data ->
+		{
+			data.getProperty("value").map(List.class::cast).ifPresent(ts ->
+			{
+				List<Type> types = ts;
+				INBTSerializer ser = Cast.cast(UnsafeHacks.newInstance(data.getOwnerClass()));
+				for(Type type : types)
+				{
+					Class<?> c = ReflectionUtil.fetchClassAny(type);
+					if(c != null)
+					{
+						SERIALIZER_MAP.putIfAbsent(c, ser);
+						HammerLib.LOG.debug("Registered NBT serializer for type " + c + ": " + ser);
+					} else
+						HammerLib.LOG.error("Unable to find class " + type.getInternalName() + "!");
+				}
+			});
+		});
 	}
 
 	public static CompoundNBT serialize(Object instance)
@@ -69,6 +85,9 @@ public class NBTSerializationHelper
 
 			if(nbts != null)
 			{
+				String name = nbts.value();
+				if(name.trim().isEmpty()) name = field.getName();
+
 				try
 				{
 					if(Modifier.isFinal(field.getModifiers()))
@@ -76,8 +95,7 @@ public class NBTSerializationHelper
 						if(INBTSerializable.class.isAssignableFrom(field.getType()))
 						{
 							INBTSerializable s = (INBTSerializable) field.get(instance);
-							if(s != null)
-								nbt.put(field.getName(), s.serializeNBT());
+							if(s != null) nbt.put(name, s.serializeNBT());
 						} else
 						{
 							HammerLib.LOG.warn("Don't know how to serialize " + field + " in " + type);
@@ -92,7 +110,7 @@ public class NBTSerializationHelper
 
 						if(serializer != null)
 						{
-							serializer.serialize(nbt, field.getName(), Cast.cast(field.get(instance)));
+							serializer.serialize(nbt, name, Cast.cast(field.get(instance)));
 						} else
 						{
 							HammerLib.LOG.warn("Don't know how to serialize " + field + " in " + type);
@@ -118,6 +136,9 @@ public class NBTSerializationHelper
 
 			if(nbts != null)
 			{
+				String name = nbts.value();
+				if(name.trim().isEmpty()) name = field.getName();
+
 				try
 				{
 					if(Modifier.isFinal(field.getModifiers()))
@@ -126,7 +147,7 @@ public class NBTSerializationHelper
 						{
 							INBTSerializable s = (INBTSerializable) field.get(instance);
 							if(s != null)
-								s.deserializeNBT(nbt.get(field.getName()));
+								s.deserializeNBT(nbt.get(name));
 						} else
 						{
 							HammerLib.LOG.warn("Don't know how to deserialize " + field + " in " + type);
@@ -140,7 +161,7 @@ public class NBTSerializationHelper
 
 						if(serializer != null)
 						{
-							Object val = serializer.deserialize(nbt, field.getName());
+							Object val = serializer.deserialize(nbt, name);
 							if(val != null || !field.getType().isPrimitive()) field.set(instance, val);
 						} else
 						{

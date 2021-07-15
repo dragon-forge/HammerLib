@@ -3,8 +3,10 @@ package org.zeith.hammerlib.api.io.serializers;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.common.util.Constants;
+import org.zeith.hammerlib.api.io.NBTSerializer;
 
-public class Vec3dSerializer
+@NBTSerializer(Vector3d.class)
+public class Vector3dSerializer
 		implements INBTSerializer<Vector3d>
 {
 	@Override
@@ -26,7 +28,7 @@ public class Vec3dSerializer
 		if(nbt.contains(key, Constants.NBT.TAG_COMPOUND))
 		{
 			CompoundNBT tag = nbt.getCompound(key);
-			return new Vector3d(tag.getInt("x"), tag.getInt("y"), tag.getInt("z"));
+			return new Vector3d(tag.getDouble("x"), tag.getDouble("y"), tag.getDouble("z"));
 		}
 		return null;
 	}
