@@ -6,8 +6,9 @@ import net.minecraft.nbt.*;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fml.unsafe.UnsafeHacks;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Type;
-import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.api.io.serializers.BooleanSerializer;
 import org.zeith.hammerlib.api.io.serializers.EnumNBTSerializer;
 import org.zeith.hammerlib.api.io.serializers.INBTSerializer;
@@ -16,6 +17,7 @@ import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.java.ReflectionUtil;
 import org.zeith.hammerlib.util.mcf.ScanDataHelper;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
@@ -25,7 +27,15 @@ import java.util.List;
 
 public class NBTSerializationHelper
 {
+	public static final Logger LOG = LogManager.getLogger("HammerLib");
+
 	private static final BiMap<Class<?>, INBTSerializer<?>> SERIALIZER_MAP = HashBiMap.create();
+	private static final BiMap<Class<?>, INBTSerializer<?>> ENUM_SERIALIZER_MAP = HashBiMap.create();
+
+	public static <T extends Enum<T>> INBTSerializer<T> forEnum(Class<T> type)
+	{
+		return Cast.cast(ENUM_SERIALIZER_MAP.computeIfAbsent(type, t -> new EnumNBTSerializer<>(type)));
+	}
 
 	public static <T> void registerSerializer(Class<T> type, INBTSerializer<T> serializer)
 	{
@@ -65,12 +75,78 @@ public class NBTSerializationHelper
 					if(c != null)
 					{
 						SERIALIZER_MAP.putIfAbsent(c, ser);
-						HammerLib.LOG.debug("Registered NBT serializer for type " + c + ": " + ser);
+						LOG.debug("Registered NBT serializer for type " + c + ": " + ser);
 					} else
-						HammerLib.LOG.error("Unable to find class " + type.getInternalName() + "!");
+						LOG.error("Unable to find class " + type.getInternalName() + "!");
 				}
 			});
 		});
+	}
+
+	public static void serializeField(Class<?> type, Object instance, CompoundNBT nbt, String key)
+	{
+		INBTSerializer<?> serializer;
+		if(type.isEnum()) serializer = forEnum(Cast.cast(type));
+		else serializer = SERIALIZER_MAP.get(type);
+
+		if(serializer != null)
+		{
+			serializer.serialize(nbt, key, Cast.cast(instance));
+		} else
+		{
+			if(type.isArray())
+			{
+				if(instance != null)
+				{
+					CompoundNBT lst = new CompoundNBT();
+					Class<?> compType = type.getComponentType();
+					int length = Array.getLength(instance);
+					for(int i = 0; i < length; ++i)
+					{
+						Object component = Array.get(instance, i);
+						serializeField(compType, component, lst, Integer.toString(i));
+					}
+					nbt.put(key, lst);
+				}
+			} else
+				LOG.warn("Don't know how to serialize " + type + " " + key + " in " + type);
+		}
+	}
+
+	public static Object deserializeField(Class<?> type, CompoundNBT nbt, String key)
+	{
+		INBTSerializer<?> serializer;
+		if(type.isEnum()) serializer = forEnum(Cast.cast(type));
+		else serializer = SERIALIZER_MAP.get(type);
+
+		if(serializer != null)
+		{
+			return serializer.deserialize(nbt, key);
+		} else
+		{
+			if(type.isArray())
+			{
+				if(nbt.contains(key, Constants.NBT.TAG_COMPOUND))
+				{
+					CompoundNBT lst = nbt.getCompound(key);
+
+					Class<?> compType = type.getComponentType();
+
+					int length = lst.size();
+					Object instance = Array.newInstance(compType, length);
+
+					for(int i = 0; i < length; ++i)
+						Array.set(instance, i, deserializeField(compType, lst, Integer.toString(i)));
+
+					return instance;
+				}
+
+				return null;
+			} else
+				LOG.warn("Don't know how to deserialize " + type + " " + key + " in " + type);
+		}
+
+		return null;
 	}
 
 	public static CompoundNBT serialize(Object instance)
@@ -98,27 +174,15 @@ public class NBTSerializationHelper
 							if(s != null) nbt.put(name, s.serializeNBT());
 						} else
 						{
-							HammerLib.LOG.warn("Don't know how to serialize " + field + " in " + type);
+							LOG.warn("Don't know how to serialize " + field + " in " + type);
 						}
 					} else
 					{
-						INBTSerializer<?> serializer;
-						if(field.getType().isEnum())
-							serializer = new EnumNBTSerializer<>(Cast.cast(field.getType()));
-						else
-							serializer = SERIALIZER_MAP.get(field.getType());
-
-						if(serializer != null)
-						{
-							serializer.serialize(nbt, name, Cast.cast(field.get(instance)));
-						} else
-						{
-							HammerLib.LOG.warn("Don't know how to serialize " + field + " in " + type);
-						}
+						serializeField(field.getType(), field.get(instance), nbt, field.getName());
 					}
 				} catch(ReflectiveOperationException e)
 				{
-					HammerLib.LOG.error("Failed to serialize field " + field + " in " + type);
+					LOG.error("Failed to serialize field " + field + " in " + type);
 				}
 			}
 		}
@@ -150,27 +214,16 @@ public class NBTSerializationHelper
 								s.deserializeNBT(nbt.get(name));
 						} else
 						{
-							HammerLib.LOG.warn("Don't know how to deserialize " + field + " in " + type);
+							LOG.warn("Don't know how to deserialize " + field + " in " + type);
 						}
 					} else
 					{
-						INBTSerializer<?> serializer;
-						if(field.getType().isEnum())
-							serializer = new EnumNBTSerializer<>(Cast.cast(field.getType()));
-						else serializer = SERIALIZER_MAP.get(field.getType());
-
-						if(serializer != null)
-						{
-							Object val = serializer.deserialize(nbt, name);
-							if(val != null || !field.getType().isPrimitive()) field.set(instance, val);
-						} else
-						{
-							HammerLib.LOG.warn("Don't know how to deserialize " + field + " in " + type);
-						}
+						Object val = deserializeField(field.getType(), nbt, field.getName());
+						if(val != null || !type.isPrimitive()) field.set(instance, val);
 					}
 				} catch(Throwable e)
 				{
-					HammerLib.LOG.error("Failed to deserialize field " + field + " in " + type);
+					LOG.error("Failed to deserialize field " + field + " in " + type);
 				}
 			}
 		}

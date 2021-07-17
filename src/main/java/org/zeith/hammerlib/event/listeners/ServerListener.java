@@ -15,14 +15,14 @@ import org.zeith.hammerlib.net.Network;
 import org.zeith.hammerlib.net.packets.SyncTileEntityPacket;
 import org.zeith.hammerlib.net.properties.IPropertyTile;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @EventBusSubscriber(bus = Bus.FORGE)
 public class ServerListener
 {
-	public static final Set<TileEntity> NEED_SYNC = new HashSet<>();
-	public static final Set<TileEntity> NEED_PROP_SYNC = new HashSet<>();
+	public static final List<TileEntity> NEED_SYNC = new ArrayList<>();
+	public static final List<TileEntity> NEED_PROP_SYNC = new ArrayList<>();
 
 	@SubscribeEvent
 	public static void serverTick(ServerTickEvent e)
@@ -33,21 +33,21 @@ public class ServerListener
 		// After we're done with ticking tiles...
 		if(e.phase == Phase.END)
 		{
-			NEED_SYNC.forEach(tile ->
+			while(!NEED_SYNC.isEmpty())
 			{
+				TileEntity tile = NEED_SYNC.remove(0);
 				if(tile instanceof ISyncableTile)
 					((ISyncableTile) tile).syncNow();
 				else
 					Network.sendToArea(new HLTargetPoint(tile.getBlockPos(), 256, tile.getLevel().dimension()), new SyncTileEntityPacket(tile));
-			});
-			NEED_SYNC.clear();
+			}
 
-			NEED_PROP_SYNC.forEach(tile ->
+			while(!NEED_PROP_SYNC.isEmpty())
 			{
+				TileEntity tile = NEED_PROP_SYNC.remove(0);
 				if(tile instanceof IPropertyTile)
 					((IPropertyTile) tile).syncPropertiesNow();
-			});
-			NEED_PROP_SYNC.clear();
+			}
 		}
 	}
 

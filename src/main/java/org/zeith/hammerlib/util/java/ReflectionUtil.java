@@ -18,6 +18,11 @@ public class ReflectionUtil
 	private static Method newFieldAccessor;
 	private static Method fieldAccessorSet;
 
+	public static Class<?> getArrayComponent(Class<?> array)
+	{
+		return array.isArray() ? getArrayComponent(array.getComponentType()) : array;
+	}
+
 	public static <T> Class<?> findCommonSuperClass(Collection<T> coll)
 	{
 		if(coll.isEmpty())
