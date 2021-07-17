@@ -178,7 +178,7 @@ public class NBTSerializationHelper
 						}
 					} else
 					{
-						serializeField(field.getType(), field.get(instance), nbt, field.getName());
+						serializeField(field.getType(), field.get(instance), nbt, name);
 					}
 				} catch(ReflectiveOperationException e)
 				{
@@ -218,7 +218,7 @@ public class NBTSerializationHelper
 						}
 					} else
 					{
-						Object val = deserializeField(field.getType(), nbt, field.getName());
+						Object val = deserializeField(field.getType(), nbt, name);
 						if(val != null || !type.isPrimitive()) field.set(instance, val);
 					}
 				} catch(Throwable e)
