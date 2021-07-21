@@ -219,7 +219,7 @@ public class NBTSerializationHelper
 					} else
 					{
 						Object val = deserializeField(field.getType(), nbt, name);
-						if(val != null || !type.isPrimitive()) field.set(instance, val);
+						if(val != null || !field.getType().isPrimitive()) field.set(instance, val);
 					}
 				} catch(Throwable e)
 				{
