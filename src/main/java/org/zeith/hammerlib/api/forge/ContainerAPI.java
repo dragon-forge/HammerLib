@@ -37,7 +37,10 @@ public class ContainerAPI
 			@Override
 			public ITextComponent getDisplayName()
 			{
-				return tile.getBlockState().getBlock().getName();
+				return Cast
+						.optionally(tile, IContainerTile.class)
+						.map(IContainerTile::getDisplayName)
+						.orElseGet(() -> tile.getBlockState().getBlock().getName());
 			}
 
 			@Nullable

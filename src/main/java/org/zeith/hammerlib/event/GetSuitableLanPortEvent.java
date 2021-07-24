@@ -5,20 +5,13 @@ import net.minecraftforge.eventbus.api.Event;
 public class GetSuitableLanPortEvent
 		extends Event
 {
-	private final int originalPort;
-	private int newPort;
+	private Integer newPort;
 
-	public GetSuitableLanPortEvent(int port)
+	public GetSuitableLanPortEvent()
 	{
-		this.newPort = this.originalPort = port;
 	}
 
-	public int getOriginalPort()
-	{
-		return originalPort;
-	}
-
-	public int getNewPort()
+	public Integer getNewPort()
 	{
 		return newPort;
 	}

@@ -20,6 +20,11 @@ public abstract class ScreenWTFMojang<T extends Container>
 		imageHeight = ySize;
 	}
 
+	protected boolean renderForeground(MatrixStack matrix, int mouseX, int mouseY)
+	{
+		return false;
+	}
+
 	protected abstract void renderBackground(MatrixStack matrix, float partialTime, int mouseX, int mouseY);
 
 	@Override
@@ -31,8 +36,25 @@ public abstract class ScreenWTFMojang<T extends Container>
 	}
 
 	@Override
+	protected void renderLabels(MatrixStack matrix, int mouseX, int mouseY)
+	{
+		if(!renderForeground(matrix, mouseX, mouseY))
+			super.renderLabels(matrix, mouseX, mouseY);
+	}
+
+	@Override
 	protected void renderBg(MatrixStack matrix, float partialTime, int mouseX, int mouseY)
 	{
 		renderBackground(matrix, partialTime, mouseX, mouseY);
+	}
+
+	protected boolean clickMenuButton(int button)
+	{
+		if(this.menu.clickMenuButton(this.minecraft.player, button))
+		{
+			this.minecraft.gameMode.handleInventoryButtonClick((this.menu).containerId, button);
+			return true;
+		}
+		return false;
 	}
 }

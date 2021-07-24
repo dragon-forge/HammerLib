@@ -3,13 +3,11 @@ package org.zeith.hammerlib.mixins;
 import net.minecraft.util.HTTPUtil;
 import net.minecraftforge.common.MinecraftForge;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.zeith.hammerlib.event.GetSuitableLanPortEvent;
 import org.zeith.hammerlib.util.java.NumberUtils;
-
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Mixin(HTTPUtil.class)
 public class HTTPUtilMixin
@@ -18,20 +16,17 @@ public class HTTPUtilMixin
 	 * @author Zeitheron @ HammerLib
 	 * @reason GetSuitableLanPortEvent
 	 */
-	@Overwrite
-	public static int getAvailablePort()
+	@Inject(
+			method = "getAvailablePort",
+			at = @At("HEAD"),
+			cancellable = true
+	)
+	private static void getAvailablePort(CallbackInfoReturnable<Integer> cir)
 	{
-		AtomicInteger port = new AtomicInteger(25564);
-		try(final ServerSocket ss = new ServerSocket(0))
-		{
-			port.set(ss.getLocalPort());
-		} catch(IOException ioe)
-		{
-			port.set(25564);
-		}
-		NumberUtils.tryParse(System.getProperty("hammerlib.lanport"), NumberUtils.EnumNumberType.SHORT).ifPresent(n -> port.set(n.intValue()));
-		GetSuitableLanPortEvent event = new GetSuitableLanPortEvent(port.get());
+		GetSuitableLanPortEvent event = new GetSuitableLanPortEvent();
+		NumberUtils.tryParse(System.getProperty("hammerlib.lanport"), NumberUtils.EnumNumberType.SHORT).ifPresent(n -> event.setNewPort(n.intValue()));
 		MinecraftForge.EVENT_BUS.post(event);
-		return event.getNewPort();
+		Integer i = event.getNewPort();
+		if(i != null) cir.setReturnValue(i);
 	}
 }
