@@ -38,18 +38,18 @@ public abstract class ChunkRenderCacheMixin
 	{
 		BlockState state = blockStates[index(pos)], nState = state;
 
-		Block b = state.getBlock();
-
-		if(b instanceof IVisuallyDifferentBlock)
-			nState = ((IVisuallyDifferentBlock) b).handle(level, pos, state);
-
-		if(OverrideRenderStateEvent.isEnabled())
+		if(state != null)
 		{
-			OverrideRenderStateEvent evt = new OverrideRenderStateEvent(level, pos, state, nState);
-			MinecraftForge.EVENT_BUS.post(evt);
-			nState = evt.getNewState();
+			Block b = state.getBlock();
+			if(b instanceof IVisuallyDifferentBlock)
+				nState = ((IVisuallyDifferentBlock) b).handle(level, pos, state);
+			if(OverrideRenderStateEvent.isEnabled())
+			{
+				OverrideRenderStateEvent evt = new OverrideRenderStateEvent(level, pos, state, nState);
+				MinecraftForge.EVENT_BUS.post(evt);
+				nState = evt.getNewState();
+			}
 		}
-
 		if(state != nState)
 			cir.setReturnValue(nState);
 	}

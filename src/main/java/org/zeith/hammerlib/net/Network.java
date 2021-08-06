@@ -10,6 +10,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.PacketDistributor;
 import net.minecraftforge.fml.network.PacketDistributor.TargetPoint;
@@ -17,6 +18,7 @@ import net.minecraftforge.fml.network.simple.SimpleChannel;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.annotations.Setup;
 import org.zeith.hammerlib.util.java.Cast;
+import org.zeith.hammerlib.util.mcf.LogicalSidePredictor;
 
 public class Network
 {
@@ -72,14 +74,16 @@ public class Network
 	{
 		if(dim == null || packet == null)
 			return;
-		channel.send(PacketDistributor.DIMENSION.with(Cast.staticValue(dim)), toPlain(packet));
+		if(LogicalSidePredictor.getCurrentLogicalSide() == LogicalSide.SERVER)
+			channel.send(PacketDistributor.DIMENSION.with(Cast.staticValue(dim)), toPlain(packet));
 	}
 
 	public static void sendToAll(IPacket packet)
 	{
 		if(packet == null)
 			return;
-		channel.send(PacketDistributor.ALL.noArg(), toPlain(packet));
+		if(LogicalSidePredictor.getCurrentLogicalSide() == LogicalSide.SERVER)
+			channel.send(PacketDistributor.ALL.noArg(), toPlain(packet));
 	}
 
 	public static void sendToArea(HLTargetPoint point, IPacket packet)
@@ -90,14 +94,16 @@ public class Network
 	public static void sendToArea(TargetPoint point, IPacket packet)
 	{
 		if(point == null || packet == null) return;
-		channel.send(PacketDistributor.NEAR.with(Cast.staticValue(point)), toPlain(packet));
+		if(LogicalSidePredictor.getCurrentLogicalSide() == LogicalSide.SERVER)
+			channel.send(PacketDistributor.NEAR.with(Cast.staticValue(point)), toPlain(packet));
 	}
 
 	public static void sendToServer(IPacket packet)
 	{
 		if(packet == null)
 			return;
-		channel.sendToServer(toPlain(packet));
+		if(LogicalSidePredictor.getCurrentLogicalSide() == LogicalSide.CLIENT)
+			channel.sendToServer(toPlain(packet));
 	}
 
 	///
