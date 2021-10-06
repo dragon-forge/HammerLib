@@ -53,7 +53,11 @@ public class RegistryAdapter
 	{
 		List<Block> blockList = blocks.computeIfAbsent(source, s -> new ArrayList<>());
 
-		Consumer<T> grabber = createRegisterer(registry);
+		Consumer<T> grabber = createRegisterer(registry).andThen(handler ->
+		{
+			if(handler instanceof Block)
+				blockList.add((Block) handler);
+		});
 
 		if(Item.class.equals(registry.getRegistrySuperType())) for(Block blk : blockList)
 		{
@@ -108,7 +112,6 @@ public class RegistryAdapter
 								return;
 
 							T t = registry.getRegistrySuperType().cast(field.get(null));
-							if(t instanceof Block) blockList.add((Block) t);
 							if(name != null) t.setRegistryName(new ResourceLocation(modid, name.value()));
 							grabber.accept(t);
 						} catch(IllegalArgumentException | IllegalAccessException e)
