@@ -5,6 +5,9 @@ import net.minecraft.util.IItemProvider;
 import net.minecraft.util.ResourceLocation;
 import org.zeith.hammerlib.event.recipe.RegisterRecipesEvent;
 
+import java.util.function.BooleanSupplier;
+import java.util.function.Predicate;
+
 public abstract class RecipeBuilder<R extends RecipeBuilder<R>>
 {
 	protected final RegisterRecipesEvent event;
@@ -69,4 +72,16 @@ public abstract class RecipeBuilder<R extends RecipeBuilder<R>>
 	}
 
 	public abstract void register();
+
+	public void registerIf(BooleanSupplier condition)
+	{
+		if(condition.getAsBoolean())
+			register();
+	}
+
+	public void registerIf(Predicate<ResourceLocation> condition)
+	{
+		if(condition.test(identifier))
+			register();
+	}
 }

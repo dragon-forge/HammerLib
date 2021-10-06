@@ -13,6 +13,7 @@ import org.zeith.hammerlib.core.RecipeHelper;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 @Mixin(RecipeManager.class)
@@ -28,8 +29,16 @@ public class RecipeManagerMixin
 	public Stream<Map.Entry<IRecipeType<?>, ImmutableMap.Builder<ResourceLocation, IRecipe<?>>>> applyStream(Set<Map.Entry<IRecipeType<?>, ImmutableMap.Builder<ResourceLocation, IRecipe<?>>>> set)
 	{
 		Map<IRecipeType<?>, ImmutableMap.Builder<ResourceLocation, IRecipe<?>>> map = Maps.newHashMap();
-		set.forEach(e -> map.put(e.getKey(), e.getValue()));
-		RecipeHelper.hookRecipesASM(map);
+
+		AtomicReference<RecipeHelper.MapMode> mode = new AtomicReference<>(RecipeHelper.MapMode.IMMUTABLE);
+
+		set.forEach(e ->
+		{
+			if(e.getValue() instanceof Map) mode.set(RecipeHelper.MapMode.MAP);
+			map.put(e.getKey(), e.getValue());
+		});
+
+		RecipeHelper.hookRecipesASM(mode.get().addRecipe(map));
 		return map.entrySet().stream();
 	}
 }

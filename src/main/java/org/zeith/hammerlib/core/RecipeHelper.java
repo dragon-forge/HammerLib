@@ -1,6 +1,7 @@
 package org.zeith.hammerlib.core;
 
 import com.google.common.collect.ImmutableMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
@@ -11,6 +12,7 @@ import net.minecraft.tags.TagCollectionManager;
 import net.minecraft.util.IItemProvider;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
+import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.api.crafting.AbstractRecipeRegistry;
 import org.zeith.hammerlib.api.items.IIngredientProvider;
 import org.zeith.hammerlib.core.adapter.OreDictionaryAdapter;
@@ -23,12 +25,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class RecipeHelper
 {
-	public static void hookRecipesASM(Map<IRecipeType<?>, ImmutableMap.Builder<ResourceLocation, IRecipe<?>>> map)
+	public static void hookRecipesASM(Consumer<IRecipe<?>> addRecipe)
 	{
 		RegisterRecipesEvent rre = new RegisterRecipesEvent();
 		MinecraftForge.EVENT_BUS.post(rre);
@@ -39,8 +42,7 @@ public class RecipeHelper
 
 		rre.getRecipes().forEach(recipe ->
 		{
-			ImmutableMap.Builder<ResourceLocation, IRecipe<?>> builder = map.computeIfAbsent(recipe.getType(), type -> ImmutableMap.builder());
-			builder.put(recipe.getId(), recipe);
+			addRecipe.accept(recipe);
 			count.incrementAndGet();
 		});
 
@@ -50,6 +52,49 @@ public class RecipeHelper
 		HLConstants.LOG.info("Reloading {} custom registries.", registries.size());
 		registries.forEach(AbstractRecipeRegistry::reload);
 		HLConstants.LOG.info("{} custom registries reloaded, added {} total recipes.", registries.size(), registries.stream().mapToInt(AbstractRecipeRegistry::getRecipeCount).sum());
+	}
+
+	public enum MapMode
+	{
+		IMMUTABLE(ImmutableMap.Builder.class),
+		MAP(Map.class),
+		UNKNOWN(null);
+
+		final Class<?> type;
+
+		MapMode(Class<?> type)
+		{
+			this.type = type;
+		}
+
+		public Consumer<IRecipe<?>> addRecipe(Map<IRecipeType<?>, ?> map)
+		{
+			if(this == IMMUTABLE)
+			{
+				Map<IRecipeType<?>, ImmutableMap.Builder<ResourceLocation, IRecipe<?>>> imap = Cast.cast(map);
+				return recipe ->
+				{
+					ImmutableMap.Builder<ResourceLocation, IRecipe<?>> builder = imap.computeIfAbsent(recipe.getType(), type -> ImmutableMap.builder());
+					builder.put(recipe.getId(), recipe);
+				};
+			}
+
+			if(this == MAP)
+			{
+				Map<IRecipeType<?>, Map<ResourceLocation, IRecipe<?>>> mmap = Cast.cast(map);
+
+				return recipe ->
+				{
+					Map<ResourceLocation, IRecipe<?>> builder = mmap.computeIfAbsent(recipe.getType(), type -> new Object2ObjectLinkedOpenHashMap<>());
+					builder.put(recipe.getId(), recipe);
+				};
+			}
+
+			return recipe ->
+			{
+				HammerLib.LOG.warn("Unable to add recipe " + recipe.getId() + " due to the uncertainty of the recipe map!");
+			};
+		}
 	}
 
 	public static Ingredient fromComponent(Object comp)

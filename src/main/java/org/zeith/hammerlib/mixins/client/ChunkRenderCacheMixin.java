@@ -19,15 +19,17 @@ import org.zeith.hammerlib.event.client.model.OverrideRenderStateEvent;
 public abstract class ChunkRenderCacheMixin
 {
 	@Shadow
-	@Final
-	protected BlockState[] blockStates;
-
-	@Shadow
 	protected abstract int index(BlockPos p_212398_1_);
 
 	@Shadow
 	@Final
 	protected World level;
+
+	@Shadow
+	@Final
+	public BlockState[] blockStates;
+
+	BlockState[] blockStatePtr;
 
 	@Inject(
 			method = "getBlockState",
@@ -36,7 +38,17 @@ public abstract class ChunkRenderCacheMixin
 	)
 	public void getBlockStateHLHook(BlockPos pos, CallbackInfoReturnable<BlockState> cir)
 	{
-		BlockState state = blockStates[index(pos)], nState = state;
+		if(blockStatePtr == null)
+		{
+			if(blockStates == null)
+			{
+				// Somehow we would need to get the OF's block state cache here
+				// Any tips?
+				return;
+			} else blockStatePtr = blockStates;
+		}
+
+		BlockState state = blockStatePtr[index(pos)], nState = state;
 
 		if(state != null)
 		{
