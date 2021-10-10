@@ -1,3 +1,4 @@
 {
-	"ASM0": "META-INF/coremods/ServerPlayNetHandlerHook.js"
+	"ASM0": "META-INF/coremods/ServerPlayNetHandlerHook.js",
+	"ASM1": "META-INF/coremods/RecipeManagerHook.js"
 }

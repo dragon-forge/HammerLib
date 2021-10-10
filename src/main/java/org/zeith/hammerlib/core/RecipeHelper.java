@@ -7,6 +7,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.IRecipeType;
 import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.item.crafting.RecipeManager;
+import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.tags.ITag;
 import net.minecraft.tags.TagCollectionManager;
 import net.minecraft.util.IItemProvider;
@@ -20,10 +22,9 @@ import org.zeith.hammerlib.event.ParseIngredientEvent;
 import org.zeith.hammerlib.event.recipe.RegisterRecipesEvent;
 import org.zeith.hammerlib.proxy.HLConstants;
 import org.zeith.hammerlib.util.java.Cast;
+import org.zeith.hammerlib.util.mcf.RunnableReloader;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -31,12 +32,12 @@ import java.util.stream.Stream;
 
 public class RecipeHelper
 {
-	public static void hookRecipesASM(Consumer<IRecipe<?>> addRecipe)
+	public static void registerCustomRecipes(Consumer<IRecipe<?>> addRecipe, boolean silent)
 	{
 		RegisterRecipesEvent rre = new RegisterRecipesEvent();
 		MinecraftForge.EVENT_BUS.post(rre);
 
-		HLConstants.LOG.info("Reloading HammerLib recipes...");
+		if(!silent) HLConstants.LOG.info("Reloading HammerLib recipes...");
 
 		AtomicLong count = new AtomicLong();
 
@@ -46,12 +47,44 @@ public class RecipeHelper
 			count.incrementAndGet();
 		});
 
-		HLConstants.LOG.info("HammerLib injected {} recipes into recipe map.", count.longValue());
+		if(!silent) HLConstants.LOG.info("HammerLib injected {} recipes into recipe map.", count.longValue());
 
 		List<AbstractRecipeRegistry<?, ?, ?>> registries = AbstractRecipeRegistry.getAllRegistries();
-		HLConstants.LOG.info("Reloading {} custom registries.", registries.size());
+		if(!silent) HLConstants.LOG.info("Reloading {} custom registries.", registries.size());
 		registries.forEach(AbstractRecipeRegistry::reload);
-		HLConstants.LOG.info("{} custom registries reloaded, added {} total recipes.", registries.size(), registries.stream().mapToInt(AbstractRecipeRegistry::getRecipeCount).sum());
+		if(!silent)
+			HLConstants.LOG.info("{} custom registries reloaded, added {} total recipes.", registries.size(), registries.stream().mapToInt(AbstractRecipeRegistry::getRecipeCount).sum());
+	}
+
+	public static void reload(RecipeManager mgr, IReloadableResourceManager rel)
+	{
+		rel.registerReloadListener(RunnableReloader.of(() ->
+		{
+			Internal.mutableManager(mgr);
+			List<IRecipe<?>> recipeList = new ArrayList<>();
+			registerCustomRecipes(recipeList::add, false);
+			Internal.addRecipes(mgr, recipeList);
+		}));
+	}
+
+	private static class Internal
+	{
+		private static void addRecipes(RecipeManager mgr, List<IRecipe<?>> recipes)
+		{
+			recipes.forEach(r ->
+			{
+				Map<ResourceLocation, IRecipe<?>> map = mgr.recipes.computeIfAbsent(r.getType(), t -> new HashMap<>());
+				map.putIfAbsent(r.getId(), r);
+			});
+			HammerLib.LOG.info("Registered {} additional recipes.", recipes.size());
+		}
+
+		private static void mutableManager(RecipeManager mgr)
+		{
+			mgr.recipes = new HashMap<>(mgr.recipes);
+			for(IRecipeType<?> type : mgr.recipes.keySet())
+				mgr.recipes.put(type, new HashMap<>(mgr.recipes.get(type)));
+		}
 	}
 
 	public enum MapMode

@@ -35,10 +35,13 @@ configFile.withReader {
 version = config.mod_version
 group = config.maven_group
 archivesBaseName = "${config.archive_name}-${config.mc_version}"
-
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = config.java
 
 mixin {
+    defaultObfuscationEnv "notch"
+    disableEclipseAddon()
+    disableAnnotationProcessorCheck()
+    disableRefMapWarning()
     add sourceSets.main, "mixins.${config.mod_id}.refmap.json"
 }
 
@@ -83,7 +86,10 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${config.mc_version}-${config.forge_version}"
 
-    annotationProcessor("org.spongepowered:mixin:0.8.2:processor")
+    if(!gradle.startParameter.taskNames.isEmpty()) {
+        print "Including MIXIN annotation processor."
+        annotationProcessor("org.spongepowered:mixin:0.8.2:processor")
+    }
 
     if (file("runtimeMods").isDirectory()) {
         file("runtimeMods").eachFile { file ->
