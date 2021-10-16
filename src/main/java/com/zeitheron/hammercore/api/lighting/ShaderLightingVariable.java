@@ -2,9 +2,12 @@ package com.zeitheron.hammercore.api.lighting;
 
 import com.zeitheron.hammercore.client.utils.RenderUtil;
 import com.zeitheron.hammercore.client.utils.gl.shading.ShaderVar;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL31;
 
+@SideOnly(Side.CLIENT)
 public class ShaderLightingVariable
 		extends ShaderVar
 {

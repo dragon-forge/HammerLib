@@ -12,6 +12,7 @@ import net.minecraft.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 import java.util.function.IntSupplier;
@@ -37,34 +38,6 @@ public class ColoredLightManager
 	public static boolean isColoredLightActive()
 	{
 		return COLORED_LIGHTING_ENABLED.getAsBoolean();
-	}
-
-	@Deprecated
-	public static void registerOperator(BooleanSupplier enabled, BooleanSupplier uniforms, BooleanSupplier bindTerrain, BooleanSupplier unbindTerrain)
-	{
-		BooleanSupplier prevBS = ColoredLightManager.COLORED_LIGHTING_ENABLED;
-		ReflectionUtil.setStaticFinalField(ColoredLightManager.class, "COLORED_LIGHTING_ENABLED", (BooleanSupplier) () -> (prevBS != null && prevBS.getAsBoolean()) || enabled.getAsBoolean());
-
-		BooleanSupplier prevSUS = SHADER_UNIFORM_SETUP;
-		ReflectionUtil.setStaticFinalField(ColoredLightManager.class, "SHADER_UNIFORM_SETUP", (BooleanSupplier) () ->
-		{
-			boolean got = prevSUS.getAsBoolean();
-			return uniforms.getAsBoolean() || got;
-		});
-
-		BooleanSupplier prevBT = BIND_TERRAIN;
-		ReflectionUtil.setStaticFinalField(ColoredLightManager.class, "BIND_TERRAIN", (BooleanSupplier) () ->
-		{
-			boolean got = prevBT.getAsBoolean();
-			return bindTerrain.getAsBoolean() || got;
-		});
-
-		BooleanSupplier prevUBT = UNBIND_TERRAIN;
-		ReflectionUtil.setStaticFinalField(ColoredLightManager.class, "UNBIND_TERRAIN", (BooleanSupplier) () ->
-		{
-			boolean got = prevUBT.getAsBoolean();
-			return unbindTerrain.getAsBoolean() || got;
-		});
 	}
 
 	public static void registerOperator(BooleanSupplier enabled, BooleanSupplier uniforms, BooleanSupplier bindTerrain, BooleanSupplier bindEntity, BooleanSupplier unbindTerrain, BooleanSupplier unbindEntity)
@@ -117,7 +90,7 @@ public class ColoredLightManager
 			{
 				Stream<ColoredLight> players = pl.world.loadedEntityList.stream().flatMap(ent ->
 				{
-					IGlowingItem igi = null;
+					IGlowingItem igi;
 					if(ent instanceof EntityLivingBase)
 					{
 						EntityLivingBase base = (EntityLivingBase) ent;
@@ -128,7 +101,7 @@ public class ColoredLightManager
 						ItemStack off = base.getHeldItemOffhand();
 						if((igi = IGlowingItem.fromStack(off)) != null)
 							lights.add(igi.produceColoredLight(base, off));
-						return lights.build().filter(Predicates.notNull()).map(l -> l.reposition(ent, partialTicks));
+						return lights.build().filter(Objects::nonNull).map(l -> l.reposition(ent, partialTicks));
 					} else if(ent instanceof EntityItem)
 					{
 						EntityItem ei = (EntityItem) ent;
@@ -136,12 +109,22 @@ public class ColoredLightManager
 						ItemStack item = ei.getItem();
 						if((igi = IGlowingItem.fromStack(item)) != null)
 							lights.add(igi.produceColoredLight(ei, item));
-						return lights.build().filter(Predicates.notNull()).map(l -> l.reposition(ent, partialTicks));
+						return lights.build().filter(Objects::nonNull).map(l -> l.reposition(ent, partialTicks));
 					}
 					return Stream.empty();
 				});
-				Stream<ColoredLight> entities = Stream.concat(players, pl.world.loadedEntityList.stream().filter(Predicates.instanceOf(IGlowingEntity.class)).map(e -> ((IGlowingEntity) e).produceColoredLight(partialTicks)));
-				Stream<ColoredLight> tiles = pl.world.loadedTileEntityList.stream().filter(e -> e instanceof IGlowingEntity).map(e -> ((IGlowingEntity) e).produceColoredLight(partialTicks));
+
+				Stream<ColoredLight> entities = Stream.concat(players, pl.world.loadedEntityList
+						.stream()
+						.filter(IGlowingEntity.class::isInstance)
+						.map(e -> ((IGlowingEntity) e).produceColoredLight(partialTicks))
+				);
+
+				Stream<ColoredLight> tiles = pl.world.loadedTileEntityList
+						.stream()
+						.filter(IGlowingEntity.class::isInstance)
+						.map(e -> ((IGlowingEntity) e).produceColoredLight(partialTicks));
+
 				return Stream.concat(tiles, entities);
 			}
 			return Stream.empty();

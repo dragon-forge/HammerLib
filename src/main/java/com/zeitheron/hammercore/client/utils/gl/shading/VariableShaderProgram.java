@@ -144,7 +144,7 @@ public class VariableShaderProgram
 				GL20.glCompileShader(shader);
 				if(GL20.glGetShaderi(shader, GL20.GL_COMPILE_STATUS) == GL11.GL_FALSE)
 				{
-					String gl = GL20.glGetProgramInfoLog(shader, ARBShaderObjects.glGetObjectParameteriARB(shader, ARBShaderObjects.GL_OBJECT_INFO_LOG_LENGTH_ARB));
+					String gl = GL20.glGetShaderInfoLog(shader, ARBShaderObjects.glGetObjectParameteriARB(shader, ARBShaderObjects.GL_OBJECT_INFO_LOG_LENGTH_ARB));
 					RuntimeException err = new RuntimeException("Failed to load shader(" + Integer.toHexString(key) + ") source " + sources.get(key) + ":\n" + gl);
 					compilationErrors.add(err);
 					GL20.glDeleteShader(shader);
