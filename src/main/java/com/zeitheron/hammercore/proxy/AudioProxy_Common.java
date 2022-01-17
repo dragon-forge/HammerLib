@@ -36,7 +36,7 @@ public class AudioProxy_Common
 			{
 				if(p.world.provider.getDimension() != world.provider.getDimension())
 					continue;
-				p.connection.sendPacket(new SPacketCustomSound(sound, SoundCategory.BLOCKS, x, y, z, volume, pitch));
+				p.connection.sendPacket(new SPacketCustomSound(sound, category, x, y, z, volume, pitch));
 			}
 		} catch(Throwable err)
 		{

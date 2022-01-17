@@ -90,6 +90,12 @@ public class ColoredLightManager
 			{
 				Stream<ColoredLight> players = pl.world.loadedEntityList.stream().flatMap(ent ->
 				{
+					if(ent.isInvisibleToPlayer(pl) || !ent.isAddedToWorld())
+						return Stream.empty();
+
+					if(ent instanceof EntityPlayer && ((EntityPlayer) ent).isSpectator())
+						return Stream.empty();
+
 					IGlowingItem igi;
 					if(ent instanceof EntityLivingBase)
 					{
@@ -111,11 +117,13 @@ public class ColoredLightManager
 							lights.add(igi.produceColoredLight(ei, item));
 						return lights.build().filter(Objects::nonNull).map(l -> l.reposition(ent, partialTicks));
 					}
+
 					return Stream.empty();
 				});
 
 				Stream<ColoredLight> entities = Stream.concat(players, pl.world.loadedEntityList
 						.stream()
+						.filter(e -> e.isAddedToWorld() && !e.isInvisibleToPlayer(pl))
 						.filter(IGlowingEntity.class::isInstance)
 						.map(e -> ((IGlowingEntity) e).produceColoredLight(partialTicks))
 				);
@@ -152,6 +160,6 @@ public class ColoredLightManager
 	 */
 	public static Stream<ColoredLight> generate(float partialTicks)
 	{
-		return lightGenerators.stream().flatMap(f -> f.apply(partialTicks)).filter(Predicates.notNull());
+		return lightGenerators.stream().flatMap(f -> f.apply(partialTicks)).filter(Objects::nonNull);
 	}
 }
