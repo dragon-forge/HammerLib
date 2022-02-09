@@ -1,0 +1,22 @@
+{
+	"required": true,
+	"minVersion": "0.8.5",
+	"package": "org.zeith.hammerlib.mixins",
+	"refmap": "mixins.hammerlib.refmap.json",
+	"target": "@env(DEFAULT)",
+	"compatibilityLevel": "JAVA_17",
+	"mixins": [
+		"HTTPUtilMixin",
+		"LevelChunkMixin",
+		"LevelMixin",
+		"PackRepositoryMixin",
+		"RecipeManagerMixin",
+		"TagCollectionReaderMixin"
+	],
+	"client": [
+		"client.LanguageManagerMixin",
+		"client.ModelBakeryMixin"
+	],
+	"server": [
+	]
+}

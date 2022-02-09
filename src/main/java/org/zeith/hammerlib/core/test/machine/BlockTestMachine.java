@@ -1,0 +1,121 @@
+package org.zeith.hammerlib.core.test.machine;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.Containers;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.phys.BlockHitResult;
+import org.zeith.hammerlib.annotations.OnlyIf;
+import org.zeith.hammerlib.annotations.RegistryName;
+import org.zeith.hammerlib.annotations.SimplyRegister;
+import org.zeith.hammerlib.api.blocks.IItemGroupBlock;
+import org.zeith.hammerlib.api.forge.ContainerAPI;
+import org.zeith.hammerlib.api.forge.BlockAPI;
+import org.zeith.hammerlib.core.adapter.BlockHarvestAdapter;
+import org.zeith.hammerlib.core.test.TestPreferences;
+import org.zeith.hammerlib.util.java.Cast;
+
+import javax.annotation.Nullable;
+
+@SimplyRegister
+public class BlockTestMachine
+		extends BaseEntityBlock
+		implements IItemGroupBlock
+{
+	@OnlyIf(owner = TestPreferences.class, member = "enableTestMachine")
+	@RegistryName("test_machine")
+	public static final BlockTestMachine TEST_MACHINE = new BlockTestMachine();
+
+	public BlockTestMachine()
+	{
+		super(Block.Properties
+				.of(Material.METAL)
+				.sound(SoundType.METAL)
+				.strength(1F)
+		);
+		BlockHarvestAdapter.bindToolType(BlockHarvestAdapter.MineableType.PICKAXE, this);
+	}
+
+	@Override
+	public void onRemove(BlockState prevState, Level world, BlockPos pos, BlockState newState, boolean flag64)
+	{
+		if(!prevState.is(newState.getBlock()))
+		{
+			BlockEntity tileentity = world.getBlockEntity(pos);
+			if(tileentity instanceof TileTestMachine)
+			{
+				Containers.dropContents(world, pos, ((TileTestMachine) tileentity).inventory);
+				world.updateNeighbourForOutputSignal(pos, this);
+			}
+
+			super.onRemove(prevState, world, pos, newState, flag64);
+		}
+	}
+
+	@Nullable
+	@Override
+	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type)
+	{
+		return BlockAPI.ticker();
+	}
+
+	@Override
+	public RenderShape getRenderShape(BlockState p_49232_)
+	{
+		return RenderShape.MODEL;
+	}
+
+	@Override
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder)
+	{
+		builder.add(BlockStateProperties.ENABLED);
+		builder.add(BlockStateProperties.HORIZONTAL_FACING);
+	}
+
+	@Override
+	public InteractionResult use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult ray)
+	{
+		ContainerAPI.openContainerTile(player, Cast.cast(world.getBlockEntity(pos), TileTestMachine.class));
+		return InteractionResult.SUCCESS;
+	}
+
+	@Nullable
+	@Override
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state)
+	{
+		return new TileTestMachine(pos, state);
+	}
+
+	@Nullable
+	@Override
+	public BlockState getStateForPlacement(BlockPlaceContext ctx)
+	{
+		return defaultBlockState()
+				.setValue(BlockStateProperties.ENABLED, false)
+				.setValue(BlockStateProperties.HORIZONTAL_FACING, ctx.getPlayer() != null
+						? ctx.getPlayer().getDirection().getOpposite()
+						: Direction.NORTH);
+	}
+
+	@Override
+	public CreativeModeTab getItemGroup()
+	{
+		return CreativeModeTab.TAB_REDSTONE;
+	}
+}
