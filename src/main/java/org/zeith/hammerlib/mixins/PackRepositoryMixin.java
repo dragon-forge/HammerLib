@@ -34,7 +34,7 @@ public class PackRepositoryMixin
 			method = "reload",
 			at = @At("TAIL")
 	)
-	public void reloadHook(CallbackInfo ci)
+	public void reloadHook_HammerLib(CallbackInfo ci)
 	{
 		if(selected instanceof ImmutableList)
 			selected = new ArrayList<>(selected);

@@ -26,7 +26,7 @@ public class TagCollectionReaderMixin
 					value = "HEAD"
 			)
 	)
-	private static void putTag(Map tagMap, ResourceLocation name, Tag theTag, CallbackInfo ci)
+	private static void putTag_HammerLib(Map tagMap, ResourceLocation name, Tag theTag, CallbackInfo ci)
 	{
 		if(theTag instanceof SetTag nt)
 		{

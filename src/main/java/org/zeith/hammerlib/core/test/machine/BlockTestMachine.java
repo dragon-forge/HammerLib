@@ -7,6 +7,8 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Tiers;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -20,18 +22,20 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.phys.BlockHitResult;
 import org.zeith.hammerlib.annotations.OnlyIf;
 import org.zeith.hammerlib.annotations.RegistryName;
 import org.zeith.hammerlib.annotations.SimplyRegister;
 import org.zeith.hammerlib.api.blocks.IItemGroupBlock;
-import org.zeith.hammerlib.api.forge.ContainerAPI;
 import org.zeith.hammerlib.api.forge.BlockAPI;
+import org.zeith.hammerlib.api.forge.ContainerAPI;
 import org.zeith.hammerlib.core.adapter.BlockHarvestAdapter;
 import org.zeith.hammerlib.core.test.TestPreferences;
 import org.zeith.hammerlib.util.java.Cast;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 @SimplyRegister
 public class BlockTestMachine
@@ -46,10 +50,18 @@ public class BlockTestMachine
 	{
 		super(Block.Properties
 				.of(Material.METAL)
+				.requiresCorrectToolForDrops()
 				.sound(SoundType.METAL)
-				.strength(1F)
+				.strength(1.5F)
 		);
-		BlockHarvestAdapter.bindToolType(BlockHarvestAdapter.MineableType.PICKAXE, this);
+
+		BlockHarvestAdapter.bindTool(BlockHarvestAdapter.MineableType.PICKAXE, Tiers.IRON, this);
+	}
+
+	@Override
+	public List<ItemStack> getDrops(BlockState p_60537_, LootContext.Builder p_60538_)
+	{
+		return List.of(new ItemStack(this));
 	}
 
 	@Override

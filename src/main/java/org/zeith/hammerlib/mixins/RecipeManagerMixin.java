@@ -21,7 +21,7 @@ public class RecipeManagerMixin
 			method = "apply(Ljava/util/Map;Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)V",
 			at = @At("TAIL")
 	)
-	public void reloadRecipes(Map<ResourceLocation, JsonElement> jsonparseexception, ResourceManager resourcelocation, ProfilerFiller entry, CallbackInfo ci)
+	public void reloadRecipes_HammerLib(Map<ResourceLocation, JsonElement> jsonparseexception, ResourceManager resourcelocation, ProfilerFiller entry, CallbackInfo ci)
 	{
 		RecipeManager mgr = Cast.cast(this);
 		RecipeHelper.injectRecipes(mgr);

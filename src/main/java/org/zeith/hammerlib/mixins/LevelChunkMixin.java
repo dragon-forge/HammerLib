@@ -31,7 +31,7 @@ public abstract class LevelChunkMixin
 			method = "removeBlockEntity",
 			at = @At("HEAD")
 	)
-	public void onBlockEntityRemoveHL(BlockPos pos, CallbackInfo ci)
+	public void onBlockEntityRemove_HammerLib(BlockPos pos, CallbackInfo ci)
 	{
 		if(isInLevel())
 		{

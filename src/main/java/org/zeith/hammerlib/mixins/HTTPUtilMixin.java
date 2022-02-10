@@ -21,7 +21,7 @@ public class HTTPUtilMixin
 			at = @At("HEAD"),
 			cancellable = true
 	)
-	private static void getAvailablePort(CallbackInfoReturnable<Integer> cir)
+	private static void getAvailablePort_HammerLib(CallbackInfoReturnable<Integer> cir)
 	{
 		GetSuitableLanPortEvent event = new GetSuitableLanPortEvent();
 		NumberUtils.tryParse(System.getProperty("hammerlib.lanport"), NumberUtils.EnumNumberType.SHORT).ifPresent(n -> event.setNewPort(n.intValue()));
