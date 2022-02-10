@@ -5,14 +5,12 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.Tag;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 import org.zeith.hammerlib.event.recipe.PopulateTagsEvent;
 
 import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Mod.EventBusSubscriber
 public class BlockHarvestAdapter
 {
 	public static final Map<ResourceLocation, Set<Block>> toolTypes = new ConcurrentHashMap<>();

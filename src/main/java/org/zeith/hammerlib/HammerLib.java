@@ -35,6 +35,7 @@ import org.zeith.hammerlib.annotations.client.TileRenderer;
 import org.zeith.hammerlib.api.IRecipeProvider;
 import org.zeith.hammerlib.api.io.NBTSerializationHelper;
 import org.zeith.hammerlib.api.multipart.MultipartBlock;
+import org.zeith.hammerlib.core.adapter.BlockHarvestAdapter;
 import org.zeith.hammerlib.core.adapter.LanguageAdapter;
 import org.zeith.hammerlib.core.adapter.RegistryAdapter;
 import org.zeith.hammerlib.core.command.CommandHammerLib;
@@ -65,6 +66,7 @@ public class HammerLib
 		MinecraftForge.EVENT_BUS.addListener(this::registerCommands);
 
 		HammerLib.EVENT_BUS.register(LanguageAdapter.class);
+		HammerLib.EVENT_BUS.register(BlockHarvestAdapter.class);
 
 		LanguageAdapter.registerMod(HLConstants.MOD_ID);
 

@@ -83,7 +83,7 @@ public class RegistryAdapter
 		int prevSize = registry.getValues().size();
 
 		Arrays
-				.stream(source.getMethods())
+				.stream(source.getDeclaredMethods())
 				.filter(m -> m.getAnnotation(SimplyRegister.class) != null && m.getParameterCount() == 1 && Consumer.class.isAssignableFrom(m.getParameterTypes()[0]) && ReflectionUtil.doesParameterTypeArgsMatch(m.getParameters()[0], registry.getRegistrySuperType()))
 				.forEach(method ->
 				{
@@ -103,7 +103,7 @@ public class RegistryAdapter
 				});
 
 		Arrays
-				.stream(source.getFields())
+				.stream(source.getDeclaredFields())
 				.filter(f -> registry.getRegistrySuperType().isAssignableFrom(f.getType()))
 				.forEach(field ->
 				{
