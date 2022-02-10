@@ -10,7 +10,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.zeith.hammerlib.api.LanguageHelper;
-import org.zeith.hammerlib.mixins.I18nAccessor;
 
 import java.util.HashMap;
 

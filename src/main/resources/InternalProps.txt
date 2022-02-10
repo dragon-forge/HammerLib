@@ -1,0 +1,5 @@
+# Adding this property will force the Share To LAN port to be the supplied integer.
+-Dhammerlib.lanport=int
+
+# Adding this property is probably a bad idea, but it logs all events that Hammer Lib posts to it's own Event Bus.
+-Dhammerlib.logevents=true

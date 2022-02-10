@@ -20,32 +20,32 @@ public abstract class ScreenWTFMojang<T extends AbstractContainerMenu>
 		imageHeight = ySize;
 	}
 
-	protected boolean renderForeground(PoseStack matrix, int mouseX, int mouseY)
+	protected boolean renderForeground(PoseStack pose, int mouseX, int mouseY)
 	{
 		return false;
 	}
 
-	protected abstract void renderBackground(PoseStack matrix, float partialTime, int mouseX, int mouseY);
+	protected abstract void renderBackground(PoseStack pose, float partialTime, int mouseX, int mouseY);
 
 	@Override
-	public void render(PoseStack ms, int mouseX, int mouseY, float partialTime)
+	public void render(PoseStack pose, int mouseX, int mouseY, float partialTime)
 	{
-		this.renderBackground(ms);
-		super.render(ms, mouseX, mouseY, partialTime);
-		this.renderTooltip(ms, mouseX, mouseY);
+		this.renderBackground(pose);
+		super.render(pose, mouseX, mouseY, partialTime);
+		this.renderTooltip(pose, mouseX, mouseY);
 	}
 
 	@Override
-	protected void renderLabels(PoseStack matrix, int mouseX, int mouseY)
+	protected void renderLabels(PoseStack pose, int mouseX, int mouseY)
 	{
-		if(!renderForeground(matrix, mouseX, mouseY))
-			super.renderLabels(matrix, mouseX, mouseY);
+		if(!renderForeground(pose, mouseX, mouseY))
+			super.renderLabels(pose, mouseX, mouseY);
 	}
 
 	@Override
-	protected void renderBg(PoseStack matrix, float partialTime, int mouseX, int mouseY)
+	protected void renderBg(PoseStack pose, float partialTime, int mouseX, int mouseY)
 	{
-		renderBackground(matrix, partialTime, mouseX, mouseY);
+		renderBackground(pose, partialTime, mouseX, mouseY);
 	}
 
 	protected boolean clickMenuButton(int button)

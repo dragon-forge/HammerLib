@@ -67,4 +67,12 @@ public class PopulateTagsEvent<T>
 	{
 		return id.equals(tag.getName());
 	}
+
+	@Override
+	public String toString()
+	{
+		return "PopulateTagsEvent{" +
+				"tag=" + id +
+				'}';
+	}
 }

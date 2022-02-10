@@ -1,35 +1,28 @@
 package org.zeith.hammerlib.core.adapter;
 
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.Tag;
 import net.minecraft.world.item.Tier;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.zeith.hammerlib.HammerLib;
-import org.zeith.hammerlib.event.recipe.PopulateTagsEvent;
 
 import javax.annotation.Nonnull;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class BlockHarvestAdapter
 {
-	public static final Map<ResourceLocation, Set<Block>> toolTypes = new ConcurrentHashMap<>();
-
 	public static void bindToolType(MineableType tool, Block... blocks)
 	{
-		Set<Block> set = toolTypes.computeIfAbsent(tool.blockTag.getName(), b -> new HashSet<>());
-		set.addAll(Arrays.asList(blocks));
+		TagAdapter.bindStaticTag(tool.blockTag(), blocks);
 	}
 
 	public static void bindToolTier(Tier tier, Block... blocks)
 	{
 		if(tier.getTag() instanceof Tag.Named<Block> nt)
 		{
-			Set<Block> set = toolTypes.computeIfAbsent(nt.getName(), b -> new HashSet<>());
-			set.addAll(Arrays.asList(blocks));
+			TagAdapter.bindStaticTag(nt, blocks);
 		} else
 			HammerLib.LOG.warn("Unable to make out tag name for tier " + tier + "! These blocks won't be assigned a harvest level: " + Arrays.stream(blocks).map(b -> "Block{" + b.getRegistryName() + "}").collect(Collectors.joining(", ", "[", "]")));
 	}
@@ -38,15 +31,6 @@ public class BlockHarvestAdapter
 	{
 		bindToolType(tool, blocks);
 		bindToolTier(tier, blocks);
-	}
-
-	@SubscribeEvent
-	public static void applyTags(PopulateTagsEvent<Block> evt)
-	{
-		if(toolTypes.containsKey(evt.id))
-		{
-			toolTypes.get(evt.id).forEach(evt::add);
-		}
 	}
 
 	public record MineableType(@Nonnull Tag.Named<Block> blockTag)

@@ -1,6 +1,5 @@
 package org.zeith.hammerlib;
 
-import com.google.common.collect.BiMap;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -18,10 +17,10 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.javafmlmod.FMLModContainer;
+import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.minecraftforge.fml.loading.moddiscovery.ModAnnotation;
 import net.minecraftforge.fml.unsafe.UnsafeHacks;
 import net.minecraftforge.forgespi.Environment;
-import net.minecraftforge.registries.ForgeRegistry;
-import net.minecraftforge.registries.IForgeRegistryEntry;
 import net.minecraftforge.registries.RegistryBuilder;
 import net.minecraftforge.registries.RegistryManager;
 import org.apache.logging.log4j.LogManager;
@@ -35,22 +34,23 @@ import org.zeith.hammerlib.annotations.client.TileRenderer;
 import org.zeith.hammerlib.api.IRecipeProvider;
 import org.zeith.hammerlib.api.io.NBTSerializationHelper;
 import org.zeith.hammerlib.api.multipart.MultipartBlock;
-import org.zeith.hammerlib.core.adapter.BlockHarvestAdapter;
 import org.zeith.hammerlib.core.adapter.LanguageAdapter;
 import org.zeith.hammerlib.core.adapter.RegistryAdapter;
 import org.zeith.hammerlib.core.command.CommandHammerLib;
 import org.zeith.hammerlib.core.init.TagsHL;
+import org.zeith.hammerlib.mixins.RegistryManagerAccessor;
 import org.zeith.hammerlib.proxy.HLClientProxy;
 import org.zeith.hammerlib.proxy.HLCommonProxy;
 import org.zeith.hammerlib.proxy.HLConstants;
 import org.zeith.hammerlib.util.charging.ItemChargeHelper;
-import org.zeith.hammerlib.util.java.Cast;
-import org.zeith.hammerlib.util.java.ReflectionUtil;
 import org.zeith.hammerlib.util.mcf.ScanDataHelper;
 
 import java.lang.annotation.ElementType;
-import java.lang.reflect.Field;
+import java.util.List;
+import java.util.Locale;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Mod(HLConstants.MOD_ID)
 public class HammerLib
@@ -64,9 +64,6 @@ public class HammerLib
 		FMLJavaModLoadingContext.get().getModEventBus().register(this);
 		MinecraftForge.EVENT_BUS.register(PROXY);
 		MinecraftForge.EVENT_BUS.addListener(this::registerCommands);
-
-		HammerLib.EVENT_BUS.register(LanguageAdapter.class);
-		HammerLib.EVENT_BUS.register(BlockHarvestAdapter.class);
 
 		LanguageAdapter.registerMod(HLConstants.MOD_ID);
 
@@ -96,42 +93,58 @@ public class HammerLib
 							});
 			});
 
-		// Register all content providers
-		ScanDataHelper.lookupAnnotatedObjects(SimplyRegister.class).forEach(data ->
+		if(RegistryManager.ACTIVE instanceof RegistryManagerAccessor activeRegistries)
 		{
-			Class<?> registerer = data.getOwnerClass();
-			if(data.getTargetType() == ElementType.TYPE)
-				data.getOwnerMod()
-						.ifPresent(mc ->
-						{
-							try
+			// Register all content providers
+			ScanDataHelper.lookupAnnotatedObjects(SimplyRegister.class).forEach(data ->
+			{
+				Class<?> registerer = data.getOwnerClass();
+				if(data.getTargetType() == ElementType.TYPE)
+					data.getOwnerMod()
+							.ifPresent(mc ->
 							{
-								Field f = ReflectionUtil.lookupField(RegistryManager.class, "registries");
-								BiMap<ResourceLocation, ForgeRegistry<? extends IForgeRegistryEntry<?>>> registries = Cast.cast(f.get(RegistryManager.ACTIVE));
+								for(var registry : activeRegistries.getRegistries().values())
+									mc.getEventBus()
+											.addGenericListener(registry.getRegistrySuperType(), (Consumer<RegistryEvent.Register>) event ->
+													RegistryAdapter.register(event.getRegistry(), registerer, mc.getModId())
+											);
+							});
+			});
+		} else
+			throw new RuntimeException("Unable to cast RegistryManager to RegistryManagerAccessor. Mixin apply failed?");
 
-								registries.values().forEach(registry ->
-								{
-									mc.getEventBus().addGenericListener(registry.getRegistrySuperType(), (Consumer<RegistryEvent.Register>) event -> RegistryAdapter.register(event.getRegistry(), registerer, mc.getModId()));
-								});
-							} catch(IllegalAccessException e)
-							{
-								throw new RuntimeException(e);
-							}
-						});
-		});
+		List<ModAnnotation.EnumHolder> bothSides = Stream.of(Dist.values())
+				.map(dst -> new ModAnnotation.EnumHolder("Lnet/minecraftforge/api/distmarker/Dist;", dst.name()))
+				.collect(Collectors.toList());
 
 		// Register all setups
 		ScanDataHelper.lookupAnnotatedObjects(Setup.class).forEach(data ->
 		{
-			Class<?> registerer = data.getOwnerClass();
-			if(data.getTargetType() == ElementType.METHOD)
+			Object side = data.getProperty("side")
+					.orElse(bothSides);
+
+			if(side instanceof List<?> lst && !lst.isEmpty())
 			{
-				HammerLib.LOG.info("Injecting setup into " + registerer);
-				data.getOwnerMod()
-						.map(FMLModContainer::getEventBus)
-						.ifPresent(b -> b.addListener((Consumer<FMLCommonSetupEvent>) event -> RegistryAdapter.setup(event, registerer, data.getMemberName())));
-			}
+				for(Object o : lst)
+				{
+					if(o instanceof ModAnnotation.EnumHolder h && FMLEnvironment.dist.name().equals(h.getValue()))
+					{
+						Class<?> registerer = data.getOwnerClass();
+						if(data.getTargetType() == ElementType.METHOD)
+						{
+							HammerLib.LOG.info("Injecting setup into " + registerer);
+							data.getOwnerMod()
+									.map(FMLModContainer::getEventBus)
+									.ifPresent(b -> b.addListener((Consumer<FMLCommonSetupEvent>) event -> RegistryAdapter.setup(event, registerer, data.getMemberName())));
+						}
+
+						break;
+					}
+				}
+			} else
+				HammerLib.LOG.warn("What the hell is this? " + data.parent.clazz() + "->" + data.getMemberName());
 		});
+
 		ScanDataHelper.lookupAnnotatedObjects(ClientSetup.class).forEach(data ->
 		{
 			Class<?> registerer = data.getOwnerClass();
@@ -174,8 +187,11 @@ public class HammerLib
 		CommandHammerLib.register(e.getDispatcher());
 	}
 
+	public static boolean logHLEvents = String.valueOf(System.getProperty("hammerlib.logevents")).toLowerCase(Locale.ROOT).contains("true");
+
 	public static boolean postEvent(Event evt)
 	{
+		if(logHLEvents) HammerLib.LOG.info("[HammerLib.postEvent] " + evt);
 		return HammerLib.EVENT_BUS.post(evt);
 	}
 }

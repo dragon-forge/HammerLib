@@ -3,12 +3,10 @@ package org.zeith.hammerlib.mixins;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.SetTag;
-import net.minecraft.tags.Tag;
 import net.minecraft.tags.TagLoader;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.event.recipe.PopulateTagsEvent;
 
@@ -20,25 +18,32 @@ import java.util.Set;
 @Mixin(TagLoader.class)
 public class TagCollectionReaderMixin
 {
-	@Inject(
-			method = "lambda$build$10",
+	@ModifyVariable(
+			method = "build",
 			at = @At(
-					value = "HEAD"
-			)
+					value = "INVOKE",
+					target = "Lnet/minecraft/tags/TagCollection;of(Ljava/util/Map;)Lnet/minecraft/tags/TagCollection;"
+			),
+			index = 2
 	)
-	private static void putTag_HammerLib(Map tagMap, ResourceLocation name, Tag theTag, CallbackInfo ci)
+	private Map putTag_HammerLib(Map value)
 	{
-		if(theTag instanceof SetTag nt)
+		value.forEach((name, theTag) ->
 		{
-			List objects = new ArrayList<>();
-			PopulateTagsEvent evt;
-			HammerLib.postEvent(evt = new PopulateTagsEvent(objects::add, name, nt, objects, nt.closestCommonSuperType));
-			if(evt.hasChanged())
+			if(theTag instanceof SetTag nt)
 			{
-				objects.addAll(nt.getValues());
-				nt.values = Set.copyOf(objects);
-				nt.valuesList = ImmutableList.copyOf(objects);
+				List objects = new ArrayList<>();
+				PopulateTagsEvent evt;
+				HammerLib.postEvent(evt = new PopulateTagsEvent(objects::add, (ResourceLocation) name, nt, objects, nt.closestCommonSuperType));
+				if(evt.hasChanged())
+				{
+					objects.addAll(nt.getValues());
+					nt.values = Set.copyOf(objects);
+					nt.valuesList = ImmutableList.copyOf(objects);
+				}
 			}
-		}
+		});
+
+		return value;
 	}
 }

@@ -2,6 +2,7 @@ package org.zeith.hammerlib.util.java;
 
 import com.google.common.collect.Lists;
 import org.objectweb.asm.Type;
+import org.zeith.hammerlib.HammerLib;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -87,10 +88,16 @@ public class ReflectionUtil
 		try
 		{
 			return Cast.cast(Class.forName(name));
-		} catch(ClassNotFoundException e)
+		} catch(ClassNotFoundException ignored)
 		{
-			return null;
+		} catch(RuntimeException e)
+		{
+			if(e.getMessage().contains("invalid dist"))
+			{
+				HammerLib.LOG.warn("Attempted to load class from invalid dist: " + name, e);
+			}
 		}
+		return null;
 	}
 
 	public static Iterable<Field> getFieldsUpTo(@Nonnull Class<?> startClass,

@@ -5,7 +5,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.event.LanguageReloadEvent;
 import org.zeith.hammerlib.util.java.CloseableArrayList;
@@ -19,6 +18,11 @@ public class LanguageAdapter
 {
 	private static final Set<String> modids = Sets.newConcurrentHashSet();
 
+	static
+	{
+		HammerLib.EVENT_BUS.addListener(LanguageAdapter::reloadLangs);
+	}
+
 	/**
 	 * Register in mod's constructor.
 	 */
@@ -27,7 +31,6 @@ public class LanguageAdapter
 		modids.add(modid);
 	}
 
-	@SubscribeEvent
 	public static void reloadLangs(LanguageReloadEvent e)
 	{
 		ReloadableResourceManager mgr = HammerLib.PROXY.getResourceManager();

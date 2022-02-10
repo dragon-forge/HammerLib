@@ -37,9 +37,9 @@ public class BusHelper
 
 	public enum EnumEventState
 	{
-		CLOSED, //
-		DISPATCHED, //
-		ERRORED, //
+		CLOSED,
+		DISPATCHED,
+		ERRORED,
 		UNHANDLED;
 
 		public boolean isClosed()

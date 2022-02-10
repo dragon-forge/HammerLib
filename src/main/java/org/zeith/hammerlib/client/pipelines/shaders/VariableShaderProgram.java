@@ -291,7 +291,7 @@ public class VariableShaderProgram
 
 	private static final Once initShaders = Once.run(() -> HammerLib.postEvent(new InitializeShadersEvent()));
 
-	@Setup
+	@Setup(side = Dist.CLIENT)
 	public static void reloadShaders()
 	{
 		initShaders.call();
