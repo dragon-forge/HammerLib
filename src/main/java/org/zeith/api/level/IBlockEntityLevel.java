@@ -11,25 +11,25 @@ public interface IBlockEntityLevel
 	static List<BlockEntity> getLoadedBlockEntities(Level lvl)
 	{
 		if(lvl instanceof IBlockEntityLevel)
-			return ((IBlockEntityLevel) lvl).getLoadedBlockEntities_HL();
+			return ((IBlockEntityLevel) lvl).getLoadedBlockEntities_HammerLib();
 		return Collections.emptyList();
 	}
 
 	static void loadBlockEntity(Level lvl, BlockEntity be)
 	{
 		if(lvl instanceof IBlockEntityLevel)
-			((IBlockEntityLevel) lvl).loadBlockEntity_HL(be);
+			((IBlockEntityLevel) lvl).loadBlockEntity_HammerLib(be);
 	}
 
 	static void unloadBlockEntity(Level lvl, BlockEntity be)
 	{
 		if(lvl instanceof IBlockEntityLevel)
-			((IBlockEntityLevel) lvl).unloadBlockEntity_HL(be);
+			((IBlockEntityLevel) lvl).unloadBlockEntity_HammerLib(be);
 	}
 
-	void loadBlockEntity_HL(BlockEntity be);
+	void loadBlockEntity_HammerLib(BlockEntity be);
 
-	void unloadBlockEntity_HL(BlockEntity be);
+	void unloadBlockEntity_HammerLib(BlockEntity be);
 
-	List<BlockEntity> getLoadedBlockEntities_HL();
+	List<BlockEntity> getLoadedBlockEntities_HammerLib();
 }

@@ -5,6 +5,9 @@
 	"refmap": "mixins.hammerlib.refmap.json",
 	"target": "@env(DEFAULT)",
 	"compatibilityLevel": "JAVA_17",
+	"injectors": {
+		"maxShiftBy": 5
+	},
 	"mixins": [
 		"HTTPUtilMixin",
 		"LevelChunkMixin",
@@ -12,7 +15,8 @@
 		"PackRepositoryMixin",
 		"RecipeManagerMixin",
 		"RegistryManagerAccessor",
-		"TagCollectionReaderMixin"
+		"TagLoaderMixin",
+		"bs.kubejs.RecipeEventJSMixin"
 	],
 	"client": [
 		"client.I18nAccessor",

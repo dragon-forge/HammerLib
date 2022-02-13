@@ -23,17 +23,17 @@ public abstract class LevelMixin
 {
 	private final List<BlockEntity> loadedBlockEntities_HL = new ArrayList<>(), loadBlockEntitityQueue_HL = new ArrayList<>(), unloadBlockEntitityQueue_HL = new ArrayList<>();
 
-	public List<BlockEntity> BEL$getLoadedBlockEntities_HL()
+	public List<BlockEntity> BEL$getLoadedBlockEntities_HammerLib()
 	{
 		return loadedBlockEntities_HL;
 	}
 
-	public void BEL$loadBlockEntity_HL(BlockEntity be)
+	public void BEL$loadBlockEntity_HammerLib(BlockEntity be)
 	{
 		loadBlockEntitityQueue_HL.add(be);
 	}
 
-	public void BEL$unloadBlockEntity_HL(BlockEntity be)
+	public void BEL$unloadBlockEntity_HammerLib(BlockEntity be)
 	{
 		unloadBlockEntitityQueue_HL.add(be);
 	}
@@ -43,7 +43,7 @@ public abstract class LevelMixin
 			at = @At("HEAD"),
 			remap = false
 	)
-	public void addFreshBlockEntities_HL(Collection<BlockEntity> beList, CallbackInfo ci)
+	public void addFreshBlockEntities_HammerLib(Collection<BlockEntity> beList, CallbackInfo ci)
 	{
 		loadBlockEntitityQueue_HL.addAll(beList);
 	}
@@ -52,7 +52,7 @@ public abstract class LevelMixin
 			method = "tickBlockEntities",
 			at = @At("HEAD")
 	)
-	public void tickBlockEntities_HL(CallbackInfo ci)
+	public void tickBlockEntities_HammerLib(CallbackInfo ci)
 	{
 		while(!loadBlockEntitityQueue_HL.isEmpty())
 			loadedBlockEntities_HL.add(loadBlockEntitityQueue_HL.remove(0));

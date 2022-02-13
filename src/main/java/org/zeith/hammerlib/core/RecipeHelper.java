@@ -61,6 +61,16 @@ public class RecipeHelper
 		Internal.addRecipes(mgr, recipeList);
 	}
 
+	public static void injectRecipesCustom(Consumer<Recipe<?>> handler)
+	{
+		registerCustomRecipes(handler, false);
+	}
+
+	public static void injectRecipesCustom(Map<ResourceLocation, Recipe<?>> handler)
+	{
+		registerCustomRecipes(r -> handler.put(r.getId(), r), false);
+	}
+
 	private static class Internal
 	{
 		private static void addRecipes(RecipeManager mgr, List<Recipe<?>> recipes)

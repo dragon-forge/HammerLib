@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Set;
 
 @Mixin(TagLoader.class)
-public class TagCollectionReaderMixin
+public class TagLoaderMixin
 {
 	@ModifyVariable(
 			method = "build",

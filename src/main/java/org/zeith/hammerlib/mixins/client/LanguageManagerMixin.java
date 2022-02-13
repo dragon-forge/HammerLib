@@ -21,7 +21,7 @@ public class LanguageManagerMixin
 			method = "onResourceManagerReload",
 			at = @At("TAIL")
 	)
-	public void onResourceManagerReloadHLHook(ResourceManager p_118973_, CallbackInfo ci)
+	public void onResourceManagerReload_HammerLib(ResourceManager p_118973_, CallbackInfo ci)
 	{
 		if(I18nAccessor.getLanguage() instanceof ClientLanguage cl)
 		{
