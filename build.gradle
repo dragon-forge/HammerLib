@@ -81,30 +81,62 @@ repositories {
         url = "https://maven.zeith.org"
     }
     maven { setUrl("https://oss.sonatype.org/content/repositories/public/") }
-    flatDir {
-        dirs 'runtimeMods'
-    }
+    flatDir { dirs 'libraries/all' }
+    flatDir { dirs 'libraries/classpathOnly' }
+    flatDir { dirs 'libraries/runtimeOnly' }
 }
+
+import net.minecraftforge.gradle.common.tasks.SignJar
 
 dependencies {
     minecraft "net.minecraftforge:forge:${config.mc_version}-${config.forge_version}"
 
     annotationProcessor "org.spongepowered:mixin:0.8.5:processor"
 
-    if (file("runtimeMods").isDirectory()) {
-        file("runtimeMods").eachFile { file ->
+    def libraries = file("libraries");
+    if (!libraries.isDirectory()) libraries.mkdirs()
+
+    def libDir = new File(libraries, "all");
+    if (libDir.isDirectory()) {
+        libDir.eachFile { file ->
             def splitPos = file.name.lastIndexOf("-")
             def modartifact = file.name.substring(0, splitPos)
             def modversion = file.name.substring(splitPos + 1, file.name.length() - 4)
-            def modreference = "lib:$modartifact:$modversion"
-
             dependencies {
-                implementation fg.deobf(project.dependencies.create(modreference) {
+                implementation fg.deobf(project.dependencies.create("_all:$modartifact:$modversion") {
                     transitive = false
                 })
             }
         }
-    } else file("runtimeMods").mkdir();
+    } else libDir.mkdir();
+
+    libDir = new File(libraries, "classpathOnly");
+    if (libDir.isDirectory()) {
+        libDir.eachFile { file ->
+            def splitPos = file.name.lastIndexOf("-")
+            def modartifact = file.name.substring(0, splitPos)
+            def modversion = file.name.substring(splitPos + 1, file.name.length() - 4)
+            dependencies {
+                compileClasspath fg.deobf(project.dependencies.create("_classpath:$modartifact:$modversion") {
+                    transitive = false
+                })
+            }
+        }
+    } else libDir.mkdir();
+
+    libDir = new File(libraries, "runtimeOnly");
+    if (libDir.isDirectory()) {
+        libDir.eachFile { file ->
+            def splitPos = file.name.lastIndexOf("-")
+            def modartifact = file.name.substring(0, splitPos)
+            def modversion = file.name.substring(splitPos + 1, file.name.length() - 4)
+            dependencies {
+                runtimeClasspath fg.deobf(project.dependencies.create("_runtime:$modartifact:$modversion") {
+                    transitive = false
+                })
+            }
+        }
+    } else libDir.mkdir();
 }
 
 jar {
@@ -162,8 +194,6 @@ curseforge {
         }
     }
 }
-
-import net.minecraftforge.gradle.common.tasks.SignJar
 
 task signJar(type: SignJar, dependsOn: jar) {
     onlyIf {
