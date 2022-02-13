@@ -167,10 +167,9 @@ public class NBTSerializationHelper
 				{
 					if(Modifier.isFinal(field.getModifiers()))
 					{
-						if(INBTSerializable.class.isAssignableFrom(field.getType()))
+						if(field.get(instance) instanceof INBTSerializable<?> s)
 						{
-							INBTSerializable s = (INBTSerializable) field.get(instance);
-							if(s != null) nbt.put(name, s.serializeNBT());
+							nbt.put(name, s.serializeNBT());
 						} else
 						{
 							LOG.warn("Don't know how to serialize " + field + " in " + type);
@@ -181,7 +180,7 @@ public class NBTSerializationHelper
 					}
 				} catch(ReflectiveOperationException e)
 				{
-					LOG.error("Failed to serialize field " + field + " in " + type);
+					LOG.error("Failed to serialize field " + field + " in " + type, e);
 				}
 			}
 		}
@@ -206,11 +205,10 @@ public class NBTSerializationHelper
 				{
 					if(Modifier.isFinal(field.getModifiers()))
 					{
-						if(INBTSerializable.class.isAssignableFrom(field.getType()))
+						if(field.get(instance) instanceof INBTSerializable s)
 						{
-							INBTSerializable s = (INBTSerializable) field.get(instance);
-							if(s != null)
-								s.deserializeNBT(nbt.get(name));
+							Tag tag = nbt.get(name);
+							if(tag != null) s.deserializeNBT(tag);
 						} else
 						{
 							LOG.warn("Don't know how to deserialize " + field + " in " + type);
@@ -222,7 +220,7 @@ public class NBTSerializationHelper
 					}
 				} catch(Throwable e)
 				{
-					LOG.error("Failed to deserialize field " + field + " in " + type);
+					LOG.error("Failed to deserialize field " + field + " in " + type, e);
 				}
 			}
 		}

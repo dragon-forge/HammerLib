@@ -18,10 +18,13 @@ import java.util.Map;
 public class RecipeManagerMixin
 {
 	@Inject(
-			method = "apply(Ljava/util/Map;Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)V",
+			method = "apply*",
 			at = @At("TAIL")
 	)
-	public void reloadRecipes_HammerLib(Map<ResourceLocation, JsonElement> jsonparseexception, ResourceManager resourcelocation, ProfilerFiller entry, CallbackInfo ci)
+	public void reloadRecipes_HammerLib(Map<ResourceLocation, JsonElement> recipes,
+										ResourceManager manager,
+										ProfilerFiller profiler,
+										CallbackInfo ci)
 	{
 		RecipeManager mgr = Cast.cast(this);
 		RecipeHelper.injectRecipes(mgr);

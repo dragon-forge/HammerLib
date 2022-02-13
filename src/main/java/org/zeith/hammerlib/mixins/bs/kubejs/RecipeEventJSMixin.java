@@ -27,13 +27,13 @@ public class RecipeEventJSMixin
 			),
 			index = 9
 	)
-	public HashMap modify(HashMap value)
+	public HashMap modify_HammerLib(HashMap recipes)
 	{
-		int ps = value.size();
-		RecipeHelper.injectRecipesCustom(value);
+		int ps = recipes.size();
+		RecipeHelper.injectRecipesCustom(recipes);
 		HammerLib.LOG.info("Hello KubeJS, this is your 'friend', HammerLib! I injected "
-				+ (value.size() - ps)
+				+ (recipes.size() - ps)
 				+ " recipes in your flawed recipe registration system! :)");
-		return value;
+		return recipes;
 	}
 }

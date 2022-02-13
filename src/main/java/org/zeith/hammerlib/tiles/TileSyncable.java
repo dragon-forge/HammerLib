@@ -67,10 +67,10 @@ public class TileSyncable
 	}
 
 	@Override
-	public void load(CompoundTag nbtIn)
+	public void load(CompoundTag nbt)
 	{
-		super.load(nbtIn);
-		readNBT(nbtIn.getCompound("HL"));
+		super.load(nbt);
+		readNBT(nbt.getCompound("HL"));
 	}
 
 	@Override
@@ -82,12 +82,19 @@ public class TileSyncable
 	@Override
 	public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt)
 	{
-		this.readNBT(pkt.getTag());
+		CompoundTag tag = pkt.getTag();
+		if(tag != null) handleUpdateTag(tag);
 	}
 
 	@Override
 	public CompoundTag getUpdateTag()
 	{
 		return this.writeNBT(new CompoundTag());
+	}
+
+	@Override
+	public void handleUpdateTag(CompoundTag tag)
+	{
+		this.readNBT(tag);
 	}
 }
