@@ -3,6 +3,7 @@ package org.zeith.hammerlib.util.cfg.entries;
 import org.zeith.hammerlib.util.cfg.ConfigEntrySerializer;
 import org.zeith.hammerlib.util.cfg.ConfigFile;
 import org.zeith.hammerlib.util.cfg.IConfigEntry;
+import org.zeith.hammerlib.util.cfg.IConfigFileRoot;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -11,7 +12,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public class ConfigEntryCategory
-		implements IConfigEntry
+		implements IConfigEntry, IConfigFileRoot
 {
 	final ConfigFile cfg;
 	String description, name;
@@ -22,6 +23,7 @@ public class ConfigEntryCategory
 		this.cfg = cfg;
 	}
 
+	@Override
 	public ConfigEntryCategory getCategory(String name)
 	{
 		if(!(entries.get(name) instanceof ConfigEntryCategory))

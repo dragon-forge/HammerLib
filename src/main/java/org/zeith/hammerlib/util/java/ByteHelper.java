@@ -11,6 +11,8 @@ public class ByteHelper
 {
 	public static byte[][] divide(int max, byte[] data)
 	{
+		if(data.length == 0) return new byte[0][];
+
 		List<byte[]> ld = new ArrayList<>();
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();

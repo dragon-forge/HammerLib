@@ -27,6 +27,6 @@ public class TransportSessionBuilder
 
 	public TransportSession build()
 	{
-		return new TransportSession(sessionId, acceptor, Arrays.asList(ByteHelper.divide(2048, data)), null, data.length);
+		return new TransportSession(sessionId, acceptor, Arrays.asList(ByteHelper.divide(16384, data)), null, data.length);
 	}
 }

@@ -20,9 +20,10 @@ public @interface OnlyIf
 	Class<?> owner();
 
 	/**
-	 * The value must point to a boolean field OR a static method that takes NO arguments and returns a boolean
+	 * The value must point to a boolean field OR a static method that takes NO arguments and returns a boolean.
+	 * Optionally, you can put a dot to let the checker go deeper if necessary.
 	 */
-	String member();
+	String member() default "";
 
 	boolean invert() default false;
 }

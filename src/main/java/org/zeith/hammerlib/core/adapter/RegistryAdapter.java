@@ -14,6 +14,7 @@ import org.zeith.hammerlib.annotations.OnlyIf;
 import org.zeith.hammerlib.annotations.RegistryName;
 import org.zeith.hammerlib.annotations.Setup;
 import org.zeith.hammerlib.annotations.SimplyRegister;
+import org.zeith.hammerlib.annotations.client.ClientSetup;
 import org.zeith.hammerlib.api.blocks.ICustomBlockItem;
 import org.zeith.hammerlib.api.blocks.IItemGroupBlock;
 import org.zeith.hammerlib.api.blocks.IItemPropertySupplier;
@@ -91,7 +92,7 @@ public class RegistryAdapter
 						try
 						{
 							OnlyIf onlyIf = method.getAnnotation(OnlyIf.class);
-							if(!checkCondition(onlyIf, source.toString(), registry.getRegistrySuperType().getSimpleName()))
+							if(!OnlyIfAdapter.checkCondition(onlyIf, source.toString(), registry.getRegistrySuperType().getSimpleName(), null))
 								return;
 
 							method.setAccessible(true);
@@ -113,11 +114,11 @@ public class RegistryAdapter
 							field.setAccessible(true);
 							RegistryName name = field.getAnnotation(RegistryName.class);
 							OnlyIf onlyIf = field.getAnnotation(OnlyIf.class);
-							if(!checkCondition(onlyIf, source.toString(), registry.getRegistrySuperType().getSimpleName()))
-								return;
 
 							T t = registry.getRegistrySuperType().cast(field.get(null));
 							if(name != null) t.setRegistryName(new ResourceLocation(modid, name.value()));
+							if(!OnlyIfAdapter.checkCondition(onlyIf, source.toString(), registry.getRegistrySuperType().getSimpleName(), t))
+								return;
 							grabber.accept(t);
 						} catch(IllegalArgumentException | IllegalAccessException e)
 						{
@@ -141,7 +142,7 @@ public class RegistryAdapter
 						try
 						{
 							OnlyIf onlyIf = method.getAnnotation(OnlyIf.class);
-							if(!checkCondition(onlyIf, source.toString(), "Setup")) return;
+							if(!OnlyIfAdapter.checkCondition(onlyIf, source.toString(), "Setup", null)) return;
 							method.setAccessible(true);
 							if(method.getParameterCount() == 0)
 								method.invoke(null);
@@ -167,14 +168,14 @@ public class RegistryAdapter
 
 		Arrays
 				.stream(source.getDeclaredMethods())
-				.filter(m -> m.getAnnotation(Setup.class) != null && m.getName().equals(methodName))
+				.filter(m -> m.getAnnotation(ClientSetup.class) != null && m.getName().equals(methodName))
 				.forEach(method ->
 				{
 					if(Modifier.isStatic(method.getModifiers()))
 						try
 						{
 							OnlyIf onlyIf = method.getAnnotation(OnlyIf.class);
-							if(!checkCondition(onlyIf, source.toString(), "ClientSetup")) return;
+							if(!OnlyIfAdapter.checkCondition(onlyIf, source.toString(), "ClientSetup", null)) return;
 							method.setAccessible(true);
 							if(method.getParameterCount() == 0)
 								method.invoke(null);
@@ -192,42 +193,5 @@ public class RegistryAdapter
 							e.printStackTrace();
 						}
 				});
-	}
-
-	public static boolean checkCondition(OnlyIf onlyIf, String source, String type)
-	{
-		boolean add = true;
-
-		if(onlyIf != null)
-		{
-			String member = onlyIf.member();
-			try
-			{
-				int i;
-				Class<?> c = onlyIf.owner();
-				try
-				{
-					Field f = c.getDeclaredField(member);
-					f.setAccessible(true);
-					add = f.getBoolean(null);
-				} catch(NoSuchFieldException e)
-				{
-					Method m = c.getDeclaredMethod(member);
-					m.setAccessible(true);
-					add = (Boolean) m.invoke(null);
-				} catch(IllegalAccessException e)
-				{
-					e.printStackTrace();
-				}
-			} catch(NoSuchMethodException | InvocationTargetException | IllegalAccessException e)
-			{
-				HammerLib.LOG.warn("Failed to parse @OnlyIf({}) in {}! {} will" + (onlyIf.invert() ? " not be registered due to inversion." : " be registered anyway."), JSONObject.quote(member), source, type);
-				e.printStackTrace();
-			}
-
-			if(onlyIf.invert()) add = !add;
-		}
-
-		return add;
 	}
 }

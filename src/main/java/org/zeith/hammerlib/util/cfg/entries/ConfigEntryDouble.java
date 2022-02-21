@@ -29,6 +29,7 @@ public class ConfigEntryDouble
 
 	public ConfigEntryDouble setMinValue(double min)
 	{
+		if(Double.isNaN(min)) return this;
 		this.min = min;
 		if(value != null)
 			value = Math.max(min, Math.min(max, value));
@@ -37,6 +38,7 @@ public class ConfigEntryDouble
 
 	public ConfigEntryDouble setMaxValue(double max)
 	{
+		if(Double.isNaN(max)) return this;
 		this.max = max;
 		if(value != null)
 			value = Math.max(min, Math.min(max, value));

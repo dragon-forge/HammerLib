@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 public class ReflectionUtil
 {
@@ -63,6 +64,20 @@ public class ReflectionUtil
 		return true;
 	}
 
+	public static boolean doesParameterTypeArgsMatch(Field field, Class<?>... baseArgs)
+	{
+		java.lang.reflect.Type[] args = getTypeArgs(field.getGenericType());
+		if(args.length != baseArgs.length)
+			return false;
+		for(int i = 0; i < args.length; ++i)
+			if(!(args[i] instanceof Class) || !baseArgs[i].isAssignableFrom((Class) args[i]))
+				return false;
+		return true;
+	}
+
+	/**
+	 * Examples: For List< String> returns [Type(String)]
+	 */
 	public static java.lang.reflect.Type[] getTypeArgs(java.lang.reflect.Type type)
 	{
 		if(type instanceof ParameterizedType)
@@ -287,5 +302,13 @@ public class ReflectionUtil
 				e.printStackTrace();
 		}
 		return Optional.empty();
+	}
+
+	public static Method findDeclaredMethod(Class<?> c, String member, Predicate<Method> o) throws NoSuchMethodException
+	{
+		for(Method method : c.getDeclaredMethods())
+			if(method.getName().equals(member) && o.test(method))
+				return method;
+		throw new NoSuchMethodException(c.getName() + "/" + member);
 	}
 }

@@ -144,6 +144,25 @@ public class RenderUtils
 		tessellator.end();
 	}
 
+	public static void drawTexturedModalRect(PoseStack pose, float xCoord, float yCoord, @Nullable TextureAtlasSprite textureSprite, float widthIn, float heightIn)
+	{
+		Matrix4f pose4f = pose.last().pose();
+
+		float minU = textureSprite == null ? 0 : textureSprite.getU0();
+		float minV = textureSprite == null ? 0 : textureSprite.getV0();
+		float maxU = textureSprite == null ? 1 : textureSprite.getU1();
+		float maxV = textureSprite == null ? 1 : textureSprite.getV1();
+
+		Tesselator tessellator = Tesselator.getInstance();
+		BufferBuilder vertexbuffer = tessellator.getBuilder();
+		vertexbuffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+		vertexbuffer.vertex(pose4f, xCoord, yCoord + heightIn, 0).uv(minU, maxV).endVertex();
+		vertexbuffer.vertex(pose4f, xCoord + widthIn, yCoord + heightIn, 0).uv(maxU, maxV).endVertex();
+		vertexbuffer.vertex(pose4f, xCoord + widthIn, yCoord, 0).uv(maxU, minV).endVertex();
+		vertexbuffer.vertex(pose4f, xCoord, yCoord, 0).uv(minU, minV).endVertex();
+		tessellator.end();
+	}
+
 	public static void drawGradientRect(double left, double top, double width, double height, int startColor, int endColor)
 	{
 		float f = (startColor >> 24 & 255) / 255F;

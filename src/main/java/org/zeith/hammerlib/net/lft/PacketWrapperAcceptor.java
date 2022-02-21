@@ -27,10 +27,9 @@ public class PacketWrapperAcceptor
 			ByteBuf buf = Unpooled.buffer(length);
 			buf.writeBytes(readable, length);
 			data = new byte[length];
-			buf.markReaderIndex();
-			decoded = new PlainHLMessage(new FriendlyByteBuf(buf));
-			buf.resetReaderIndex();
 			buf.readBytes(data);
+			buf.readerIndex(0);
+			decoded = new PlainHLMessage(new FriendlyByteBuf(buf));
 		} catch(IOException ioexception)
 		{
 			throw new EncoderException(ioexception);
@@ -44,15 +43,9 @@ public class PacketWrapperAcceptor
 			HammerLib.LOG.error("Received bad packet on packet transport (WHAT IS THIS?!): " + new String(data));
 		else switch(ctx.getSide())
 		{
-			case CLIENT:
-				decoded.unwrap().clientExecute(ctx);
-				break;
-			case SERVER:
-				decoded.unwrap().serverExecute(ctx);
-				break;
-			default:
-				HammerLib.LOG.error("WTF is this side " + ctx.getSide() + " ?!");
-				break;
+			case CLIENT -> decoded.unwrap().clientExecute(ctx);
+			case SERVER -> decoded.unwrap().serverExecute(ctx);
+			default -> HammerLib.LOG.error("WTF is this side " + ctx.getSide() + " ?!");
 		}
 		data = null;
 

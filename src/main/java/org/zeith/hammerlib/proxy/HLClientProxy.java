@@ -14,6 +14,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.client.event.RenderLevelLastEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -28,7 +29,10 @@ import org.zeith.hammerlib.api.lighting.HandleLightOverrideEvent;
 import org.zeith.hammerlib.api.lighting.impl.IGlowingEntity;
 import org.zeith.hammerlib.client.render.tile.IBESR;
 import org.zeith.hammerlib.client.render.tile.TESRBase;
+import org.zeith.hammerlib.core.adapter.ConfigAdapter;
+import org.zeith.hammerlib.event.client.ClientLoadedInEvent;
 import org.zeith.hammerlib.net.Network;
+import org.zeith.hammerlib.net.packets.PacketPlayerReady;
 import org.zeith.hammerlib.net.packets.PingServerPacket;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.java.ReflectionUtil;
@@ -153,17 +157,37 @@ public class HLClientProxy
 		};
 	}
 
+	boolean renderedWorld = false;
+
+	@SubscribeEvent
+	public void renderWorldLast(RenderLevelLastEvent e)
+	{
+		if(!renderedWorld)
+		{
+			Network.sendToServer(new PacketPlayerReady());
+			MinecraftForge.EVENT_BUS.post(new ClientLoadedInEvent());
+			renderedWorld = true;
+		}
+	}
+
 	@SubscribeEvent
 	public void clientTick(ClientTickEvent e)
 	{
-		if(Minecraft.getInstance().level != null && !Minecraft.getInstance().isPaused())
+		if(Minecraft.getInstance().level != null)
 		{
-			pingTimer--;
-			if(pingTimer <= 0)
+			if(!Minecraft.getInstance().isPaused())
 			{
-				pingTimer += 40;
-				Network.sendToServer(new PingServerPacket(System.currentTimeMillis()));
+				pingTimer--;
+				if(pingTimer <= 0)
+				{
+					pingTimer += 40;
+					Network.sendToServer(new PingServerPacket(System.currentTimeMillis()));
+				}
 			}
+		} else if(renderedWorld)
+		{
+			renderedWorld = false;
+			ConfigAdapter.resetClientsideSync();
 		}
 	}
 

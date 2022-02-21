@@ -24,8 +24,7 @@ public class Cast
 	@Nonnull
 	public static <T> Optional<T> optionally(Object thing, Class<T> type)
 	{
-		T result = cast(thing, type);
-		return Optional.ofNullable(result);
+		return type.isInstance(thing) ? Optional.of(type.cast(thing)) : Optional.empty();
 	}
 
 	public static <T> Optional<T> firstInstanceof(Class<T> type, Object... input)

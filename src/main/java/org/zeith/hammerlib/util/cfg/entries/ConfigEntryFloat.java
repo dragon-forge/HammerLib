@@ -29,6 +29,7 @@ public class ConfigEntryFloat
 
 	public ConfigEntryFloat setMinValue(float min)
 	{
+		if(Float.isNaN(min)) return this;
 		this.min = min;
 		if(value != null)
 			value = Math.max(min, Math.min(max, value));
@@ -37,6 +38,7 @@ public class ConfigEntryFloat
 
 	public ConfigEntryFloat setMaxValue(float max)
 	{
+		if(Float.isNaN(max)) return this;
 		this.max = max;
 		if(value != null)
 			value = Math.max(min, Math.min(max, value));

@@ -34,6 +34,8 @@ import org.zeith.hammerlib.annotations.client.TileRenderer;
 import org.zeith.hammerlib.api.IRecipeProvider;
 import org.zeith.hammerlib.api.io.NBTSerializationHelper;
 import org.zeith.hammerlib.api.multipart.MultipartBlock;
+import org.zeith.hammerlib.core.ConfigHL;
+import org.zeith.hammerlib.core.adapter.ConfigAdapter;
 import org.zeith.hammerlib.core.adapter.LanguageAdapter;
 import org.zeith.hammerlib.core.adapter.RegistryAdapter;
 import org.zeith.hammerlib.core.command.CommandHammerLib;
@@ -113,6 +115,9 @@ public class HammerLib
 		} else
 			throw new RuntimeException("Unable to cast RegistryManager to RegistryManagerAccessor. Mixin apply failed?");
 
+		// Prepare configs
+		ConfigAdapter.setup();
+
 		List<ModAnnotation.EnumHolder> bothSides = Stream.of(Dist.values())
 				.map(dst -> new ModAnnotation.EnumHolder("Lnet/minecraftforge/api/distmarker/Dist;", dst.name()))
 				.collect(Collectors.toList());
@@ -191,7 +196,7 @@ public class HammerLib
 
 	public static boolean postEvent(Event evt)
 	{
-		if(logHLEvents) HammerLib.LOG.info("[HammerLib.postEvent] " + evt);
+		if(logHLEvents || ConfigHL.INSTANCE.getCurrent().internal.logHLBusEvents) HammerLib.LOG.info("[HammerLib.postEvent] " + evt);
 		return HammerLib.EVENT_BUS.post(evt);
 	}
 }

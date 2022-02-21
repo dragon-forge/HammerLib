@@ -1,16 +1,17 @@
 package org.zeith.hammerlib.util.cfg;
 
-import net.minecraftforge.fml.ModList;
 import org.zeith.hammerlib.util.cfg.entries.*;
+import org.zeith.hammerlib.util.mcf.ModHelper;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class ConfigFile
+		implements IConfigFileRoot
 {
 	static final Map<String, ConfigEntrySerializer<?>> serializers = new HashMap<>();
 
@@ -58,6 +59,7 @@ public class ConfigFile
 		this.changed = true;
 	}
 
+	@Override
 	public ConfigEntryCategory getCategory(String s)
 	{
 		if(!categories.containsKey(s))
@@ -102,7 +104,7 @@ public class ConfigFile
 				Map<String, ConfigEntryCategory> categories = new HashMap<>();
 				while(true)
 				{
-					ConfigEntryCategory cat = SERIALIZER_CATEGORY.read(this, rh, 0);
+					var cat = SERIALIZER_CATEGORY.read(this, rh, 0);
 					if(cat != null && cat.getName() != null)
 						categories.put(cat.getName(), cat);
 					else
@@ -121,14 +123,13 @@ public class ConfigFile
 
 	public void save()
 	{
-		try(BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(config), StandardCharsets.UTF_8)))
+		try(var writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(config), StandardCharsets.UTF_8)))
 		{
 			if(comment != null)
 				writeComment(writer, comment);
-			StringBuilder version = new StringBuilder();
-			ModList.get().getModContainerById("hammerlib").ifPresent(mc -> version.append(mc.getModInfo().getVersion().toString()));
-			writer.write(String.format("~ Saved With Hammer Lib %s\n\n", version.length() > 0 ? version.toString() : "???"));
-			for(ConfigEntryCategory cat : categories.values().stream().sorted((a, b) -> a.getName().compareTo(b.getName())).collect(Collectors.toList()))
+			String version = ModHelper.getModVersion("hammerlib");
+			writer.write(String.format("~ Saved With Hammer Lib %s\n\n", version));
+			for(var cat : categories.values().stream().sorted(Comparator.comparing(ConfigEntryCategory::getName)).toList())
 			{
 				SERIALIZER_CATEGORY.write(this, writer, cat, 0);
 				writer.write('\n');
@@ -142,8 +143,7 @@ public class ConfigFile
 
 	protected void writeComment(BufferedWriter writer, String comment) throws IOException
 	{
-		String commentLines[] = comment.split("\n");
-		for(String ln : commentLines)
-			writer.write("# " + ln + "\n");
+		var commentLines = comment.split("\n");
+		for(var ln : commentLines) writer.write("# " + ln + "\n");
 	}
 }

@@ -6,6 +6,7 @@ import org.zeith.hammerlib.util.mcf.LogicalSidePredictor;
 import java.util.EnumMap;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 public class SidedLocal<T>
 {
@@ -50,5 +51,16 @@ public class SidedLocal<T>
 	public T get(LogicalSide side)
 	{
 		return values.computeIfAbsent(side, defaultValues);
+	}
+
+	public void apply(LogicalSide side, UnaryOperator<T> op)
+	{
+		set(side, op.apply(get(side)));
+	}
+
+	public void applyForAllSides(UnaryOperator<T> op)
+	{
+		set(LogicalSide.SERVER, op.apply(get(LogicalSide.SERVER)));
+		set(LogicalSide.CLIENT, op.apply(get(LogicalSide.CLIENT)));
 	}
 }

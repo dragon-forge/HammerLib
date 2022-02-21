@@ -9,11 +9,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.event.recipe.PopulateTagsEvent;
+import org.zeith.hammerlib.util.java.ReflectionUtil;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Mixin(TagLoader.class)
 public class TagLoaderMixin
@@ -34,7 +32,13 @@ public class TagLoaderMixin
 			{
 				List objects = new ArrayList<>();
 				PopulateTagsEvent evt;
-				HammerLib.postEvent(evt = new PopulateTagsEvent(objects::add, (ResourceLocation) name, nt, objects, nt.closestCommonSuperType));
+
+				var type = PopulateTagsEvent.TAG_BASE_TYPES.stream()
+						.filter(base -> base.isAssignableFrom(nt.closestCommonSuperType))
+						.findAny()
+						.orElse(nt.closestCommonSuperType);
+
+				HammerLib.postEvent(evt = new PopulateTagsEvent(objects::add, (ResourceLocation) name, nt, objects, type));
 				if(evt.hasChanged())
 				{
 					objects.addAll(nt.getValues());

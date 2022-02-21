@@ -31,7 +31,7 @@ public class NetTransport
 
 	public static TransportSession wrap(IPacket packet)
 	{
-		final FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
+		final var buffer = new FriendlyByteBuf(Unpooled.buffer());
 		Network.toPlain(packet).write(buffer);
 		byte[] data = new byte[buffer.readableBytes()];
 		buffer.getBytes(0, data);
