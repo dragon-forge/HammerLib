@@ -1,6 +1,7 @@
 package org.zeith.hammerlib.proxy;
 
 import com.google.common.base.Predicates;
+import com.google.common.collect.ImmutableMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.client.particle.IParticleRenderType;
@@ -51,21 +52,28 @@ public class HLClientProxy
 {
 	public static Map<IParticleRenderType, Queue<Particle>> PARTICLE_MAP;
 
-	private LanguageMap langMap;
 	private Map<String, String> languageList;
 
 	@Override
 	public void applyLang(LangMap lmap)
 	{
-		langMap = I18n.language;
+		LanguageMap langMap = I18n.language;
 
 		if(langMap instanceof ClientLanguageMap)
 		{
 			ClientLanguageMap clm = (ClientLanguageMap) langMap;
+			if(clm.storage instanceof ImmutableMap)
+				clm.storage = new HashMap<>(clm.storage);
 			languageList = clm.storage;
 		}
 
-		lmap.apply(languageList);
+		try
+		{
+			lmap.apply(languageList);
+		} catch(UnsupportedOperationException uoe)
+		{
+			uoe.printStackTrace();
+		}
 	}
 
 	int pingTimer;

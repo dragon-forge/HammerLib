@@ -106,6 +106,13 @@ public class Network
 			channel.sendToServer(toPlain(packet));
 	}
 
+	public static void send(PacketDistributor.PacketTarget target, IPacket packet)
+	{
+		if(target == null || packet == null) return;
+		if(LogicalSidePredictor.getCurrentLogicalSide() == LogicalSide.SERVER)
+			channel.send(target, toPlain(packet));
+	}
+
 	///
 
 	public static PlainHLMessage toPlain(IPacket packet)

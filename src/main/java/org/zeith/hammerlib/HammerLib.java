@@ -28,6 +28,7 @@ import org.zeith.hammerlib.annotations.ProvideRecipes;
 import org.zeith.hammerlib.annotations.Setup;
 import org.zeith.hammerlib.annotations.SimplyRegister;
 import org.zeith.hammerlib.annotations.TileRenderer;
+import org.zeith.hammerlib.annotations.client.ClientSetup;
 import org.zeith.hammerlib.api.IRecipeProvider;
 import org.zeith.hammerlib.api.io.NBTSerializationHelper;
 import org.zeith.hammerlib.api.multipart.MultipartBlock;
@@ -120,6 +121,18 @@ public class HammerLib
 				data.getOwnerMod()
 						.map(FMLModContainer::getEventBus)
 						.ifPresent(b -> b.addListener((Consumer<FMLCommonSetupEvent>) event -> RegistryAdapter.setup(event, registerer, data.getMemberName())));
+			}
+		});
+
+		ScanDataHelper.lookupAnnotatedObjects(ClientSetup.class).forEach(data ->
+		{
+			Class<?> registerer = data.getOwnerClass();
+			if(data.getTargetType() == ElementType.METHOD)
+			{
+				HammerLib.LOG.info("Injecting client-setup into " + registerer);
+				data.getOwnerMod()
+						.map(FMLModContainer::getEventBus)
+						.ifPresent(b -> b.addListener((Consumer<FMLClientSetupEvent>) event -> RegistryAdapter.clientSetup(event, registerer, data.getMemberName())));
 			}
 		});
 

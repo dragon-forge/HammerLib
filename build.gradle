@@ -38,10 +38,6 @@ archivesBaseName = "${config.archive_name}-${config.mc_version}"
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = config.java
 
 mixin {
-    defaultObfuscationEnv "notch"
-    disableEclipseAddon()
-    disableAnnotationProcessorCheck()
-    disableRefMapWarning()
     add sourceSets.main, "mixins.${config.mod_id}.refmap.json"
 }
 
@@ -172,7 +168,9 @@ curseforge {
     }
 }
 
+
 import net.minecraftforge.gradle.common.task.SignJar
+
 import java.nio.file.Files
 import java.nio.file.StandardOpenOption
 

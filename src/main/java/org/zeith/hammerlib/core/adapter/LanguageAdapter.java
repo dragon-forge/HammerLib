@@ -1,5 +1,6 @@
 package org.zeith.hammerlib.core.adapter;
 
+import com.google.common.collect.Sets;
 import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.resources.IResource;
 import net.minecraft.resources.IResourceManager;
@@ -10,7 +11,6 @@ import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.event.LanguageReloadEvent;
 import org.zeith.hammerlib.util.java.CloseableArrayList;
 
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.Set;
@@ -18,7 +18,7 @@ import java.util.Set;
 @Mod.EventBusSubscriber
 public class LanguageAdapter
 {
-	private static final Set<String> modids = new HashSet<>();
+	private static final Set<String> modids = Sets.newConcurrentHashSet();
 
 	/**
 	 * Register in mod's constructor.
@@ -51,7 +51,7 @@ public class LanguageAdapter
 						{
 							for(IResource res : resources)
 							{
-								Scanner in = new Scanner(res.getInputStream());
+								Scanner in = new Scanner(res.getInputStream(), "UTF-8");
 								while(in.hasNextLine())
 								{
 									String line = in.nextLine();

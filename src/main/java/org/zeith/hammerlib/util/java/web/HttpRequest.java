@@ -28,7 +28,10 @@ import static java.net.Proxy.Type.HTTP;
  * <p>
  * Each instance supports making a single request and cannot be reused for
  * further requests.
+ *
+ * @deprecated use net version instead
  */
+@Deprecated
 public class HttpRequest
 {
 
