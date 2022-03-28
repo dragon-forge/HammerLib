@@ -1,9 +1,7 @@
 package org.zeith.hammerlib.core;
 
-import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.SerializationTags;
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -11,6 +9,7 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ItemLike;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.api.crafting.AbstractRecipeRegistry;
 import org.zeith.hammerlib.api.items.IIngredientProvider;
@@ -104,9 +103,9 @@ public class RecipeHelper
 			ingr = ((IIngredientProvider) comp).asIngredient();
 		else if(comp instanceof ItemStack)
 			ingr = Ingredient.of(((ItemStack) comp).copy());
-		else if(comp instanceof Tag.Named<?>)
+		else if(comp instanceof TagKey<?>)
 		{
-			ingr = fromTag((Tag.Named<Item>) comp);
+			ingr = fromTag((TagKey<Item>) comp);
 		} else if(comp instanceof String || comp instanceof ResourceLocation)
 		{
 			String st = comp.toString();
@@ -140,17 +139,13 @@ public class RecipeHelper
 		return ingr;
 	}
 
-	public static Tag<Item> getItemTag(ResourceLocation path)
+	public static TagKey<Item> getItemTag(ResourceLocation path)
 	{
-		return SerializationTags.getInstance().getOrEmpty(Registry.ITEM_REGISTRY).getTag(path);
+		return TagKey.create(ForgeRegistries.ITEMS.getRegistryKey(), path);
 	}
 
-	public static Ingredient fromTag(Tag<Item> tag)
+	public static Ingredient fromTag(TagKey<Item> tag)
 	{
-		if(tag instanceof Tag.Named<Item> nt)
-		{
-			return Ingredient.fromValues(Stream.of(new Ingredient.TagValue(getItemTag(nt.getName()))));
-		}
 		return Ingredient.fromValues(Stream.of(new Ingredient.TagValue(tag)));
 	}
 }

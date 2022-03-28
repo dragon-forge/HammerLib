@@ -21,6 +21,7 @@ import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.moddiscovery.ModAnnotation;
 import net.minecraftforge.fml.unsafe.UnsafeHacks;
 import net.minecraftforge.forgespi.Environment;
+import net.minecraftforge.registries.NewRegistryEvent;
 import net.minecraftforge.registries.RegistryBuilder;
 import net.minecraftforge.registries.RegistryManager;
 import org.apache.logging.log4j.LogManager;
@@ -91,7 +92,7 @@ public class HammerLib
 					data.getOwnerMod()
 							.ifPresent(mc ->
 							{
-								mc.getEventBus().addListener(PROXY.addTESR(data.getOwnerClass(), data.getMemberName(), data.getProperty("value").map(Type.class::cast).orElse(null)));
+								mc.getEventBus().addListener(PROXY.addTESR(data.clazz(), data.getMemberName(), data.getProperty("value").map(Type.class::cast).orElse(null)));
 							});
 			});
 
@@ -100,7 +101,6 @@ public class HammerLib
 			// Register all content providers
 			ScanDataHelper.lookupAnnotatedObjects(SimplyRegister.class).forEach(data ->
 			{
-				Class<?> registerer = data.getOwnerClass();
 				if(data.getTargetType() == ElementType.TYPE)
 					data.getOwnerMod()
 							.ifPresent(mc ->
@@ -108,7 +108,7 @@ public class HammerLib
 								for(var registry : activeRegistries.getRegistries().values())
 									mc.getEventBus()
 											.addGenericListener(registry.getRegistrySuperType(), (Consumer<RegistryEvent.Register>) event ->
-													RegistryAdapter.register(event.getRegistry(), registerer, mc.getModId())
+													RegistryAdapter.register(event.getRegistry(), data.getOwnerClass(), mc.getModId())
 											);
 							});
 			});
@@ -134,13 +134,12 @@ public class HammerLib
 				{
 					if(o instanceof ModAnnotation.EnumHolder h && FMLEnvironment.dist.name().equals(h.getValue()))
 					{
-						Class<?> registerer = data.getOwnerClass();
 						if(data.getTargetType() == ElementType.METHOD)
 						{
-							HammerLib.LOG.info("Injecting setup into " + registerer);
+							HammerLib.LOG.info("Injecting setup into " + data.clazz().getClassName());
 							data.getOwnerMod()
 									.map(FMLModContainer::getEventBus)
-									.ifPresent(b -> b.addListener((Consumer<FMLCommonSetupEvent>) event -> RegistryAdapter.setup(event, registerer, data.getMemberName())));
+									.ifPresent(b -> b.addListener((Consumer<FMLCommonSetupEvent>) event -> RegistryAdapter.setup(event, data.getOwnerClass(), data.getMemberName())));
 						}
 
 						break;
@@ -152,13 +151,12 @@ public class HammerLib
 
 		ScanDataHelper.lookupAnnotatedObjects(ClientSetup.class).forEach(data ->
 		{
-			Class<?> registerer = data.getOwnerClass();
 			if(data.getTargetType() == ElementType.METHOD)
 			{
-				HammerLib.LOG.info("Injecting client-setup into " + registerer);
+				HammerLib.LOG.info("Injecting client-setup into " + data.clazz().getClassName());
 				data.getOwnerMod()
 						.map(FMLModContainer::getEventBus)
-						.ifPresent(b -> b.addListener((Consumer<FMLClientSetupEvent>) event -> RegistryAdapter.clientSetup(event, registerer, data.getMemberName())));
+						.ifPresent(b -> b.addListener((Consumer<FMLClientSetupEvent>) event -> RegistryAdapter.clientSetup(event, data.getOwnerClass(), data.getMemberName())));
 			}
 		});
 
@@ -179,12 +177,11 @@ public class HammerLib
 	}
 
 	@SubscribeEvent
-	public void newRegistries(RegistryEvent.NewRegistry e)
+	public void newRegistries(NewRegistryEvent e)
 	{
-		new RegistryBuilder<MultipartBlock>()
+		e.create(new RegistryBuilder<MultipartBlock>()
 				.setType(MultipartBlock.class)
-				.setName(new ResourceLocation(HLConstants.MOD_ID, "multiparts"))
-				.create();
+				.setName(new ResourceLocation(HLConstants.MOD_ID, "multiparts")));
 	}
 
 	public void registerCommands(RegisterCommandsEvent e)
@@ -196,7 +193,8 @@ public class HammerLib
 
 	public static boolean postEvent(Event evt)
 	{
-		if(logHLEvents || ConfigHL.INSTANCE.getCurrent().internal.logHLBusEvents) HammerLib.LOG.info("[HammerLib.postEvent] " + evt);
+		if(logHLEvents || ConfigHL.INSTANCE.getCurrent().internal.logHLBusEvents)
+			HammerLib.LOG.info("[HammerLib.postEvent] " + evt);
 		return HammerLib.EVENT_BUS.post(evt);
 	}
 }

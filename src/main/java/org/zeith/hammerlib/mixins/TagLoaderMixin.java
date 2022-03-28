@@ -1,8 +1,7 @@
 package org.zeith.hammerlib.mixins;
 
-import com.google.common.collect.ImmutableList;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.SetTag;
+import net.minecraft.tags.Tag;
 import net.minecraft.tags.TagLoader;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -11,39 +10,39 @@ import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.event.recipe.PopulateTagsEvent;
 import org.zeith.hammerlib.util.java.ReflectionUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Mixin(TagLoader.class)
 public class TagLoaderMixin
 {
 	@ModifyVariable(
 			method = "build",
-			at = @At(
-					value = "INVOKE",
-					target = "Lnet/minecraft/tags/TagCollection;of(Ljava/util/Map;)Lnet/minecraft/tags/TagCollection;"
-			),
+			at = @At(value = "RETURN"),
 			index = 2
 	)
 	private Map putTag_HammerLib(Map value)
 	{
 		value.forEach((name, theTag) ->
 		{
-			if(theTag instanceof SetTag nt)
+			if(theTag instanceof Tag nt)
 			{
-				List objects = new ArrayList<>();
+				var objects = new ArrayList<>(nt.getValues());
 				PopulateTagsEvent evt;
 
-				var type = PopulateTagsEvent.TAG_BASE_TYPES.stream()
-						.filter(base -> base.isAssignableFrom(nt.closestCommonSuperType))
-						.findAny()
-						.orElse(nt.closestCommonSuperType);
+				var closestCommonSuperType = ReflectionUtil.findCommonSuperClass(objects);
 
-				HammerLib.postEvent(evt = new PopulateTagsEvent(objects::add, (ResourceLocation) name, nt, objects, type));
+				var type = PopulateTagsEvent.TAG_BASE_TYPES.stream()
+						.filter(base -> base.isAssignableFrom(closestCommonSuperType))
+						.findAny()
+						.orElse(closestCommonSuperType);
+
+				HammerLib.postEvent(evt = new PopulateTagsEvent(objects::add, objects::remove, (ResourceLocation) name, nt, type));
 				if(evt.hasChanged())
 				{
-					objects.addAll(nt.getValues());
-					nt.values = Set.copyOf(objects);
-					nt.valuesList = ImmutableList.copyOf(objects);
+					nt.elements = List.copyOf(Set.copyOf(objects));
 				}
 			}
 		});

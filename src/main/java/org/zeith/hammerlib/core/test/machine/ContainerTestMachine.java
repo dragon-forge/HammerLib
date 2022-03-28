@@ -39,7 +39,7 @@ public class ContainerTestMachine
 	@Override
 	public boolean stillValid(Player playerIn)
 	{
-		return tile.getBlockPos().distSqr(playerIn.position(), false) < 64D && !tile.isRemoved();
+		return tile.getBlockPos().closerToCenterThan(playerIn.position(), 64) && !tile.isRemoved();
 	}
 
 	@Override

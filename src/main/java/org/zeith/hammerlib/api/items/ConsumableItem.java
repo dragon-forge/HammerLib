@@ -1,6 +1,6 @@
 package org.zeith.hammerlib.api.items;
 
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -25,7 +25,7 @@ public class ConsumableItem
 		return new ConsumableItem(amount, Ingredient.of(items));
 	}
 
-	public static ConsumableItem of(int amount, Tag.Named<Item> tag)
+	public static ConsumableItem of(int amount, TagKey<Item> tag)
 	{
 		return new ConsumableItem(amount, RecipeHelper.fromTag(tag));
 	}

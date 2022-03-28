@@ -2,6 +2,7 @@ package org.zeith.hammerlib.event.recipe;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
@@ -43,13 +44,14 @@ public class PopulateTagsEvent<T>
 	public final ResourceLocation id;
 	public final Tag<T> tag;
 
-	private final Consumer<T> add;
+	private final Consumer<T> add, remove;
 	private boolean hasChanged;
 
-	public PopulateTagsEvent(Consumer<T> add, ResourceLocation id, Tag<T> tag, List<T> values, Class<T> type)
+	public PopulateTagsEvent(Consumer<T> add, Consumer<T> remove, ResourceLocation id, Tag<T> tag, Class<T> type)
 	{
 		super(type);
 		this.add = add;
+		this.remove = remove;
 		this.id = id;
 		this.tag = tag;
 	}
@@ -57,6 +59,12 @@ public class PopulateTagsEvent<T>
 	public void add(T thing)
 	{
 		add.accept(thing);
+		hasChanged = true;
+	}
+
+	public void remove(T thing)
+	{
+		remove.accept(thing);
 		hasChanged = true;
 	}
 
@@ -80,9 +88,9 @@ public class PopulateTagsEvent<T>
 		return tag;
 	}
 
-	public boolean is(Tag.Named<T> tag)
+	public boolean is(TagKey<T> tag)
 	{
-		return id.equals(tag.getName());
+		return id.equals(tag.location());
 	}
 
 	@Override

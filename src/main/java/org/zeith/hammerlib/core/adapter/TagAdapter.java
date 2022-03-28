@@ -1,7 +1,7 @@
 package org.zeith.hammerlib.core.adapter;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import org.zeith.hammerlib.HammerLib;
@@ -24,15 +24,15 @@ public class TagAdapter
 		HammerLib.EVENT_BUS.addGenericListener(Item.class, TagAdapter::applyItemTags);
 	}
 
-	public static void bindStaticTag(Tag.Named<Block> tag, Block... blocks)
+	public static void bindStaticTag(TagKey<Block> tag, Block... blocks)
 	{
-		Set<Block> set = TagAdapter.blockTags.computeIfAbsent(tag.getName(), b -> new HashSet<>());
+		Set<Block> set = TagAdapter.blockTags.computeIfAbsent(tag.location(), b -> new HashSet<>());
 		set.addAll(List.of(blocks));
 	}
 
-	public static void bindStaticTag(Tag.Named<Item> tag, Item... blocks)
+	public static void bindStaticTag(TagKey<Item> tag, Item... blocks)
 	{
-		Set<Item> set = TagAdapter.itemTags.computeIfAbsent(tag.getName(), b -> new HashSet<>());
+		Set<Item> set = TagAdapter.itemTags.computeIfAbsent(tag.location(), b -> new HashSet<>());
 		set.addAll(List.of(blocks));
 	}
 

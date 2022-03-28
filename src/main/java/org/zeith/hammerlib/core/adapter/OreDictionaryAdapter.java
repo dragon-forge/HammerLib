@@ -3,6 +3,7 @@ package org.zeith.hammerlib.core.adapter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.common.Tags;
 import org.zeith.hammerlib.core.init.TagsHL;
@@ -35,10 +36,10 @@ public class OreDictionaryAdapter
 		register(key, new ResourceLocation(value.contains(":") ? value : ("forge:" + value)));
 	}
 
-	public static void register(String key, Tag.Named<Item> tag)
+	public static void register(String key, TagKey<Item> tag)
 	{
 		if(tag != null)
-			register(key, tag.getName());
+			register(key, tag.location());
 	}
 
 	public static void register(String key, ResourceLocation value)

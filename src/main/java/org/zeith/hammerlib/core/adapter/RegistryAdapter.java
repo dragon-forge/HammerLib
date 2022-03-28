@@ -1,14 +1,18 @@
 package org.zeith.hammerlib.core.adapter;
 
+import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.IForgeRegistryEntry;
+import net.minecraftforge.registries.*;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.annotations.OnlyIf;
 import org.zeith.hammerlib.annotations.RegistryName;
@@ -22,7 +26,6 @@ import org.zeith.hammerlib.api.blocks.INoItemBlock;
 import org.zeith.hammerlib.api.fml.IRegisterListener;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.java.ReflectionUtil;
-import org.zeith.hammerlib.util.shaded.json.JSONObject;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -112,13 +115,30 @@ public class RegistryAdapter
 						try
 						{
 							field.setAccessible(true);
-							RegistryName name = field.getAnnotation(RegistryName.class);
-							OnlyIf onlyIf = field.getAnnotation(OnlyIf.class);
+							var name = field.getAnnotation(RegistryName.class);
+							var onlyIf = field.getAnnotation(OnlyIf.class);
 
-							T t = registry.getRegistrySuperType().cast(field.get(null));
-							if(name != null) t.setRegistryName(new ResourceLocation(modid, name.value()));
+							var t = registry.getRegistrySuperType().cast(field.get(null));
+							var rl = name != null ? new ResourceLocation(modid, name.value()) : null;
+							if(rl != null) t.setRegistryName(rl);
 							if(!OnlyIfAdapter.checkCondition(onlyIf, source.toString(), registry.getRegistrySuperType().getSimpleName(), t))
+							{
+								if(t instanceof ForgeRegistryEntry<?> e) try
+								{
+									Method refl = e.delegate.getClass().getDeclaredMethod("setName", ResourceLocation.class);
+									refl.setAccessible(true);
+									if(rl != null) refl.invoke(e.delegate, rl);
+
+									refl = e.delegate.getClass().getDeclaredMethod("changeReference", Object.class);
+									refl.setAccessible(true);
+									if(rl != null) refl.invoke(e.delegate, e);
+								} catch(ReflectiveOperationException err)
+								{
+									HammerLib.LOG.fatal("Forge sucks big pp", err);
+								}
+								fuckForgeOff(t);
 								return;
+							}
 							grabber.accept(t);
 						} catch(IllegalArgumentException | IllegalAccessException e)
 						{
@@ -127,6 +147,36 @@ public class RegistryAdapter
 				});
 
 		return registry.getValues().size() - prevSize;
+	}
+
+	private static <T extends IForgeRegistryEntry<T>> void fuckForgeOff(T t)
+	{
+		if(t instanceof EntityType i)
+			i.builtInRegistryHolder().bind(ResourceKey.create(Registry.ENTITY_TYPE_REGISTRY, t.getRegistryName()), i);
+		else if(t instanceof Item i)
+			i.builtInRegistryHolder().bind(ResourceKey.create(Registry.ITEM_REGISTRY, t.getRegistryName()), i);
+		else if(t instanceof Block i)
+			i.builtInRegistryHolder().bind(ResourceKey.create(Registry.BLOCK_REGISTRY, t.getRegistryName()), i);
+		else if(t instanceof GameEvent i)
+			i.builtInRegistryHolder().bind(ResourceKey.create(Registry.GAME_EVENT_REGISTRY, t.getRegistryName()), i);
+		else if(t instanceof Fluid i)
+			i.builtInRegistryHolder().bind(ResourceKey.create(Registry.FLUID_REGISTRY, t.getRegistryName()), i);
+		else
+		{
+			Field refF = ReflectionUtil.lookupField(t.getClass(), Holder.Reference.class);
+			if(refF != null)
+			{
+				try
+				{
+					var o = (Holder.Reference<T>) refF.get(t);
+					IForgeRegistry<T> registry = RegistryManager.ACTIVE.getRegistry(t.getRegistryType());
+					o.bind(ResourceKey.create(registry.getRegistryKey(), t.getRegistryName()), t);
+				} catch(ReflectiveOperationException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 	public static void setup(FMLCommonSetupEvent event, Class<?> source, String memberName)

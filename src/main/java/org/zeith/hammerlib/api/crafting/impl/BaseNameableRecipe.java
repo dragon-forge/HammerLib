@@ -2,7 +2,7 @@ package org.zeith.hammerlib.api.crafting.impl;
 
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -92,7 +92,7 @@ public class BaseNameableRecipe
 		 * @param tag the entry to be added as ingredient
 		 * @return this builder, for convenience.
 		 */
-		public Builder addInput(Tag.Named<Item> tag)
+		public Builder addInput(TagKey<Item> tag)
 		{
 			inputItems.add(RecipeHelper.fromTag(tag));
 			return this;

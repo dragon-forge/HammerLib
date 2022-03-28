@@ -160,6 +160,11 @@ public class ScanDataHelper
 			return ReflectionUtil.fetchClass(parent.clazz());
 		}
 
+		public Type clazz()
+		{
+			return parent.clazz();
+		}
+
 		public Optional<Object> getProperty(String key)
 		{
 			Map<String, Object> map = parent.annotationData();
