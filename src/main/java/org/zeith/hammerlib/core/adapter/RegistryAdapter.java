@@ -149,6 +149,35 @@ public class RegistryAdapter
 		return registry.getValues().size() - prevSize;
 	}
 
+	public static <T extends IForgeRegistryEntry<T>> Holder.Reference<T> findReference(T t)
+	{
+		if(t instanceof EntityType i)
+			return i.builtInRegistryHolder();
+		else if(t instanceof Item i)
+			return Cast.cast(i.builtInRegistryHolder());
+		else if(t instanceof Block i)
+			return Cast.cast(i.builtInRegistryHolder());
+		else if(t instanceof GameEvent i)
+			return Cast.cast(i.builtInRegistryHolder());
+		else if(t instanceof Fluid i)
+			return Cast.cast(i.builtInRegistryHolder());
+		else
+		{
+			Field refF = ReflectionUtil.lookupField(t.getClass(), Holder.Reference.class);
+			if(refF != null)
+			{
+				try
+				{
+					return (Holder.Reference<T>) refF.get(t);
+				} catch(ReflectiveOperationException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
+		return null;
+	}
+
 	private static <T extends IForgeRegistryEntry<T>> void fuckForgeOff(T t)
 	{
 		if(t instanceof EntityType i)

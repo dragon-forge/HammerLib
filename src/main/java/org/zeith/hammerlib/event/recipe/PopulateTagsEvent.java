@@ -14,6 +14,7 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.eventbus.api.GenericEvent;
+import net.minecraftforge.registries.IForgeRegistryEntry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +23,8 @@ import java.util.function.Consumer;
 /**
  * This event is fired on {@link org.zeith.hammerlib.HammerLib#EVENT_BUS}
  */
-public class PopulateTagsEvent<T>
+@Deprecated(forRemoval = true)
+public class PopulateTagsEvent<T extends IForgeRegistryEntry<T>>
 		extends GenericEvent<T>
 {
 	public static final List<Class<?>> TAG_BASE_TYPES = new ArrayList<>()

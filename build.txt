@@ -2,7 +2,7 @@
 mod_id=hammerlib
 archive_name=HammerLib
 mod_name=Hammer Lib
-mod_version=18.2.12
+mod_version=18.2.13
 
 # Maven Info
 maven_group=org.zeith.hammerlib

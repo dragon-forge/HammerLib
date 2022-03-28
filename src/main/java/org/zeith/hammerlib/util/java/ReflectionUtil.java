@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class ReflectionUtil
@@ -42,6 +43,23 @@ public class ReflectionUtil
 					oclass = findClosestAncestor(oclass, t.getClass());
 			}
 
+			return oclass;
+		}
+	}
+
+	public static <T> Class<?> findCommonSuperClass(Collection<T> coll, Function<T, Class<?>> toClass)
+	{
+		if(coll.isEmpty())
+		{
+			return Void.class;
+		} else
+		{
+			Class<?> oclass = null;
+			for(T t : coll)
+				if(oclass == null)
+					oclass = toClass.apply(t);
+				else
+					oclass = findClosestAncestor(oclass, toClass.apply(t));
 			return oclass;
 		}
 	}

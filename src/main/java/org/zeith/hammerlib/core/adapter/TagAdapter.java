@@ -1,11 +1,10 @@
 package org.zeith.hammerlib.core.adapter;
 
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import org.zeith.hammerlib.HammerLib;
-import org.zeith.hammerlib.event.recipe.PopulateTagsEvent;
+import org.zeith.hammerlib.event.recipe.BuildTagsEvent;
 
 import java.util.HashSet;
 import java.util.List;
@@ -15,8 +14,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class TagAdapter
 {
-	static final Map<ResourceLocation, Set<Block>> blockTags = new ConcurrentHashMap<>();
-	static final Map<ResourceLocation, Set<Item>> itemTags = new ConcurrentHashMap<>();
+	static final Map<TagKey<Block>, Set<Block>> blockTags = new ConcurrentHashMap<>();
+	static final Map<TagKey<Item>, Set<Item>> itemTags = new ConcurrentHashMap<>();
 
 	static
 	{
@@ -26,29 +25,23 @@ public class TagAdapter
 
 	public static void bindStaticTag(TagKey<Block> tag, Block... blocks)
 	{
-		Set<Block> set = TagAdapter.blockTags.computeIfAbsent(tag.location(), b -> new HashSet<>());
+		Set<Block> set = TagAdapter.blockTags.computeIfAbsent(tag, b -> new HashSet<>());
 		set.addAll(List.of(blocks));
 	}
 
 	public static void bindStaticTag(TagKey<Item> tag, Item... blocks)
 	{
-		Set<Item> set = TagAdapter.itemTags.computeIfAbsent(tag.location(), b -> new HashSet<>());
+		Set<Item> set = TagAdapter.itemTags.computeIfAbsent(tag, b -> new HashSet<>());
 		set.addAll(List.of(blocks));
 	}
 
-	public static void applyBlockTags(PopulateTagsEvent<Block> evt)
+	public static void applyBlockTags(BuildTagsEvent<Block> evt)
 	{
-		if(blockTags.containsKey(evt.id))
-		{
-			blockTags.get(evt.id).forEach(evt::add);
-		}
+		blockTags.forEach(evt::addAllToTag);
 	}
 
-	public static void applyItemTags(PopulateTagsEvent<Item> evt)
+	public static void applyItemTags(BuildTagsEvent<Item> evt)
 	{
-		if(itemTags.containsKey(evt.id))
-		{
-			itemTags.get(evt.id).forEach(evt::add);
-		}
+		itemTags.forEach(evt::addAllToTag);
 	}
 }
