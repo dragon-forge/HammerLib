@@ -43,11 +43,11 @@ public class TagLoaderMixin
 		return value;
 	}
 
-	@ModifyVariable(
+	/*@ModifyVariable(
 			method = "build",
 			at = @At(value = "RETURN"),
 			index = 2
-	)
+	)*/
 	private Map build_HammerLib(Map value)
 	{
 		value.forEach((name, theTag) ->
