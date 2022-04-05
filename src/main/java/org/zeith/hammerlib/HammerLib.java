@@ -193,7 +193,8 @@ public class HammerLib
 
 	public static boolean postEvent(Event evt)
 	{
-		if(logHLEvents || ConfigHL.INSTANCE.getCurrent().internal.logHLBusEvents)
+		ConfigHL cfgs = ConfigHL.INSTANCE.getCurrent();
+		if(logHLEvents || (cfgs != null && cfgs.internal.logHLBusEvents))
 			HammerLib.LOG.info("[HammerLib.postEvent] " + evt);
 		return HammerLib.EVENT_BUS.post(evt);
 	}
