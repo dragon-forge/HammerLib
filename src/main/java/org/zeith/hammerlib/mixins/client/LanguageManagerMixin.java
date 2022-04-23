@@ -1,6 +1,5 @@
 package org.zeith.hammerlib.mixins.client;
 
-import net.minecraft.client.resources.language.ClientLanguage;
 import net.minecraft.client.resources.language.LanguageManager;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraftforge.api.distmarker.Dist;
@@ -23,11 +22,11 @@ public class LanguageManagerMixin
 	)
 	public void onResourceManagerReload_HammerLib(ResourceManager p_118973_, CallbackInfo ci)
 	{
-		if(I18nAccessor.getLanguage() instanceof ClientLanguage cl)
+		if(I18nAccessor.getLanguage() instanceof ClientLanguageAccessor cl)
 		{
-			if(!(cl.storage instanceof HashMap))
-				cl.storage = new HashMap<>(cl.storage);
-			LanguageHelper.reloadLanguage(cl.storage::put);
+			if(!(cl.getStorage() instanceof HashMap))
+				cl.setStorage(new HashMap<>(cl.getStorage()));
+			LanguageHelper.reloadLanguage(cl.getStorage()::put);
 		}
 	}
 }

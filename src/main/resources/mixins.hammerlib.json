@@ -1,28 +1,29 @@
 {
-	"required": true,
-	"minVersion": "0.8.5",
-	"package": "org.zeith.hammerlib.mixins",
-	"refmap": "mixins.hammerlib.refmap.json",
-	"target": "@env(DEFAULT)",
-	"compatibilityLevel": "JAVA_17",
-	"injectors": {
-		"maxShiftBy": 5
-	},
-	"mixins": [
-		"HTTPUtilMixin",
-		"LevelChunkMixin",
-		"LevelMixin",
-		"PackRepositoryMixin",
-		"RecipeManagerMixin",
-		"RegistryManagerAccessor",
-		"TagLoaderMixin",
-		"bs.kubejs.RecipeEventJSMixin"
-	],
-	"client": [
-		"client.I18nAccessor",
-		"client.LanguageManagerMixin",
-		"client.ModelBakeryMixin"
-	],
-	"server": [
-	]
+  "required": true,
+  "minVersion": "0.8.5",
+  "package": "org.zeith.hammerlib.mixins",
+  "refmap": "mixins.hammerlib.refmap.json",
+  "target": "@env(DEFAULT)",
+  "compatibilityLevel": "JAVA_17",
+  "injectors": {
+    "maxShiftBy": 5
+  },
+  "mixins": [
+    "HTTPUtilMixin",
+    "LevelChunkMixin",
+    "LevelMixin",
+    "PackRepositoryMixin",
+    "RecipeManagerMixin",
+    "RegistryManagerAccessor",
+    "TagLoaderMixin",
+    "bs.kubejs.RecipeEventJSMixin"
+  ],
+  "client": [
+    "client.ClientLanguageAccessor",
+    "client.I18nAccessor",
+    "client.LanguageManagerMixin",
+    "client.ModelBakeryMixin"
+  ],
+  "server": [
+  ]
 }
