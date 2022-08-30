@@ -14,6 +14,7 @@ public class RecipesHL
 	@Override
 	public void provideRecipes(RegisterRecipesEvent event)
 	{
+		/*
 		event.shaped()
 				.shape("iri", "pop", "iri")
 				.map('i', Tags.Items.INGOTS_IRON)
@@ -22,5 +23,6 @@ public class RecipesHL
 				.map('o', Tags.Items.OBSIDIAN)
 				.result(new ItemStack(BlockTestMachine.TEST_MACHINE))
 				.register();
+		 */
 	}
 }
