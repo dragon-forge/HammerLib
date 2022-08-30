@@ -1,4 +1,6 @@
 # Hammer Lib ukrainian translations
 
+itemGroup.hammerlib=Hammer Lib
+
 block.hammerlib.test_machine=Тестова машина
 item.hammerlib.wrench=Гайковий ключ
