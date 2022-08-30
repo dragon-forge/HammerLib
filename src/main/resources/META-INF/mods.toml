@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[38,)"
+loaderVersion="[43,)"
 issueTrackerURL="https://gitlab.com/DragonForge/HammerLib/issues"
 license="All rights reserved"
 [[mods]]
@@ -17,12 +17,12 @@ Packed with a lot of utilities, this library provides nearly anything a modder w
 [[dependencies.hammerlib]]
     modId="forge"
     mandatory=true
-    versionRange="[40.,)"
+    versionRange="[43.,)"
     ordering="NONE" # NONE/BEFORE/AFTER
     side="BOTH"
 [[dependencies.hammerlib]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.18.2,1.19)"
+    versionRange="[1.19.2,1.20)"
     ordering="NONE"
     side="BOTH"

@@ -21,12 +21,13 @@ public class TESRTestMachine
 		if(s.getBlock() == BlockTestMachine.TEST_MACHINE)
 		{
 			boolean e = s.getValue(BlockStateProperties.ENABLED);
-
+			
 			int mp = tile.maxProgress.getInt();
 			float p = Math.min(mp, tile.progress.getInt());
 			float progress = mp > 0 ? p / mp : 0F;
-
-			RenderUtils.renderLightRayEffects(buf, matrix, Mth.hsvToRgb(progress / 3F, 1, 1) | 0xFF << 24, Mth.getSeed(tile.getBlockPos()), progress, 5, 2F, 32);
+			
+			if(e)
+				RenderUtils.renderLightRayEffects(buf, matrix, Mth.hsvToRgb(progress / 3F, 1, 1) | 0xFF << 24, Mth.getSeed(tile.getBlockPos()), progress, 5, 2F, 32);
 		}
 	}
 }

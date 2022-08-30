@@ -16,8 +16,8 @@ public class BlockAPI
 	{
 		return (level, pos, state, entity) ->
 		{
-			if(entity instanceof TileSyncableTickable)
-				((TileSyncableTickable) entity).tick(level, pos, state, entity);
+			if(entity instanceof TileSyncableTickable t)
+				t.tick(level, pos, state, entity);
 		};
 	}
 

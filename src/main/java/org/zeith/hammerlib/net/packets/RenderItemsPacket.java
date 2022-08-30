@@ -2,7 +2,7 @@ package org.zeith.hammerlib.net.packets;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.zeith.hammerlib.net.IPacket;
@@ -50,6 +50,6 @@ public class RenderItemsPacket
 //		if(mode == 2)
 //			Stack2ImageRenderer.renderAll(size);
 
-		Minecraft.getInstance().gui.getChat().addMessage(new TextComponent("Rendering items is not yet implemented, sorry!"));
+		Minecraft.getInstance().gui.getChat().addMessage(Component.literal("Rendering items is not yet implemented, sorry!"));
 	}
 }

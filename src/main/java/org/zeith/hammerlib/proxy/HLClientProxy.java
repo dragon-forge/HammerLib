@@ -9,17 +9,19 @@ import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.client.event.RenderLevelLastEvent;
+import net.minecraftforge.client.event.CustomizeGuiOverlayEvent;
+import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.objectweb.asm.Type;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.api.forge.ContainerAPI;
@@ -31,6 +33,7 @@ import org.zeith.hammerlib.client.render.tile.IBESR;
 import org.zeith.hammerlib.client.render.tile.TESRBase;
 import org.zeith.hammerlib.core.adapter.ConfigAdapter;
 import org.zeith.hammerlib.event.client.ClientLoadedInEvent;
+import org.zeith.hammerlib.mixins.client.ParticleEngineAccessor;
 import org.zeith.hammerlib.net.Network;
 import org.zeith.hammerlib.net.packets.PacketPlayerReady;
 import org.zeith.hammerlib.net.packets.PingServerPacket;
@@ -39,7 +42,10 @@ import org.zeith.hammerlib.util.java.ReflectionUtil;
 import org.zeith.hammerlib.util.mcf.LogicalSidePredictor;
 
 import java.lang.reflect.Constructor;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -48,11 +54,9 @@ public class HLClientProxy
 		extends HLCommonProxy
 {
 	public static Map<ParticleRenderType, Queue<Particle>> PARTICLE_MAP;
-
 	private Map<String, String> languageList;
-
 	int pingTimer;
-
+	
 	@Override
 	public void clientSetup()
 	{
@@ -60,15 +64,15 @@ public class HLClientProxy
 				.optionally(ctr, IScreenContainer.class)
 				.map(c -> c.openScreen(inv, txt))
 				.orElse(null));
-
-		PARTICLE_MAP = ReflectionUtil.getField(Minecraft.getInstance().particleEngine, 2, Map.class).orElseGet(Collections::emptyMap);
+		
+		PARTICLE_MAP = ((ParticleEngineAccessor) Minecraft.getInstance().particleEngine).getParticles();
 	}
-
+	
 	public static Stream<Particle> streamParticles()
 	{
 		return PARTICLE_MAP.values().stream().flatMap(Collection::stream);
 	}
-
+	
 	@Override
 	public Stream<ColoredLight> getGlowingParticles(float partialTicks)
 	{
@@ -82,27 +86,29 @@ public class HLClientProxy
 			return evt.getNewLight();
 		}).filter(Predicates.notNull());
 	}
-
+	
 	@Override
 	public Consumer<FMLClientSetupEvent> addTESR(Type owner, String member, Type tesr)
 	{
 		return e ->
 		{
-			ReflectionUtil.<BlockEntityType<?>> getStaticFinalField(ReflectionUtil.fetchClass(owner), member)
+			ReflectionUtil.<BlockEntityType<?>>getStaticFinalField(ReflectionUtil.fetchClass(owner), member)
 					.ifPresent(type ->
 					{
-						if(type.getRegistryName() == null)
+						ResourceLocation name = ForgeRegistries.BLOCK_ENTITY_TYPES.getKey(type);
+						
+						if(name == null)
 						{
-							HammerLib.LOG.info("Skipping TESR for tile " + type.getRegistryName() + " as it is not registered.");
+							HammerLib.LOG.info("Skipping TESR for tile " + type + " as it is not registered.");
 							return;
 						}
-
-						HammerLib.LOG.info("Registering TESR for tile " + type.getRegistryName());
-
+						
+						HammerLib.LOG.info("Registering TESR for tile " + name);
+						
 						Class<?> anyTesr = ReflectionUtil.fetchClass(tesr);
-
+						
 						Function<BlockEntityRendererProvider.Context, BlockEntityRenderer<?>> theTesr = null;
-
+						
 						if(IBESR.class.isAssignableFrom(anyTesr))
 						{
 							try
@@ -116,7 +122,7 @@ public class HLClientProxy
 								err.printStackTrace();
 							}
 						}
-
+						
 						if(theTesr == null)
 						{
 							for(Constructor<?> ctr : anyTesr.getDeclaredConstructors())
@@ -147,20 +153,20 @@ public class HLClientProxy
 								}
 							}
 						}
-
+						
 						if(theTesr == null)
-							throw new RuntimeException("Unable to find a valid constructor for " + type.getRegistryName() + "'s TESR " + anyTesr);
-
+							throw new RuntimeException("Unable to find a valid constructor for " + name + "'s TESR " + anyTesr);
+						
 						Function<BlockEntityRendererProvider.Context, BlockEntityRenderer<?>> finalTheTesr = theTesr;
 						BlockEntityRenderers.register(type, (BlockEntityRendererProvider<BlockEntity>) ctx -> Cast.cast(finalTheTesr.apply(ctx)));
 					});
 		};
 	}
-
+	
 	boolean renderedWorld = false;
-
+	
 	@SubscribeEvent
-	public void renderWorldLast(RenderLevelLastEvent e)
+	public void renderWorldLast(RenderLevelStageEvent e)
 	{
 		if(!renderedWorld)
 		{
@@ -169,7 +175,7 @@ public class HLClientProxy
 			renderedWorld = true;
 		}
 	}
-
+	
 	@SubscribeEvent
 	public void clientTick(ClientTickEvent e)
 	{
@@ -190,39 +196,29 @@ public class HLClientProxy
 			ConfigAdapter.resetClientsideSync();
 		}
 	}
-
-	private boolean renderF3;
-
+	
 	@SubscribeEvent
-	public void addF3Info(RenderGameOverlayEvent.Pre event)
+	public void addF3Info(CustomizeGuiOverlayEvent.DebugText f3)
 	{
-		if(event.getType() == RenderGameOverlayEvent.ElementType.DEBUG)
-			renderF3 = true;
-	}
-
-	@SubscribeEvent
-	public void addF3Info(RenderGameOverlayEvent.Text f3)
-	{
-		if(renderF3)
+		if(Minecraft.getInstance().options.renderDebug)
 		{
 			List<String> tip = f3.getLeft();
 			tip.add(ChatFormatting.GOLD + "[HammerLib]" + ChatFormatting.RESET + " Ping: ~" + PingServerPacket.lastPingTime + " ms.");
-			renderF3 = false;
 		}
 	}
-
+	
 	@Override
 	public String getLanguage()
 	{
 		return Minecraft.getInstance().options.languageCode;
 	}
-
+	
 	@Override
 	public Player getClientPlayer()
 	{
 		return Minecraft.getInstance().player;
 	}
-
+	
 	@Override
 	public ReloadableResourceManager getResourceManager()
 	{

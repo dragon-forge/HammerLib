@@ -1,4 +1,6 @@
 # Hammer Lib russian translations
 
+itemGroup.hammerlib=Hammer Lib
+
 block.hammerlib.test_machine=Тестовый механизм
 item.hammerlib.wrench=Гаечный ключ

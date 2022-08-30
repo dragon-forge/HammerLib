@@ -1,4 +1,6 @@
 # Hammer Lib english translations
 
+itemGroup.hammerlib=Hammer Lib
+
 block.hammerlib.test_machine=Test Machine
 item.hammerlib.wrench=Wrench
