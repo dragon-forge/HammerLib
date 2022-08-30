@@ -22,7 +22,8 @@
     "client.ClientLanguageAccessor",
     "client.I18nAccessor",
     "client.LanguageManagerMixin",
-    "client.ModelBakeryMixin"
+    "client.ModelBakeryMixin",
+    "client.ParticleEngineAccessor"
   ],
   "server": [
   ]
