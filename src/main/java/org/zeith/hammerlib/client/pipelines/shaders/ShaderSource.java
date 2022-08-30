@@ -20,7 +20,7 @@ public class ShaderSource
 
 	public ShaderSource(ResourceLocation path)
 	{
-		this(() -> Minecraft.getInstance().getResourceManager().getResource(path).getInputStream());
+		this(() -> Minecraft.getInstance().getResourceManager().open(path));
 		toString = "resource='" + path + '\'';
 	}
 

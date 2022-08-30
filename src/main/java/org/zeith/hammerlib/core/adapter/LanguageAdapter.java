@@ -7,9 +7,9 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.event.LanguageReloadEvent;
-import org.zeith.hammerlib.util.java.CloseableArrayList;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.Set;
@@ -17,12 +17,12 @@ import java.util.Set;
 public class LanguageAdapter
 {
 	private static final Set<String> modids = Sets.newConcurrentHashSet();
-
+	
 	static
 	{
 		HammerLib.EVENT_BUS.addListener(LanguageAdapter::reloadLangs);
 	}
-
+	
 	/**
 	 * Register in mod's constructor.
 	 */
@@ -30,7 +30,7 @@ public class LanguageAdapter
 	{
 		modids.add(modid);
 	}
-
+	
 	public static void reloadLangs(LanguageReloadEvent e)
 	{
 		ReloadableResourceManager mgr = HammerLib.PROXY.getResourceManager();
@@ -49,17 +49,22 @@ public class LanguageAdapter
 					.ifPresent(langFile ->
 					{
 						HammerLib.LOG.debug("Hooking HammerLib language adapter for namespace " + modId + ": " + langFile);
-						try(CloseableArrayList<Resource> resources = new CloseableArrayList<>(mgr.getResources(langFile)))
+						
+						List<Resource> resources = mgr.getResourceStack(langFile);
+						
+						try
 						{
 							for(Resource res : resources)
 							{
-								Scanner in = new Scanner(res.getInputStream(), StandardCharsets.UTF_8);
-								while(in.hasNextLine())
+								try(Scanner in = new Scanner(res.open(), StandardCharsets.UTF_8))
 								{
-									String line = in.nextLine();
-									if(line.startsWith("#")) continue;
-									String[] kv = line.split("=", 2);
-									if(kv.length == 2) e.translate(kv[0], kv[1]);
+									while(in.hasNextLine())
+									{
+										String line = in.nextLine();
+										if(line.startsWith("#")) continue;
+										String[] kv = line.split("=", 2);
+										if(kv.length == 2) e.translate(kv[0], kv[1]);
+									}
 								}
 							}
 						} catch(Throwable ex)
@@ -68,11 +73,11 @@ public class LanguageAdapter
 						}
 					});
 	}
-
+	
 	private static Optional<ResourceLocation> findFirstExisting(ResourceManager mgr, ResourceLocation... paths)
 	{
 		for(ResourceLocation path : paths)
-			if(mgr.hasResource(path))
+			if(mgr.getResource(path).isPresent())
 				return Optional.of(path);
 		return Optional.empty();
 	}

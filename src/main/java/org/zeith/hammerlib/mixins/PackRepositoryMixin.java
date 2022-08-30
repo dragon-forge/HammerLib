@@ -2,7 +2,7 @@ package org.zeith.hammerlib.mixins;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackCompatibility;
@@ -26,10 +26,9 @@ public class PackRepositoryMixin
 {
 	@Shadow
 	private Map<String, Pack> available;
-
 	@Shadow
 	private List<Pack> selected;
-
+	
 	@Inject(
 			method = "reload",
 			at = @At("TAIL")
@@ -40,12 +39,12 @@ public class PackRepositoryMixin
 			selected = new ArrayList<>(selected);
 		if(available instanceof ImmutableMap)
 			available = new HashMap<>(available);
-
+		
 		for(PackResources pack : ResourcePackAdapter.BUILTIN_PACKS)
 		{
 			if(pack instanceof IRegisterListener)
 				((IRegisterListener) pack).onPreRegistered();
-			Pack rpi = new Pack(pack.getName(), true, () -> pack, new TextComponent(pack.getName()), new TextComponent("Builtin."), PackCompatibility.COMPATIBLE, Pack.Position.TOP, true, PackSource.DEFAULT, true);
+			Pack rpi = new Pack(pack.getName(), true, () -> pack, Component.literal(pack.getName()), Component.literal("Builtin."), PackCompatibility.COMPATIBLE, Pack.Position.TOP, true, PackSource.DEFAULT, true);
 			available.put(pack.getName(), rpi);
 			selected.add(rpi);
 			if(pack instanceof IRegisterListener)

@@ -5,7 +5,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
@@ -17,6 +16,7 @@ import org.zeith.api.wrench.IWrenchItem;
 import org.zeith.api.wrench.IWrenchable;
 import org.zeith.hammerlib.annotations.RegistryName;
 import org.zeith.hammerlib.annotations.SimplyRegister;
+import org.zeith.hammerlib.proxy.HLConstants;
 import org.zeith.hammerlib.util.java.Cast;
 
 @SimplyRegister
@@ -25,13 +25,13 @@ public class ItemWrench
 		implements IWrenchItem
 {
 	@RegistryName("wrench")
-	public static final ItemWrench WRENCH = new ItemWrench(new Properties().tab(CreativeModeTab.TAB_TOOLS).stacksTo(1));
+	public static final ItemWrench WRENCH = new ItemWrench(new Properties().tab(HLConstants.HL_TAB).stacksTo(1));
 
 	public ItemWrench(Properties props)
 	{
 		super(props);
 	}
-
+	
 	@Override
 	public InteractionResult onItemUseFirst(ItemStack stack, UseOnContext context)
 	{

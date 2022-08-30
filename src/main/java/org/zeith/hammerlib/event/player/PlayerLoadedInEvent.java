@@ -10,10 +10,10 @@ public class PlayerLoadedInEvent
 	{
 		super(player);
 	}
-
+	
 	@Override
-	public ServerPlayer getPlayer()
+	public ServerPlayer getEntity()
 	{
-		return (ServerPlayer) super.getPlayer();
+		return (ServerPlayer) super.getEntity();
 	}
 }

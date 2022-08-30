@@ -5,6 +5,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.ForgeRegistry;
 import org.zeith.hammerlib.core.adapter.recipe.*;
 
 import java.util.List;
@@ -63,7 +65,7 @@ public class RegisterRecipesEvent
 
 	public ResourceLocation nextId(Item item)
 	{
-		ResourceLocation rl = item.getRegistryName();
+		ResourceLocation rl = ForgeRegistries.ITEMS.getKey(item);
 		return new ResourceLocation(rl.getNamespace(), rl.getPath() + "/" + (lastRecipeID++));
 	}
 

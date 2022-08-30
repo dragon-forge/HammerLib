@@ -5,7 +5,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.Tags;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.annotations.OnlyIf;
@@ -17,7 +16,6 @@ import org.zeith.hammerlib.api.crafting.impl.ItemStackResult;
 import org.zeith.hammerlib.api.crafting.impl.MCIngredient;
 import org.zeith.hammerlib.api.crafting.impl.TagIngredient;
 import org.zeith.hammerlib.core.RecipeHelper;
-import org.zeith.hammerlib.core.test.TestPreferences;
 import org.zeith.hammerlib.event.recipe.ReloadRecipeRegistryEvent;
 
 public class RecipeTestMachine
@@ -41,7 +39,7 @@ public class RecipeTestMachine
 
 	public RecipeTestMachine(ResourceLocation id, int time, ItemStackResult output, IItemIngredient<?> a, IItemIngredient<?> b)
 	{
-		super(id, output, NonNullList.of(a, a, b));
+		super(id, output, NonNullList.of(a, b));
 		this.time = time;
 		this.output = output;
 		this.in1 = a;
@@ -59,26 +57,16 @@ public class RecipeTestMachine
 	}
 
 	@Setup
-	@OnlyIf(owner = TestPreferences.class, member = "enableTestMachine")
 	public static void setup()
 	{
 		HammerLib.LOG.info("Setup Test Machine recipes!");
-		HammerLib.EVENT_BUS.addGenericListener(RecipeTestMachine.class, RecipeTestMachine::addTestMachineRecipes);
+//		HammerLib.EVENT_BUS.addGenericListener(RecipeTestMachine.class, RecipeTestMachine::addTestMachineRecipes);
 	}
 
 	public static void addTestMachineRecipes(ReloadRecipeRegistryEvent.AddRecipes<RecipeTestMachine> evt)
 	{
 		if(evt.is(RecipeTestMachine.REGISTRY))
 		{
-			evt.addRecipe(
-					new RecipeTestMachine(
-							new ResourceLocation("hammerlib", "testrecipe"),
-							400,
-							new ItemStackResult(new ItemStack(Items.REDSTONE)),
-							new TagIngredient(Tags.Items.COBBLESTONE).quantify(4), new TagIngredient(ItemTags.LOGS)
-					)
-			);
-
 			evt.addRecipe(
 					new RecipeTestMachine(
 							new ResourceLocation("hammerlib", "testrecipe2"),

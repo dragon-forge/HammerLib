@@ -10,6 +10,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import javax.annotation.Nullable;
 import java.util.LinkedList;
 
+@OnlyIn(Dist.CLIENT)
 public class GuiTooltip
 		implements ITooltip
 {
@@ -18,22 +19,22 @@ public class GuiTooltip
 	protected BlockPos pos;
 	protected Entity ent;
 	protected int width, height;
-
+	
 	protected void refresh()
 	{
 		width = 0;
 		height = 0;
-
+		
 		for(int i = 0; i < infos.size(); ++i)
 		{
 			TooltipLine ln = infos.get(i);
 			ln.refresh();
-
+			
 			width = Math.max(width, ln.width);
 			height += ln.height;
 		}
 	}
-
+	
 	@Override
 	public void append(IRenderableInfo info)
 	{
@@ -42,25 +43,25 @@ public class GuiTooltip
 		infos.getLast().addLast(info);
 		refresh();
 	}
-
+	
 	@Override
 	public void newLine()
 	{
 		infos.addLast(new TooltipLine());
 	}
-
+	
 	@Override
 	public int getWidth()
 	{
 		return width;
 	}
-
+	
 	@Override
 	public int getHeight()
 	{
 		return height;
 	}
-
+	
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public void render(PoseStack pose, float x, float y, float partialTime)
@@ -72,19 +73,19 @@ public class GuiTooltip
 			y += ln.height;
 		}
 	}
-
+	
 	@Override
 	public void reset()
 	{
 		infos.clear();
 		refresh();
 	}
-
+	
 	public static class TooltipLine
 			extends LinkedList<IRenderableInfo>
 	{
 		protected int width, height;
-
+		
 		@OnlyIn(Dist.CLIENT)
 		public void render(PoseStack pose, float x, float y, float partialTime)
 		{
@@ -95,56 +96,56 @@ public class GuiTooltip
 				x += info.getWidth();
 			}
 		}
-
+		
 		protected void refresh()
 		{
 			width = 0;
 			height = 0;
-
+			
 			for(int i = 0; i < size(); ++i)
 			{
 				IRenderableInfo info = get(i);
-
+				
 				width += info.getWidth();
 				height = Math.max(height, info.getHeight());
 			}
 		}
 	}
-
+	
 	@Nullable
 	@Override
 	public Level getWorld()
 	{
 		return world;
 	}
-
+	
 	@Nullable
 	@Override
 	public BlockPos getPos()
 	{
 		return pos;
 	}
-
+	
 	@Override
 	public Entity getEntity()
 	{
 		return ent;
 	}
-
+	
 	public GuiTooltip withLocation(Level world, BlockPos pos)
 	{
 		this.world = world;
 		this.pos = pos;
 		return this;
 	}
-
+	
 	public GuiTooltip withEntity(Entity ent)
 	{
 		this.ent = ent;
 		this.world = ent.level;
 		return this;
 	}
-
+	
 	public GuiTooltip withProvider(ITooltipProviderHC provider)
 	{
 		provider.addInformation(this);

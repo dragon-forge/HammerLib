@@ -8,11 +8,11 @@ import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.client.gui.components.toasts.ToastComponent;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -329,7 +329,7 @@ public class VariableShaderProgram
 			if(program.hasCompilationFailed())
 			{
 				int errors = program.getCompilationErrors().size();
-				ShaderErrorToast toast = new ShaderErrorToast(new TextComponent(errors + " Shader Error" + (errors > 1 ? "s" : "")), new TextComponent(program.getId() + " failed. :<"));
+				ShaderErrorToast toast = new ShaderErrorToast(Component.literal(errors + " Shader Error" + (errors > 1 ? "s" : "")), Component.literal(program.getId() + " failed. :<"));
 				Minecraft.getInstance().getToasts().addToast(toast);
 			}
 		}
@@ -339,15 +339,15 @@ public class VariableShaderProgram
 	public static class ShaderErrorToast
 			implements Toast
 	{
-		private String title;
-		private String subtitle;
+		private Component title;
+		private Component subtitle;
 		private long firstDrawTime;
 		private boolean newDisplay;
 
-		public ShaderErrorToast(TextComponent titleComponent, @Nullable TextComponent subtitleComponent)
+		public ShaderErrorToast(Component titleComponent, @Nullable Component subtitleComponent)
 		{
-			this.title = titleComponent.getContents();
-			this.subtitle = subtitleComponent == null ? null : subtitleComponent.getContents();
+			this.title = titleComponent;
+			this.subtitle = subtitleComponent == null ? null : subtitleComponent;
 		}
 
 		@Override
@@ -375,10 +375,10 @@ public class VariableShaderProgram
 			return delta - this.firstDrawTime < 5000L ? Visibility.SHOW : Visibility.HIDE;
 		}
 
-		public void setDisplayedText(TextComponent titleComponent, @Nullable TextComponent subtitleComponent)
+		public void setDisplayedText(MutableComponent titleComponent, @Nullable MutableComponent subtitleComponent)
 		{
-			this.title = titleComponent.getContents();
-			this.subtitle = subtitleComponent == null ? null : subtitleComponent.getContents();
+			this.title = titleComponent;
+			this.subtitle = subtitleComponent == null ? null : subtitleComponent;
 			this.newDisplay = true;
 		}
 	}

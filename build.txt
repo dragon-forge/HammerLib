@@ -2,18 +2,18 @@
 mod_id=hammerlib
 archive_name=HammerLib
 mod_name=Hammer Lib
-mod_version=18.2.16
+mod_version=19.1.0
 
 # Maven Info
 maven_group=org.zeith.hammerlib
 
 # MC Info
-mc_version=1.18.2
-forge_version=40.1.0
+mc_version=1.19.2
+forge_version=43.1.3
 
 # MCP Info
 mcp_ch=official
-mcp_vr=1.18.2
+mcp_vr=1.19.2
 
 # Misc Info
 java=17

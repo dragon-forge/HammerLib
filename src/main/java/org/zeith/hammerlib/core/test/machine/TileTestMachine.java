@@ -20,7 +20,6 @@ import org.zeith.hammerlib.api.forge.BlockAPI;
 import org.zeith.hammerlib.api.inv.SimpleInventory;
 import org.zeith.hammerlib.api.io.NBTSerializable;
 import org.zeith.hammerlib.api.tiles.IContainerTile;
-import org.zeith.hammerlib.core.test.TestPreferences;
 import org.zeith.hammerlib.net.properties.PropertyInt;
 import org.zeith.hammerlib.net.properties.PropertyResourceLocation;
 import org.zeith.hammerlib.tiles.TileSyncableTickable;
@@ -31,7 +30,6 @@ public class TileTestMachine
 		extends TileSyncableTickable
 		implements IContainerTile, ICraftingExecutor, IWrenchable
 {
-	@OnlyIf(owner = TestPreferences.class, member = "enableTestMachine")
 	@TileRenderer(TESRTestMachine.class)
 	@RegistryName("test_machine")
 	public static final BlockEntityType<TileTestMachine> TEST_MACHINE = BlockAPI.createBlockEntityType(TileTestMachine::new, BlockTestMachine.TEST_MACHINE);
@@ -178,18 +176,14 @@ public class TileTestMachine
 		{
 			Direction facing = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
 			final Direction origin = facing;
-
 			if(d == Direction.UP)
 				facing = facing.getClockWise();
 			else if(d == Direction.DOWN)
 				facing = facing.getCounterClockWise();
 			else
 				facing = d;
-
 			if(origin != facing)
-			{
 				level.setBlockAndUpdate(worldPosition, state.setValue(BlockStateProperties.HORIZONTAL_FACING, facing));
-			}
 		}
 
 		return true;
