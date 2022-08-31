@@ -4,56 +4,19 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.phys.Vec3;
 import org.zeith.hammerlib.util.java.DirectStorage;
 
-import java.util.Objects;
-
 public class PropertyVec3
-		implements IProperty<Vec3>
+		extends PropertyBase<Vec3>
 {
-	final DirectStorage<Vec3> value;
-
 	public PropertyVec3(DirectStorage<Vec3> value)
 	{
-		this.value = value;
+		super(Vec3.class, value);
 	}
-
+	
 	public PropertyVec3()
 	{
-		this(DirectStorage.allocate());
+		super(Vec3.class);
 	}
-
-	@Override
-	public Class<Vec3> getType()
-	{
-		return Vec3.class;
-	}
-
-	@Override
-	public Vec3 set(Vec3 value)
-	{
-		Vec3 pv = this.value.get();
-		if(!Objects.equals(pv, value))
-		{
-			this.value.set(value);
-			markChanged(true);
-		}
-		return pv;
-	}
-
-	boolean changed;
-
-	@Override
-	public void markChanged(boolean changed)
-	{
-		this.changed = changed;
-		if(changed) notifyDispatcherOfChange();
-	}
-
-	@Override
-	public boolean hasChanged()
-	{
-		return changed;
-	}
-
+	
 	@Override
 	public void write(FriendlyByteBuf buf)
 	{
@@ -66,7 +29,7 @@ public class PropertyVec3
 			buf.writeDouble(value.z);
 		}
 	}
-
+	
 	@Override
 	public void read(FriendlyByteBuf buf)
 	{
@@ -77,25 +40,5 @@ public class PropertyVec3
 			double z = buf.readDouble();
 			value.set(new Vec3(x, y, z));
 		} else value.set(null);
-	}
-
-	@Override
-	public Vec3 get()
-	{
-		return value.get();
-	}
-
-	PropertyDispatcher dispatcher;
-
-	@Override
-	public PropertyDispatcher getDispatcher()
-	{
-		return dispatcher;
-	}
-
-	@Override
-	public void setDispatcher(PropertyDispatcher dispatcher)
-	{
-		this.dispatcher = dispatcher;
 	}
 }

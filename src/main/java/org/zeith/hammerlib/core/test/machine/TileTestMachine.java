@@ -68,7 +68,7 @@ public class TileTestMachine
 
 			if(isValidRecipe(r))
 			{
-				int p = progress.getInt() + 1;
+				int p = _progress + 1;
 				if(p >= r.getTime())
 				{
 					ItemStack result = r.getRecipeOutput(this);
@@ -84,16 +84,16 @@ public class TileTestMachine
 							setEnabledState(false);
 						}
 
-						progress.setInt(0);
+						_progress = (0);
 					}
 				} else
-					progress.setInt(p);
+					_progress = (p);
 			} else
 			{
 				if(_progress > 0)
 				{
-					progress.setInt(_progress - 1);
-					if(progress.getInt() <= 0)
+					_progress = (_progress - 1);
+					if(_progress <= 0)
 						setEnabledState(false);
 				}
 
@@ -106,9 +106,9 @@ public class TileTestMachine
 				RecipeTestMachine recipe = RecipeTestMachine.REGISTRY.getRecipes().stream().filter(this::isValidRecipe).findFirst().orElse(null);
 				if(recipe != null)
 				{
-					if(recipe.time != maxProgress.getInt())
-						progress.setInt(0);
-					maxProgress.setInt(recipe.time);
+					if(recipe.time != _maxProgress)
+						_progress = 0;
+					_maxProgress = recipe.time;
 					activeRecipeId.set(recipe.getRecipeName());
 					setEnabledState(true);
 				}

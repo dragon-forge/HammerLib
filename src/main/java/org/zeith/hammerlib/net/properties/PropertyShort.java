@@ -3,85 +3,38 @@ package org.zeith.hammerlib.net.properties;
 import net.minecraft.network.FriendlyByteBuf;
 import org.zeith.hammerlib.util.java.DirectStorage;
 
-import java.util.Objects;
-
 public class PropertyShort
-		implements IProperty<Short>
+		extends PropertyBase<Short>
 {
-	final DirectStorage<Short> value;
-
 	public PropertyShort(DirectStorage<Short> value)
 	{
-		this.value = value;
+		super(Short.class, value);
 	}
-
+	
 	public PropertyShort()
 	{
 		this(DirectStorage.allocate((short) 0));
 	}
-
-	@Override
-	public Class<Short> getType()
+	
+	public short setShort(short value)
 	{
-		return Short.class;
+		return set(value);
 	}
-
-	@Override
-	public Short set(Short value)
+	
+	public short getShort()
 	{
-		Short pv = this.value.get();
-		if(!Objects.equals(pv, value))
-		{
-			this.value.set(value);
-			markChanged(true);
-		}
-		return pv;
+		return value.get();
 	}
-
-	boolean changed;
-
-	@Override
-	public void markChanged(boolean changed)
-	{
-		this.changed = changed;
-		if(changed) notifyDispatcherOfChange();
-	}
-
-	@Override
-	public boolean hasChanged()
-	{
-		return changed;
-	}
-
+	
 	@Override
 	public void write(FriendlyByteBuf buf)
 	{
 		buf.writeShort(value.get());
 	}
-
+	
 	@Override
 	public void read(FriendlyByteBuf buf)
 	{
 		value.set(buf.readShort());
-	}
-
-	@Override
-	public Short get()
-	{
-		return value.get();
-	}
-
-	PropertyDispatcher dispatcher;
-
-	@Override
-	public PropertyDispatcher getDispatcher()
-	{
-		return dispatcher;
-	}
-
-	@Override
-	public void setDispatcher(PropertyDispatcher dispatcher)
-	{
-		this.dispatcher = dispatcher;
 	}
 }
