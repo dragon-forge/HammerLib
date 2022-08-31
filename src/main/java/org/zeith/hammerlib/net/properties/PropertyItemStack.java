@@ -5,88 +5,34 @@ import net.minecraft.world.item.ItemStack;
 import org.zeith.hammerlib.util.java.DirectStorage;
 
 public class PropertyItemStack
-		implements IProperty<ItemStack>
+		extends PropertyBase<ItemStack>
 {
-	final DirectStorage<ItemStack> value;
-
 	public PropertyItemStack(DirectStorage<ItemStack> value)
 	{
-		this.value = value;
+		super(ItemStack.class, value);
 	}
-
+	
 	public PropertyItemStack()
 	{
-		this(DirectStorage.allocate(ItemStack.EMPTY));
+		super(ItemStack.class);
 	}
-
-	public static boolean itemsEqual(ItemStack a, ItemStack b)
-	{
-		return ItemStack.matches(a, b);
-	}
-
+	
 	@Override
-	public Class<ItemStack> getType()
+	protected boolean differ(ItemStack a, ItemStack b)
 	{
-		return ItemStack.class;
+		return !ItemStack.matches(a, b);
 	}
-
-	@Override
-	public ItemStack set(ItemStack value)
-	{
-		ItemStack pv = this.value.get();
-		if(!itemsEqual(pv, value))
-		{
-			this.value.set(value);
-			markChanged(true);
-		}
-		return pv;
-	}
-
-	boolean changed;
-
-	@Override
-	public void markChanged(boolean changed)
-	{
-		this.changed = changed;
-		if(changed) notifyDispatcherOfChange();
-	}
-
-	@Override
-	public boolean hasChanged()
-	{
-		return changed;
-	}
-
+	
 	@Override
 	public void write(FriendlyByteBuf buf)
 	{
 		ItemStack value = this.value.get();
 		buf.writeItemStack(value, false);
 	}
-
+	
 	@Override
 	public void read(FriendlyByteBuf buf)
 	{
 		value.set(buf.readItem());
-	}
-
-	@Override
-	public ItemStack get()
-	{
-		return value.get();
-	}
-
-	PropertyDispatcher dispatcher;
-
-	@Override
-	public PropertyDispatcher getDispatcher()
-	{
-		return dispatcher;
-	}
-
-	@Override
-	public void setDispatcher(PropertyDispatcher dispatcher)
-	{
-		this.dispatcher = dispatcher;
 	}
 }

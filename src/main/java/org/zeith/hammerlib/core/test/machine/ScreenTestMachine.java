@@ -19,7 +19,14 @@ public class ScreenTestMachine
 		this.tile = container.tile;
 		setSize(176, 166);
 	}
-
+	
+	@Override
+	protected void containerTick()
+	{
+		menu.containerTick();
+		super.containerTick();
+	}
+	
 	@Override
 	protected void renderBackground(PoseStack matrix, float partialTime, int mouseX, int mouseY)
 	{

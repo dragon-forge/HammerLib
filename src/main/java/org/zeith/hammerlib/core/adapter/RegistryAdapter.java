@@ -90,7 +90,7 @@ public class RegistryAdapter
 		
 		Arrays
 				.stream(source.getDeclaredMethods())
-				.filter(m -> m.getAnnotation(SimplyRegister.class) != null && m.getParameterCount() == 1 && Consumer.class.isAssignableFrom(m.getParameterTypes()[0]) && ReflectionUtil.doesParameterTypeArgsMatch(m.getParameters()[0], superType))
+				.filter(m -> m.getAnnotation(SimplyRegister.class) != null && m.getParameterCount() == 1 && BiConsumer.class.isAssignableFrom(m.getParameterTypes()[0]) && ReflectionUtil.doesParameterTypeArgsMatch(m.getParameters()[0], ResourceLocation.class, superType))
 				.forEach(method ->
 				{
 					if(Modifier.isStatic(method.getModifiers()))
