@@ -29,6 +29,7 @@ public class ContainerTestMachine
 						tile.maxProgress
 				))
 		);
+		
 		this.tile = tile;
 		
 		int x;
@@ -58,7 +59,7 @@ public class ContainerTestMachine
 	}
 	
 	@Override
-	public ItemStack quickMoveStack(Player p_82846_1_, int p_82846_2_)
+	public ItemStack quickMoveStack(Player player, int slot)
 	{
 		return ItemStack.EMPTY;
 	}

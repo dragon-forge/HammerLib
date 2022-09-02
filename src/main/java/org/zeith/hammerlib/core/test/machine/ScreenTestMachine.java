@@ -12,7 +12,7 @@ public class ScreenTestMachine
 		extends ScreenWTFMojang<ContainerTestMachine>
 {
 	public TileTestMachine tile;
-
+	
 	public ScreenTestMachine(ContainerTestMachine container, Inventory inv, Component label)
 	{
 		super(container, inv, label);
@@ -28,15 +28,15 @@ public class ScreenTestMachine
 	}
 	
 	@Override
-	protected void renderBackground(PoseStack matrix, float partialTime, int mouseX, int mouseY)
+	protected void renderBackground(PoseStack pose, float partialTime, int mouseX, int mouseY)
 	{
 		FXUtils.bindTexture(HLConstants.MOD_ID, "textures/gui/test_machine.png");
-		RenderUtils.drawTexturedModalRect(leftPos, topPos, 0, 0, imageWidth, imageHeight);
-
+		RenderUtils.drawTexturedModalRect(pose, leftPos, topPos, 0, 0, imageWidth, imageHeight);
+		
 		float maxProgress = 200F;
 		int mp = tile.maxProgress.getInt();
 		if(mp > 0) maxProgress = mp;
-
-		RenderUtils.drawTexturedModalRect(leftPos + 80, topPos + 35, imageWidth, 14, 22 * tile.progress.getInt() / maxProgress, 16);
+		
+		RenderUtils.drawTexturedModalRect(pose, leftPos + 80, topPos + 35, imageWidth, 14, 22 * tile.progress.getInt() / maxProgress, 16);
 	}
 }
