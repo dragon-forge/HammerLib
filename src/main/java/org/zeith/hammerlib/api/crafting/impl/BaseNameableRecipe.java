@@ -187,7 +187,7 @@ public class BaseNameableRecipe
 		/**
 		 * Retrieves the energy amount needed to perform the recipe in units.
 		 *
-		 * @param unit the unit the we retrieve energy in.
+		 * @param unit the unit we retrieve energy in.
 		 * @return the amount of energy
 		 */
 		public double getEnergy(EnergyUnit unit)

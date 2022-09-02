@@ -35,7 +35,7 @@ public interface IItemIngredient<T extends IItemIngredient<T>>
 
 	/**
 	 * The amount of this item required for the recipe.
-	 * By default is 1, but may be multiplied with {@link #quantify(int)} method.
+	 * By default, is 1, but may be multiplied with {@link #quantify(int)} method.
 	 */
 	default int getCount()
 	{

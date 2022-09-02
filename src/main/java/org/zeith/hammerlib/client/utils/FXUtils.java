@@ -1,12 +1,13 @@
 package org.zeith.hammerlib.client.utils;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 public class FXUtils
 {
@@ -48,31 +49,36 @@ public class FXUtils
 			bindTexture("hammercore", tex);
 	}
 	 */
-
-	public static void bindTexture(ResourceLocation tex)
+	
+	public static void bindTexture(ResourceLocation path)
 	{
-		RenderSystem.setShaderTexture(0, tex);
-		RenderSystem.setShader(GameRenderer::getPositionTexShader);
+		bindTexture(path, GameRenderer::getPositionTexShader);
+	}
+	
+	public static void bindTexture(String namespace, String path)
+	{
+		bindTexture(namespace, path, GameRenderer::getPositionTexShader);
+	}
+	
+	public static void bindTexture(ResourceLocation path, Supplier<ShaderInstance> shader)
+	{
+		RenderSystem.setShaderTexture(0, path);
+		RenderSystem.setShader(shader);
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 	}
-
-	public static void bindTexture(String dom, String tex)
+	
+	public static void bindTexture(String namespace, String path, Supplier<ShaderInstance> shader)
 	{
-		String f = dom + ':' + tex;
-
+		String f = namespace + ':' + path;
+		
 		if(textures.containsKey(f))
 		{
-			RenderSystem.setShaderTexture(0, textures.get(f));
-			RenderSystem.setShader(GameRenderer::getPositionTexShader);
-			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+			bindTexture(textures.get(f), shader);
 			return;
 		}
-
-		ResourceLocation value = new ResourceLocation(dom, tex);
+		
+		ResourceLocation value = new ResourceLocation(namespace, path);
 		textures.put(f, value);
-
-		RenderSystem.setShaderTexture(0, value);
-		RenderSystem.setShader(GameRenderer::getPositionTexShader);
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+		bindTexture(value, shader);
 	}
 }
