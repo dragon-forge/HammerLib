@@ -168,6 +168,9 @@ public class TileTestMachine
 	@Override
 	public boolean onWrenchUsed(UseOnContext context)
 	{
+		if(context.getLevel().isClientSide())
+			return true;
+		
 		Direction d = context.getClickedFace();
 		if(context.getPlayer().isShiftKeyDown()) d = d.getOpposite();
 
