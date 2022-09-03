@@ -7,7 +7,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import org.zeith.hammerlib.api.tiles.ISyncableTile;
-import org.zeith.hammerlib.net.HLTargetPoint;
 import org.zeith.hammerlib.net.Network;
 import org.zeith.hammerlib.net.packets.SyncTileEntityPacket;
 import org.zeith.hammerlib.net.properties.IPropertyTile;
@@ -20,7 +19,7 @@ public class ServerListener
 {
 	public static final List<BlockEntity> NEED_SYNC = new ArrayList<>();
 	public static final List<BlockEntity> NEED_PROP_SYNC = new ArrayList<>();
-
+	
 	@SubscribeEvent
 	public static void serverTick(ServerTickEvent e)
 	{
@@ -30,26 +29,26 @@ public class ServerListener
 			while(!NEED_SYNC.isEmpty())
 			{
 				BlockEntity tile = NEED_SYNC.remove(0);
-				if(tile instanceof ISyncableTile)
-					((ISyncableTile) tile).syncNow();
+				if(tile instanceof ISyncableTile s)
+					s.syncNow();
 				else
-					Network.sendToArea(new HLTargetPoint(tile.getBlockPos(), 256, tile.getLevel().dimension()), new SyncTileEntityPacket(tile));
+					Network.sendToTracking(tile.getLevel().getChunkAt(tile.getBlockPos()), new SyncTileEntityPacket(tile));
 			}
-
+			
 			while(!NEED_PROP_SYNC.isEmpty())
 			{
 				BlockEntity tile = NEED_PROP_SYNC.remove(0);
-				if(tile instanceof IPropertyTile)
-					((IPropertyTile) tile).syncPropertiesNow();
+				if(tile instanceof IPropertyTile ipt)
+					ipt.syncPropertiesNow();
 			}
 		}
 	}
-
+	
 	public static void syncProperties(BlockEntity tileEntity)
 	{
 		NEED_PROP_SYNC.add(tileEntity);
 	}
-
+	
 	public static void syncTileEntity(BlockEntity tileEntity)
 	{
 		NEED_SYNC.add(tileEntity);

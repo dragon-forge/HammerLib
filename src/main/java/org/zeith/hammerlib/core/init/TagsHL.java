@@ -11,16 +11,17 @@ public class TagsHL
 	{
 		Items.init();
 	}
-
+	
 	public static class Items
 	{
 		private static void init()
 		{
 		}
-
+		
 		public static final TagKey<Item> PISTONS = tag("pistons");
 		public static final TagKey<Item> STORAGE_BLOCKS_GLOWSTONE = tag("storage_blocks/glowstone");
-
+		public static final TagKey<Item> TOOLS_WRENCH = tag("tools/wrenc");
+		
 		private static TagKey<Item> tag(String name)
 		{
 			return ItemTags.create(new ResourceLocation("forge", name));

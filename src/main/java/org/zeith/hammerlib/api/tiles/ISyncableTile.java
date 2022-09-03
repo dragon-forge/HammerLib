@@ -28,10 +28,7 @@ public interface ISyncableTile
 
 	default void syncWithHLPipeline()
 	{
-		if(this instanceof BlockEntity)
-		{
-			BlockEntity tile = (BlockEntity) this;
-			Network.sendToArea(new HLTargetPoint(tile.getBlockPos(), 256, tile.getLevel().dimension()), new SyncTileEntityPacket(tile));
-		}
+		if(this instanceof BlockEntity tile)
+			Network.sendToTracking(tile.getLevel().getChunkAt(tile.getBlockPos()), new SyncTileEntityPacket(tile));
 	}
 }
