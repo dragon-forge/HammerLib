@@ -14,6 +14,7 @@
     "LevelChunkMixin",
     "LevelMixin",
     "PackRepositoryMixin",
+    "RecipeManagerAccessor",
     "RecipeManagerMixin",
     "RegistryManagerAccessor",
     "TagLoaderMixin",

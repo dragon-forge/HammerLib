@@ -1,7 +1,7 @@
 package org.zeith.hammerlib.core.adapter.recipe;
 
 import net.minecraft.world.item.crafting.Recipe;
-import org.zeith.hammerlib.event.recipe.RegisterRecipesEvent;
+import org.zeith.hammerlib.util.mcf.itf.IRecipeRegistrationEvent;
 
 public abstract class AbstractCookingRecipeBuilder<R extends AbstractCookingRecipeBuilder<R>>
 		extends SingleItemRecipeBuilder<R>
@@ -9,7 +9,7 @@ public abstract class AbstractCookingRecipeBuilder<R extends AbstractCookingReci
 	protected int cookTime = 200;
 	protected float xp = 0;
 
-	public AbstractCookingRecipeBuilder(RegisterRecipesEvent event)
+	public AbstractCookingRecipeBuilder(IRecipeRegistrationEvent<Recipe<?>> event)
 	{
 		super(event);
 	}
@@ -32,6 +32,8 @@ public abstract class AbstractCookingRecipeBuilder<R extends AbstractCookingReci
 	public void register()
 	{
 		validate();
-		event.add(generateRecipe());
+		
+		var rec = generateRecipe();
+		event.register(rec.getId(), rec);
 	}
 }

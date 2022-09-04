@@ -20,7 +20,7 @@ public class TagsHL
 		
 		public static final TagKey<Item> PISTONS = tag("pistons");
 		public static final TagKey<Item> STORAGE_BLOCKS_GLOWSTONE = tag("storage_blocks/glowstone");
-		public static final TagKey<Item> TOOLS_WRENCH = tag("tools/wrenc");
+		public static final TagKey<Item> TOOLS_WRENCH = tag("tools/wrench");
 		
 		private static TagKey<Item> tag(String name)
 		{
