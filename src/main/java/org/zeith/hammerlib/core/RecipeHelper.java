@@ -4,11 +4,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.ItemLike;
+import net.minecraftforge.common.crafting.conditions.ICondition;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.api.crafting.AbstractRecipeRegistry;
@@ -28,48 +26,44 @@ import java.util.stream.Stream;
 
 public class RecipeHelper
 {
-	public static void registerCustomRecipes(Consumer<Recipe<?>> addRecipe, boolean silent)
+	public static void registerCustomRecipes(Consumer<Recipe<?>> addRecipe, boolean silent, ICondition.IContext context)
 	{
 		RegisterRecipesEvent rre = new RegisterRecipesEvent();
 		HammerLib.postEvent(rre);
-
+		
 		if(!silent) HLConstants.LOG.info("Reloading HammerLib recipes...");
-
+		
 		AtomicLong count = new AtomicLong();
-
+		
 		rre.getRecipes().forEach(recipe ->
 		{
 			addRecipe.accept(recipe);
 			count.incrementAndGet();
 		});
-
+		
 		if(!silent) HLConstants.LOG.info("HammerLib injected {} recipes into recipe map.", count.longValue());
-
+		
 		List<AbstractRecipeRegistry<?, ?, ?>> registries = AbstractRecipeRegistry.getAllRegistries();
 		if(!silent) HLConstants.LOG.info("Reloading {} custom registries.", registries.size());
-		registries.forEach(AbstractRecipeRegistry::reload);
+		for(AbstractRecipeRegistry<?, ?, ?> registry : registries)
+			registry.reload(null, context);
 		if(!silent)
 			HLConstants.LOG.info("{} custom registries reloaded, added {} total recipes.", registries.size(), registries.stream().mapToInt(AbstractRecipeRegistry::getRecipeCount).sum());
 	}
-
-	public static void injectRecipes(RecipeManager mgr)
+	
+	public static void injectRecipes(RecipeManager mgr, ICondition.IContext context)
 	{
 		Internal.mutableManager(mgr);
 		List<Recipe<?>> recipeList = new ArrayList<>();
-		registerCustomRecipes(recipeList::add, false);
+		registerCustomRecipes(recipeList::add, false, context);
 		Internal.addRecipes(mgr, recipeList);
 	}
-
-	public static void injectRecipesCustom(Consumer<Recipe<?>> handler)
+	
+	public static void injectRecipesCustom(Map<ResourceLocation, Recipe<?>> handler, ICondition.IContext ctx)
 	{
-		registerCustomRecipes(handler, false);
+		registerCustomRecipes(r -> handler.put(r.getId(), r), false, ctx);
 	}
-
-	public static void injectRecipesCustom(Map<ResourceLocation, Recipe<?>> handler)
-	{
-		registerCustomRecipes(r -> handler.put(r.getId(), r), false);
-	}
-
+	
 	private static class Internal
 	{
 		private static void addRecipes(RecipeManager mgr, List<Recipe<?>> recipes)
@@ -82,7 +76,7 @@ public class RecipeHelper
 			});
 			HammerLib.LOG.info("Registered {} additional recipes.", recipes.size());
 		}
-
+		
 		private static void mutableManager(RecipeManager mgr)
 		{
 			mgr.byName = new HashMap<>(mgr.byName);
@@ -91,7 +85,7 @@ public class RecipeHelper
 				mgr.recipes.put(type, new HashMap<>(mgr.recipes.get(type)));
 		}
 	}
-
+	
 	public static Ingredient fromComponent(Object comp)
 	{
 		Ingredient ingr = Ingredient.EMPTY;
@@ -138,12 +132,12 @@ public class RecipeHelper
 		}
 		return ingr;
 	}
-
+	
 	public static TagKey<Item> getItemTag(ResourceLocation path)
 	{
 		return TagKey.create(ForgeRegistries.ITEMS.getRegistryKey(), path);
 	}
-
+	
 	public static Ingredient fromTag(TagKey<Item> tag)
 	{
 		return Ingredient.fromValues(Stream.of(new Ingredient.TagValue(tag)));

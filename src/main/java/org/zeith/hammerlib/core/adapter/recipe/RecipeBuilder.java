@@ -4,18 +4,19 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import org.zeith.hammerlib.event.recipe.RegisterRecipesEvent;
+import org.zeith.hammerlib.util.mcf.itf.IRecipeRegistrationEvent;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
 
-public abstract class RecipeBuilder<R extends RecipeBuilder<R>>
+public abstract class RecipeBuilder<R extends RecipeBuilder<R, RT>, RT>
 {
-	protected final RegisterRecipesEvent event;
+	protected final IRecipeRegistrationEvent<RT> event;
 	protected ResourceLocation identifier;
 	protected String group = "";
 	protected ItemStack result = ItemStack.EMPTY;
 
-	public RecipeBuilder(RegisterRecipesEvent event)
+	public RecipeBuilder(IRecipeRegistrationEvent<RT> event)
 	{
 		this.event = event;
 	}
@@ -62,7 +63,7 @@ public abstract class RecipeBuilder<R extends RecipeBuilder<R>>
 	protected ResourceLocation getIdentifier()
 	{
 		if(this.identifier != null) return this.identifier;
-		return event.nextId(result.getItem());
+		return this.identifier = event.nextId(result.getItem());
 	}
 
 	protected void validate()

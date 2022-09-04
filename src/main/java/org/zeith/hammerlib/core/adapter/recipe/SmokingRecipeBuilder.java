@@ -3,11 +3,12 @@ package org.zeith.hammerlib.core.adapter.recipe;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.SmokingRecipe;
 import org.zeith.hammerlib.event.recipe.RegisterRecipesEvent;
+import org.zeith.hammerlib.util.mcf.itf.IRecipeRegistrationEvent;
 
 public class SmokingRecipeBuilder
 		extends AbstractCookingRecipeBuilder<SmokingRecipeBuilder>
 {
-	public SmokingRecipeBuilder(RegisterRecipesEvent event)
+	public SmokingRecipeBuilder(IRecipeRegistrationEvent<Recipe<?>> event)
 	{
 		super(event);
 		cookTime = 100;
