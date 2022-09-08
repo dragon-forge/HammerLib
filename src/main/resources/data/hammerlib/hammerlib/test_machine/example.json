@@ -1,0 +1,12 @@
+{
+	"time": 20,
+	"result": {
+		"item": "minecraft:emerald"
+	},
+	"top": {
+		"tag": "forge:gems/diamond"
+	},
+	"bottom": {
+		"tag": "forge:gems/diamond"
+	}
+}

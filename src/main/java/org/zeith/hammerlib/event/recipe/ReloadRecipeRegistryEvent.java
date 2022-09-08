@@ -110,13 +110,19 @@ public class ReloadRecipeRegistryEvent
 			return registry.getRegistryId().equals(this.registry.getRegistryId());
 		}
 		
-		private int lastRecipeID;
-		
 		@Override
 		public ResourceLocation nextId(Item item)
 		{
 			ResourceLocation rl = ForgeRegistries.ITEMS.getKey(item);
-			return new ResourceLocation(rl.getNamespace(), rl.getPath() + "/" + (lastRecipeID++));
+			
+			if(registry.getRecipe(Cast.cast(rl)) == null) return rl;
+			
+			int lastIdx = 1;
+			while(true)
+			{
+				rl = new ResourceLocation(rl.getNamespace(), rl.getPath() + "_" + (lastIdx++));
+				if(registry.getRecipe(Cast.cast(rl)) == null) return rl;
+			}
 		}
 		
 		@Override
