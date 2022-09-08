@@ -130,7 +130,7 @@ public class HammerLib
 		ConfigAdapter.setup();
 		
 		List<ModAnnotation.EnumHolder> bothSides = Stream.of(Dist.values())
-				.map(dst -> new ModAnnotation.EnumHolder("Lnet/minecraftforge/api/distmarker/Dist;", dst.name()))
+				.map(dst -> new ModAnnotation.EnumHolder("Lnet/minecraftforge/itf/distmarker/Dist;", dst.name()))
 				.collect(Collectors.toList());
 		
 		// Register all setups

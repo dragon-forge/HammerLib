@@ -17,7 +17,7 @@ public class IndexedRecipeRegistry<T extends IGeneralRecipe>
 {
 	public IndexedRecipeRegistry(Class<T> type, ResourceLocation id)
 	{
-		super(type, new IndexedRecipeContainer<>(type), id);
+		super(type, new IndexedRecipeContainer<>(type), id, null);
 	}
 
 	@Override

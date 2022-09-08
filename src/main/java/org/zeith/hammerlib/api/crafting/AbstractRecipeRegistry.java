@@ -2,8 +2,9 @@ package org.zeith.hammerlib.api.crafting;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.tags.TagManager;
-import net.minecraftforge.common.crafting.conditions.ConditionContext;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.crafting.conditions.ICondition;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
@@ -11,8 +12,10 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.server.ServerLifecycleHooks;
 import org.zeith.hammerlib.HammerLib;
+import org.zeith.hammerlib.api.crafting.building.CustomRecipeGenerator;
 import org.zeith.hammerlib.api.crafting.building.GeneralRecipeBuilder;
 import org.zeith.hammerlib.event.recipe.ReloadRecipeRegistryEvent;
+import org.zeith.hammerlib.util.mcf.itf.INetworkable;
 import org.zeith.hammerlib.util.mcf.itf.IRecipeRegistrationEvent;
 
 import java.util.*;
@@ -28,9 +31,11 @@ public abstract class AbstractRecipeRegistry<T extends IGeneralRecipe, CTR exten
 	protected final Class<T> type;
 	protected final CTR container;
 	
+	protected final CustomRecipeGenerator<T, ?, ?> custom;
+	
 	private final ResourceLocation id;
 	
-	public AbstractRecipeRegistry(Class<T> type, CTR container, ResourceLocation id)
+	public AbstractRecipeRegistry(Class<T> type, CTR container, ResourceLocation id, CustomRecipeGenerator<T, ?, ?> custom)
 	{
 		if(HammerLib.PROXY.hasFinishedLoading())
 			throw new IllegalStateException("Attempted to create recipe registry for type " + type.getName() + " too late! Please do it in construct or preInit!");
@@ -38,7 +43,35 @@ public abstract class AbstractRecipeRegistry<T extends IGeneralRecipe, CTR exten
 		this.id = id;
 		this.type = type;
 		this.container = container;
+		this.custom = custom;
+		
 		ALL_REGISTRIES.add(this);
+	}
+	
+	public void syncToPlayer(ServerPlayer player)
+	{
+	}
+	
+	private UUID activeSyncSession;
+	
+	@OnlyIn(Dist.CLIENT)
+	public void addClientSideRecipe(T recipe, UUID transportSession)
+	{
+		if(!Objects.equals(activeSyncSession, transportSession))
+		{
+			activeSyncSession = transportSession;
+			resetClientRecipes();
+		}
+	}
+	
+	@OnlyIn(Dist.CLIENT)
+	public void resetClientRecipes()
+	{
+	}
+	
+	public Optional<INetworkable<T>> getNetworkSerializer()
+	{
+		return custom != null ? custom.getSerializer() : Optional.empty();
 	}
 	
 	public GeneralRecipeBuilder<T, ?> builder(IRecipeRegistrationEvent<T> event)
@@ -79,6 +112,7 @@ public abstract class AbstractRecipeRegistry<T extends IGeneralRecipe, CTR exten
 		return id;
 	}
 	
+	@Deprecated(forRemoval = true)
 	public void reload()
 	{
 		reload(null, ICondition.IContext.EMPTY);
@@ -86,10 +120,18 @@ public abstract class AbstractRecipeRegistry<T extends IGeneralRecipe, CTR exten
 	
 	public void reload(MinecraftServer server, ICondition.IContext context)
 	{
+		if(server == null)
+			server = ServerLifecycleHooks.getCurrentServer();
+		
 		HammerLib.postEvent(new ReloadRecipeRegistryEvent.Pre(this));
 		removeAllRecipes();
-		HammerLib.postEvent(new ReloadRecipeRegistryEvent.AddRecipes<>(this, context,server != null ? server : ServerLifecycleHooks.getCurrentServer()));
+		reloadDatapackRecipes(server, context);
+		HammerLib.postEvent(new ReloadRecipeRegistryEvent.AddRecipes<>(this, context, server));
 		HammerLib.postEvent(new ReloadRecipeRegistryEvent.Post(this));
+	}
+	
+	protected void reloadDatapackRecipes(MinecraftServer server, ICondition.IContext context)
+	{
 	}
 	
 	@SubscribeEvent

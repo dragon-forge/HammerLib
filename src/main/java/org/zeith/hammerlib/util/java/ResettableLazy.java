@@ -59,14 +59,14 @@ public class ResettableLazy<T>
 			return value;
 		}
 	}
-
+	
 	public void ifPresent(final Consumer<T> consumer)
 	{
 		synchronized(lock)
 		{
 			if(!initialized)
 				return;
-
+			
 			consumer.accept(this.value);
 		}
 	}
