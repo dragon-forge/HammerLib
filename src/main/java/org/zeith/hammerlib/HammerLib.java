@@ -1,54 +1,45 @@
 package org.zeith.hammerlib;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.eventbus.api.BusBuilder;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.eventbus.api.*;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
+import net.minecraftforge.fml.event.lifecycle.*;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.javafmlmod.FMLModContainer;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.moddiscovery.ModAnnotation;
 import net.minecraftforge.fml.unsafe.UnsafeHacks;
 import net.minecraftforge.forgespi.Environment;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.RegisterEvent;
-import net.minecraftforge.registries.RegistryManager;
+import net.minecraftforge.registries.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Type;
 import org.zeith.api.registry.RegistryMapping;
-import org.zeith.hammerlib.annotations.ProvideRecipes;
-import org.zeith.hammerlib.annotations.Setup;
-import org.zeith.hammerlib.annotations.SimplyRegister;
+import org.zeith.hammerlib.annotations.*;
 import org.zeith.hammerlib.annotations.client.ClientSetup;
 import org.zeith.hammerlib.annotations.client.TileRenderer;
 import org.zeith.hammerlib.api.IRecipeProvider;
 import org.zeith.hammerlib.api.io.NBTSerializationHelper;
+import org.zeith.hammerlib.client.adapter.ChatMessageAdapter;
 import org.zeith.hammerlib.core.ConfigHL;
-import org.zeith.hammerlib.core.adapter.ConfigAdapter;
-import org.zeith.hammerlib.core.adapter.LanguageAdapter;
-import org.zeith.hammerlib.core.adapter.RegistryAdapter;
+import org.zeith.hammerlib.core.adapter.*;
 import org.zeith.hammerlib.core.command.CommandHammerLib;
 import org.zeith.hammerlib.core.init.TagsHL;
 import org.zeith.hammerlib.mixins.RegistryManagerAccessor;
-import org.zeith.hammerlib.proxy.HLClientProxy;
-import org.zeith.hammerlib.proxy.HLCommonProxy;
-import org.zeith.hammerlib.proxy.HLConstants;
+import org.zeith.hammerlib.proxy.*;
 import org.zeith.hammerlib.tiles.tooltip.own.EntityTooltipRenderEngine;
 import org.zeith.hammerlib.util.charging.ItemChargeHelper;
 import org.zeith.hammerlib.util.mcf.ScanDataHelper;
 
 import java.lang.annotation.ElementType;
+import java.net.URL;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Consumer;
@@ -64,6 +55,40 @@ public class HammerLib
 	
 	public HammerLib()
 	{
+		var illegalSourceNotice = ModSourceAdapter.getModSource(HammerLib.class)
+				.filter(ModSourceAdapter.ModSource::wasDownloadedIllegally)
+				.orElse(null);
+		
+		if(illegalSourceNotice != null)
+		{
+			LOG.fatal("====================================================");
+			LOG.fatal("WARNING: HammerLib was downloaded from " + illegalSourceNotice.referrerDomain() +
+					", which has been marked as illegal site over at stopmodreposts.org.");
+			LOG.fatal("Please download the mod from https://www.curseforge.com/minecraft/mc-mods/hammer-lib");
+			LOG.fatal("====================================================");
+			
+			var illegalUri = Component.literal(illegalSourceNotice.referrerDomain())
+					.withStyle(s -> s.withColor(ChatFormatting.RED));
+			var smrUri = Component.literal("stopmodreposts.org")
+					.withStyle(s -> s.withColor(ChatFormatting.BLUE)
+							.withUnderlined(true)
+							.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://stopmodreposts.org/"))
+							.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("Click to open webpage."))));
+			var curseforgeUri = Component.literal("curseforge.com")
+					.withStyle(s -> s.withColor(ChatFormatting.BLUE)
+							.withUnderlined(true)
+							.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://www.curseforge.com/minecraft/mc-mods/hammer-lib"))
+							.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("Click to open webpage."))));
+			ChatMessageAdapter.sendOnFirstWorldLoad(Component.literal("WARNING: HammerLib was downloaded from ")
+					.append(illegalUri)
+					.append(", which has been marked as illegal site over at ")
+					.append(smrUri)
+					.append(". Please download the mod from ")
+					.append(curseforgeUri)
+					.append(".")
+			);
+		}
+		
 		FMLJavaModLoadingContext.get().getModEventBus().register(this);
 		MinecraftForge.EVENT_BUS.register(PROXY);
 		MinecraftForge.EVENT_BUS.addListener(this::registerCommands);
