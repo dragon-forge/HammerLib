@@ -8,37 +8,35 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.LogicalSidedProvider;
 import net.minecraftforge.fml.LogicalSide;
-import org.zeith.hammerlib.net.INBTPacket;
-import org.zeith.hammerlib.net.PacketContext;
+import org.zeith.hammerlib.net.*;
 
-import java.util.Optional;
-
+@MainThreaded
 public class SyncTileEntityPacket
 		implements INBTPacket
 {
 	CompoundTag nbt;
-
+	
 	public SyncTileEntityPacket()
 	{
 	}
-
+	
 	public SyncTileEntityPacket(BlockEntity tile)
 	{
 		this.nbt = tile.serializeNBT();
 	}
-
+	
 	@Override
 	public void write(CompoundTag buf)
 	{
 		buf.merge(this.nbt);
 	}
-
+	
 	@Override
 	public void read(CompoundTag buf)
 	{
 		nbt = buf;
 	}
-
+	
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public void clientExecute(PacketContext ctx)
