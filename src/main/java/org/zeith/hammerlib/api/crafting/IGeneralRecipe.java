@@ -13,9 +13,16 @@ public interface IGeneralRecipe
 	 * @return all inputs that are required for the recipe.
 	 */
 	NonNullList<IBaseIngredient> getIngredients();
-
+	
 	/**
 	 * @return the original result item for this recipe.
 	 */
 	ICraftingResult<?> getResult();
+	
+	/**
+	 * Called after the recipe was de-registered.
+	 */
+	default void onDeregistered()
+	{
+	}
 }

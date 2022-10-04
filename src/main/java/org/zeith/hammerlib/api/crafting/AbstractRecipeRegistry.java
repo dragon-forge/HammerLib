@@ -12,11 +12,12 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.server.ServerLifecycleHooks;
 import org.zeith.hammerlib.HammerLib;
-import org.zeith.hammerlib.api.crafting.building.CustomRecipeGenerator;
-import org.zeith.hammerlib.api.crafting.building.GeneralRecipeBuilder;
+import org.zeith.hammerlib.api.crafting.building.*;
+import org.zeith.hammerlib.event.listeners.TagsUpdateListener;
 import org.zeith.hammerlib.event.recipe.ReloadRecipeRegistryEvent;
 import org.zeith.hammerlib.util.mcf.itf.INetworkable;
 import org.zeith.hammerlib.util.mcf.itf.IRecipeRegistrationEvent;
+import org.zeith.hammerlib.util.shaded.json.JSONObject;
 
 import java.util.*;
 
@@ -45,7 +46,12 @@ public abstract class AbstractRecipeRegistry<T extends IGeneralRecipe, CTR exten
 		this.container = container;
 		this.custom = custom;
 		
-		ALL_REGISTRIES.add(this);
+		synchronized(ALL_REGISTRIES)
+		{
+			ALL_REGISTRIES.add(this);
+		}
+		
+		HammerLib.LOG.info("Allocated new instance of " + getClass().getName() + " with id " + JSONObject.quote(id.toString()));
 	}
 	
 	public void syncToPlayer(ServerPlayer player)
@@ -69,13 +75,32 @@ public abstract class AbstractRecipeRegistry<T extends IGeneralRecipe, CTR exten
 	{
 	}
 	
+	@OnlyIn(Dist.CLIENT)
+	public void addClientsideContents()
+	{
+		HammerLib.postEvent(new ReloadRecipeRegistryEvent.Pre(this));
+		
+		// Remove all STATIC recipes, but keep client-side received.
+		removeStaticRecipes();
+		
+		int prev = getRecipeCount();
+		HammerLib.postEvent(new ReloadRecipeRegistryEvent.AddRecipes<>(this, TagsUpdateListener.REMOTE_TAG_ACCESS, null));
+		HammerLib.LOG.info("Added " + (getRecipeCount() - prev) + " static recipes into recipe registry " + id);
+		
+		HammerLib.postEvent(new ReloadRecipeRegistryEvent.Post(this));
+	}
+	
 	public Optional<INetworkable<T>> getNetworkSerializer()
 	{
 		return custom != null ? custom.getSerializer() : Optional.empty();
 	}
 	
+	IRecipeBuilderFactory<T, ?> recipeBuilder;
+	
 	public GeneralRecipeBuilder<T, ?> builder(IRecipeRegistrationEvent<T> event)
 	{
+		if(recipeBuilder != null)
+			return recipeBuilder.newBuilder(event);
 		throw new UnsupportedOperationException("Building is not supported for " + getClass().getSimpleName() + "<" + type.getSimpleName() + ">{" + id + "}");
 	}
 	
@@ -84,6 +109,8 @@ public abstract class AbstractRecipeRegistry<T extends IGeneralRecipe, CTR exten
 	public abstract void removeRecipe(T recipe);
 	
 	protected abstract void removeAllRecipes();
+	
+	protected abstract void removeStaticRecipes();
 	
 	public abstract T getRecipe(IDX identifier);
 	
@@ -115,7 +142,7 @@ public abstract class AbstractRecipeRegistry<T extends IGeneralRecipe, CTR exten
 	@Deprecated(forRemoval = true)
 	public void reload()
 	{
-		reload(null, ICondition.IContext.EMPTY);
+		reload(null, TagsUpdateListener.REMOTE_TAG_ACCESS);
 	}
 	
 	public void reload(MinecraftServer server, ICondition.IContext context)

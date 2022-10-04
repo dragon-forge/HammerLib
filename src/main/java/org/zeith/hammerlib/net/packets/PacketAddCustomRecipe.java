@@ -1,5 +1,6 @@
 package org.zeith.hammerlib.net.packets;
 
+import com.mojang.authlib.exceptions.MinecraftClientException;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -10,8 +11,7 @@ import org.zeith.hammerlib.net.*;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.mcf.itf.INetworkable;
 
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @MainThreaded
 public class PacketAddCustomRecipe
@@ -55,8 +55,11 @@ public class PacketAddCustomRecipe
 	{
 		registry = buf.readResourceLocation();
 		transportSession = buf.readUUID();
-		Optional<INetworkable> n = getRegistry().getNetworkSerializer();
-		recipe = Cast.cast(n.orElseThrow().fromNetwork(buf));
+		
+		Optional<INetworkable> n = Optional.ofNullable(getRegistry())
+				.flatMap(AbstractRecipeRegistry::getNetworkSerializer);
+		
+		recipe = Cast.cast(n.orElseThrow(() -> new MinecraftClientException(MinecraftClientException.ErrorType.JSON_ERROR, "Unable to find recipe registry " + registry + " client-side!", new NoSuchElementException(registry + " registry."))).fromNetwork(buf));
 	}
 	
 	@Override

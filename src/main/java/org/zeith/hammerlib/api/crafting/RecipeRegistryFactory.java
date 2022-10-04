@@ -3,13 +3,11 @@ package org.zeith.hammerlib.api.crafting;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.ModLoadingContext;
 import org.zeith.hammerlib.api.crafting.building.*;
 import org.zeith.hammerlib.api.crafting.itf.IRecipeReceiver;
+import org.zeith.hammerlib.util.SidedLocal;
 import org.zeith.hammerlib.util.java.Cast;
-import org.zeith.hammerlib.util.mcf.itf.IRecipeRegistrationEvent;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,7 +16,7 @@ import java.util.function.Function;
 public class RecipeRegistryFactory
 {
 	private static final Map<RegistryFingerprint<?>, NamespacedRecipeRegistry<?>> NAMESPACED_REGISTRIES = new ConcurrentHashMap<>();
-	static final Map<RegistryFingerprint<?>, BiMap<ResourceLocation, ?>> NAMESPACED_REGISTRY_STORAGE = new ConcurrentHashMap<>();
+	static final Map<RegistryFingerprint<?>, SidedLocal<BiMap<ResourceLocation, ?>>> NAMESPACED_REGISTRY_STORAGE = new ConcurrentHashMap<>();
 	static final Map<RegistryFingerprint<?>, BiMap<ResourceLocation, ?>> NAMESPACED_REGISTRY_STORAGE_CLIENT_EXTRA = new ConcurrentHashMap<>();
 	static final Map<RegistryFingerprint<?>, List<IRecipeReceiver>> NAMESPACED_RECIPE_RECEIVER_STORAGE = new ConcurrentHashMap<>();
 	
@@ -80,26 +78,19 @@ public class RecipeRegistryFactory
 			fp.clientReceivers().addAll(clientReceive);
 			
 			return Cast.cast(NAMESPACED_REGISTRIES.computeIfAbsent(fp, fprint ->
-							new NamespacedRecipeRegistry<>(fp, customRecipes != null ? customRecipes.apply(id) : null)
-							{
-								@Override
-								public GeneralRecipeBuilder<T, ?> builder(IRecipeRegistrationEvent<T> event)
-								{
-									if(recipeBuilder != null)
-										return recipeBuilder.newBuilder(event);
-									return super.builder(event);
-								}
-							}
-					)
-			);
+			{
+				var r = new NamespacedRecipeRegistry<>(fp, customRecipes != null ? customRecipes.apply(id) : null);
+				r.recipeBuilder = recipeBuilder;
+				return r;
+			}));
 		}
 	}
 	
 	record RegistryFingerprint<T extends INameableRecipe>(Class<T> type, ResourceLocation regId)
 	{
-		BiMap<ResourceLocation, T> storage()
+		SidedLocal<BiMap<ResourceLocation, T>> storage()
 		{
-			return Cast.cast(NAMESPACED_REGISTRY_STORAGE.computeIfAbsent(this, t -> HashBiMap.create()));
+			return Cast.cast(NAMESPACED_REGISTRY_STORAGE.computeIfAbsent(this, t -> new SidedLocal<>(side -> HashBiMap.<ResourceLocation, T> create())));
 		}
 		
 		BiMap<ResourceLocation, T> clientExtraStorage()
