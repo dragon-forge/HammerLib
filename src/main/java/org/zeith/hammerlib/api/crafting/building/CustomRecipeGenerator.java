@@ -6,6 +6,7 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraftforge.common.crafting.conditions.ICondition;
 import org.zeith.hammerlib.api.crafting.IGeneralRecipe;
 import org.zeith.hammerlib.api.crafting.itf.IFileDecoder;
+import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.mcf.itf.INetworkable;
 
 import java.io.IOException;
@@ -20,11 +21,11 @@ public abstract class CustomRecipeGenerator<T extends IGeneralRecipe, DEC extend
 	
 	public CustomRecipeGenerator(ResourceLocation registryPath, Function<String, DEC> decoder)
 	{
-		this.defaultDir = registryPath.getNamespace() + "/" + registryPath.getPath();
+		this.defaultDir = "recipes_hl/" + registryPath.getNamespace() + "/" + registryPath.getPath();
 		this.decoder = decoder.apply(this.defaultDir);
 	}
 	
-	public String getFileDir()
+	public final String getFileDir()
 	{
 		return defaultDir;
 	}
@@ -56,6 +57,7 @@ public abstract class CustomRecipeGenerator<T extends IGeneralRecipe, DEC extend
 	 */
 	public Optional<INetworkable<T>> getSerializer()
 	{
-		return Optional.empty();
+		Optional net = Cast.optionally(this, INetworkable.class);
+		return net;
 	}
 }

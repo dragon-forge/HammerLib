@@ -4,7 +4,6 @@ import com.google.common.collect.BiMap;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.packs.resources.Resource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.crafting.conditions.ICondition;
@@ -15,6 +14,7 @@ import org.zeith.hammerlib.api.crafting.building.CustomRecipeGenerator;
 import org.zeith.hammerlib.api.crafting.itf.IRecipeReceiver;
 import org.zeith.hammerlib.net.Network;
 import org.zeith.hammerlib.net.packets.PacketAddCustomRecipe;
+import org.zeith.hammerlib.util.SidedLocal;
 import org.zeith.hammerlib.util.java.collections.UnmodifiableConcatCollection;
 import org.zeith.hammerlib.util.mcf.LogicalSidePredictor;
 import org.zeith.hammerlib.util.shaded.json.JSONObject;
@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.Function;
 
 /**
  * A more advanced registry name based registry for any subtype of {@link INameableRecipe}.
@@ -56,38 +57,46 @@ public class NamespacedRecipeRegistry<T extends INameableRecipe>
 		ResourceLocation loc = recipe.getRecipeName();
 		
 		if(loc == null) throw new IllegalArgumentException("Attempted to register a recipe with null recipe name!");
-		if(container.elements.containsKey(loc))
+		if(container.elements.get().containsKey(loc))
 			throw new IllegalArgumentException("Attempted to register a recipe with registry name that is already taken!");
 		
-		container.elements.put(loc, recipe);
+		container.elements.get().put(loc, recipe);
 		return loc;
 	}
 	
 	@Override
 	public void removeRecipe(T recipe)
 	{
-		ResourceLocation loc = container.elementsInv.get(recipe);
-		if(loc != null) container.remove(loc);
+		ResourceLocation loc = container.elementsInv.apply(recipe);
+		if(loc != null)
+			Optional.ofNullable(container.remove(LogicalSidePredictor.getCurrentLogicalSide(), loc))
+					.ifPresent(IGeneralRecipe::onDeregistered);
 	}
 	
 	@Override
 	protected void removeAllRecipes()
 	{
-		container.removeAllRecipes();
+		container.removeAllRecipes(LogicalSidePredictor.getCurrentLogicalSide());
+	}
+	
+	@Override
+	protected void removeStaticRecipes()
+	{
+		container.removeStaticRecipes(LogicalSidePredictor.getCurrentLogicalSide());
 	}
 	
 	@Override
 	public T getRecipe(ResourceLocation identifier)
 	{
 		if(identifier == null) return null;
-		return container.elements.get(identifier);
+		return container.elements.get().get(identifier);
 	}
 	
 	protected Path getBuiltinRecipes()
 	{
 		var codedRecipes = FMLPaths.CONFIGDIR.get()
 				.resolve(getRegistryId().getNamespace())
-				.resolve("custom_recipes")
+				.resolve("builtin_recipes")
 				.resolve(getRegistryId().getPath() + ".json");
 		codedRecipes.getParent().toFile().mkdirs();
 		return codedRecipes;
@@ -155,7 +164,7 @@ public class NamespacedRecipeRegistry<T extends INameableRecipe>
 			var resources = server.getServerResources();
 			var mgr = resources.resourceManager();
 			
-			for(Map.Entry<ResourceLocation, Resource> entry : mgr.listResources(custom.getFileDir(), custom::pathMatches).entrySet())
+			for(var entry : mgr.listResources(custom.getFileDir(), custom::pathMatches).entrySet())
 			{
 				try
 				{
@@ -165,7 +174,7 @@ public class NamespacedRecipeRegistry<T extends INameableRecipe>
 								addRecipe(recipe);
 								customRecipes.add(recipe.getRecipeName());
 							});
-				} catch(IOException e)
+				} catch(IOException | RuntimeException e)
 				{
 					HammerLib.LOG.error("Failed to read recipe for registry " + getClass().getSimpleName() + "<" + type.getSimpleName() + "> (" + getRegistryId() + "): " + entry.getKey(), e);
 				}
@@ -214,6 +223,8 @@ public class NamespacedRecipeRegistry<T extends INameableRecipe>
 	@OnlyIn(Dist.CLIENT)
 	public void resetClientRecipes()
 	{
+		for(T value : container.elementsClient.values())
+			value.onDeregistered();
 		container.elementsClient.clear();
 	}
 	
@@ -224,39 +235,51 @@ public class NamespacedRecipeRegistry<T extends INameableRecipe>
 		
 		private final BiMap<ResourceLocation, T> elementsClient;
 		
-		private final BiMap<ResourceLocation, T> elements;
-		private final BiMap<T, ResourceLocation> elementsInv;
+		private final SidedLocal<BiMap<ResourceLocation, T>> elements;
 		private final Collection<T> elementsViewClient, elementsViewServer;
+		
+		private final Function<T, ResourceLocation> elementsInv;
 		
 		public NamespacedRecipeContainer(RecipeRegistryFactory.RegistryFingerprint<T> fingerprint)
 		{
 			this.type = fingerprint.type();
 			
 			this.elements = fingerprint.storage();
-			this.elementsInv = elements.inverse();
 			
 			this.elementsClient = fingerprint.clientExtraStorage();
 			
 			this.elementsViewClient = new UnmodifiableConcatCollection<>(List.of(
-					elements.values(),
+					elements.get(LogicalSide.CLIENT).values(),
 					elementsClient.values()
 			));
 			
 			this.elementsViewServer = new UnmodifiableConcatCollection<>(List.of(
-					elements.values()
+					elements.get(LogicalSide.SERVER).values()
 			));
+			
+			this.elementsInv = recipe -> elements.get().inverse().get(recipe);
 		}
 		
 		@Override
 		public Collection<T> getRecipes()
 		{
-			return LogicalSidePredictor.getCurrentLogicalSide() == LogicalSide.SERVER ? this.elementsViewServer : this.elementsViewClient;
+			return LogicalSidePredictor.getCurrentLogicalSide() == LogicalSide.SERVER
+					? this.elementsViewServer
+					: this.elementsViewClient;
 		}
 		
-		void removeAllRecipes()
+		void removeAllRecipes(LogicalSide side)
 		{
+			for(T value : elements.get(side).values()) value.onDeregistered();
+			for(T value : elementsClient.values()) value.onDeregistered();
+			elements.get(side).clear();
 			elementsClient.clear();
-			elements.clear();
+		}
+		
+		public void removeStaticRecipes(LogicalSide side)
+		{
+			for(T value : elements.get(side).values()) value.onDeregistered();
+			elements.get(side).clear();
 		}
 		
 		@Override
@@ -265,9 +288,9 @@ public class NamespacedRecipeRegistry<T extends INameableRecipe>
 			return type;
 		}
 		
-		public void remove(ResourceLocation loc)
+		public T remove(LogicalSide side, ResourceLocation loc)
 		{
-			elements.remove(loc);
+			return elements.get(side).remove(loc);
 		}
 	}
 }
