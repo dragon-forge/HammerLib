@@ -9,6 +9,7 @@ import org.zeith.hammerlib.api.crafting.itf.IFileDecoder;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.mcf.itf.INetworkable;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.function.Function;
@@ -37,6 +38,11 @@ public abstract class CustomRecipeGenerator<T extends IGeneralRecipe, DEC extend
 	
 	public abstract Optional<T> decodeRecipe(ResourceLocation recipeId, IO io, MinecraftServer server, ICondition.IContext context);
 	
+	public Optional<IO> createTemplate()
+	{
+		return Optional.empty();
+	}
+	
 	public Optional<T> readRecipe(ResourceLocation path, Resource resource, MinecraftServer server, ICondition.IContext context) throws IOException
 	{
 		if(decoder != null)
@@ -50,6 +56,18 @@ public abstract class CustomRecipeGenerator<T extends IGeneralRecipe, DEC extend
 		}
 		
 		return Optional.empty();
+	}
+	
+	public boolean createExampleRecipe(Resource.IoSupplier<BufferedWriter> writer) throws IOException
+	{
+		var template = createTemplate().orElse(null);
+		if(template != null)
+			try(var wr = writer.get())
+			{
+				decoder.write(template, wr);
+				return true;
+			}
+		return false;
 	}
 	
 	/**

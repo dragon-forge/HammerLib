@@ -220,6 +220,29 @@ public class RecipeTestMachine
 		}
 		
 		@Override
+		public Optional<JsonElement> createTemplate()
+		{
+			var $ = new JsonObject();
+			$.addProperty("time", 100);
+			{
+				var result = new JsonObject();
+				result.addProperty("item", "example:item_stack");
+				$.add("result", result);
+			}
+			{
+				var top = new JsonObject();
+				top.addProperty("tag", "example:ingredient");
+				$.add("top", top);
+			}
+			{
+				var bottom = new JsonObject();
+				bottom.addProperty("tag", "example:ingredient");
+				$.add("bottom", bottom);
+			}
+			return Optional.of($);
+		}
+		
+		@Override
 		public Optional<INetworkable<RecipeTestMachine>> getSerializer()
 		{
 			return Optional.of(this);

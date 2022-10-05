@@ -5,8 +5,7 @@ import com.google.gson.JsonElement;
 import net.minecraft.resources.ResourceLocation;
 import org.zeith.hammerlib.api.crafting.building.GsonFileDecoder;
 
-import java.io.BufferedReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.Optional;
 
 public interface IFileDecoder<IO>
@@ -16,6 +15,8 @@ public interface IFileDecoder<IO>
 	ResourceLocation transformPathToId(ResourceLocation location);
 	
 	Optional<IO> tryDecode(ResourceLocation path, BufferedReader reader) throws IOException;
+	
+	void write(IO data, BufferedWriter writer) throws IOException;
 	
 	static GsonFileDecoder gson(String path)
 	{

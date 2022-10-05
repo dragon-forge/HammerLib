@@ -6,8 +6,7 @@ import net.minecraft.util.GsonHelper;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.api.crafting.itf.IFileDecoder;
 
-import java.io.BufferedReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -59,5 +58,11 @@ public class GsonFileDecoder
 		}
 		
 		return Optional.empty();
+	}
+	
+	@Override
+	public void write(JsonElement data, BufferedWriter writer) throws IOException
+	{
+		writer.write(GSON.toJson(data));
 	}
 }

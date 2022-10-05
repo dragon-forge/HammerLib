@@ -4,6 +4,7 @@ import com.google.common.collect.BiMap;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.packs.resources.Resource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.crafting.conditions.ICondition;
@@ -20,7 +21,8 @@ import org.zeith.hammerlib.util.mcf.LogicalSidePredictor;
 import org.zeith.hammerlib.util.shaded.json.JSONObject;
 import org.zeith.hammerlib.util.shaded.json.JSONTokener;
 
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -96,10 +98,22 @@ public class NamespacedRecipeRegistry<T extends INameableRecipe>
 	{
 		var codedRecipes = FMLPaths.CONFIGDIR.get()
 				.resolve(getRegistryId().getNamespace())
-				.resolve("builtin_recipes")
+				.resolve("recipes")
+				.resolve("builtin")
 				.resolve(getRegistryId().getPath() + ".json");
 		codedRecipes.getParent().toFile().mkdirs();
 		return codedRecipes;
+	}
+	
+	protected Path getGlobalCustomRecipes()
+	{
+		var dynRecipes = FMLPaths.CONFIGDIR.get()
+				.resolve(getRegistryId().getNamespace())
+				.resolve("recipes")
+				.resolve("custom")
+				.resolve(getRegistryId().getPath());
+		dynRecipes.toFile().mkdirs();
+		return dynRecipes;
 	}
 	
 	@Override
@@ -160,6 +174,46 @@ public class NamespacedRecipeRegistry<T extends INameableRecipe>
 		if(server != null && custom != null)
 		{
 			customRecipes.clear();
+			
+			try
+			{
+				var dir = getGlobalCustomRecipes();
+				var fl = dir.toFile();
+				var rootLength = fl.getAbsolutePath().length() + 1; // Add file separator character!
+				
+				var templateFile = new File(fl, "__template.json");
+				if(!custom.createExampleRecipe(() -> new BufferedWriter(new OutputStreamWriter(new FileOutputStream(templateFile), StandardCharsets.UTF_8))))
+					templateFile.delete();
+				
+				var itr = Files.walk(dir)
+						.map(Path::toFile)
+						.filter(f -> !f.getName().startsWith("__") && f.getName().toLowerCase(Locale.ROOT).endsWith(".json"))
+						.iterator();
+				
+				while(itr.hasNext())
+				{
+					var file = itr.next();
+					var res = new Resource("File System", () -> new FileInputStream(file));
+					
+					var recipePath = new ResourceLocation("modpack", custom.getFileDir() + "/" + file.getAbsolutePath().substring(rootLength));
+					
+					try
+					{
+						custom.readRecipe(recipePath, res, server, context)
+								.ifPresent(recipe ->
+								{
+									addRecipe(recipe);
+									customRecipes.add(recipe.getRecipeName());
+								});
+					} catch(IOException | RuntimeException e)
+					{
+						HammerLib.LOG.error("Failed to read recipe for registry " + getClass().getSimpleName() + "<" + type.getSimpleName() + "> (" + getRegistryId() + "): " + recipePath, e);
+					}
+				}
+			} catch(IOException e)
+			{
+				HammerLib.LOG.error("Failed to read custom global recipe for registry " + getClass().getSimpleName() + "<" + type.getSimpleName() + "> (" + getRegistryId() + ").", e);
+			}
 			
 			var resources = server.getServerResources();
 			var mgr = resources.resourceManager();
