@@ -1,5 +1,7 @@
 package org.zeith.hammerlib.api.crafting.building;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.resources.Resource;
@@ -41,6 +43,20 @@ public abstract class CustomRecipeGenerator<T extends IGeneralRecipe, DEC extend
 	public Optional<IO> createTemplate()
 	{
 		return Optional.empty();
+	}
+	
+	protected JsonElement itemStackTemplate()
+	{
+		var $ = new JsonObject();
+		$.addProperty("item", "example:item_stack");
+		return $;
+	}
+	
+	protected JsonElement ingredientTemplate()
+	{
+		var $ = new JsonObject();
+		$.addProperty("tag", "example:ingredient");
+		return $;
 	}
 	
 	public Optional<T> readRecipe(ResourceLocation path, Resource resource, MinecraftServer server, ICondition.IContext context) throws IOException

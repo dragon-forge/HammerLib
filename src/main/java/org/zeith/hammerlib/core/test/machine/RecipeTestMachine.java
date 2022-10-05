@@ -224,21 +224,9 @@ public class RecipeTestMachine
 		{
 			var $ = new JsonObject();
 			$.addProperty("time", 100);
-			{
-				var result = new JsonObject();
-				result.addProperty("item", "example:item_stack");
-				$.add("result", result);
-			}
-			{
-				var top = new JsonObject();
-				top.addProperty("tag", "example:ingredient");
-				$.add("top", top);
-			}
-			{
-				var bottom = new JsonObject();
-				bottom.addProperty("tag", "example:ingredient");
-				$.add("bottom", bottom);
-			}
+			$.add("result", itemStackTemplate());
+			$.add("top", ingredientTemplate());
+			$.add("bottom", ingredientTemplate());
 			return Optional.of($);
 		}
 		
