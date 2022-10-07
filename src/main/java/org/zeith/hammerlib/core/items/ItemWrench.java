@@ -25,7 +25,7 @@ public class ItemWrench
 	public ItemWrench(Properties props)
 	{
 		super(props);
-		TagAdapter.bindStaticTag(TagsHL.Items.TOOLS_WRENCH, this);
+		TagAdapter.bind(TagsHL.Items.TOOLS_WRENCH, this);
 	}
 	
 	@Override
