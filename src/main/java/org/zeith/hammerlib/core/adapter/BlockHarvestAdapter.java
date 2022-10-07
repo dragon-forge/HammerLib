@@ -12,27 +12,27 @@ public class BlockHarvestAdapter
 {
 	public static void bindToolType(MineableType tool, Block... blocks)
 	{
-		TagAdapter.bindStaticTag(tool.blockTag(), blocks);
+		TagAdapter.bind(tool.blockTag(), blocks);
 	}
-
+	
 	public static void bindToolTier(Tier tier, Block... blocks)
 	{
-		TagAdapter.bindStaticTag(tier.getTag(), blocks);
+		TagAdapter.bind(Objects.requireNonNull(tier.getTag()), blocks);
 	}
-
+	
 	public static void bindTool(MineableType tool, Tier tier, Block... blocks)
 	{
 		bindToolType(tool, blocks);
 		bindToolTier(tier, blocks);
 	}
-
+	
 	public record MineableType(@Nonnull TagKey<Block> blockTag)
 	{
 		public static final MineableType AXE = new MineableType(BlockTags.MINEABLE_WITH_AXE);
 		public static final MineableType HOE = new MineableType(BlockTags.MINEABLE_WITH_HOE);
 		public static final MineableType PICKAXE = new MineableType(BlockTags.MINEABLE_WITH_PICKAXE);
 		public static final MineableType SHOVEL = new MineableType(BlockTags.MINEABLE_WITH_SHOVEL);
-
+		
 		@Override
 		public boolean equals(Object o)
 		{
@@ -41,7 +41,7 @@ public class BlockHarvestAdapter
 			MineableType that = (MineableType) o;
 			return blockTag.equals(that.blockTag);
 		}
-
+		
 		@Override
 		public int hashCode()
 		{
