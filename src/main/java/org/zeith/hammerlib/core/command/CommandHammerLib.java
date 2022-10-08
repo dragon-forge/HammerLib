@@ -17,16 +17,36 @@ public class CommandHammerLib
 				.then(Commands.literal("client")
 						.then(Commands.literal("render")
 								.then(Commands.literal("items")
+										.then(Commands.literal("held")
+												.executes(cs ->
+												{
+													ServerPlayer player = cs.getSource().getPlayerOrException();
+													
+													Network.sendTo(new RenderItemsPacket(0, 256, ""), player);
+													
+													return 1;
+												})
+												.then(Commands.argument("resolution", IntegerArgumentType.integer(16, 16384))
+														.executes(cs ->
+														{
+															ServerPlayer player = cs.getSource().getPlayerOrException();
+															
+															Network.sendTo(new RenderItemsPacket(0, IntegerArgumentType.getInteger(cs, "resolution"), ""), player);
+															
+															return 1;
+														})
+												)
+										)
 										.then(Commands.literal("all")
 												.executes(cs ->
 												{
 													ServerPlayer player = cs.getSource().getPlayerOrException();
 
-													Network.sendTo(new RenderItemsPacket(2, 128, ""), player);
+													Network.sendTo(new RenderItemsPacket(2, 256, ""), player);
 
 													return 1;
 												})
-												.then(Commands.argument("resolution", IntegerArgumentType.integer(1, 8192))
+												.then(Commands.argument("resolution", IntegerArgumentType.integer(16, 16384))
 														.executes(cs ->
 														{
 															ServerPlayer player = cs.getSource().getPlayerOrException();
@@ -44,11 +64,11 @@ public class CommandHammerLib
 																{
 																	ServerPlayer player = cs.getSource().getPlayerOrException();
 
-																	Network.sendTo(new RenderItemsPacket(1, 128, cs.getArgument("mod", String.class)), player);
+																	Network.sendTo(new RenderItemsPacket(1, 256, cs.getArgument("mod", String.class)), player);
 
 																	return 1;
 																})
-																.then(Commands.argument("resolution", IntegerArgumentType.integer(1, 8192))
+																.then(Commands.argument("resolution", IntegerArgumentType.integer(16, 16384))
 																		.executes(cs ->
 																		{
 																			ServerPlayer player = cs.getSource().getPlayerOrException();

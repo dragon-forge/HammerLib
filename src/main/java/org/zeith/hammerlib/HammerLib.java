@@ -39,7 +39,6 @@ import org.zeith.hammerlib.util.charging.ItemChargeHelper;
 import org.zeith.hammerlib.util.mcf.ScanDataHelper;
 
 import java.lang.annotation.ElementType;
-import java.net.URL;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Consumer;
@@ -90,6 +89,7 @@ public class HammerLib
 		}
 		
 		FMLJavaModLoadingContext.get().getModEventBus().register(this);
+		PROXY.construct(FMLJavaModLoadingContext.get().getModEventBus());
 		MinecraftForge.EVENT_BUS.register(PROXY);
 		MinecraftForge.EVENT_BUS.addListener(this::registerCommands);
 		
