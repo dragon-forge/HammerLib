@@ -54,7 +54,7 @@ public record FluidIngredient(CompareMode mode, List<FluidStack> asFluidStack, L
 		return JsonOps.INSTANCE.withEncoder(CODEC).apply(this).result().orElseThrow();
 	}
 	
-	private FluidIngredient resolve()
+	FluidIngredient resolve()
 	{
 		return isEmpty() ? EMPTY : this;
 	}
@@ -82,15 +82,20 @@ public record FluidIngredient(CompareMode mode, List<FluidStack> asFluidStack, L
 	
 	public FluidStack[] getValues()
 	{
+		return getValues(1);
+	}
+	
+	public FluidStack[] getValues(int amount)
+	{
 		return switch(mode)
 				{
 					case TAGS -> Optional.ofNullable(ForgeRegistries.FLUIDS.tags())
 							.stream()
 							.flatMap(manager -> asTags.stream().map(manager::getTag))
-							.flatMap(tag -> tag.stream().map(f -> new FluidStack(f, 1)))
+							.flatMap(tag -> tag.stream().map(f -> new FluidStack(f, amount)))
 							.toArray(FluidStack[]::new);
 					case VALUES -> asFluidStack.stream()
-							.map(fs -> FluidHelper.withAmount(fs, 1))
+							.map(fs -> FluidHelper.withAmount(fs, amount))
 							.toArray(FluidStack[]::new);
 				};
 	}
