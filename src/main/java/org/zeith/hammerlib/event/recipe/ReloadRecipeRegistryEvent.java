@@ -74,6 +74,11 @@ public class ReloadRecipeRegistryEvent
 			this.server = Optional.ofNullable(server);
 		}
 		
+		public AbstractRecipeRegistry<R, ?, ?> getRegistry()
+		{
+			return registry;
+		}
+		
 		public ICondition.IContext getContext()
 		{
 			return context;

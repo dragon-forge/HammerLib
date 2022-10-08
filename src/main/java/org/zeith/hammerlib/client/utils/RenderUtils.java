@@ -28,11 +28,9 @@ public class RenderUtils
 {
 	public static float zLevel = 0;
 
-	public static final Function<ResourceLocation, TextureAtlasSprite> spriteGetter = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS);
-
 	public static TextureAtlasSprite getMainSprite(ResourceLocation tex)
 	{
-		return spriteGetter.apply(tex);
+		return Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(tex);
 	}
 
 	public static void drawTexturedModalRect(double x, double y, double texX, double texY, double width, double height)
