@@ -2,7 +2,6 @@ package org.zeith.hammerlib.api.tiles;
 
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.zeith.hammerlib.event.listeners.ServerListener;
-import org.zeith.hammerlib.net.HLTargetPoint;
 import org.zeith.hammerlib.net.Network;
 import org.zeith.hammerlib.net.packets.SyncTileEntityPacket;
 
@@ -13,10 +12,10 @@ public interface ISyncableTile
 	 */
 	default void sync()
 	{
-		if(this instanceof BlockEntity)
-			ServerListener.syncTileEntity((BlockEntity) this);
+		if(this instanceof BlockEntity tile && tile.hasLevel() && !tile.getLevel().isClientSide)
+			ServerListener.syncTileEntity(tile);
 	}
-
+	
 	/**
 	 * Implement yourself: a technique to sync your tile entity.
 	 * If you want to use HammerLib pipeline, use syncWithHLPipeline (don't override this method)
@@ -25,10 +24,16 @@ public interface ISyncableTile
 	{
 		syncWithHLPipeline();
 	}
-
+	
 	default void syncWithHLPipeline()
 	{
 		if(this instanceof BlockEntity tile)
-			Network.sendToTracking(tile.getLevel().getChunkAt(tile.getBlockPos()), new SyncTileEntityPacket(tile));
+			Network.sendToTracking(tile, new SyncTileEntityPacket(tile, false));
+	}
+	
+	default void syncUpdateTagHLPipeline()
+	{
+		if(this instanceof BlockEntity tile)
+			Network.sendToTracking(tile, new SyncTileEntityPacket(tile, true));
 	}
 }

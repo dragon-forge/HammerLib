@@ -11,6 +11,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkRegistry;
@@ -68,6 +69,17 @@ public class Network
 	{
 		if(packet != null && chunk != null)
 			channel.send(PacketDistributor.TRACKING_CHUNK.with(() -> chunk), toPlain(packet));
+	}
+	
+	public static void sendToTracking(BlockEntity tile, IPacket packet)
+	{
+		sendToTracking(packet, tile);
+	}
+	
+	public static void sendToTracking(IPacket packet, BlockEntity tile)
+	{
+		if(packet != null && tile != null && tile.hasLevel() && !tile.getLevel().isClientSide)
+			sendToTracking(packet, tile.getLevel().getChunkAt(tile.getBlockPos()));
 	}
 	
 	public static void sendToTracking(Entity entity, IPacket packet)

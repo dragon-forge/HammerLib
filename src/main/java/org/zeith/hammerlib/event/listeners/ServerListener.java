@@ -32,7 +32,7 @@ public class ServerListener
 				if(tile instanceof ISyncableTile s)
 					s.syncNow();
 				else
-					Network.sendToTracking(tile.getLevel().getChunkAt(tile.getBlockPos()), new SyncTileEntityPacket(tile));
+					Network.sendToTracking(new SyncTileEntityPacket(tile, false), tile);
 			}
 			
 			while(!NEED_PROP_SYNC.isEmpty())
@@ -46,11 +46,13 @@ public class ServerListener
 	
 	public static void syncProperties(BlockEntity tileEntity)
 	{
-		NEED_PROP_SYNC.add(tileEntity);
+		if(tileEntity != null && tileEntity.hasLevel() && !tileEntity.getLevel().isClientSide)
+			NEED_PROP_SYNC.add(tileEntity);
 	}
 	
 	public static void syncTileEntity(BlockEntity tileEntity)
 	{
-		NEED_SYNC.add(tileEntity);
+		if(tileEntity != null && tileEntity.hasLevel() && !tileEntity.getLevel().isClientSide)
+			NEED_SYNC.add(tileEntity);
 	}
 }
