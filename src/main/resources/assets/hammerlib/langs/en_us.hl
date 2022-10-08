@@ -4,3 +4,5 @@ itemGroup.hammerlib=Hammer Lib
 
 block.hammerlib.test_machine=Test Machine
 item.hammerlib.wrench=Wrench
+
+key.hammerlib.render_item=[HammerLib] Render GUI Item
