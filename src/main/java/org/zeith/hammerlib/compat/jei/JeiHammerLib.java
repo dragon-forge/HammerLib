@@ -49,7 +49,7 @@ public class JeiHammerLib
 	}
 	
 	@Override
-	public <T> Optional<T> getItemSlotUnderMouseInJEI(Class<T> type)
+	public <T> Optional<T> getIngredientUnderMouseJEI(Class<T> type)
 	{
 		return Optional.ofNullable(runtime)
 				.map(IJeiRuntime::getIngredientListOverlay)

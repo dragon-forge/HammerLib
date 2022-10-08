@@ -9,14 +9,14 @@ public interface IJeiPluginHL
 		return Container.active;
 	}
 	
-	<T> Optional<T> getItemSlotUnderMouseInJEI(Class<T> type);
+	<T> Optional<T> getIngredientUnderMouseJEI(Class<T> type);
 	
 	class Container
 	{
 		static IJeiPluginHL active = new IJeiPluginHL()
 		{
 			@Override
-			public <T> Optional<T> getItemSlotUnderMouseInJEI(Class<T> type)
+			public <T> Optional<T> getIngredientUnderMouseJEI(Class<T> type)
 			{
 				return Optional.empty();
 			}
