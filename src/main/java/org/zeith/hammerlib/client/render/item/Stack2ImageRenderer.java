@@ -32,6 +32,7 @@ import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.compat.jei.IJeiPluginHL;
 import org.zeith.hammerlib.core.ConfigHL;
 import org.zeith.hammerlib.proxy.HLClientProxy;
+import org.zeith.hammerlib.util.java.Cast;
 
 import javax.imageio.ImageIO;
 import java.io.File;
@@ -185,18 +186,15 @@ public class Stack2ImageRenderer
 			{
 				var mc = Minecraft.getInstance();
 				
-				if(mc.screen instanceof AbstractContainerScreen<?> ctrGui)
-				{
-					var slot = ctrGui.getSlotUnderMouse();
-					Optional.ofNullable(slot)
-							.map(Slot::getItem)
-							.or(() -> IJeiPluginHL.get().getItemSlotUnderMouseInJEI(ItemStack.class))
-							.ifPresent(stack ->
-							{
-								int res = Mth.clamp(ConfigHL.INSTANCE.get(LogicalSide.CLIENT).clientSide.guiItemRenderResolution, 16, 32768);
-								renderItem(Component.literal("Hotkey"), stack, res);
-							});
-				}
+				Cast.optionally(mc.screen, AbstractContainerScreen.class)
+						.map(AbstractContainerScreen::getSlotUnderMouse)
+						.map(Slot::getItem)
+						.or(() -> IJeiPluginHL.get().getIngredientUnderMouseJEI(ItemStack.class))
+						.ifPresent(stack ->
+						{
+							int res = Mth.clamp(ConfigHL.INSTANCE.get(LogicalSide.CLIENT).clientSide.guiItemRenderResolution, 16, 32768);
+							renderItem(Component.literal("Hotkey"), stack, res);
+						});
 			}
 			
 			return;
@@ -258,12 +256,14 @@ public class Stack2ImageRenderer
 				img.flipY();
 				elem.finishCallback.accept(img);
 				
-				SystemToast.addOrUpdate(mc.toast, SystemToast.SystemToastIds.NARRATOR_TOGGLE, a.copy().append(Component.literal(": Rendered!").withStyle(ChatFormatting.GREEN)), elem.stack.getDisplayName());
+				if(a != null)
+					SystemToast.addOrUpdate(mc.toast, SystemToast.SystemToastIds.NARRATOR_TOGGLE, a.copy().append(Component.literal(": Rendered!").withStyle(ChatFormatting.GREEN)), elem.stack.getDisplayName());
 			} catch(Throwable e)
 			{
 				e.printStackTrace();
 				
-				SystemToast.addOrUpdate(mc.toast, SystemToast.SystemToastIds.NARRATOR_TOGGLE, a.copy().append(Component.literal(": Failed!").withStyle(ChatFormatting.RED)), elem.stack.getDisplayName());
+				if(a != null)
+					SystemToast.addOrUpdate(mc.toast, SystemToast.SystemToastIds.NARRATOR_TOGGLE, a.copy().append(Component.literal(": Failed!").withStyle(ChatFormatting.RED)), elem.stack.getDisplayName());
 			}
 			
 			renderTarget.destroyBuffers();
