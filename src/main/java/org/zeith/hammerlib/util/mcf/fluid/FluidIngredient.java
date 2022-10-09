@@ -39,7 +39,7 @@ public record FluidIngredient(CompareMode mode, List<FluidStack> asFluidStack, L
 	
 	public static FluidIngredient ofFluids(List<FluidStack> fluids)
 	{
-		return new FluidIngredient(CompareMode.TAGS, fluids, List.of()).resolve();
+		return new FluidIngredient(CompareMode.VALUES, fluids, List.of()).resolve();
 	}
 	
 	public FluidIngredient(CompareMode mode, List<FluidStack> asFluidStack, List<TagKey<Fluid>> asTags)
