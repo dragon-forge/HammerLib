@@ -15,24 +15,31 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.client.event.*;
+import net.minecraftforge.client.model.geometry.IUnbakedGeometry;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.unsafe.UnsafeHacks;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.objectweb.asm.Type;
 import org.zeith.hammerlib.HammerLib;
+import org.zeith.hammerlib.annotations.OnlyIf;
 import org.zeith.hammerlib.api.forge.ContainerAPI;
 import org.zeith.hammerlib.api.inv.IScreenContainer;
 import org.zeith.hammerlib.api.lighting.ColoredLight;
 import org.zeith.hammerlib.api.lighting.HandleLightOverrideEvent;
 import org.zeith.hammerlib.api.lighting.impl.IGlowingEntity;
+import org.zeith.hammerlib.client.model.LoadUnbakedGeometry;
+import org.zeith.hammerlib.client.model.SimpleModelGenerator;
 import org.zeith.hammerlib.client.render.tile.IBESR;
 import org.zeith.hammerlib.client.render.tile.TESRBase;
 import org.zeith.hammerlib.core.adapter.ConfigAdapter;
+import org.zeith.hammerlib.core.adapter.OnlyIfAdapter;
 import org.zeith.hammerlib.event.client.ClientLoadedInEvent;
 import org.zeith.hammerlib.mixins.client.ParticleEngineAccessor;
 import org.zeith.hammerlib.net.Network;
@@ -41,6 +48,8 @@ import org.zeith.hammerlib.net.packets.PingServerPacket;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.java.ReflectionUtil;
 import org.zeith.hammerlib.util.mcf.LogicalSidePredictor;
+import org.zeith.hammerlib.util.mcf.ScanDataHelper;
+import org.zeith.hammerlib.util.shaded.json.JSONObject;
 
 import java.lang.reflect.Constructor;
 import java.util.*;
@@ -51,21 +60,55 @@ import java.util.stream.Stream;
 public class HLClientProxy
 		extends HLCommonProxy
 {
-	public static KeyMapping RENDER_GUI_ITEM = new KeyMapping("key.hammerlib.render_item", KeyConflictContext.GUI, InputConstants.Type.KEYSYM, InputConstants.UNKNOWN.getValue(), "key.categories.ui");
+	public static final KeyMapping RENDER_GUI_ITEM = new KeyMapping("key.hammerlib.render_item", KeyConflictContext.GUI, InputConstants.Type.KEYSYM, InputConstants.UNKNOWN.getValue(), "key.categories.ui");
 	
 	public static Map<ParticleRenderType, Queue<Particle>> PARTICLE_MAP;
-	private Map<String, String> languageList;
 	int pingTimer;
 	
 	@Override
 	public void construct(IEventBus modBus)
 	{
 		modBus.addListener(this::registerKeybinds);
+		modBus.addListener(this::modelBake);
+		
+		ScanDataHelper.lookupAnnotatedObjects(LoadUnbakedGeometry.class).forEach(data ->
+		{
+			Class<?> c = data.getOwnerClass();
+			if(IUnbakedGeometry.class.isAssignableFrom(c))
+			{
+				var path = data.getProperty("path").map(String.class::cast).orElseThrow();
+				
+				OnlyIf condition = null;
+				try
+				{
+					condition = c.getDeclaredConstructor().getDeclaredAnnotation(OnlyIf.class);
+				} catch(NoSuchMethodException e)
+				{
+				}
+				
+				if(OnlyIfAdapter.checkCondition(condition, c.toString(), "UnbakedModel", null))
+					data.getOwnerMod()
+							.ifPresent(mc ->
+									mc.getEventBus().addListener((Consumer<ModelEvent.RegisterGeometryLoaders>) evt ->
+											{
+												evt.register(path, new SimpleModelGenerator<>(() -> Cast.cast(UnsafeHacks.newInstance(c))));
+												HammerLib.LOG.info("Registered a new model with loader " + JSONObject.quote(ModLoadingContext.get().getActiveNamespace() + ":" + path));
+											}
+									)
+							);
+			}
+		});
 	}
 	
 	private void registerKeybinds(RegisterKeyMappingsEvent e)
 	{
 		e.register(RENDER_GUI_ITEM);
+	}
+	
+	private void modelBake(ModelEvent.BakingCompleted e)
+	{
+//		BlockState state = null;
+//		e.getModels().put(BlockModelShaper.stateToModelLocation(state), null);
 	}
 	
 	@Override
