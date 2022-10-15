@@ -10,6 +10,7 @@ import org.zeith.hammerlib.core.adapter.recipe.*;
 import org.zeith.hammerlib.util.mcf.itf.IRecipeRegistrationEvent;
 
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
@@ -20,6 +21,12 @@ public class RegisterRecipesEvent
 		implements IRecipeRegistrationEvent<Recipe<?>>
 {
 	private final List<Recipe<?>> recipes = Lists.newArrayList();
+	private final Predicate<ResourceLocation> idInUse;
+	
+	public RegisterRecipesEvent(Predicate<ResourceLocation> idInUse)
+	{
+		this.idInUse = idInUse;
+	}
 	
 	public void add(Recipe<?> recipe)
 	{
@@ -62,13 +69,24 @@ public class RegisterRecipesEvent
 		return new ShapelessRecipeBuilder(this);
 	}
 	
-	private int lastRecipeID;
+	public boolean isRecipeIdTaken(ResourceLocation id)
+	{
+		return idInUse.test(id) || recipes.stream().map(Recipe::getId).anyMatch(id::equals);
+	}
 	
 	@Override
 	public ResourceLocation nextId(Item item)
 	{
 		ResourceLocation rl = ForgeRegistries.ITEMS.getKey(item);
-		return new ResourceLocation(rl.getNamespace(), rl.getPath() + "/" + (lastRecipeID++));
+		
+		if(!isRecipeIdTaken(rl)) return rl;
+		
+		int lastIdx = 1;
+		while(true)
+		{
+			rl = new ResourceLocation(rl.getNamespace(), rl.getPath() + "_" + (lastIdx++));
+			if(!isRecipeIdTaken(rl)) return rl;
+		}
 	}
 	
 	@Override

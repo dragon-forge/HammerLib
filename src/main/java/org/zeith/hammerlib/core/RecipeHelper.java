@@ -19,16 +19,15 @@ import org.zeith.hammerlib.util.java.Cast;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
+import java.util.function.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class RecipeHelper
 {
-	public static void registerCustomRecipes(Consumer<Recipe<?>> addRecipe, boolean silent, ICondition.IContext context)
+	public static void registerCustomRecipes(Predicate<ResourceLocation> idInUse, Consumer<Recipe<?>> addRecipe, boolean silent, ICondition.IContext context)
 	{
-		RegisterRecipesEvent rre = new RegisterRecipesEvent();
+		RegisterRecipesEvent rre = new RegisterRecipesEvent(idInUse);
 		HammerLib.postEvent(rre);
 		
 		if(!silent) HLConstants.LOG.info("Reloading HammerLib recipes...");
@@ -55,13 +54,13 @@ public class RecipeHelper
 	{
 		Internal.mutableManager(mgr);
 		List<Recipe<?>> recipeList = new ArrayList<>();
-		registerCustomRecipes(recipeList::add, false, context);
+		registerCustomRecipes(id -> mgr.byKey(id).isPresent(), recipeList::add, false, context);
 		Internal.addRecipes(mgr, recipeList);
 	}
 	
 	public static void injectRecipesCustom(Map<ResourceLocation, Recipe<?>> handler, ICondition.IContext ctx)
 	{
-		registerCustomRecipes(r -> handler.put(r.getId(), r), false, ctx);
+		registerCustomRecipes(handler::containsKey, r -> handler.put(r.getId(), r), false, ctx);
 	}
 	
 	private static class Internal
