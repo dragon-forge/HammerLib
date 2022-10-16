@@ -2,6 +2,7 @@ package org.zeith.hammerlib.client.model;
 
 import com.mojang.datafixers.util.Pair;
 import com.mojang.math.Vector3f;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -29,6 +30,7 @@ public class TestModel
 	@Override
 	public BakedModel bake(IGeometryBakingContext context, ModelBakery bakery, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides, ResourceLocation modelLocation)
 	{
+		Minecraft.getInstance().getConnection();
 		return new TestBakedModel(spriteGetter, modelState, modelLocation);
 	}
 	
