@@ -39,8 +39,7 @@ import org.zeith.hammerlib.util.charging.ItemChargeHelper;
 import org.zeith.hammerlib.util.mcf.ScanDataHelper;
 
 import java.lang.annotation.ElementType;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -144,7 +143,7 @@ public class HammerLib
 											IForgeRegistry<?> reg = event.getForgeRegistry();
 											if(reg == null)
 												reg = RegistryMapping.getRegistryByType(RegistryMapping.getSuperType(event.getRegistryKey()));
-											RegistryAdapter.register(reg, data.getOwnerClass(), mc.getModId());
+											RegistryAdapter.register(reg, data.getOwnerClass(), mc.getModId(), data.getProperty("prefix").map(Objects::toString).orElse(""));
 										});
 							});
 			});
