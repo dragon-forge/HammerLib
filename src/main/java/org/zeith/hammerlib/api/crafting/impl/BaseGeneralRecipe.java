@@ -6,12 +6,11 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraftforge.fluids.FluidStack;
-import org.zeith.hammerlib.api.crafting.IBaseIngredient;
-import org.zeith.hammerlib.api.crafting.ICraftingResult;
-import org.zeith.hammerlib.api.crafting.IGeneralRecipe;
+import org.zeith.hammerlib.api.crafting.*;
 import org.zeith.hammerlib.api.energy.EnergyUnit;
 import org.zeith.hammerlib.core.RecipeHelper;
 import org.zeith.hammerlib.util.charging.fe.FECharge;
+import org.zeith.hammerlib.util.mcf.fluid.FluidIngredient;
 
 /**
  * A simple implementation for {@link IGeneralRecipe} featuring inputs to output
@@ -22,30 +21,30 @@ public class BaseGeneralRecipe
 {
 	public final ICraftingResult<?> output;
 	public final NonNullList<IBaseIngredient> ingredients;
-
+	
 	public BaseGeneralRecipe(ICraftingResult<?> output, NonNullList<IBaseIngredient> ingredients)
 	{
 		this.output = output;
 		this.ingredients = ingredients;
 	}
-
+	
 	@Override
 	public NonNullList<IBaseIngredient> getIngredients()
 	{
 		return ingredients;
 	}
-
+	
 	@Override
 	public ICraftingResult<?> getResult()
 	{
 		return output;
 	}
-
+	
 	public static Builder builder()
 	{
 		return new Builder();
 	}
-
+	
 	/**
 	 * A Builder class for {@link BaseGeneralRecipe}. allows to register inputs,
 	 * fluids, energy and set output for a recipe, then build it.
@@ -53,14 +52,16 @@ public class BaseGeneralRecipe
 	public static class Builder
 	{
 		private final NonNullList<Ingredient> inputItems = NonNullList.create();
-		private final NonNullList<FluidStack> inputFluid = NonNullList.create();
+		private final NonNullList<FluidIngredient> inputFluid = NonNullList.create();
 		private ICraftingResult<?> output;
 		private double FE;
-
+		
 		/**
 		 * Adds an ingredient to input list.
 		 *
-		 * @param ing the ingredient to be added
+		 * @param ing
+		 * 		the ingredient to be added
+		 *
 		 * @return this builder, for convenience.
 		 */
 		public Builder addInput(Ingredient ing)
@@ -68,11 +69,13 @@ public class BaseGeneralRecipe
 			inputItems.add(ing);
 			return this;
 		}
-
+		
 		/**
 		 * Adds an Ore Dictionary entry to input list.
 		 *
-		 * @param tag the entry to be added as ingredient
+		 * @param tag
+		 * 		the entry to be added as ingredient
+		 *
 		 * @return this builder, for convenience.
 		 */
 		public Builder addInput(TagKey<Item> tag)
@@ -80,24 +83,29 @@ public class BaseGeneralRecipe
 			inputItems.add(RecipeHelper.fromTag(tag));
 			return this;
 		}
-
+		
 		/**
-		 * Adds an fluid to input list.
+		 * Adds a fluid to input list.
 		 *
-		 * @param stack the fluid to be added to fluid list
+		 * @param stack
+		 * 		the fluid to be added to fluid list
+		 *
 		 * @return this builder, for convenience.
 		 */
-		public Builder addInput(FluidStack stack)
+		public Builder addInput(FluidIngredient stack)
 		{
 			inputFluid.add(stack);
 			return this;
 		}
-
+		
 		/**
 		 * Sets energy value in desired unit.
 		 *
-		 * @param amount the amount of energy
-		 * @param unit   the unit of energy
+		 * @param amount
+		 * 		the amount of energy
+		 * @param unit
+		 * 		the unit of energy
+		 *
 		 * @return this builder, for convenience.
 		 */
 		public Builder setEnergy(double amount, EnergyUnit unit)
@@ -105,12 +113,15 @@ public class BaseGeneralRecipe
 			FE = unit.getInFE(amount);
 			return this;
 		}
-
+		
 		/**
 		 * Adds energy to the builder, in desired units.
 		 *
-		 * @param amount the amount of energy
-		 * @param unit   the unit of energy
+		 * @param amount
+		 * 		the amount of energy
+		 * @param unit
+		 * 		the unit of energy
+		 *
 		 * @return this builder, for convenience.
 		 */
 		public Builder addEnergy(double amount, EnergyUnit unit)
@@ -118,11 +129,13 @@ public class BaseGeneralRecipe
 			FE += unit.getInFE(amount);
 			return this;
 		}
-
+		
 		/**
 		 * Sets recipe output.
 		 *
-		 * @param stack the output stack
+		 * @param stack
+		 * 		the output stack
+		 *
 		 * @return this builder, for convenience.
 		 */
 		public Builder withOutput(ItemStack stack)
@@ -130,11 +143,13 @@ public class BaseGeneralRecipe
 			output = new ItemStackResult(stack);
 			return this;
 		}
-
+		
 		/**
 		 * Sets recipe output.
 		 *
-		 * @param stack the output stack
+		 * @param stack
+		 * 		the output stack
+		 *
 		 * @return this builder, for convenience.
 		 */
 		public Builder withOutput(FluidStack stack)
@@ -142,11 +157,13 @@ public class BaseGeneralRecipe
 			output = new FluidStackResult(stack);
 			return this;
 		}
-
+		
 		/**
 		 * Sets recipe output.
 		 *
-		 * @param FE the output energy
+		 * @param FE
+		 * 		the output energy
+		 *
 		 * @return this builder, for convenience.
 		 */
 		public Builder withOutput(int FE)
@@ -154,11 +171,13 @@ public class BaseGeneralRecipe
 			output = new ForgeEnergyResult(new FECharge(FE));
 			return this;
 		}
-
+		
 		/**
 		 * Sets recipe output.
 		 *
-		 * @param stack the output stack
+		 * @param stack
+		 * 		the output stack
+		 *
 		 * @return this builder, for convenience.
 		 */
 		public Builder withOutput(ICraftingResult<?> stack)
@@ -166,18 +185,20 @@ public class BaseGeneralRecipe
 			output = stack;
 			return this;
 		}
-
+		
 		/**
 		 * Retrieves the energy amount needed to perform the recipe in units.
 		 *
-		 * @param unit the unit the we retrieve energy in.
+		 * @param unit
+		 * 		the unit the we retrieve energy in.
+		 *
 		 * @return the amount of energy
 		 */
 		public double getEnergy(EnergyUnit unit)
 		{
 			return unit.getFromFE(FE);
 		}
-
+		
 		/**
 		 * Builds the recipe
 		 *
@@ -187,7 +208,7 @@ public class BaseGeneralRecipe
 		{
 			NonNullList<IBaseIngredient> ings = NonNullList.create();
 			if(FE > 0) ings.add(new EnergyIngredient(FE, EnergyUnit.RF));
-			for(FluidStack stack : inputFluid) ings.add(new FluidStackIngredient(stack));
+			for(FluidIngredient stack : inputFluid) ings.add(new FluidStackIngredient(stack));
 			for(Ingredient ing : inputItems) ings.add(new MCIngredient(ing));
 			return new BaseGeneralRecipe(output, ings);
 		}

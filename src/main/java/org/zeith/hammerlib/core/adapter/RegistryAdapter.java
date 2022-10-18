@@ -9,35 +9,26 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.registries.IForgeRegistry;
 import org.zeith.api.registry.RegistryMapping;
-import org.zeith.hammerlib.annotations.OnlyIf;
-import org.zeith.hammerlib.annotations.RegistryName;
-import org.zeith.hammerlib.annotations.Setup;
-import org.zeith.hammerlib.annotations.SimplyRegister;
+import org.zeith.hammerlib.annotations.*;
 import org.zeith.hammerlib.annotations.client.ClientSetup;
-import org.zeith.hammerlib.api.blocks.ICustomBlockItem;
-import org.zeith.hammerlib.api.blocks.ICreativeTabBlock;
-import org.zeith.hammerlib.api.blocks.IItemPropertySupplier;
-import org.zeith.hammerlib.api.blocks.INoItemBlock;
+import org.zeith.hammerlib.api.blocks.*;
 import org.zeith.hammerlib.api.fml.IRegisterListener;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.java.ReflectionUtil;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class RegistryAdapter
 {
-	public static <T> BiConsumer<ResourceLocation, T> createRegisterer(IForgeRegistry<T> registry)
+	public static <T> BiConsumer<ResourceLocation, T> createRegisterer(IForgeRegistry<T> registry, String prefix)
 	{
 		return (name, entry) ->
 		{
+			name = new ResourceLocation(name.getNamespace(), prefix + name.getPath());
 			IRegisterListener l = Cast.cast(entry, IRegisterListener.class);
 			if(l != null)
 				l.onPreRegistered();
@@ -52,7 +43,7 @@ public class RegistryAdapter
 	/**
 	 * Registers all static fields (from source) with the matching registry type, and methods that accept Consumer<T>
 	 */
-	public static <T> int register(IForgeRegistry<T> registry, Class<?> source, String modid)
+	public static <T> int register(IForgeRegistry<T> registry, Class<?> source, String modid, String prefix)
 	{
 		var superType = RegistryMapping.getSuperType(registry);
 		
@@ -64,7 +55,7 @@ public class RegistryAdapter
 		
 		List<Tuple<Block, ResourceLocation>> blockList = blocks.computeIfAbsent(source, s -> new ArrayList<>());
 		
-		BiConsumer<ResourceLocation, T> grabber = createRegisterer(registry).andThen((key, handler) ->
+		BiConsumer<ResourceLocation, T> grabber = createRegisterer(registry, prefix).andThen((key, handler) ->
 		{
 			if(handler instanceof Block b)
 				blockList.add(new Tuple<>(b, key));
@@ -93,11 +84,20 @@ public class RegistryAdapter
 				.filter(m -> m.getAnnotation(SimplyRegister.class) != null && m.getParameterCount() == 1 && BiConsumer.class.isAssignableFrom(m.getParameterTypes()[0]) && ReflectionUtil.doesParameterTypeArgsMatch(m.getParameters()[0], ResourceLocation.class, superType))
 				.forEach(method ->
 				{
+					final String prefix2 = Optional.ofNullable(method.getAnnotation(SimplyRegister.class)).map(SimplyRegister::prefix).orElse("");
+					
 					if(Modifier.isStatic(method.getModifiers()))
 						try
 						{
 							method.setAccessible(true);
-							method.invoke(null, grabber);
+							
+							BiConsumer<ResourceLocation, T> grabber2 = (id, obj) ->
+							{
+								id = new ResourceLocation(id.getNamespace(), prefix2 + id.getPath());
+								grabber.accept(id, obj);
+							};
+							
+							method.invoke(null, grabber2);
 						} catch(IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
 						{
 							e.printStackTrace();

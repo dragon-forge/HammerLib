@@ -47,6 +47,6 @@ public record FluidIngredientStack(FluidIngredient fluid, int amount)
 	@Override
 	public boolean test(FluidStack fluidStack)
 	{
-		return fluidStack.getAmount() >= amount && fluid.test(fluidStack);
+		return fluidStack.getAmount() >= amount && fluidMatches(fluidStack);
 	}
 }

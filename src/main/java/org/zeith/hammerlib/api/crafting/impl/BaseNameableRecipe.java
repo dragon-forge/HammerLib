@@ -14,6 +14,7 @@ import org.zeith.hammerlib.api.crafting.INameableRecipe;
 import org.zeith.hammerlib.api.energy.EnergyUnit;
 import org.zeith.hammerlib.core.RecipeHelper;
 import org.zeith.hammerlib.util.charging.fe.FECharge;
+import org.zeith.hammerlib.util.mcf.fluid.FluidIngredient;
 
 /**
  * A simple implementation for {@link IGeneralRecipe} featuring inputs to output
@@ -64,7 +65,7 @@ public class BaseNameableRecipe
 	{
 		private final ResourceLocation id;
 		private final NonNullList<Ingredient> inputItems = NonNullList.create();
-		private final NonNullList<FluidStack> inputFluid = NonNullList.create();
+		private final NonNullList<FluidIngredient> inputFluid = NonNullList.create();
 		private ICraftingResult<?> output;
 		private double RF;
 
@@ -99,12 +100,12 @@ public class BaseNameableRecipe
 		}
 
 		/**
-		 * Adds an fluid to input list.
+		 * Adds a fluid to input list.
 		 *
 		 * @param stack the fluid to be added to fluid list
 		 * @return this builder, for convenience.
 		 */
-		public Builder addInput(FluidStack stack)
+		public Builder addInput(FluidIngredient stack)
 		{
 			inputFluid.add(stack);
 			return this;
@@ -204,7 +205,7 @@ public class BaseNameableRecipe
 		{
 			NonNullList<IBaseIngredient> ings = NonNullList.create();
 			if(RF > 0) ings.add(new EnergyIngredient(RF, EnergyUnit.RF));
-			for(FluidStack stack : inputFluid) ings.add(new FluidStackIngredient(stack));
+			for(FluidIngredient stack : inputFluid) ings.add(new FluidStackIngredient(stack));
 			for(Ingredient ing : inputItems) ings.add(new MCIngredient(ing));
 			return new BaseNameableRecipe(id, output, ings);
 		}
