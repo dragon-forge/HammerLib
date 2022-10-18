@@ -1,10 +1,8 @@
 package org.zeith.hammerlib.annotations;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
@@ -19,4 +17,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 })
 public @interface SimplyRegister
 {
+	/**
+	 * By adding a prefix to annotation on a class, all of its fields will have its name prefixed by this value
+	 * This would also add the
+	 */
+	String prefix() default "";
 }

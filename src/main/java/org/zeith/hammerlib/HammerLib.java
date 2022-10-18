@@ -2,41 +2,36 @@ package org.zeith.hammerlib;
 
 import com.google.common.collect.BiMap;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.*;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.event.*;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.*;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.javafmlmod.FMLModContainer;
+import net.minecraftforge.fml.javafmlmod.*;
 import net.minecraftforge.fml.unsafe.UnsafeHacks;
 import net.minecraftforge.forgespi.Environment;
 import net.minecraftforge.registries.*;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.*;
 import org.objectweb.asm.Type;
 import org.zeith.hammerlib.annotations.*;
 import org.zeith.hammerlib.annotations.client.ClientSetup;
 import org.zeith.hammerlib.api.IRecipeProvider;
 import org.zeith.hammerlib.api.io.NBTSerializationHelper;
 import org.zeith.hammerlib.api.multipart.MultipartBlock;
-import org.zeith.hammerlib.core.adapter.LanguageAdapter;
-import org.zeith.hammerlib.core.adapter.RegistryAdapter;
+import org.zeith.hammerlib.core.adapter.*;
 import org.zeith.hammerlib.core.command.CommandHammerLib;
 import org.zeith.hammerlib.core.init.TagsHL;
 import org.zeith.hammerlib.proxy.*;
 import org.zeith.hammerlib.util.CommonMessages;
 import org.zeith.hammerlib.util.charging.ItemChargeHelper;
-import org.zeith.hammerlib.util.java.Cast;
-import org.zeith.hammerlib.util.java.ReflectionUtil;
+import org.zeith.hammerlib.util.java.*;
 import org.zeith.hammerlib.util.mcf.ScanDataHelper;
 
 import java.lang.annotation.ElementType;
 import java.lang.reflect.Field;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 @Mod(HLConstants.MOD_ID)
@@ -96,7 +91,7 @@ public class HammerLib
 								registries.values().forEach(registry ->
 								{
 									mc.getEventBus().addGenericListener(registry.getRegistrySuperType(), (Consumer<RegistryEvent.Register>) event ->
-											RegistryAdapter.register(event.getRegistry(), data.getOwnerClass(), mc.getModId()));
+											RegistryAdapter.register(event.getRegistry(), data.getOwnerClass(), mc.getModId(), data.getProperty("prefix").map(Objects::toString).orElse("")));
 								});
 							} catch(IllegalAccessException e)
 							{
