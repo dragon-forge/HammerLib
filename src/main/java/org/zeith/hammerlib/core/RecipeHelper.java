@@ -40,8 +40,6 @@ public class RecipeHelper
 			count.incrementAndGet();
 		});
 		
-		rre.removeRecipe(new ResourceLocation("minecraft", "netherite_axe_smithing"));
-		
 		removeRecipes.accept(rre.removedRecipes());
 		
 		if(!silent) HLConstants.LOG.info("HammerLib injected {} recipes into recipe map. Removed {} recipes from the game.", count.longValue(), rre.removedRecipes().size());
