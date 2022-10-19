@@ -25,7 +25,7 @@ import java.util.stream.Stream;
 
 public class RecipeHelper
 {
-	public static void registerCustomRecipes(Predicate<ResourceLocation> idInUse, Consumer<Recipe<?>> addRecipe, boolean silent, ICondition.IContext context)
+	public static void registerCustomRecipes(Predicate<ResourceLocation> idInUse, Consumer<Recipe<?>> addRecipe, Consumer<Set<ResourceLocation>> removeRecipes, boolean silent, ICondition.IContext context)
 	{
 		RegisterRecipesEvent rre = new RegisterRecipesEvent(idInUse);
 		HammerLib.postEvent(rre);
@@ -40,7 +40,11 @@ public class RecipeHelper
 			count.incrementAndGet();
 		});
 		
-		if(!silent) HLConstants.LOG.info("HammerLib injected {} recipes into recipe map.", count.longValue());
+		rre.removeRecipe(new ResourceLocation("minecraft", "netherite_axe_smithing"));
+		
+		removeRecipes.accept(rre.removedRecipes());
+		
+		if(!silent) HLConstants.LOG.info("HammerLib injected {} recipes into recipe map. Removed {} recipes from the game.", count.longValue(), rre.removedRecipes().size());
 		
 		List<AbstractRecipeRegistry<?, ?, ?>> registries = AbstractRecipeRegistry.getAllRegistries();
 		if(!silent) HLConstants.LOG.info("Reloading {} custom registries.", registries.size());
@@ -53,14 +57,17 @@ public class RecipeHelper
 	public static void injectRecipes(RecipeManager mgr, ICondition.IContext context)
 	{
 		Internal.mutableManager(mgr);
+		
 		List<Recipe<?>> recipeList = new ArrayList<>();
-		registerCustomRecipes(id -> mgr.byKey(id).isPresent(), recipeList::add, false, context);
+		Set<ResourceLocation> removed = new HashSet<>();
+		registerCustomRecipes(id -> mgr.byKey(id).isPresent(), recipeList::add, removed::addAll, false, context);
 		Internal.addRecipes(mgr, recipeList);
+		Internal.removeRecipes(mgr, removed::stream);
 	}
 	
-	public static void injectRecipesCustom(Map<ResourceLocation, Recipe<?>> handler, ICondition.IContext ctx)
+	public static void injectRecipesCustom(Map<ResourceLocation, Recipe<?>> handler, Set<ResourceLocation> removed, ICondition.IContext ctx)
 	{
-		registerCustomRecipes(handler::containsKey, r -> handler.put(r.getId(), r), false, ctx);
+		registerCustomRecipes(handler::containsKey, r -> handler.put(r.getId(), r), removed::addAll, false, ctx);
 	}
 	
 	private static class Internal
@@ -74,6 +81,19 @@ public class RecipeHelper
 				mgr.byName.putAll(map);
 			});
 			HammerLib.LOG.info("Registered {} additional recipes.", recipes.size());
+		}
+		
+		private static void removeRecipes(RecipeManager mgr, Supplier<Stream<ResourceLocation>> recipes)
+		{
+			recipes.get().forEach(id ->
+			{
+				mgr.byKey(id).ifPresent(recipe ->
+				{
+					var rmap = mgr.recipes.get(recipe.getType());
+					if(rmap != null) rmap.remove(id);
+					mgr.byName.remove(id);
+				});
+			});
 		}
 		
 		private static void mutableManager(RecipeManager mgr)
