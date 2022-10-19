@@ -1,6 +1,7 @@
 package org.zeith.hammerlib.event.recipe;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Recipe;
@@ -9,7 +10,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import org.zeith.hammerlib.core.adapter.recipe.*;
 import org.zeith.hammerlib.util.mcf.itf.IRecipeRegistrationEvent;
 
-import java.util.List;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -21,6 +22,7 @@ public class RegisterRecipesEvent
 		implements IRecipeRegistrationEvent<Recipe<?>>
 {
 	private final List<Recipe<?>> recipes = Lists.newArrayList();
+	private final Set<ResourceLocation> removeRecipes = Sets.newHashSet();
 	private final Predicate<ResourceLocation> idInUse;
 	
 	public RegisterRecipesEvent(Predicate<ResourceLocation> idInUse)
@@ -32,6 +34,16 @@ public class RegisterRecipesEvent
 	{
 		if(recipe != null)
 			recipes.add(recipe);
+	}
+	
+	public Set<ResourceLocation> removedRecipes()
+	{
+		return Collections.unmodifiableSet(removeRecipes);
+	}
+	
+	public void removeRecipe(ResourceLocation id)
+	{
+		removeRecipes.add(id);
 	}
 	
 	public StoneCutterRecipeBuilder stoneCutting()
