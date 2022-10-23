@@ -29,6 +29,7 @@ import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.zeith.hammerlib.HammerLib;
+import org.zeith.hammerlib.client.utils.TexturePixelGetter;
 import org.zeith.hammerlib.compat.jei.IJeiPluginHL;
 import org.zeith.hammerlib.core.ConfigHL;
 import org.zeith.hammerlib.proxy.HLClientProxy;
@@ -41,6 +42,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Mod.EventBusSubscriber(Dist.CLIENT)
@@ -229,6 +231,8 @@ public class Stack2ImageRenderer
 			
 			var stack = elem.stack();
 			var model = ir.getModel(stack, null, null, 0);
+			
+			HammerLib.LOG.info("Colors for {}: {}", stack.getDisplayName().getString(), Arrays.stream(TexturePixelGetter.getAllColors(stack)).mapToObj(Integer::toHexString).collect(Collectors.joining(", ")));
 			
 			{
 				mc.textureManager.getTexture(InventoryMenu.BLOCK_ATLAS).setFilter(false, false);

@@ -2,83 +2,82 @@ package org.zeith.hammerlib.client.utils;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
+import org.zeith.hammerlib.client.texture.HttpTextureDownloader;
+import org.zeith.hammerlib.util.java.Hashers;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Supplier;
 
 public class FXUtils
 {
 	private static Map<String, ResourceLocation> textures = new HashMap<>();
-
-	/*
-	public static boolean bindTextureURL(String url)
+	
+	public static void bindTextureURL(String url)
 	{
 		String withoutHTTP = url.substring(url.indexOf("://") + 3);
 		String protocol = url.substring(0, url.indexOf("://"));
-		ResourceLocation loca = new ResourceLocation("hammercore", protocol + "/" + Hashers.SHA1.encrypt(withoutHTTP));
-		if(!TexLocUploader.cleanup.contains(loca))
-		{
-			final String lpa = loca.toString();
-			new Thread(() ->
-			{
-				try(InputStream input = IOUtils.getInput(url).get1())
-				{
-					BufferedImage bufferedimage = ImageIO.read(input);
-					Minecraft.getInstance().deferTask(() -> TexLocUploader.upload(loca, bufferedimage));
-				} catch(IOException ioe)
-				{
-					HammerLib.LOG.error("Failed to load texture from url \"" + url + "\"", ioe);
-				}
-			}).start();
-			TexLocUploader.cleanupAfterLogoff(loca, () -> textures.remove(lpa));
-			textures.put(lpa, loca);
-		}
-		boolean b = Minecraft.getInstance().getTextureManager().getTexture(loca) != null;
-		if(b) bindTexture(loca);
-		return b;
+		ResourceLocation loca = new ResourceLocation("hammercore", protocol + "/" + Hashers.SHA1.hashify(withoutHTTP));
+		HttpTextureDownloader.create(loca, url);
+		bindTexture(loca);
 	}
-
-	public static void bindTexture(String tex)
+	
+	public static void bindTexture(String f)
 	{
-		if(tex.startsWith("http"))
-			bindTextureURL(tex);
+		if(f.startsWith("http"))
+			bindTextureURL(f);
 		else
-			bindTexture("hammercore", tex);
+		{
+			if(textures.containsKey(f))
+			{
+				bindTexture(textures.get(f));
+				return;
+			}
+			
+			ResourceLocation value = new ResourceLocation(f);
+			textures.put(f, value);
+			bindTexture(value);
+		}
 	}
-	 */
 	
 	public static void bindTexture(ResourceLocation path)
 	{
-		bindTexture(path, GameRenderer::getPositionTexShader);
+		bindTextureCurShader(path);
+		setPositionTexShader();
+	}
+	
+	public static void bindTextureCurShader(ResourceLocation path)
+	{
+		RenderSystem.setShaderTexture(0, path);
+	}
+	
+	public static void setPositionTexShader()
+	{
+		RenderSystem.setShader(GameRenderer::getPositionTexShader);
+	}
+	
+	public static void setPositionTexColorShader()
+	{
+		RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+	}
+	
+	public static void setColor(float red, float green, float blue, float alpha)
+	{
+		RenderSystem.setShaderColor(red, green, blue, alpha);
 	}
 	
 	public static void bindTexture(String namespace, String path)
-	{
-		bindTexture(namespace, path, GameRenderer::getPositionTexShader);
-	}
-	
-	public static void bindTexture(ResourceLocation path, Supplier<ShaderInstance> shader)
-	{
-		RenderSystem.setShaderTexture(0, path);
-		RenderSystem.setShader(shader);
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-	}
-	
-	public static void bindTexture(String namespace, String path, Supplier<ShaderInstance> shader)
 	{
 		String f = namespace + ':' + path;
 		
 		if(textures.containsKey(f))
 		{
-			bindTexture(textures.get(f), shader);
+			bindTexture(textures.get(f));
 			return;
 		}
 		
 		ResourceLocation value = new ResourceLocation(namespace, path);
 		textures.put(f, value);
-		bindTexture(value, shader);
+		bindTexture(value);
 	}
 }
