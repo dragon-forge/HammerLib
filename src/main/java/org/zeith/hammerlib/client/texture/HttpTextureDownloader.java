@@ -2,8 +2,6 @@ package org.zeith.hammerlib.client.texture;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.AbstractTexture;
-import net.minecraft.client.renderer.texture.HttpTexture;
-import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.resources.ResourceLocation;
 
 public class HttpTextureDownloader
@@ -17,7 +15,7 @@ public class HttpTextureDownloader
 	{
 		var tex = Minecraft.getInstance().textureManager.getTexture(texturePath, null);
 		if(tex != null) return tex;
-		tex = new HttpTexture(null, url, DefaultPlayerSkin.getDefaultSkin(), false, onDownloadComplete);
+		tex = new HttpTextureWithHeaders(null, url, texturePath, false, onDownloadComplete);
 		Minecraft.getInstance().textureManager.register(texturePath, tex);
 		return tex;
 	}

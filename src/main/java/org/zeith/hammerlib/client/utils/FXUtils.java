@@ -18,8 +18,7 @@ public class FXUtils
 		String withoutHTTP = url.substring(url.indexOf("://") + 3);
 		String protocol = url.substring(0, url.indexOf("://"));
 		ResourceLocation loca = new ResourceLocation("hammercore", protocol + "/" + Hashers.SHA1.hashify(withoutHTTP));
-		HttpTextureDownloader.create(loca, url);
-		bindTexture(loca);
+		HttpTextureDownloader.create(loca, url).bind();
 	}
 	
 	public static void bindTexture(String f)
