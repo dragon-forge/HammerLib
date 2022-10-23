@@ -9,9 +9,9 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 public abstract class ScreenWTFMojang<T extends AbstractContainerMenu>
 		extends AbstractContainerScreen<T>
 {
-	public ScreenWTFMojang(T container, Inventory plyerInv, Component name)
+	public ScreenWTFMojang(T container, Inventory playerInv, Component name)
 	{
-		super(container, plyerInv, name);
+		super(container, playerInv, name);
 	}
 
 	protected void setSize(int xSize, int ySize)

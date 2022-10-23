@@ -1,6 +1,7 @@
 package org.zeith.hammerlib.client.utils;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.*;
@@ -8,13 +9,15 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraftforge.fluids.FluidStack;
+import net.minecraft.world.item.ItemStack;
 import org.lwjgl.opengl.GL11;
 import org.zeith.hammerlib.util.colors.ColorHelper;
 import org.zeith.hammerlib.util.java.itf.IntToIntFunction;
@@ -29,6 +32,54 @@ public class RenderUtils
 	public static TextureAtlasSprite getMainSprite(ResourceLocation tex)
 	{
 		return Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(tex);
+	}
+	
+	/**
+	 * This renders the item into the GUI, with {@link PoseStack}, which is missing in vanilla render code for some reason...
+	 */
+	public static void renderItemIntoGui(PoseStack pose, ItemStack stack, int x, int y)
+	{
+		var mc = Minecraft.getInstance();
+		var ir = mc.getItemRenderer();
+		var tm = mc.getTextureManager();
+		
+		var p_115131_ = ir.getModel(stack, null, null, 0);
+		
+		tm.getTexture(InventoryMenu.BLOCK_ATLAS).setFilter(false, false);
+		RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS);
+		RenderSystem.enableBlend();
+		RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+		PoseStack posestack = RenderSystem.getModelViewStack();
+		posestack.pushPose();
+		
+		// copy the given pose over to the model view.
+		posestack.mulPoseMatrix(pose.last().pose());
+		
+		posestack.translate(x, y, 100.0F + ir.blitOffset);
+		posestack.translate(8.0D, 8.0D, 0.0D);
+		posestack.scale(1.0F, -1.0F, 1.0F);
+		posestack.scale(16.0F, 16.0F, 16.0F);
+		
+		RenderSystem.applyModelViewMatrix();
+		PoseStack posestack1 = new PoseStack();
+		MultiBufferSource.BufferSource multibuffersource$buffersource = Minecraft.getInstance().renderBuffers().bufferSource();
+		boolean flag = !p_115131_.usesBlockLight();
+		if(flag)
+		{
+			Lighting.setupForFlatItems();
+		}
+		
+		ir.render(stack, ItemTransforms.TransformType.GUI, false, posestack1, multibuffersource$buffersource, 15728880, OverlayTexture.NO_OVERLAY, p_115131_);
+		multibuffersource$buffersource.endBatch();
+		RenderSystem.enableDepthTest();
+		if(flag)
+		{
+			Lighting.setupFor3DItems();
+		}
+		
+		posestack.popPose();
+		RenderSystem.applyModelViewMatrix();
 	}
 	
 	public static void drawTexturedModalRect(double x, double y, double texX, double texY, double width, double height)

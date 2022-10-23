@@ -6,15 +6,15 @@ import java.util.stream.Stream;
 
 public class Tuples
 {
- static boolean streamEquals(Stream<?> s1, Stream<?> s2)
- {
-  Iterator<?> iter1 = s1.iterator(), iter2 = s2.iterator();
-  while(iter1.hasNext() && iter2.hasNext())
-  if(!Objects.equals(iter1.next(), iter2.next()))
-  return false;
-  return !iter1.hasNext() && !iter2.hasNext();
- }
- 
+	static boolean streamEquals(Stream<?> s1, Stream<?> s2)
+	{
+		Iterator<?> iter1 = s1.iterator(), iter2 = s2.iterator();
+		while(iter1.hasNext() && iter2.hasNext())
+			if(!Objects.equals(iter1.next(), iter2.next()))
+				return false;
+		return !iter1.hasNext() && !iter2.hasNext();
+	}
+	
 	public static <A> Tuple1<A> immutable(A a)
 	{
 		return new Tuple1<>(a);
