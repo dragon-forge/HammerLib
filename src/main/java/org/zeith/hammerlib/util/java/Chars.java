@@ -59,39 +59,17 @@ public class Chars
 		{
 			switch(v.charAt(0))
 			{
-				case '0':
-					s.append(SUPERSCRIPT_0);
-					break;
-				case '1':
-					s.append(SUPERSCRIPT_1);
-					break;
-				case '2':
-					s.append(SUPERSCRIPT_2);
-					break;
-				case '3':
-					s.append(SUPERSCRIPT_3);
-					break;
-				case '4':
-					s.append(SUPERSCRIPT_4);
-					break;
-				case '5':
-					s.append(SUPERSCRIPT_5);
-					break;
-				case '6':
-					s.append(SUPERSCRIPT_6);
-					break;
-				case '7':
-					s.append(SUPERSCRIPT_7);
-					break;
-				case '8':
-					s.append(SUPERSCRIPT_8);
-					break;
-				case '9':
-					s.append(SUPERSCRIPT_9);
-					break;
-				case '-':
-					s.append(SUPERSCRIPT_MINUS);
-					break;
+				case '0' -> s.append(SUPERSCRIPT_0);
+				case '1' -> s.append(SUPERSCRIPT_1);
+				case '2' -> s.append(SUPERSCRIPT_2);
+				case '3' -> s.append(SUPERSCRIPT_3);
+				case '4' -> s.append(SUPERSCRIPT_4);
+				case '5' -> s.append(SUPERSCRIPT_5);
+				case '6' -> s.append(SUPERSCRIPT_6);
+				case '7' -> s.append(SUPERSCRIPT_7);
+				case '8' -> s.append(SUPERSCRIPT_8);
+				case '9' -> s.append(SUPERSCRIPT_9);
+				case '-' -> s.append(SUPERSCRIPT_MINUS);
 			}
 			v = v.substring(1);
 		}

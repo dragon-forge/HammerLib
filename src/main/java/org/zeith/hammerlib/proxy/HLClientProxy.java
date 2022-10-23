@@ -38,6 +38,7 @@ import org.zeith.hammerlib.client.model.LoadUnbakedGeometry;
 import org.zeith.hammerlib.client.model.SimpleModelGenerator;
 import org.zeith.hammerlib.client.render.tile.IBESR;
 import org.zeith.hammerlib.client.render.tile.TESRBase;
+import org.zeith.hammerlib.client.utils.TexturePixelGetter;
 import org.zeith.hammerlib.core.adapter.ConfigAdapter;
 import org.zeith.hammerlib.core.adapter.OnlyIfAdapter;
 import org.zeith.hammerlib.event.client.ClientLoadedInEvent;
@@ -70,6 +71,7 @@ public class HLClientProxy
 	{
 		modBus.addListener(this::registerKeybinds);
 		modBus.addListener(this::modelBake);
+		modBus.addListener(TexturePixelGetter::reloadTexture);
 		
 		ScanDataHelper.lookupAnnotatedObjects(LoadUnbakedGeometry.class).forEach(data ->
 		{

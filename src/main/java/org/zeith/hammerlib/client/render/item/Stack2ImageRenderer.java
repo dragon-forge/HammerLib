@@ -60,11 +60,24 @@ public class Stack2ImageRenderer
 	 * 		The item to render.
 	 * @param size
 	 * 		The size of an output image.
-	 * @param target
+	 * @param targetIn
 	 * 		The File to where the image is rendered.
 	 */
-	public static void queueRenderer(Component type, ItemStack stack, int size, File target)
+	public static void queueRenderer(Component type, ItemStack stack, int size, File targetIn)
 	{
+		String origin = targetIn.getAbsolutePath();
+		int itr = 1;
+		while(targetIn.isFile())
+		{
+			int dot = origin.lastIndexOf(".");
+			if(dot >= 0)
+				targetIn = new File(origin.substring(0, dot) + " (" + (++itr) + ")." + origin.substring(dot + 1));
+			else
+				targetIn = new File(origin + " (" + (++itr) + ")");
+		}
+		
+		final File target = targetIn;
+		
 		renderItemStack(type, size, size, stack, image ->
 		{
 			Util.ioPool().execute(() ->
@@ -97,12 +110,12 @@ public class Stack2ImageRenderer
 		});
 	}
 	
-	private record ItemWithData(Item item, CompoundTag tag)
+	private record ItemWithData(Item item, CompoundTag data)
 	{
 		public ItemStack stack()
 		{
 			ItemStack stack = new ItemStack(item);
-			stack.setTag(tag);
+			stack.setTag(data);
 			return stack;
 		}
 	}
@@ -137,7 +150,7 @@ public class Stack2ImageRenderer
 				.forEach(s ->
 				{
 					ResourceLocation rl = ForgeRegistries.ITEMS.getKey(s.item());
-					var fl = new File(faild, rl.getNamespace() + File.separator + (rl.getPath() + (s.tag() != null ? "_" + s.tag() : "") + ".png").replaceAll("[^a-zA-Z0-9\\.\\-]", "_"));
+					var fl = new File(faild, rl.getNamespace() + File.separator + (rl.getPath() + ".png").replaceAll("[^a-zA-Z0-9\\.\\-]", "_"));
 					queueRenderer(Component.literal("Everything"), s.stack(), size, fl);
 				});
 	}
@@ -167,7 +180,7 @@ public class Stack2ImageRenderer
 				.forEach(s ->
 				{
 					ResourceLocation rl = ForgeRegistries.ITEMS.getKey(s.item());
-					var fl = new File(faild, (rl.getPath() + (s.tag() != null ? "_" + s.tag() : "") + ".png").replaceAll("[^a-zA-Z0-9\\.\\-]", "_"));
+					var fl = new File(faild, (rl.getPath() + ".png").replaceAll("[^a-zA-Z0-9\\.\\-]", "_"));
 					queueRenderer(Component.literal("Mod " + modid), s.stack(), size, fl);
 				});
 	}
