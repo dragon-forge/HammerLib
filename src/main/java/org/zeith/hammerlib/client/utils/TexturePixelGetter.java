@@ -1,6 +1,7 @@
 package org.zeith.hammerlib.client.utils;
 
 import com.mojang.blaze3d.platform.NativeImage;
+import it.unimi.dsi.fastutil.ints.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -52,7 +53,7 @@ public class TexturePixelGetter
 		else
 			try
 			{
-				Set<Integer> ints = new HashSet<>();
+				var ints = new IntOpenHashSet();
 				
 				var res = Minecraft.getInstance()
 						.getResourceManager()
@@ -76,23 +77,25 @@ public class TexturePixelGetter
 					for(int x = 0; x < img.getWidth(); ++x)
 						for(int y = 0; y < img.getHeight(); ++y)
 						{
-							int rgb = img.getPixelRGBA(x, y);
-							if(ColorHelper.getAlpha(rgb) <= 0F)
+							int rgba = img.getPixelRGBA(x, y);
+							
+							int a = NativeImage.getA(rgba);
+							
+							if(a <= 0F)
 								continue;
+							
+							int rgb = ColorHelper.packARGBi(
+									NativeImage.getR(rgba),
+									NativeImage.getG(rgba),
+									NativeImage.getB(rgba),
+									a
+							);
+							
 							ints.add(rgb);
 						}
 				}
 				
-				int[] buf = new int[ints.size()];
-				
-				int pointer = 0;
-				for(Integer i : ints)
-				{
-					buf[pointer] = i;
-					++pointer;
-				}
-				
-				colors.put(texture, buf);
+				colors.put(texture, ints.toIntArray());
 			} catch(Exception e)
 			{
 				e.printStackTrace();

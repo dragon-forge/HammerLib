@@ -15,7 +15,9 @@ public class HttpTextureDownloader
 	
 	public static AbstractTexture create(ResourceLocation texturePath, String url, Runnable onDownloadComplete)
 	{
-		HttpTexture tex = new HttpTexture(null, url, DefaultPlayerSkin.getDefaultSkin(), false, onDownloadComplete);
+		var tex = Minecraft.getInstance().textureManager.getTexture(texturePath, null);
+		if(tex != null) return tex;
+		tex = new HttpTexture(null, url, DefaultPlayerSkin.getDefaultSkin(), false, onDownloadComplete);
 		Minecraft.getInstance().textureManager.register(texturePath, tex);
 		return tex;
 	}
