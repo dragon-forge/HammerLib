@@ -2,6 +2,7 @@ package org.zeith.hammerlib.proxy;
 
 import com.google.common.base.Predicates;
 import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.datafixers.util.Either;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -31,6 +32,8 @@ import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.annotations.OnlyIf;
 import org.zeith.hammerlib.api.forge.ContainerAPI;
 import org.zeith.hammerlib.api.inv.IScreenContainer;
+import org.zeith.hammerlib.api.items.tooltip.TooltipColoredLine;
+import org.zeith.hammerlib.api.items.tooltip.TooltipMulti;
 import org.zeith.hammerlib.api.lighting.ColoredLight;
 import org.zeith.hammerlib.api.lighting.HandleLightOverrideEvent;
 import org.zeith.hammerlib.api.lighting.impl.IGlowingEntity;
@@ -41,6 +44,8 @@ import org.zeith.hammerlib.client.render.tile.TESRBase;
 import org.zeith.hammerlib.client.utils.TexturePixelGetter;
 import org.zeith.hammerlib.core.adapter.ConfigAdapter;
 import org.zeith.hammerlib.core.adapter.OnlyIfAdapter;
+import org.zeith.hammerlib.core.items.tooltip.ClientTooltipColoredLine;
+import org.zeith.hammerlib.core.items.tooltip.ClientTooltipMulti;
 import org.zeith.hammerlib.event.client.ClientLoadedInEvent;
 import org.zeith.hammerlib.mixins.client.ParticleEngineAccessor;
 import org.zeith.hammerlib.net.Network;
@@ -71,7 +76,10 @@ public class HLClientProxy
 	{
 		modBus.addListener(this::registerKeybinds);
 		modBus.addListener(this::modelBake);
+		modBus.addListener(this::registerClientTooltips);
 		modBus.addListener(TexturePixelGetter::reloadTexture);
+
+//		MinecraftForge.EVENT_BUS.addListener(this::alterTooltip);
 		
 		ScanDataHelper.lookupAnnotatedObjects(LoadUnbakedGeometry.class).forEach(data ->
 		{
@@ -100,6 +108,18 @@ public class HLClientProxy
 							);
 			}
 		});
+	}
+	
+	private void alterTooltip(RenderTooltipEvent.GatherComponents e)
+	{
+		int[] colors = TexturePixelGetter.getAllColors(e.getItemStack());
+		e.getTooltipElements().add(Either.right(new TooltipColoredLine(colors)));
+	}
+	
+	private void registerClientTooltips(RegisterClientTooltipComponentFactoriesEvent e)
+	{
+		e.register(TooltipMulti.class, ClientTooltipMulti::new);
+		e.register(TooltipColoredLine.class, ClientTooltipColoredLine::new);
 	}
 	
 	private void registerKeybinds(RegisterKeyMappingsEvent e)

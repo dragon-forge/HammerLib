@@ -29,7 +29,6 @@ import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.zeith.hammerlib.HammerLib;
-import org.zeith.hammerlib.client.utils.TexturePixelGetter;
 import org.zeith.hammerlib.compat.jei.IJeiPluginHL;
 import org.zeith.hammerlib.core.ConfigHL;
 import org.zeith.hammerlib.proxy.HLClientProxy;
@@ -42,7 +41,6 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Mod.EventBusSubscriber(Dist.CLIENT)
@@ -127,7 +125,7 @@ public class Stack2ImageRenderer
 		SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy-hh.mm.ss");
 		ResourceLocation rl = ForgeRegistries.ITEMS.getKey(stack.getItem());
 		var faild = new File("hammercore", "renderers" + File.separator + rl.getNamespace());
-		var fl = new File(faild, (rl.getPath() + (stack.getTag() != null ? "_" + stack.getTag() : "") + "-" + sdf.format(Date.from(Instant.now())) + ".png").replaceAll("[^a-zA-Z0-9\\.\\-]", "_"));
+		var fl = new File(faild, (rl.getPath() + "-" + sdf.format(Date.from(Instant.now())) + ".png").replaceAll("[^a-zA-Z0-9\\.\\-]", "_"));
 		queueRenderer(type, stack, size, fl);
 	}
 	
@@ -231,8 +229,6 @@ public class Stack2ImageRenderer
 			
 			var stack = elem.stack();
 			var model = ir.getModel(stack, null, null, 0);
-			
-			HammerLib.LOG.info("Colors for {}: {}", stack.getDisplayName().getString(), Arrays.stream(TexturePixelGetter.getAllColors(stack)).mapToObj(Integer::toHexString).collect(Collectors.joining(", ")));
 			
 			{
 				mc.textureManager.getTexture(InventoryMenu.BLOCK_ATLAS).setFilter(false, false);

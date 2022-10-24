@@ -83,17 +83,16 @@ public class RecipeTestMachine
 	
 	public static void addTestMachineRecipes(ReloadRecipeRegistryEvent.AddRecipes<RecipeTestMachine> evt)
 	{
-		if(evt.is(RecipeTestMachine.REGISTRY))
-		{
-			var f = evt.<TestMachineRecipeBuilder> builderFactory();
-			
-			f.get()
-					.result(Items.CHEST)
-					.top(new TagIngredient(ItemTags.LOGS).quantify(2))
-					.bottom(new TagIngredient(Tags.Items.INGOTS_IRON))
-					.time(100)
-					.register();
-		}
+		if(!evt.is(RecipeTestMachine.REGISTRY)) return;
+		
+		var f = evt.<TestMachineRecipeBuilder> builderFactory();
+		
+		f.get()
+				.result(Items.CHEST)
+				.top(new TagIngredient(ItemTags.LOGS).quantify(2))
+				.bottom(new TagIngredient(Tags.Items.INGOTS_IRON))
+				.time(100)
+				.register();
 	}
 	
 	/**

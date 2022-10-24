@@ -42,44 +42,9 @@ public class HttpTextureWithHeaders
 		RenderSystem.setShaderTexture(0, location);
 	}
 	
-	public void loadTexture(ResourceManager p_118135_) throws IOException
-	{
-		SimpleTexture.TextureImage tex = this.getTextureImage(p_118135_);
-		tex.throwIfError();
-		
-		NativeImage nativeimage = tex.getImage();
-		
-		if(!RenderSystem.isOnRenderThreadOrInit())
-		{
-			RenderSystem.recordRenderCall(() ->
-			{
-				upload(nativeimage);
-			});
-		} else
-		{
-			upload(nativeimage);
-		}
-	}
-	
 	@Override
 	public void load(ResourceManager resources) throws IOException
 	{
-		Minecraft.getInstance().execute(() ->
-		{
-			if(!this.uploaded)
-			{
-				try
-				{
-					loadTexture(resources);
-				} catch(IOException ioexception)
-				{
-					LOGGER.warn("Failed to load texture: {}", this.location, ioexception);
-				}
-				
-				this.uploaded = true;
-			}
-		});
-		
 		if(this.future == null)
 		{
 			NativeImage nativeimage;

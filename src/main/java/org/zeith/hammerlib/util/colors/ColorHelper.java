@@ -47,12 +47,12 @@ public class ColorHelper
 	
 	public static int packARGBi(int a, int r, int g, int b)
 	{
-		return (a << 24) | (r << 16) | (b << 8) | b;
+		return (a << 24) | (r << 16) | (g << 8) | b;
 	}
 	
 	public static int packRGBi(int r, int g, int b)
 	{
-		return (r << 16) | (b << 8) | b;
+		return (255 << 24) | (r << 16) | (g << 8) | b;
 	}
 	
 	public static float getAlpha(int rgb)
@@ -114,6 +114,11 @@ public class ColorHelper
 	public static float lumai(int red, int green, int blue)
 	{
 		return red / 255F * 0.299F + green / 255F * 0.587F + blue / 255F * 0.114F;
+	}
+	
+	public static double luma(int rgb)
+	{
+		return luma(getRed(rgb), getGreen(rgb), getBlue(rgb));
 	}
 	
 	public static int interpolateSine(int a, int b, float progress)

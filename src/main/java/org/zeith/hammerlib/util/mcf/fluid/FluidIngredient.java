@@ -92,6 +92,11 @@ public record FluidIngredient(CompareMode mode, List<FluidStack> asFluidStack, L
 		return this == EMPTY || (asFluidStack.isEmpty() && asTags().isEmpty());
 	}
 	
+	public FluidIngredientStack stack(int amount)
+	{
+		return new FluidIngredientStack(this, amount);
+	}
+	
 	@Override
 	public boolean test(FluidStack fluidStack)
 	{
