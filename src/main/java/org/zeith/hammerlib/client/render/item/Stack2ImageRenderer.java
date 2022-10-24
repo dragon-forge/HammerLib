@@ -32,6 +32,7 @@ import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.compat.jei.IJeiPluginHL;
 import org.zeith.hammerlib.core.ConfigHL;
 import org.zeith.hammerlib.proxy.HLClientProxy;
+import org.zeith.hammerlib.proxy.HLConstants;
 import org.zeith.hammerlib.util.java.Cast;
 
 import javax.imageio.ImageIO;
@@ -158,7 +159,7 @@ public class Stack2ImageRenderer
 	public static void renderMod(String modid, int size)
 	{
 		SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy-hh.mm.ss");
-		File faild = new File("hammercore", "renderers" + File.separator + modid + "-" + sdf.format(Date.from(Instant.now())));
+		File faild = new File(HLConstants.MOD_ID, "renderers" + File.separator + modid + "-" + sdf.format(Date.from(Instant.now())));
 		
 		ForgeRegistries.ITEMS.getKeys().stream()
 				.flatMap(rl ->
