@@ -6,14 +6,15 @@ import java.util.ArrayList;
 public class ColorNamePicker
 {
 	public static final ArrayList<Col> colorList = initColorList();
-
+	
 	public static Col red;
 	public static Col orange, yellow;
 	public static Col lime;
-
+	
 	private static ArrayList<Col> initColorList()
 	{
-		ArrayList<Col> colorList = new ArrayList<Col>();
+		ArrayList<Col> colorList = new ArrayList<>();
+		
 		colorList.add(new Col("AliceBlue", 0xF0, 0xF8, 0xFF));
 		colorList.add(new Col("AntiqueWhite", 0xFA, 0xEB, 0xD7));
 		colorList.add(new Col("Aqua", 0x00, 0xFF, 0xFF));
@@ -154,7 +155,8 @@ public class ColorNamePicker
 		colorList.add(new Col("WhiteSmoke", 0xF5, 0xF5, 0xF5));
 		colorList.add(yellow = new Col("Yellow", 0xFF, 0xFF, 0x00));
 		colorList.add(new Col("YellowGreen", 0x9A, 0xCD, 0x32));
-		for(Col c : colorList)
+		
+		for(var c : colorList)
 		{
 			String fi = c.name;
 			char[] name = fi.toCharArray();
@@ -173,9 +175,10 @@ public class ColorNamePicker
 				}
 			c.name = fi;
 		}
+		
 		return colorList;
 	}
-
+	
 	public static String getColorNameFromRgb(int r, int g, int b)
 	{
 		Col closestMatch = null;
@@ -189,31 +192,31 @@ public class ColorNamePicker
 				closestMatch = c;
 			}
 		}
-
+		
 		if(closestMatch != null)
 			return closestMatch.getName();
 		else
 			return "No matched color name.";
 	}
-
+	
 	public static String getColorNameFromHex(int hexColor)
 	{
-		int r = (int) (ColorHelper.getRed(hexColor) * 0xFF);
-		int g = (int) (ColorHelper.getGreen(hexColor) * 0xFF);
-		int b = (int) (ColorHelper.getBlue(hexColor) * 0xFF);
+		int r = ColorHelper.getRedi(hexColor);
+		int g = ColorHelper.getGreeni(hexColor);
+		int b = ColorHelper.getBluei(hexColor);
 		return getColorNameFromRgb(r, g, b);
 	}
-
+	
 	public static int colorToHex(Color c)
 	{
 		return Integer.decode("0x" + Integer.toHexString(c.getRGB()).substring(2));
 	}
-
+	
 	public static String getColorNameFromColor(Color color)
 	{
 		return getColorNameFromRgb(color.getRed(), color.getGreen(), color.getBlue());
 	}
-
+	
 	public static Integer trySearchColorFor(String name)
 	{
 		for(Col c : colorList)
@@ -227,12 +230,12 @@ public class ColorNamePicker
 		}
 		return null;
 	}
-
+	
 	public static class Col
 	{
 		public int r, g, b;
 		public String name;
-
+		
 		public Col(String name, int r, int g, int b)
 		{
 			this.r = r;
@@ -240,37 +243,37 @@ public class ColorNamePicker
 			this.b = b;
 			this.name = name;
 		}
-
+		
 		public int computeMSE(int rgb)
 		{
-			return computeMSE((int) (ColorHelper.getRed(rgb) * 255F), (int) (ColorHelper.getGreen(rgb) * 255F), (int) (ColorHelper.getBlue(rgb) * 255F));
+			return computeMSE(ColorHelper.getRedi(rgb), ColorHelper.getGreeni(rgb), ColorHelper.getBluei(rgb));
 		}
-
+		
 		public int computeMSE(int pixR, int pixG, int pixB)
 		{
 			return ((pixR - r) * (pixR - r) + (pixG - g) * (pixG - g) + (pixB - b) * (pixB - b)) / 3;
 		}
-
+		
 		public int getRGB()
 		{
 			return ColorHelper.packRGB(r / 255F, g / 255F, b / 255F);
 		}
-
+		
 		public int getR()
 		{
 			return r;
 		}
-
+		
 		public int getG()
 		{
 			return g;
 		}
-
+		
 		public int getB()
 		{
 			return b;
 		}
-
+		
 		public String getName()
 		{
 			return name;
