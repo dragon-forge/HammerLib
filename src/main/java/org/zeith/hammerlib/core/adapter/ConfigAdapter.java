@@ -10,9 +10,7 @@ import net.minecraftforge.fml.loading.FMLPaths;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.annotations.OnlyIf;
 import org.zeith.hammerlib.annotations.SetupConfigs;
-import org.zeith.hammerlib.api.config.Config;
-import org.zeith.hammerlib.api.config.ConfigException;
-import org.zeith.hammerlib.api.config.IConfigRoot;
+import org.zeith.hammerlib.api.config.*;
 import org.zeith.hammerlib.event.player.PlayerLoadedInEvent;
 import org.zeith.hammerlib.net.lft.NetTransport;
 import org.zeith.hammerlib.net.packets.PacketSyncConfigs;
@@ -27,11 +25,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
+import java.util.*;
 import java.util.function.Consumer;
 
 @Mod.EventBusSubscriber
@@ -40,7 +34,7 @@ public class ConfigAdapter
 	private static final Map<String, ConfigFile> FILE_HASH = new HashMap<>();
 	private static final Map<Class<? extends IConfigRoot>, CompoundTag> CLIENT_STATE = new HashMap<>();
 	private static final SidedLocal<Map<Class<? extends IConfigRoot>, IConfigRoot>> STRUCTURES = new SidedLocal<>(side -> new HashMap<>());
-
+	
 	@SubscribeEvent
 	public static void syncConfigs(PlayerLoadedInEvent event)
 	{
@@ -48,12 +42,12 @@ public class ConfigAdapter
 		map.values().removeIf(IConfigRoot::avoidSync);
 		NetTransport.wrap(new PacketSyncConfigs(map)).sendTo(event.getEntity());
 	}
-
+	
 	public static void handleClientsideSync(PacketSyncConfigs packet)
 	{
 		var map = STRUCTURES.get(LogicalSide.CLIENT);
 		CLIENT_STATE.clear();
-
+		
 		packet.data().forEach((type, tag) ->
 		{
 			IConfigRoot configRoot = map.get(type);
@@ -65,19 +59,19 @@ public class ConfigAdapter
 					configRoot.toNetwork(sub);
 					CLIENT_STATE.put(type, sub);
 				}
-
+				
 				configRoot.fromNetwork(tag);
 				configRoot.updateInstance(LogicalSide.CLIENT);
 			}
 		});
-
+		
 		HammerLib.LOG.info("Applied " + CLIENT_STATE.size() + " configs from server.");
 	}
-
+	
 	public static void resetClientsideSync()
 	{
 		var map = STRUCTURES.get(LogicalSide.CLIENT);
-
+		
 		CLIENT_STATE.forEach((type, tag) ->
 		{
 			IConfigRoot configRoot = map.get(type);
@@ -87,12 +81,12 @@ public class ConfigAdapter
 				configRoot.updateInstance(LogicalSide.CLIENT);
 			}
 		});
-
+		
 		HammerLib.LOG.info("Reset " + CLIENT_STATE.size() + " configs to their client-side state.");
-
+		
 		CLIENT_STATE.clear();
 	}
-
+	
 	public static void setup()
 	{
 		ScanDataHelper.lookupAnnotatedObjects(SetupConfigs.class).forEach(data ->
@@ -105,7 +99,7 @@ public class ConfigAdapter
 						.ifPresent(b -> configSetup(b, registerer, data.getMemberName()));
 			}
 		});
-
+		
 		for(var ad : ScanDataHelper.lookupAnnotatedObjects(Config.class, e -> IConfigRoot.class.isAssignableFrom(e.getOwnerClass())))
 		{
 			try
@@ -113,7 +107,7 @@ public class ConfigAdapter
 				var cfg = ad.getOwnerClass().getAnnotation(Config.class);
 				var inst = ad.getOwnerClass().asSubclass(IConfigRoot.class).getDeclaredConstructor().newInstance();
 				var module = cfg.module();
-
+				
 				ad.getOwnerMod().ifPresentOrElse(mod ->
 				{
 					apply(mod.getModId(), StringUtil.isNullOrEmpty(module) ? Optional.empty() : Optional.of(module), inst::load);
@@ -137,18 +131,18 @@ public class ConfigAdapter
 			}
 		}
 	}
-
+	
 	public static <T extends IConfigRoot> Optional<T> getConfigForSide(LogicalSide side, Class<T> type)
 	{
 		return Cast.optionally(STRUCTURES.get(side).get(type), type);
 	}
-
+	
 	public static ConfigFile getConfigFile(String mod, Optional<String> module)
 	{
 		Path path = module
 				.map(s -> FMLPaths.CONFIGDIR.get().resolve(mod).resolve(s + ".cfg"))
 				.orElseGet(() -> FMLPaths.CONFIGDIR.get().resolve(mod + ".cfg"));
-
+		
 		return FILE_HASH.computeIfAbsent(path.toFile().getAbsolutePath(), p ->
 		{
 			try
@@ -161,7 +155,7 @@ public class ConfigAdapter
 			return new ConfigFile(path.toFile());
 		});
 	}
-
+	
 	public static void apply(String mod, Optional<String> module, Consumer<ConfigFile> handler)
 	{
 		ConfigFile file = getConfigFile(mod, module);
@@ -172,11 +166,11 @@ public class ConfigAdapter
 				file.save();
 		}
 	}
-
+	
 	public static void configSetup(FMLModContainer mod, Class<?> source, String memberName)
 	{
 		String methodName = memberName.substring(0, memberName.indexOf('('));
-
+		
 		Arrays
 				.stream(source.getDeclaredMethods())
 				.filter(m -> m.getAnnotation(SetupConfigs.class) != null && m.getName().equals(methodName))
@@ -187,7 +181,7 @@ public class ConfigAdapter
 						try
 						{
 							OnlyIf onlyIf = method.getAnnotation(OnlyIf.class);
-							if(!OnlyIfAdapter.checkCondition(onlyIf, source.toString(), "ConfigSetup", null)) return;
+							if(!OnlyIfAdapter.checkCondition(onlyIf, source.toString(), "ConfigSetup", null, null)) return;
 							method.setAccessible(true);
 							if(method.getParameterCount() == 0)
 								method.invoke(null);

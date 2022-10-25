@@ -114,11 +114,14 @@ public class RegistryAdapter
 						{
 							field.setAccessible(true);
 							var name = field.getAnnotation(RegistryName.class);
-							
-							var t = superType.cast(field.get(null));
 							var rl = new ResourceLocation(modid, name.value());
-							
-							grabber.accept(rl, t);
+							var t = superType.cast(field.get(null));
+							var onlyIf = field.getAnnotation(OnlyIf.class); // Bring back OnlyIf, for registries that are non-intrusive. (Mostly, for custom registry types)
+							if(!RegistryMapping.isNonIntrusive(registry)
+									|| OnlyIfAdapter.checkCondition(onlyIf, source.toString(), superType.getSimpleName(), t, rl))
+							{
+								grabber.accept(rl, t);
+							}
 						} catch(IllegalArgumentException | IllegalAccessException e)
 						{
 							e.printStackTrace();
@@ -141,7 +144,7 @@ public class RegistryAdapter
 						try
 						{
 							OnlyIf onlyIf = method.getAnnotation(OnlyIf.class);
-							if(!OnlyIfAdapter.checkCondition(onlyIf, source.toString(), "Setup", null)) return;
+							if(!OnlyIfAdapter.checkCondition(onlyIf, source.toString(), "Setup", null, null)) return;
 							method.setAccessible(true);
 							if(method.getParameterCount() == 0)
 								method.invoke(null);
@@ -174,7 +177,7 @@ public class RegistryAdapter
 						try
 						{
 							OnlyIf onlyIf = method.getAnnotation(OnlyIf.class);
-							if(!OnlyIfAdapter.checkCondition(onlyIf, source.toString(), "ClientSetup", null)) return;
+							if(!OnlyIfAdapter.checkCondition(onlyIf, source.toString(), "ClientSetup", null, null)) return;
 							method.setAccessible(true);
 							if(method.getParameterCount() == 0)
 								method.invoke(null);

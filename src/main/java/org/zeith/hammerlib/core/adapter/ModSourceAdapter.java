@@ -2,6 +2,7 @@ package org.zeith.hammerlib.core.adapter;
 
 import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.forgespi.language.IModFileInfo;
 import net.minecraftforge.forgespi.language.IModInfo;
 import net.minecraftforge.forgespi.locating.IModFile;
@@ -10,6 +11,7 @@ import org.zeith.hammerlib.util.java.net.HttpRequest;
 import org.zeith.hammerlib.util.shaded.json.JSONObject;
 import org.zeith.hammerlib.util.shaded.json.JSONTokener;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -54,10 +56,14 @@ public class ModSourceAdapter
 	{
 		try
 		{
-			return ZoneIdentifier.forFile(Path.of(modClass.getProtectionDomain().getCodeSource().getLocation().toURI()).toFile())
-					.map(ModSource::new);
-		} catch(Throwable ignored)
+			File modFile = null;
+			Mod mod = modClass.getDeclaredAnnotation(Mod.class);
+			if(mod != null) modFile = ModList.get().getModFileById(mod.value()).getFile().getFilePath().toFile();
+			if(modFile == null) modFile = Path.of(modClass.getProtectionDomain().getCodeSource().getLocation().toURI()).toFile();
+			return ZoneIdentifier.forFile(modFile).map(ModSource::new);
+		} catch(Throwable err)
 		{
+			err.printStackTrace();
 		}
 		
 		return Optional.empty();

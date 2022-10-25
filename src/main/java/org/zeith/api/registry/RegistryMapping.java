@@ -38,10 +38,14 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
 import org.zeith.hammerlib.util.java.Cast;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class RegistryMapping
 {
 	private static final BiMap<Class<?>, IForgeRegistry<?>> REG_BY_TYPE = HashBiMap.create();
 	private static final BiMap<ResourceKey<?>, Class<?>> TYPE_BY_REG = HashBiMap.create();
+	private static final Set<ResourceKey<?>> NON_INTRUSIVE_REGISTRIES = new HashSet<>();
 	
 	static
 	{
@@ -79,13 +83,28 @@ public class RegistryMapping
 		reportRaw(ArgumentTypeInfo.class, ForgeRegistries.COMMAND_ARGUMENT_TYPES);
 	}
 	
-	public static <T> void report(Class<T> base, IForgeRegistry<T> registry)
+	/**
+	 * Allows marking any registry as non-intrusive, allowing @{@link org.zeith.hammerlib.annotations.OnlyIf} to be applicable on constant fields of a registry.
+	 */
+	public static synchronized <T> void markRegistryAsNonIntrusive(ResourceKey<Registry<T>> registryKey)
+	{
+		NON_INTRUSIVE_REGISTRIES.add(registryKey);
+	}
+	
+	public static synchronized <T> void report(Class<T> base, IForgeRegistry<T> registry)
 	{
 		REG_BY_TYPE.put(base, registry);
 		TYPE_BY_REG.put(registry.getRegistryKey(), base);
 	}
 	
-	public static void reportRaw(Class base, IForgeRegistry registry)
+	public static synchronized <T> void report(Class<T> base, IForgeRegistry<T> registry, boolean intrusive)
+	{
+		REG_BY_TYPE.put(base, registry);
+		TYPE_BY_REG.put(registry.getRegistryKey(), base);
+		if(!intrusive) markRegistryAsNonIntrusive(registry.getRegistryKey());
+	}
+	
+	public static synchronized void reportRaw(Class base, IForgeRegistry registry)
 	{
 		REG_BY_TYPE.put(base, registry);
 		TYPE_BY_REG.put(registry.getRegistryKey(), base);
@@ -117,5 +136,10 @@ public class RegistryMapping
 		if(registry == null)
 			return null;
 		return Cast.cast(REG_BY_TYPE.get(registry));
+	}
+	
+	public static boolean isNonIntrusive(IForgeRegistry<?> registry)
+	{
+		return NON_INTRUSIVE_REGISTRIES.contains(registry.getRegistryKey());
 	}
 }
