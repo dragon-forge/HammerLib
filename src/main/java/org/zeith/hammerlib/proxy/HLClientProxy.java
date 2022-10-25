@@ -1,6 +1,8 @@
 package org.zeith.hammerlib.proxy;
 
 import com.google.common.base.Predicates;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonObject;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.datafixers.util.Either;
 import net.minecraft.ChatFormatting;
@@ -59,8 +61,7 @@ import org.zeith.hammerlib.util.shaded.json.JSONObject;
 
 import java.lang.reflect.Constructor;
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.function.*;
 import java.util.stream.Stream;
 
 public class HLClientProxy
@@ -78,36 +79,9 @@ public class HLClientProxy
 		modBus.addListener(this::modelBake);
 		modBus.addListener(this::registerClientTooltips);
 		modBus.addListener(TexturePixelGetter::reloadTexture);
+		SimpleModelGenerator.setup();
 
 //		MinecraftForge.EVENT_BUS.addListener(this::alterTooltip);
-		
-		ScanDataHelper.lookupAnnotatedObjects(LoadUnbakedGeometry.class).forEach(data ->
-		{
-			Class<?> c = data.getOwnerClass();
-			if(IUnbakedGeometry.class.isAssignableFrom(c))
-			{
-				var path = data.getProperty("path").map(String.class::cast).orElseThrow();
-				
-				OnlyIf condition = null;
-				try
-				{
-					condition = c.getDeclaredConstructor().getDeclaredAnnotation(OnlyIf.class);
-				} catch(NoSuchMethodException e)
-				{
-				}
-				
-				if(OnlyIfAdapter.checkCondition(condition, c.toString(), "UnbakedModel", null))
-					data.getOwnerMod()
-							.ifPresent(mc ->
-									mc.getEventBus().addListener((Consumer<ModelEvent.RegisterGeometryLoaders>) evt ->
-											{
-												evt.register(path, new SimpleModelGenerator<>(() -> Cast.cast(UnsafeHacks.newInstance(c))));
-												HammerLib.LOG.info("Registered a new model with loader " + JSONObject.quote(ModLoadingContext.get().getActiveNamespace() + ":" + path));
-											}
-									)
-							);
-			}
-		});
 	}
 	
 	private void alterTooltip(RenderTooltipEvent.GatherComponents e)

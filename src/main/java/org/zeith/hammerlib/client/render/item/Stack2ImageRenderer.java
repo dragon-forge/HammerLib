@@ -29,6 +29,7 @@ import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.zeith.hammerlib.HammerLib;
+import org.zeith.hammerlib.client.utils.RenderUtils;
 import org.zeith.hammerlib.compat.jei.IJeiPluginHL;
 import org.zeith.hammerlib.core.ConfigHL;
 import org.zeith.hammerlib.proxy.HLClientProxy;
@@ -125,7 +126,7 @@ public class Stack2ImageRenderer
 	{
 		SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy-hh.mm.ss");
 		ResourceLocation rl = ForgeRegistries.ITEMS.getKey(stack.getItem());
-		var faild = new File("hammercore", "renderers" + File.separator + rl.getNamespace());
+		var faild = new File(HLConstants.MOD_ID, "renderers" + File.separator + rl.getNamespace());
 		var fl = new File(faild, (rl.getPath() + "-" + sdf.format(Date.from(Instant.now())) + ".png").replaceAll("[^a-zA-Z0-9\\.\\-]", "_"));
 		queueRenderer(type, stack, size, fl);
 	}
@@ -133,7 +134,7 @@ public class Stack2ImageRenderer
 	public static void renderAll(int size)
 	{
 		SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy-hh.mm.ss");
-		File faild = new File("hammercore", "renderers" + File.separator + "all-" + sdf.format(Date.from(Instant.now())));
+		File faild = new File(HLConstants.MOD_ID, "renderers" + File.separator + "all-" + sdf.format(Date.from(Instant.now())));
 		
 		ForgeRegistries.ITEMS.getValues().stream()
 				.flatMap(item ->
@@ -229,8 +230,8 @@ public class Stack2ImageRenderer
 			renderTarget.bindWrite(true);
 			
 			var stack = elem.stack();
-			var model = ir.getModel(stack, null, null, 0);
 			
+			var model = ir.getModel(stack, null, null, 0);
 			{
 				mc.textureManager.getTexture(InventoryMenu.BLOCK_ATLAS).setFilter(false, false);
 				RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS);
@@ -252,7 +253,7 @@ public class Stack2ImageRenderer
 				boolean flat = !model.usesBlockLight();
 				if(flat) Lighting.setupForFlatItems();
 				else Lighting.setupFor3DItems();
-				
+
 				ir.render(stack, ItemTransforms.TransformType.GUI, false, pose, buffers, 15728880, OverlayTexture.NO_OVERLAY, model);
 				buffers.endBatch();
 				RenderSystem.enableDepthTest();
