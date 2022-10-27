@@ -12,10 +12,9 @@ import java.util.UUID;
 
 public class HLConstants
 {
-	public static final Map<UUID, String> PLAYER_LANGUAGE_MAP = new HashMap<>();
-	public static final HLCommonProxy PROXY = HammerLib.PROXY;
 	public static final Logger LOG = HammerLib.LOG;
 	public static final String MOD_ID = "hammerlib";
+	
 	public static final CreativeModeTab HL_TAB = new CreativeModeTab(MOD_ID)
 	{
 		@Override
