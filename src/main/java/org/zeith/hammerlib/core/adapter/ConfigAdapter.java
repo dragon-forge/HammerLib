@@ -15,7 +15,7 @@ import org.zeith.hammerlib.event.player.PlayerLoadedInEvent;
 import org.zeith.hammerlib.net.lft.NetTransport;
 import org.zeith.hammerlib.net.packets.PacketSyncConfigs;
 import org.zeith.hammerlib.util.SidedLocal;
-import org.zeith.hammerlib.util.cfg.ConfigFile;
+import org.zeith.hammerlib.util.configured.ConfigFile;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.mcf.ScanDataHelper;
 
@@ -152,7 +152,9 @@ public class ConfigAdapter
 			{
 				e.printStackTrace();
 			}
-			return new ConfigFile(path.toFile());
+			var fl = new ConfigFile(path.toFile());
+			fl.load();
+			return fl;
 		});
 	}
 	

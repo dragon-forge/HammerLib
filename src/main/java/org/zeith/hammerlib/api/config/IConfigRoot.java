@@ -6,7 +6,7 @@ import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.unsafe.UnsafeHacks;
 import org.zeith.hammerlib.HammerLib;
-import org.zeith.hammerlib.util.cfg.ConfigFile;
+import org.zeith.hammerlib.util.configured.ConfigFile;
 import org.zeith.hammerlib.util.java.ReflectionUtil;
 
 import java.lang.reflect.Modifier;
@@ -123,8 +123,8 @@ public interface IConfigRoot
 
 				if(IConfigStructure.class.isAssignableFrom(type))
 				{
-					var sub = file.getCategory(name)
-							.setDescription(description);
+					var sub = file.setupCategory(name)
+							.withComment(description);
 
 					var struct = (IConfigStructure) field.get(this);
 
