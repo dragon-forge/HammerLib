@@ -40,18 +40,6 @@ public class XPUtil
 		return (int) (getXPValueFromLevel(player.experienceLevel) + (getXPValueToNextLevel(player.experienceLevel) * player.experienceProgress));
 	}
 
-	public static int getLevelFromXPValue(int value)
-	{
-		int level = 0;
-		if(value >= getXPValueFromLevel(30))
-			level = (int) (.07142857142857142 * (Math.sqrt(56D * value - 32511D) + 303D));
-		else if(value >= getXPValueFromLevel(15))
-			level = (int) (.16666666666666666 * (Math.sqrt(24D * value - 5159D) + 59D));
-		else
-			level = (int) (value / 17D);
-		return level;
-	}
-
 	public static float getCurrentFromXPValue(int value)
 	{
 		if(value == 0)
@@ -60,8 +48,19 @@ public class XPUtil
 		float needed = getXPValueFromLevel(level);
 		float next = getXPValueToNextLevel(level);
 		float difference = value - needed;
-		float current = difference / next;
-		return current;
+		return difference / next;
+	}
+	
+	public static int getLevelFromXPValue(int value)
+	{
+		int level;
+		if(value >= getXPValueFromLevel(30))
+			level = (int) (.07142857142857142 * (Math.sqrt(56D * value - 32511D) + 303D));
+		else if(value >= getXPValueFromLevel(15))
+			level = (int) (.16666666666666666 * (Math.sqrt(24D * value - 5159D) + 59D));
+		else
+			level = (int) (value / 17D);
+		return level;
 	}
 
 	public static int getXPValueFromLevel(int xpLevel)

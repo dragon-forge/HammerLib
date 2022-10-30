@@ -25,7 +25,7 @@ public class ZoneIdentifier
 		
 		String ln = reader.readLine();
 		
-		if(!ln.equals("[ZoneTransfer]"))
+		if(ln != null && !ln.equals("[ZoneTransfer]"))
 		{
 			throw new IllegalArgumentException("Invalid format");
 		}
