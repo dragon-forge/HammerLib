@@ -7,22 +7,22 @@ import java.util.concurrent.Callable;
 public class Once
 {
 	private Runnable call;
-
+	
 	public static Once run(Runnable r)
 	{
 		return new Once(r);
 	}
-
+	
 	public static <T> TypeOnce<T> call(Callable<T> r)
 	{
 		return new TypeOnce<>(r);
 	}
-
+	
 	public Once(Runnable run)
 	{
 		call = run;
 	}
-
+	
 	public Object call()
 	{
 		if(call != null)
@@ -30,18 +30,18 @@ public class Once
 		call = null;
 		return null;
 	}
-
+	
 	public static class TypeOnce<T>
 			extends Once
 	{
 		private Callable<T> callable;
-
+		
 		public TypeOnce(Callable<T> run)
 		{
 			super(Runnables.doNothing());
 			this.callable = run;
 		}
-
+		
 		@Override
 		public T call()
 		{

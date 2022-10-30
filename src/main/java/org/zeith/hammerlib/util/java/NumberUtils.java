@@ -15,22 +15,22 @@ public class NumberUtils
 		LONG(8, Long::parseLong),
 		SHORT(2, Short::parseShort),
 		UNDEFINED(0, v -> null);
-
+		
 		public final int byteAmt;
 		private final Function<String, ? extends Number> parser;
-
+		
 		EnumNumberType(int byteAmt, Function<String, ? extends Number> parser)
 		{
 			this.byteAmt = byteAmt;
 			this.parser = parser;
 		}
-
+		
 		public Number parse(String value)
 		{
 			return parser.apply(value);
 		}
 	}
-
+	
 	public static EnumNumberType getType(Number num)
 	{
 		if(num instanceof Byte)
@@ -47,27 +47,27 @@ public class NumberUtils
 			return EnumNumberType.SHORT;
 		return EnumNumberType.UNDEFINED;
 	}
-
+	
 	public static float progressToSinef(float value)
 	{
 		return (float) Math.sin(Math.toRadians(value * 90));
 	}
-
+	
 	public static double progressToSined(double value)
 	{
 		return Math.sin(Math.toRadians(value * 90));
 	}
-
+	
 	public static float progressToSinef(float value, float maxValue)
 	{
 		return (float) Math.sin(Math.toRadians(value / maxValue * 90));
 	}
-
+	
 	public static double progressToSined(double value, double maxValue)
 	{
 		return Math.sin(Math.toRadians(value / maxValue * 90));
 	}
-
+	
 	public static byte[] asBytes(Number num)
 	{
 		EnumNumberType type = getType(num);
@@ -89,9 +89,9 @@ public class NumberUtils
 				buf.putShort(num.shortValue());
 			return buf.array();
 		}
-		return new byte[]{ (byte) EnumNumberType.UNDEFINED.ordinal() };
+		return new byte[] { (byte) EnumNumberType.UNDEFINED.ordinal() };
 	}
-
+	
 	public static Number fromBytes(byte[] array)
 	{
 		ByteBuffer buf = ByteBuffer.wrap(array);
@@ -115,7 +115,7 @@ public class NumberUtils
 		}
 		return null;
 	}
-
+	
 	public static Optional<Number> tryParse(String value, EnumNumberType type)
 	{
 		Number parsed = null;

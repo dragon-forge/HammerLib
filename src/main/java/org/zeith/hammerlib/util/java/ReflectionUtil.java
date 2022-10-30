@@ -7,10 +7,7 @@ import org.zeith.hammerlib.HammerLib;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.lang.reflect.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -20,12 +17,12 @@ public class ReflectionUtil
 	private static Object reflectionFactory;
 	private static Method newFieldAccessor;
 	private static Method fieldAccessorSet;
-
+	
 	public static Class<?> getArrayComponent(Class<?> array)
 	{
 		return array.isArray() ? getArrayComponent(array.getComponentType()) : array;
 	}
-
+	
 	public static <T> Class<?> findCommonSuperClass(Collection<T> coll)
 	{
 		if(coll.isEmpty())
@@ -34,7 +31,7 @@ public class ReflectionUtil
 		} else
 		{
 			Class<?> oclass = null;
-
+			
 			for(T t : coll)
 			{
 				if(oclass == null)
@@ -42,11 +39,11 @@ public class ReflectionUtil
 				else
 					oclass = findClosestAncestor(oclass, t.getClass());
 			}
-
+			
 			return oclass;
 		}
 	}
-
+	
 	public static <T> Class<?> findCommonSuperClass(Collection<T> coll, Function<T, Class<?>> toClass)
 	{
 		if(coll.isEmpty())
@@ -63,14 +60,14 @@ public class ReflectionUtil
 			return oclass;
 		}
 	}
-
+	
 	public static Class<?> findClosestAncestor(Class<?> a, Class<?> b)
 	{
 		while(!a.isAssignableFrom(b))
 			a = a.getSuperclass();
 		return a;
 	}
-
+	
 	public static boolean doesParameterTypeArgsMatch(Parameter param, Class<?>... baseArgs)
 	{
 		java.lang.reflect.Type[] args = getTypeArgs(param.getParameterizedType());
@@ -81,7 +78,7 @@ public class ReflectionUtil
 				return false;
 		return true;
 	}
-
+	
 	public static boolean doesParameterTypeArgsMatch(Field field, Class<?>... baseArgs)
 	{
 		java.lang.reflect.Type[] args = getTypeArgs(field.getGenericType());
@@ -92,7 +89,7 @@ public class ReflectionUtil
 				return false;
 		return true;
 	}
-
+	
 	/**
 	 * Examples: For List< String> returns [Type(String)]
 	 */
@@ -105,17 +102,17 @@ public class ReflectionUtil
 		}
 		return new java.lang.reflect.Type[0];
 	}
-
+	
 	public static Class<?> fetchClassAny(Type type)
 	{
 		return fetchClass(type.getSort() < Type.ARRAY ? type.getClassName() : type.getInternalName().replace('/', '.'));
 	}
-
+	
 	public static <T> Class<T> fetchClass(Type type)
 	{
 		return fetchClass(type.getSort() < Type.ARRAY ? type.getClassName() : type.getInternalName().replace('/', '.'));
 	}
-
+	
 	public static <T> Class<T> fetchClass(String name)
 	{
 		try
@@ -132,14 +129,14 @@ public class ReflectionUtil
 		}
 		return null;
 	}
-
+	
 	public static Iterable<Field> getFieldsUpTo(@Nonnull Class<?> startClass,
 												@Nullable Class<?> exclusiveParent)
 	{
-
+		
 		List<Field> currentClassFields = Lists.newArrayList(startClass.getDeclaredFields());
 		Class<?> parentClass = startClass.getSuperclass();
-
+		
 		if(parentClass != null &&
 				(exclusiveParent == null || !(parentClass.equals(exclusiveParent))))
 		{
@@ -147,10 +144,10 @@ public class ReflectionUtil
 					(List<Field>) getFieldsUpTo(parentClass, exclusiveParent);
 			currentClassFields.addAll(parentClassFields);
 		}
-
+		
 		return currentClassFields;
 	}
-
+	
 	@Deprecated
 	public static boolean setStaticFinalField(Class<?> cls, String var, Object val)
 	{
@@ -163,7 +160,7 @@ public class ReflectionUtil
 		}
 		return false;
 	}
-
+	
 	@Deprecated
 	public static boolean setStaticFinalField(Field f, Object val)
 	{
@@ -178,7 +175,7 @@ public class ReflectionUtil
 		}
 		return false;
 	}
-
+	
 	@Deprecated
 	public static boolean setFinalField(Field f, @Nullable Object instance, Object thing) throws ReflectiveOperationException
 	{
@@ -192,7 +189,7 @@ public class ReflectionUtil
 			f.set(instance, thing);
 		return false;
 	}
-
+	
 	@Deprecated
 	private static Field makeWritable(Field f) throws ReflectiveOperationException
 	{
@@ -209,7 +206,7 @@ public class ReflectionUtil
 		modifiersField.setInt(f, f.getModifiers() & ~Modifier.FINAL);
 		return f;
 	}
-
+	
 	public static Object lookupValue(Object object, Class<?> type)
 	{
 		Field field = lookupField(object.getClass(), type);
@@ -223,7 +220,7 @@ public class ReflectionUtil
 			throw new RuntimeException(e);
 		}
 	}
-
+	
 	public static Field lookupField(Class<?> clazz, Class<?> type)
 	{
 		Field ret = null;
@@ -239,7 +236,7 @@ public class ReflectionUtil
 		}
 		return ret;
 	}
-
+	
 	public static List<Field> lookupFields(Class<?> clazz, Class<?> type)
 	{
 		List<Field> fields = new ArrayList<>();
@@ -253,7 +250,7 @@ public class ReflectionUtil
 		}
 		return fields;
 	}
-
+	
 	public static Field lookupField(Class<?> clazz, String name)
 	{
 		Field ret = null;
@@ -269,7 +266,7 @@ public class ReflectionUtil
 		}
 		return ret;
 	}
-
+	
 	public static <T> Optional<T> fetchValue(Field field, Object instance, Class<T> targetType)
 	{
 		try
@@ -281,7 +278,7 @@ public class ReflectionUtil
 		}
 		return Optional.empty();
 	}
-
+	
 	public static Class<?> getCaller()
 	{
 		try
@@ -292,7 +289,7 @@ public class ReflectionUtil
 			return null;
 		}
 	}
-
+	
 	public static <T> Optional<T> getField(Object anything, int i, Class<T> cast)
 	{
 		try
@@ -306,7 +303,7 @@ public class ReflectionUtil
 		}
 		return Optional.empty();
 	}
-
+	
 	public static <T> Optional<T> getStaticFinalField(Class<?> owner, String member)
 	{
 		try
@@ -321,7 +318,7 @@ public class ReflectionUtil
 		}
 		return Optional.empty();
 	}
-
+	
 	public static Method findDeclaredMethod(Class<?> c, String member, Predicate<Method> o) throws NoSuchMethodException
 	{
 		for(Method method : c.getDeclaredMethods())

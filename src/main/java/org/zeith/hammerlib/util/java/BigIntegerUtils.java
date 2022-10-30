@@ -17,7 +17,7 @@ public class BigIntegerUtils
 		}
 		return null;
 	}
-
+	
 	public static boolean isInt(BigInteger bint)
 	{
 		if(bint == null)
