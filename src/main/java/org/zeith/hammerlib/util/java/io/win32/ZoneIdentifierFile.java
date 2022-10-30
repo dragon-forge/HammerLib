@@ -1,18 +1,11 @@
 package org.zeith.hammerlib.util.java.io.win32;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.StandardOpenOption;
+import java.io.*;
+import java.nio.file.*;
 import java.util.function.LongConsumer;
 
-public final class ZoneIdentifierFile extends File
+public final class ZoneIdentifierFile
+		extends File
 {
 	private final File origin;
 	

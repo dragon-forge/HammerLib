@@ -1,8 +1,6 @@
 package org.zeith.hammerlib.util.java;
 
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.function.*;
 
 public class ResettableLazy<T>
 {
@@ -10,42 +8,42 @@ public class ResettableLazy<T>
 	{
 		return new ResettableLazy<>((Supplier<T>) null);
 	}
-
+	
 	public static <T> ResettableLazy<T> of(final T value)
 	{
 		return new ResettableLazy<T>(value);
 	}
-
+	
 	public static <T> ResettableLazy<T> of(final Supplier<T> provider)
 	{
 		return new ResettableLazy<T>(provider);
 	}
-
+	
 	private final Object lock = new Object();
 	private T value;
 	private Boolean initialized;
 	private final Supplier<T> provider;
-
+	
 	private ResettableLazy(final T value)
 	{
 		this.value = value;
 		this.initialized = true;
 		this.provider = () -> value;
 	}
-
+	
 	private ResettableLazy(final Supplier<T> provider)
 	{
 		this.value = null;
 		this.initialized = false;
 		this.provider = provider;
 	}
-
+	
 	public void reset()
 	{
 		this.value = null;
 		this.initialized = false;
 	}
-
+	
 	public T get()
 	{
 		synchronized(lock)
@@ -55,7 +53,7 @@ public class ResettableLazy<T>
 				initialized = true;
 				this.value = provider.get();
 			}
-
+			
 			return value;
 		}
 	}
@@ -70,7 +68,7 @@ public class ResettableLazy<T>
 			consumer.accept(this.value);
 		}
 	}
-
+	
 	public <R> ResettableLazy<R> map(Function<T, R> mapper)
 	{
 		synchronized(lock)
@@ -78,14 +76,14 @@ public class ResettableLazy<T>
 			return of(() -> mapper.apply(get()));
 		}
 	}
-
+	
 	public T orElse(T elseValue)
 	{
 		synchronized(lock)
 		{
 			if(!initialized)
 				return elseValue;
-
+			
 			return value;
 		}
 	}

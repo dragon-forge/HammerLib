@@ -10,25 +10,25 @@ public class ImmutableEntry<K, V>
 {
 	protected final K key;
 	protected final V value;
-
+	
 	public ImmutableEntry(K key, V value)
 	{
 		this.key = key;
 		this.value = value;
 	}
-
+	
 	@Override
 	public K getKey()
 	{
 		return key;
 	}
-
+	
 	@Override
 	public V getValue()
 	{
 		return value;
 	}
-
+	
 	@Override
 	public V setValue(V value)
 	{

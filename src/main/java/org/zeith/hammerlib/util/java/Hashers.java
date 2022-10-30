@@ -12,19 +12,19 @@ public class Hashers
 	public static final Hashers MD5 = new Hashers("MD5");
 	public static final Hashers SHA1 = new Hashers("SHA1");
 	public static final Hashers SHA256 = new Hashers("SHA256");
-
+	
 	final String algorithm;
-
+	
 	public Hashers(String algorithm)
 	{
 		this.algorithm = algorithm;
 	}
-
+	
 	public Digestion digestion()
 	{
 		return new Digestion(this);
 	}
-
+	
 	protected MessageDigest newDigest()
 	{
 		try
@@ -35,14 +35,14 @@ public class Hashers
 			throw new RuntimeException(e);
 		}
 	}
-
+	
 	public String hashify(byte[] data)
 	{
 		MessageDigest messageDigest = newDigest();
 		messageDigest.reset();
 		messageDigest.update(data);
 		byte[] digest = messageDigest.digest();
-
+		
 		BigInteger bigInt = new BigInteger(1, digest);
 		String md5Hex = bigInt.toString(16);
 		while(md5Hex.length() < 32)
@@ -51,12 +51,12 @@ public class Hashers
 		}
 		return md5Hex;
 	}
-
+	
 	public String hashify(String line)
 	{
 		return hashify(line.getBytes());
 	}
-
+	
 	public String genFolderHash(File prime)
 	{
 		if(!prime.exists())
@@ -111,7 +111,7 @@ public class Hashers
 		}
 		return hashify(b.toString().getBytes());
 	}
-
+	
 	public String genHash(File file)
 	{
 		if(file.isDirectory())
@@ -130,7 +130,7 @@ public class Hashers
 			md5Hex = "0" + md5Hex;
 		return md5Hex;
 	}
-
+	
 	private byte[] createChecksum(File file) throws Exception
 	{
 		int numRead;
@@ -153,42 +153,42 @@ public class Hashers
 		fis.close();
 		return complete.digest();
 	}
-
+	
 	public static class Digestion
 	{
 		final Hashers hasher;
 		MessageDigest digest;
-
+		
 		public Digestion(Hashers hasher)
 		{
 			this.hasher = hasher;
 		}
-
+		
 		public Digestion start()
 		{
 			digest = hasher.newDigest();
 			return this;
 		}
-
+		
 		public Digestion feed(byte[] input)
 		{
 			digest.update(input);
 			return this;
 		}
-
+		
 		public Digestion feed(byte[] input, int off, int len)
 		{
 			digest.update(input, off, len);
 			return this;
 		}
-
+		
 		public byte[] digestRaw()
 		{
 			byte[] r = digest.digest();
 			digest.reset();
 			return r;
 		}
-
+		
 		public String digestHex()
 		{
 			BigInteger bigInt = new BigInteger(1, digestRaw());

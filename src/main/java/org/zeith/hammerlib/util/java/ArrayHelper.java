@@ -15,32 +15,32 @@ public class ArrayHelper
 	{
 		return collect(stream(ts).map(func));
 	}
-
+	
 	public static <T, R> List<R> map(Function<T, R> func, List<T> ts)
 	{
 		return ts.stream().map(func).collect(Collectors.toList());
 	}
-
+	
 	public static <T> Stream<T> stream(T... ts)
 	{
 		return Arrays.stream(ts);
 	}
-
+	
 	public static <T> T[] collect(Stream<T> str)
 	{
 		return (T[]) str.collect(Collectors.toList()).toArray();
 	}
-
+	
 	public static <T> T[] newArray(Class<T> type, int length)
 	{
 		return (T[]) Array.newInstance(type, length);
 	}
-
+	
 	public static <T> T[] merge(T[] a, T... ts)
 	{
 		return ArrayUtils.addAll(a, ts);
 	}
-
+	
 	public static <T> T[] merge(T[] a, T[]... tmat)
 	{
 		for(T[] ts : tmat)

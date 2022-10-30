@@ -1,5 +1,8 @@
 package org.zeith.hammerlib.util.java.tuples;
 
+import org.zeith.hammerlib.util.java.consumers.*;
+import org.zeith.hammerlib.util.java.functions.*;
+
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -214,6 +217,231 @@ public class Tuple7<A, B, C, D, E, F, G>
 	public <H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z> Tuple26<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z> add(H h, I i, J j, K k, L l, M m, N n, O o, P p, Q q, R r, S s, T t, U u, V v, W w, X x, Y y, Z z)
 	{
 		return Tuples.immutable(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z);
+	}
+	
+	public <H> Tuple8<H, A, B, C, D, E, F, G> insert(H h)
+	{
+		return Tuples.immutable(h, a, b, c, d, e, f, g);
+	}
+	
+	public <H, I> Tuple9<H, I, A, B, C, D, E, F, G> insert(H h, I i)
+	{
+		return Tuples.immutable(h, i, a, b, c, d, e, f, g);
+	}
+	
+	public <H, I, J> Tuple10<H, I, J, A, B, C, D, E, F, G> insert(H h, I i, J j)
+	{
+		return Tuples.immutable(h, i, j, a, b, c, d, e, f, g);
+	}
+	
+	public <H, I, J, K> Tuple11<H, I, J, K, A, B, C, D, E, F, G> insert(H h, I i, J j, K k)
+	{
+		return Tuples.immutable(h, i, j, k, a, b, c, d, e, f, g);
+	}
+	
+	public <H, I, J, K, L> Tuple12<H, I, J, K, L, A, B, C, D, E, F, G> insert(H h, I i, J j, K k, L l)
+	{
+		return Tuples.immutable(h, i, j, k, l, a, b, c, d, e, f, g);
+	}
+	
+	public <H, I, J, K, L, M> Tuple13<H, I, J, K, L, M, A, B, C, D, E, F, G> insert(H h, I i, J j, K k, L l, M m)
+	{
+		return Tuples.immutable(h, i, j, k, l, m, a, b, c, d, e, f, g);
+	}
+	
+	public <H, I, J, K, L, M, N> Tuple14<H, I, J, K, L, M, N, A, B, C, D, E, F, G> insert(H h, I i, J j, K k, L l, M m, N n)
+	{
+		return Tuples.immutable(h, i, j, k, l, m, n, a, b, c, d, e, f, g);
+	}
+	
+	public <H, I, J, K, L, M, N, O> Tuple15<H, I, J, K, L, M, N, O, A, B, C, D, E, F, G> insert(H h, I i, J j, K k, L l, M m, N n, O o)
+	{
+		return Tuples.immutable(h, i, j, k, l, m, n, o, a, b, c, d, e, f, g);
+	}
+	
+	public <H, I, J, K, L, M, N, O, P> Tuple16<H, I, J, K, L, M, N, O, P, A, B, C, D, E, F, G> insert(H h, I i, J j, K k, L l, M m, N n, O o, P p)
+	{
+		return Tuples.immutable(h, i, j, k, l, m, n, o, p, a, b, c, d, e, f, g);
+	}
+	
+	public <H, I, J, K, L, M, N, O, P, Q> Tuple17<H, I, J, K, L, M, N, O, P, Q, A, B, C, D, E, F, G> insert(H h, I i, J j, K k, L l, M m, N n, O o, P p, Q q)
+	{
+		return Tuples.immutable(h, i, j, k, l, m, n, o, p, q, a, b, c, d, e, f, g);
+	}
+	
+	public <H, I, J, K, L, M, N, O, P, Q, R> Tuple18<H, I, J, K, L, M, N, O, P, Q, R, A, B, C, D, E, F, G> insert(H h, I i, J j, K k, L l, M m, N n, O o, P p, Q q, R r)
+	{
+		return Tuples.immutable(h, i, j, k, l, m, n, o, p, q, r, a, b, c, d, e, f, g);
+	}
+	
+	public <H, I, J, K, L, M, N, O, P, Q, R, S> Tuple19<H, I, J, K, L, M, N, O, P, Q, R, S, A, B, C, D, E, F, G> insert(H h, I i, J j, K k, L l, M m, N n, O o, P p, Q q, R r, S s)
+	{
+		return Tuples.immutable(h, i, j, k, l, m, n, o, p, q, r, s, a, b, c, d, e, f, g);
+	}
+	
+	public <H, I, J, K, L, M, N, O, P, Q, R, S, T> Tuple20<H, I, J, K, L, M, N, O, P, Q, R, S, T, A, B, C, D, E, F, G> insert(H h, I i, J j, K k, L l, M m, N n, O o, P p, Q q, R r, S s, T t)
+	{
+		return Tuples.immutable(h, i, j, k, l, m, n, o, p, q, r, s, t, a, b, c, d, e, f, g);
+	}
+	
+	public <H, I, J, K, L, M, N, O, P, Q, R, S, T, U> Tuple21<H, I, J, K, L, M, N, O, P, Q, R, S, T, U, A, B, C, D, E, F, G> insert(H h, I i, J j, K k, L l, M m, N n, O o, P p, Q q, R r, S s, T t, U u)
+	{
+		return Tuples.immutable(h, i, j, k, l, m, n, o, p, q, r, s, t, u, a, b, c, d, e, f, g);
+	}
+	
+	public <H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V> Tuple22<H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, A, B, C, D, E, F, G> insert(H h, I i, J j, K k, L l, M m, N n, O o, P p, Q q, R r, S s, T t, U u, V v)
+	{
+		return Tuples.immutable(h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, a, b, c, d, e, f, g);
+	}
+	
+	public <H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W> Tuple23<H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, A, B, C, D, E, F, G> insert(H h, I i, J j, K k, L l, M m, N n, O o, P p, Q q, R r, S s, T t, U u, V v, W w)
+	{
+		return Tuples.immutable(h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, a, b, c, d, e, f, g);
+	}
+	
+	public <H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X> Tuple24<H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, A, B, C, D, E, F, G> insert(H h, I i, J j, K k, L l, M m, N n, O o, P p, Q q, R r, S s, T t, U u, V v, W w, X x)
+	{
+		return Tuples.immutable(h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, a, b, c, d, e, f, g);
+	}
+	
+	public <H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y> Tuple25<H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, A, B, C, D, E, F, G> insert(H h, I i, J j, K k, L l, M m, N n, O o, P p, Q q, R r, S s, T t, U u, V v, W w, X x, Y y)
+	{
+		return Tuples.immutable(h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, a, b, c, d, e, f, g);
+	}
+	
+	public <H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z> Tuple26<H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z, A, B, C, D, E, F, G> insert(H h, I i, J j, K k, L l, M m, N n, O o, P p, Q q, R r, S s, T t, U u, V v, W w, X x, Y y, Z z)
+	{
+		return Tuples.immutable(h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, a, b, c, d, e, f, g);
+	}
+	
+	public <RES> RES applyL(Function1<A, RES> func)
+	{
+		return func.apply(a);
+	}
+	
+	public <RES> RES applyR(Function1<G, RES> func)
+	{
+		return func.apply(g);
+	}
+	
+	public <RES> RES applyL(Function2<A, B, RES> func)
+	{
+		return func.apply(a, b);
+	}
+	
+	public <RES> RES applyR(Function2<F, G, RES> func)
+	{
+		return func.apply(f, g);
+	}
+	
+	public <RES> RES applyL(Function3<A, B, C, RES> func)
+	{
+		return func.apply(a, b, c);
+	}
+	
+	public <RES> RES applyR(Function3<E, F, G, RES> func)
+	{
+		return func.apply(e, f, g);
+	}
+	
+	public <RES> RES applyL(Function4<A, B, C, D, RES> func)
+	{
+		return func.apply(a, b, c, d);
+	}
+	
+	public <RES> RES applyR(Function4<D, E, F, G, RES> func)
+	{
+		return func.apply(d, e, f, g);
+	}
+	
+	public <RES> RES applyL(Function5<A, B, C, D, E, RES> func)
+	{
+		return func.apply(a, b, c, d, e);
+	}
+	
+	public <RES> RES applyR(Function5<C, D, E, F, G, RES> func)
+	{
+		return func.apply(c, d, e, f, g);
+	}
+	
+	public <RES> RES applyL(Function6<A, B, C, D, E, F, RES> func)
+	{
+		return func.apply(a, b, c, d, e, f);
+	}
+	
+	public <RES> RES applyR(Function6<B, C, D, E, F, G, RES> func)
+	{
+		return func.apply(b, c, d, e, f, g);
+	}
+	
+	public <RES> RES apply(Function7<A, B, C, D, E, F, G, RES> func)
+	{
+		return func.apply(a, b, c, d, e, f, g);
+	}
+	
+	public void acceptL(Consumer1<A> consumer)
+	{
+		consumer.accept(a);
+	}
+	
+	public void acceptR(Consumer1<G> consumer)
+	{
+		consumer.accept(g);
+	}
+	
+	public void acceptL(Consumer2<A, B> consumer)
+	{
+		consumer.accept(a, b);
+	}
+	
+	public void acceptR(Consumer2<F, G> consumer)
+	{
+		consumer.accept(f, g);
+	}
+	
+	public void acceptL(Consumer3<A, B, C> consumer)
+	{
+		consumer.accept(a, b, c);
+	}
+	
+	public void acceptR(Consumer3<E, F, G> consumer)
+	{
+		consumer.accept(e, f, g);
+	}
+	
+	public void acceptL(Consumer4<A, B, C, D> consumer)
+	{
+		consumer.accept(a, b, c, d);
+	}
+	
+	public void acceptR(Consumer4<D, E, F, G> consumer)
+	{
+		consumer.accept(d, e, f, g);
+	}
+	
+	public void acceptL(Consumer5<A, B, C, D, E> consumer)
+	{
+		consumer.accept(a, b, c, d, e);
+	}
+	
+	public void acceptR(Consumer5<C, D, E, F, G> consumer)
+	{
+		consumer.accept(c, d, e, f, g);
+	}
+	
+	public void acceptL(Consumer6<A, B, C, D, E, F> consumer)
+	{
+		consumer.accept(a, b, c, d, e, f);
+	}
+	
+	public void acceptR(Consumer6<B, C, D, E, F, G> consumer)
+	{
+		consumer.accept(b, c, d, e, f, g);
+	}
+	
+	public void accept(Consumer7<A, B, C, D, E, F, G> consumer)
+	{
+		consumer.accept(a, b, c, d, e, f, g);
 	}
 	
 	public @Override int arity()
@@ -481,6 +709,101 @@ public class Tuple7<A, B, C, D, E, F, G>
 		public @Override <H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z> Tuple26.Mutable26<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z> add(H h, I i, J j, K k, L l, M m, N n, O o, P p, Q q, R r, S s, T t, U u, V v, W w, X x, Y y, Z z)
 		{
 			return Tuples.mutable(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z);
+		}
+		
+		public @Override <H> Tuple8.Mutable8<H, A, B, C, D, E, F, G> insert(H h)
+		{
+			return Tuples.mutable(h, a, b, c, d, e, f, g);
+		}
+		
+		public @Override <H, I> Tuple9.Mutable9<H, I, A, B, C, D, E, F, G> insert(H h, I i)
+		{
+			return Tuples.mutable(h, i, a, b, c, d, e, f, g);
+		}
+		
+		public @Override <H, I, J> Tuple10.Mutable10<H, I, J, A, B, C, D, E, F, G> insert(H h, I i, J j)
+		{
+			return Tuples.mutable(h, i, j, a, b, c, d, e, f, g);
+		}
+		
+		public @Override <H, I, J, K> Tuple11.Mutable11<H, I, J, K, A, B, C, D, E, F, G> insert(H h, I i, J j, K k)
+		{
+			return Tuples.mutable(h, i, j, k, a, b, c, d, e, f, g);
+		}
+		
+		public @Override <H, I, J, K, L> Tuple12.Mutable12<H, I, J, K, L, A, B, C, D, E, F, G> insert(H h, I i, J j, K k, L l)
+		{
+			return Tuples.mutable(h, i, j, k, l, a, b, c, d, e, f, g);
+		}
+		
+		public @Override <H, I, J, K, L, M> Tuple13.Mutable13<H, I, J, K, L, M, A, B, C, D, E, F, G> insert(H h, I i, J j, K k, L l, M m)
+		{
+			return Tuples.mutable(h, i, j, k, l, m, a, b, c, d, e, f, g);
+		}
+		
+		public @Override <H, I, J, K, L, M, N> Tuple14.Mutable14<H, I, J, K, L, M, N, A, B, C, D, E, F, G> insert(H h, I i, J j, K k, L l, M m, N n)
+		{
+			return Tuples.mutable(h, i, j, k, l, m, n, a, b, c, d, e, f, g);
+		}
+		
+		public @Override <H, I, J, K, L, M, N, O> Tuple15.Mutable15<H, I, J, K, L, M, N, O, A, B, C, D, E, F, G> insert(H h, I i, J j, K k, L l, M m, N n, O o)
+		{
+			return Tuples.mutable(h, i, j, k, l, m, n, o, a, b, c, d, e, f, g);
+		}
+		
+		public @Override <H, I, J, K, L, M, N, O, P> Tuple16.Mutable16<H, I, J, K, L, M, N, O, P, A, B, C, D, E, F, G> insert(H h, I i, J j, K k, L l, M m, N n, O o, P p)
+		{
+			return Tuples.mutable(h, i, j, k, l, m, n, o, p, a, b, c, d, e, f, g);
+		}
+		
+		public @Override <H, I, J, K, L, M, N, O, P, Q> Tuple17.Mutable17<H, I, J, K, L, M, N, O, P, Q, A, B, C, D, E, F, G> insert(H h, I i, J j, K k, L l, M m, N n, O o, P p, Q q)
+		{
+			return Tuples.mutable(h, i, j, k, l, m, n, o, p, q, a, b, c, d, e, f, g);
+		}
+		
+		public @Override <H, I, J, K, L, M, N, O, P, Q, R> Tuple18.Mutable18<H, I, J, K, L, M, N, O, P, Q, R, A, B, C, D, E, F, G> insert(H h, I i, J j, K k, L l, M m, N n, O o, P p, Q q, R r)
+		{
+			return Tuples.mutable(h, i, j, k, l, m, n, o, p, q, r, a, b, c, d, e, f, g);
+		}
+		
+		public @Override <H, I, J, K, L, M, N, O, P, Q, R, S> Tuple19.Mutable19<H, I, J, K, L, M, N, O, P, Q, R, S, A, B, C, D, E, F, G> insert(H h, I i, J j, K k, L l, M m, N n, O o, P p, Q q, R r, S s)
+		{
+			return Tuples.mutable(h, i, j, k, l, m, n, o, p, q, r, s, a, b, c, d, e, f, g);
+		}
+		
+		public @Override <H, I, J, K, L, M, N, O, P, Q, R, S, T> Tuple20.Mutable20<H, I, J, K, L, M, N, O, P, Q, R, S, T, A, B, C, D, E, F, G> insert(H h, I i, J j, K k, L l, M m, N n, O o, P p, Q q, R r, S s, T t)
+		{
+			return Tuples.mutable(h, i, j, k, l, m, n, o, p, q, r, s, t, a, b, c, d, e, f, g);
+		}
+		
+		public @Override <H, I, J, K, L, M, N, O, P, Q, R, S, T, U> Tuple21.Mutable21<H, I, J, K, L, M, N, O, P, Q, R, S, T, U, A, B, C, D, E, F, G> insert(H h, I i, J j, K k, L l, M m, N n, O o, P p, Q q, R r, S s, T t, U u)
+		{
+			return Tuples.mutable(h, i, j, k, l, m, n, o, p, q, r, s, t, u, a, b, c, d, e, f, g);
+		}
+		
+		public @Override <H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V> Tuple22.Mutable22<H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, A, B, C, D, E, F, G> insert(H h, I i, J j, K k, L l, M m, N n, O o, P p, Q q, R r, S s, T t, U u, V v)
+		{
+			return Tuples.mutable(h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, a, b, c, d, e, f, g);
+		}
+		
+		public @Override <H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W> Tuple23.Mutable23<H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, A, B, C, D, E, F, G> insert(H h, I i, J j, K k, L l, M m, N n, O o, P p, Q q, R r, S s, T t, U u, V v, W w)
+		{
+			return Tuples.mutable(h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, a, b, c, d, e, f, g);
+		}
+		
+		public @Override <H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X> Tuple24.Mutable24<H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, A, B, C, D, E, F, G> insert(H h, I i, J j, K k, L l, M m, N n, O o, P p, Q q, R r, S s, T t, U u, V v, W w, X x)
+		{
+			return Tuples.mutable(h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, a, b, c, d, e, f, g);
+		}
+		
+		public @Override <H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y> Tuple25.Mutable25<H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, A, B, C, D, E, F, G> insert(H h, I i, J j, K k, L l, M m, N n, O o, P p, Q q, R r, S s, T t, U u, V v, W w, X x, Y y)
+		{
+			return Tuples.mutable(h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, a, b, c, d, e, f, g);
+		}
+		
+		public @Override <H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z> Tuple26.Mutable26<H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z, A, B, C, D, E, F, G> insert(H h, I i, J j, K k, L l, M m, N n, O o, P p, Q q, R r, S s, T t, U u, V v, W w, X x, Y y, Z z)
+		{
+			return Tuples.mutable(h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, a, b, c, d, e, f, g);
 		}
 	}
 }

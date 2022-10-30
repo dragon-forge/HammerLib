@@ -103,6 +103,13 @@ public class RecipeHelper
 		}
 	}
 	
+	public static ItemStack cycleIngredientStack(Ingredient ingr, long displayDurationMS)
+	{
+		if(ingr.isEmpty()) return ItemStack.EMPTY;
+		var items = ingr.getItems();
+		return items[(int) ((System.currentTimeMillis() % (items.length * displayDurationMS)) / displayDurationMS) % items.length];
+	}
+	
 	public static Ingredient fromComponent(Object comp)
 	{
 		Ingredient ingr = Ingredient.EMPTY;

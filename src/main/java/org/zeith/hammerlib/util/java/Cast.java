@@ -3,9 +3,7 @@ package org.zeith.hammerlib.util.java;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.lang.reflect.Constructor;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Supplier;
 
 public class Cast
@@ -14,19 +12,19 @@ public class Cast
 	{
 		return () -> value;
 	}
-
+	
 	public static <T> Supplier<T> supply(Object thing, Class<T> type)
 	{
 		T result = cast(thing, type);
 		return () -> result;
 	}
-
+	
 	@Nonnull
 	public static <T> Optional<T> optionally(Object thing, Class<T> type)
 	{
 		return type.isInstance(thing) ? Optional.of(type.cast(thing)) : Optional.empty();
 	}
-
+	
 	public static <T> Optional<T> firstInstanceof(Class<T> type, Object... input)
 	{
 		for(Object i : input)
@@ -34,7 +32,7 @@ public class Cast
 				return Optional.of(type.cast(i));
 		return Optional.empty();
 	}
-
+	
 	@Nullable
 	public static <T> T cast(Object thing, Class<T> type)
 	{
@@ -44,7 +42,7 @@ public class Cast
 			return type.cast(thing);
 		return null;
 	}
-
+	
 	public static <T> T cast(Object thing)
 	{
 		try
@@ -55,14 +53,14 @@ public class Cast
 			return null;
 		}
 	}
-
+	
 	static final Map<Class, Constructor> emptyCtors = new HashMap<>();
-
+	
 	public static <T> Supplier<T> newInstanceSupplier(Class<T> type)
 	{
 		return () -> newInstance(type);
 	}
-
+	
 	public static <T> T newInstance(Class<T> type)
 	{
 		try

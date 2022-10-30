@@ -11,17 +11,17 @@ public class CloseableArrayList<T extends Closeable>
 	public CloseableArrayList()
 	{
 	}
-
+	
 	public CloseableArrayList(int initialCapacity)
 	{
 		super(initialCapacity);
 	}
-
+	
 	public CloseableArrayList(Collection<? extends T> c)
 	{
 		super(c);
 	}
-
+	
 	@Override
 	public void close() throws Exception
 	{

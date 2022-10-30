@@ -1,9 +1,6 @@
 package org.zeith.hammerlib.util.java;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 
 public class IOUtils
 {
@@ -13,7 +10,7 @@ public class IOUtils
 		int r;
 		while((r = in.read(buf)) > 0) out.write(buf, 0, r);
 	}
-
+	
 	public static byte[] pipeOut(InputStream in) throws IOException
 	{
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
