@@ -43,8 +43,8 @@ public abstract class PlayerInfoMixin
 				Util.backgroundExecutor().execute(() ->
 				{
 					// For testing purposes: use my own emissive texture.
-					var gp = EmissiveSkinHelper.adaptGameProfileToEmissiveTextures(new GameProfile(UUID.fromString("63fa4c48-5b56-4080-9727-d5d59663e603"), "Zeitheron"));
-//					var gp = EmissiveSkinHelper.adaptGameProfileToEmissiveTextures(profile);
+//					var gp = EmissiveSkinHelper.adaptGameProfileToEmissiveTextures(new GameProfile(UUID.fromString("63fa4c48-5b56-4080-9727-d5d59663e603"), "Zeitheron"));
+					var gp = EmissiveSkinHelper.adaptGameProfileToEmissiveTextures(profile);
 					
 					var gpid = gp.getId().toString();
 					
