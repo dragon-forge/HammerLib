@@ -2,8 +2,10 @@ package org.zeith.hammerlib.client.utils;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.resources.ResourceLocation;
 import org.zeith.hammerlib.client.texture.HttpTextureDownloader;
+import org.zeith.hammerlib.proxy.HLConstants;
 import org.zeith.hammerlib.util.java.Hashers;
 
 import java.util.HashMap;
@@ -11,14 +13,24 @@ import java.util.Map;
 
 public class FXUtils
 {
-	private static Map<String, ResourceLocation> textures = new HashMap<>();
+	public static final ResourceLocation EMPTY_TEXTURE = new ResourceLocation(HLConstants.MOD_ID, "textures/empty.png");
+	private static final Map<String, ResourceLocation> textures = new HashMap<>();
 	
-	public static void bindTextureURL(String url)
+	public static ResourceLocation urlToTexturePath(String url)
 	{
 		String withoutHTTP = url.substring(url.indexOf("://") + 3);
 		String protocol = url.substring(0, url.indexOf("://"));
-		ResourceLocation loca = new ResourceLocation("hammercore", protocol + "/" + Hashers.SHA1.hashify(withoutHTTP));
-		HttpTextureDownloader.create(loca, url).bind();
+		return new ResourceLocation(HLConstants.MOD_ID, protocol + "/" + Hashers.SHA1.hashify(withoutHTTP));
+	}
+	
+	public static AbstractTexture downloadTexture(ResourceLocation texture, String url)
+	{
+		return HttpTextureDownloader.create(texture, url);
+	}
+	
+	public static void bindTextureURL(String url)
+	{
+		downloadTexture(urlToTexturePath(url), url).bind();
 	}
 	
 	public static void bindTexture(String f)
