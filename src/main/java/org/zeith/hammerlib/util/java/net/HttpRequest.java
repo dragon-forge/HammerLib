@@ -308,7 +308,7 @@ public class HttpRequest
 	}
 	
 	@Override
-	public void close() throws Exception
+	public void close()
 	{
 		if(connection != null)
 		{
@@ -1753,6 +1753,11 @@ public class HttpRequest
 	public boolean ok() throws HttpRequestException
 	{
 		return HTTP_OK == code();
+	}
+	
+	public boolean isResponse2xx() throws HttpRequestException
+	{
+		return code() / 100 == 2;
 	}
 	
 	/**

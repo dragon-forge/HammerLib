@@ -29,7 +29,10 @@
     "client.LanguageManagerMixin",
     "client.MinecraftMixin",
     "client.ModelBakeryMixin",
-    "client.ParticleEngineAccessor"
+    "client.ParticleEngineAccessor",
+    "client.PlayerInfoMixin",
+    "client.render.LivingEntityRendererMixin",
+    "client.render.PlayerRendererMixin"
   ],
   "server": [
   ]
