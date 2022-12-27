@@ -223,6 +223,11 @@ public class NamespacedRecipeRegistry<T extends INameableRecipe>
 			
 			for(var entry : mgr.listResources(custom.getFileDir(), custom::pathMatches).entrySet())
 			{
+				// Why do mods do this? I have no idea. We request files that are in recipes_hl/ but we get something else.
+				// This issue is currently known to happen with IC2 Classic.
+				if(!entry.getKey().getPath().startsWith("recipes_hl/"))
+					continue;
+				
 				try
 				{
 					custom.readRecipe(entry.getKey(), entry.getValue(), server, context)
