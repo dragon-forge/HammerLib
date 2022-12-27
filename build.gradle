@@ -54,7 +54,7 @@ minecraft {
         client {
             workingDirectory project.file('run/client')
             property 'forge.logging.console.level', 'debug'
-            setArgs(Arrays.asList("--mixin mixins.${config.mod_id}.json".split(' ')))
+            setArgs(Arrays.asList("--mixin mixins.${config.mod_id}.json --username ${config.mc_user.split(',')[0]} --uuid ${config.mc_user.split(',')[1]}".split(' ')))
             mods {
                 examplemod {
                     source sourceSets.main
@@ -92,6 +92,7 @@ dependencies {
     minecraft "net.minecraftforge:forge:${config.mc_version}-${config.forge_version}"
 
     annotationProcessor "org.spongepowered:mixin:0.8.5:processor"
+    implementation fg.deobf("com.lowdragmc.shimmer:Shimmer-forge:${config.mc_version}-${config.shimmer_version}")
 
     def libraries = file("libraries");
     if (!libraries.isDirectory()) libraries.mkdirs()
