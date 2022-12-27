@@ -5,8 +5,19 @@ import net.minecraft.world.item.context.UseOnContext;
 import org.zeith.hammerlib.core.init.TagsHL;
 import org.zeith.hammerlib.util.java.Cast;
 
+/**
+ * Interface representing items that can be used as wrenches.
+ *
+ * @see IWrenchable
+ */
 public interface IWrenchItem
 {
+	/**
+	 * Determines if this wrench item can be used to perform a wrench action.
+	 *
+	 * @param stack The item stack to check.
+	 * @return Whether this item can be used as a wrench.
+	 */
 	default boolean canWrench(ItemStack stack)
 	{
 		return true;
@@ -14,19 +25,37 @@ public interface IWrenchItem
 	
 	/**
 	 * Use this to play sounds if the wrench operation is performed on a given block.
+	 *
+	 * @param context The context of the wrench action.
 	 */
 	void playWrenchSound(UseOnContext context);
 	
+	/**
+	 * @deprecated This method is no longer used and will be removed in a future update.
+	 * Use {@link #canWrench(ItemStack)} instead.
+	 */
 	@Deprecated(forRemoval = true, since = "")
 	default void onWrenchUsed(UseOnContext context)
 	{
 	}
 	
+	/**
+	 * Determines if the given item is a wrench.
+	 *
+	 * @param stack Item to check.
+	 * @return If the item is a wrench.
+	 */
 	static boolean isWrench(ItemStack stack)
 	{
 		return !stack.isEmpty() && (stack.is(TagsHL.Items.TOOLS_WRENCH) || (stack.getItem() instanceof IWrenchItem it && it.canWrench(stack)));
 	}
 	
+	/**
+	 * Performs the wrench action on the given context.
+	 *
+	 * @param context Context of the wrench action.
+	 * @return If the wrench operation was successful and had any result.
+	 */
 	static boolean performWrenchAction(UseOnContext context)
 	{
 		var item = context.getItemInHand();
