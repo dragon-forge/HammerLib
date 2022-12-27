@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "ic2:wrench",
+    "ic2:electric_wrench",
+    "ic2:precision_wrench"
+  ]
+}

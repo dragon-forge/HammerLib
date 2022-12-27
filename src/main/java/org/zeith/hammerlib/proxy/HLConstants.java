@@ -6,10 +6,6 @@ import org.apache.logging.log4j.Logger;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.core.items.ItemWrench;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 public class HLConstants
 {
 	public static final Logger LOG = HammerLib.LOG;

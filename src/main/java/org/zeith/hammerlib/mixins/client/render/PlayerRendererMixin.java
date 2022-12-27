@@ -14,7 +14,11 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.api.client.IEmissivePlayerInfo;
+import org.zeith.hammerlib.compat.base._hl.HLAbilities;
+import org.zeith.hammerlib.compat.base.sided.SidedAbilityBase;
+import org.zeith.hammerlib.util.java.Cast;
 
 @Mixin(PlayerRenderer.class)
 public abstract class PlayerRendererMixin
@@ -32,12 +36,19 @@ public abstract class PlayerRendererMixin
 	private void renderHand_HL(PoseStack pose, MultiBufferSource buf, int lighting, AbstractClientPlayer player, ModelPart arm, ModelPart sleeve, CallbackInfo ci)
 	{
 		var emissive = IEmissivePlayerInfo.get(player.getPlayerInfo());
+		if(emissive == null) return;
 		
-		if(emissive != null)
-		{
-			var skin = buf.getBuffer(RenderType.entityTranslucentEmissive(emissive.getEmissiveSkinLocation()));
-			arm.render(pose, skin, lighting, OverlayTexture.NO_OVERLAY);
-			sleeve.render(pose, skin, lighting, OverlayTexture.NO_OVERLAY);
-		}
+		var emt = emissive.getEmissiveSkinLocation();
+		if(emt == null) return;
+		
+		var emissiveRT = HammerLib.HL_COMPAT_LIST.firstAbility(HLAbilities.BLOOM)
+				.map(SidedAbilityBase::client)
+				.map(Cast::get2)
+				.map(abil -> abil.emissiveTranslucentArmor(emt))
+				.orElseGet(() -> RenderType.entityTranslucentEmissive(emt));
+		
+		var skin = buf.getBuffer(emissiveRT);
+		arm.render(pose, skin, lighting, OverlayTexture.NO_OVERLAY);
+		sleeve.render(pose, skin, lighting, OverlayTexture.NO_OVERLAY);
 	}
 }

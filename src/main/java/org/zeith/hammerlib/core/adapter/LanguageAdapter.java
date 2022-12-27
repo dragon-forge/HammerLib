@@ -42,8 +42,8 @@ public class LanguageAdapter
 		HammerLib.LOG.debug("Reloading HammerLib-enabled language namespaces: " + mgr.getNamespaces());
 		for(String modId : modids)
 			findFirstExisting(mgr,
-					new ResourceLocation(modId, "langs/" + e.getLang().toLowerCase() + ".hl"),
-					new ResourceLocation(modId, "lang/" + e.getLang().toLowerCase() + ".hl"),
+					new ResourceLocation(modId, "langs/" + e.getLang().toLowerCase() + "._hl"),
+					new ResourceLocation(modId, "lang/" + e.getLang().toLowerCase() + "._hl"),
 					new ResourceLocation(modId, "langs/" + e.getLang().toLowerCase() + ".lang"),
 					new ResourceLocation(modId, "lang/" + e.getLang().toLowerCase() + ".lang"))
 					.ifPresent(langFile ->

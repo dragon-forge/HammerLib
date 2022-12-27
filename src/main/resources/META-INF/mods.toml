@@ -17,7 +17,7 @@ Packed with a lot of utilities, this library provides nearly anything a modder w
 [[dependencies.hammerlib]]
     modId="forge"
     mandatory=true
-    versionRange="[43.,)"
+    versionRange="[43.2,)"
     ordering="NONE" # NONE/BEFORE/AFTER
     side="BOTH"
 [[dependencies.hammerlib]]
