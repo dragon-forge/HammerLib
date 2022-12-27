@@ -66,7 +66,9 @@ public abstract class CustomRecipeGenerator<T extends IGeneralRecipe, DEC extend
 			try(var in = resource.openAsReader())
 			{
 				var rid = decoder.transformPathToId(path);
-				return decoder.tryDecode(path, in)
+				return rid == null // If the recipe ID was unable to be transformed, don't try to decode.
+						? Optional.empty()
+						: decoder.tryDecode(path, in)
 						.flatMap(io -> decodeRecipe(rid, io, server, context));
 			}
 		}
