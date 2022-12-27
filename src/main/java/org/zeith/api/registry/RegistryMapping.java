@@ -41,6 +41,11 @@ import org.zeith.hammerlib.util.java.Cast;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Class for mapping registry types to their corresponding Forge registry and vice versa.
+ * Provides methods for reporting registry mappings, getting the registry for a given registry type,
+ * getting the registry type for a given registry, and checking if a registry is non-intrusive.
+ */
 public class RegistryMapping
 {
 	private static final BiMap<Class<?>, IForgeRegistry<?>> REG_BY_TYPE = HashBiMap.create();
@@ -91,11 +96,22 @@ public class RegistryMapping
 		NON_INTRUSIVE_REGISTRIES.add(registryKey);
 	}
 	
+	/**
+	 * Reports the mapping of a registry type to a Forge registry.
+	 *
+	 * @param base
+	 * 		registry type to be mapped
+	 * @param registry
+	 * 		Forge registry to be mapped
+	 * @param <T>
+	 * 		type of registry
+	 */
 	public static synchronized <T> void report(Class<T> base, IForgeRegistry<T> registry)
 	{
 		REG_BY_TYPE.put(base, registry);
 		TYPE_BY_REG.put(registry.getRegistryKey(), base);
 	}
+	
 	
 	public static synchronized <T> void report(Class<T> base, IForgeRegistry<T> registry, boolean intrusive)
 	{
@@ -110,6 +126,16 @@ public class RegistryMapping
 		TYPE_BY_REG.put(registry.getRegistryKey(), base);
 	}
 	
+	/**
+	 * Returns the registry type for the provided Forge registry.
+	 *
+	 * @param registry
+	 * 		Forge registry to get the registry type for
+	 * @param <T>
+	 * 		type of registry
+	 *
+	 * @return registry type for the provided Forge registry
+	 */
 	public static <T> Class<T> getSuperType(IForgeRegistry<T> registry)
 	{
 		if(registry == null)
@@ -117,6 +143,16 @@ public class RegistryMapping
 		return getSuperType(registry.getRegistryKey());
 	}
 	
+	/**
+	 * Returns the registry type for the provided Game registry.
+	 *
+	 * @param registry
+	 * 		Game registry to get the registry type for
+	 * @param <T>
+	 * 		type of registry
+	 *
+	 * @return registry type for the provided Forge registry
+	 */
 	public static <T> Class<T> getSuperType(Registry<T> registry)
 	{
 		if(registry == null)
@@ -138,6 +174,14 @@ public class RegistryMapping
 		return Cast.cast(REG_BY_TYPE.get(registry));
 	}
 	
+	/**
+	 * Checks if the provided Forge registry is non-intrusive, meaning it does not have a corresponding registry type.
+	 *
+	 * @param registry
+	 * 		Forge registry to check if it is non-intrusive
+	 *
+	 * @return true if the provided Forge registry is non-intrusive, false otherwise
+	 */
 	public static boolean isNonIntrusive(IForgeRegistry<?> registry)
 	{
 		return NON_INTRUSIVE_REGISTRIES.contains(registry.getRegistryKey());

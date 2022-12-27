@@ -18,8 +18,7 @@ import org.zeith.hammerlib.net.packets.PacketAddCustomRecipe;
 import org.zeith.hammerlib.util.SidedLocal;
 import org.zeith.hammerlib.util.java.collections.UnmodifiableConcatCollection;
 import org.zeith.hammerlib.util.mcf.LogicalSidePredictor;
-import org.zeith.hammerlib.util.shaded.json.JSONObject;
-import org.zeith.hammerlib.util.shaded.json.JSONTokener;
+import org.zeith.hammerlib.util.shaded.json.*;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -168,6 +167,10 @@ public class NamespacedRecipeRegistry<T extends INameableRecipe>
 			} catch(IOException e)
 			{
 				e.printStackTrace();
+			} catch(JSONException e)
+			{
+				HammerLib.LOG.error("Failed to read json from file " + cfgPath + ". Check validity of the file!", e);
+				throw e;
 			}
 		}
 		
