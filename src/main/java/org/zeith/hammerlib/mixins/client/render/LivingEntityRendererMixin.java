@@ -14,7 +14,11 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.api.client.IEmissivePlayerInfo;
+import org.zeith.hammerlib.compat.base._hl.HLAbilities;
+import org.zeith.hammerlib.compat.base.sided.SidedAbilityBase;
+import org.zeith.hammerlib.util.java.Cast;
 
 @Mixin(LivingEntityRenderer.class)
 public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extends EntityModel<T>>
@@ -63,19 +67,26 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extend
 					target = "Lnet/minecraft/world/entity/LivingEntity;isSpectator()Z"
 			)
 	)
-	private void render_HL(T p_115308_, float p_115309_, float p_115310_, PoseStack p_115311_, MultiBufferSource p_115312_, int p_115313_, CallbackInfo ci)
+	private void render_HL(T p_115308_, float p_115309_, float p_115310_, PoseStack p_115311_, MultiBufferSource src, int p_115313_, CallbackInfo ci)
 	{
 		var emissive = IEmissivePlayerInfo.get(p_115308_ instanceof AbstractClientPlayer acp ? acp.getPlayerInfo() : null);
-		if(emissive != null)
-		{
-			Minecraft minecraft = Minecraft.getInstance();
-			boolean flag = this.isBodyVisible(p_115308_);
-			boolean flag1 = !flag && !p_115308_.isInvisibleTo(minecraft.player);
-			
-			RenderType rendertype = RenderType.entityTranslucentEmissive(emissive.getEmissiveSkinLocation());
-			VertexConsumer vertexconsumer = p_115312_.getBuffer(rendertype);
-			int i = getOverlayCoords(p_115308_, this.getWhiteOverlayProgress(p_115308_, p_115310_));
-			this.model.renderToBuffer(p_115311_, vertexconsumer, p_115313_, i, 1.0F, 1.0F, 1.0F, flag1 ? 0.15F : 1.0F);
-		}
+		if(emissive == null) return;
+		
+		var emt = emissive.getEmissiveSkinLocation();
+		if(emt == null) return;
+		
+		Minecraft minecraft = Minecraft.getInstance();
+		boolean flag = this.isBodyVisible(p_115308_);
+		boolean flag1 = !flag && !p_115308_.isInvisibleTo(minecraft.player);
+		
+		var emissiveRT = HammerLib.HL_COMPAT_LIST.firstAbility(HLAbilities.BLOOM)
+				.map(SidedAbilityBase::client)
+				.map(Cast::get2)
+				.map(abil -> abil.emissiveTranslucentArmor(emt))
+				.orElseGet(() -> RenderType.entityTranslucentEmissive(emt));
+		
+		VertexConsumer vertexconsumer = src.getBuffer(emissiveRT);
+		int i = getOverlayCoords(p_115308_, this.getWhiteOverlayProgress(p_115308_, p_115310_));
+		this.model.renderToBuffer(p_115311_, vertexconsumer, p_115313_, i, 1.0F, 1.0F, 1.0F, flag1 ? 0.15F : 1.0F);
 	}
 }

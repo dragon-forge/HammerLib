@@ -2,7 +2,7 @@
 mod_id=hammerlib
 archive_name=HammerLib
 mod_name=Hammer Lib
-mod_version=19.2.42
+mod_version=19.3.43
 
 # Maven Info
 maven_group=org.zeith.hammerlib
@@ -10,7 +10,7 @@ shimmer_version=0.1.14
 
 # MC Info
 mc_version=1.19.2
-forge_version=43.1.43
+forge_version=43.2.0
 mc_user=Zeitheron,63fa4c485b5640809727d5d59663e603
 
 # MCP Info

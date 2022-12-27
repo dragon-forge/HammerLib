@@ -30,7 +30,7 @@ public interface IEmissivePlayerInfo
 	 *
 	 * @return Location of the emissive skin overlay for the player, or null if no emissive skin is set
 	 */
-	@NotNull
+	@Nullable
 	ResourceLocation getEmissiveSkinLocation();
 	
 	/**

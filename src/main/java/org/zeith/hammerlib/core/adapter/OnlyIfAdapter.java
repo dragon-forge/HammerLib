@@ -1,12 +1,17 @@
 package org.zeith.hammerlib.core.adapter;
 
+import com.google.common.base.Suppliers;
 import net.minecraft.resources.ResourceLocation;
+import org.objectweb.asm.Type;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.annotations.OnlyIf;
 import org.zeith.hammerlib.util.java.ReflectionUtil;
 import org.zeith.hammerlib.util.shaded.json.JSONObject;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
+import java.util.Map;
+import java.util.function.Supplier;
 
 public class OnlyIfAdapter
 {
@@ -73,7 +78,10 @@ public class OnlyIfAdapter
 				add = recursiveGetBool(null, objInQuestion, objId, c, mp);
 			} catch(RuntimeException e)
 			{
-				e.getCause().printStackTrace();
+				Throwable err = e;
+				while(err.getCause() != null)
+					err = err.getCause();
+				err.printStackTrace();
 				HammerLib.LOG.warn("Failed to parse @OnlyIf({}) in {}! {} will" + (onlyIf.invert() ? " not be registered due to inversion." : " be registered anyway."), JSONObject.quote(member), source, type);
 			}
 			
@@ -81,5 +89,39 @@ public class OnlyIfAdapter
 		}
 		
 		return add;
+	}
+	
+	public static OnlyIf decode(Map<String, Object> onlyIf)
+	{
+		Supplier<Class<?>> owner = Suppliers.memoize(() -> ReflectionUtil.fetchClass((Type) onlyIf.get("owner")));
+		Supplier<String> member = Suppliers.memoize(() -> (String) onlyIf.get("member"));
+		Supplier<Boolean> invert = Suppliers.memoize(() -> (boolean) onlyIf.getOrDefault("invert", false));
+		
+		return new OnlyIf()
+		{
+			@Override
+			public Class<? extends Annotation> annotationType()
+			{
+				return OnlyIf.class;
+			}
+			
+			@Override
+			public Class<?> owner()
+			{
+				return owner.get();
+			}
+			
+			@Override
+			public String member()
+			{
+				return member.get();
+			}
+			
+			@Override
+			public boolean invert()
+			{
+				return invert.get();
+			}
+		};
 	}
 }

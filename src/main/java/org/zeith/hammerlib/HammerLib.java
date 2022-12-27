@@ -2,6 +2,7 @@ package org.zeith.hammerlib;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.*;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
@@ -28,6 +29,8 @@ import org.zeith.hammerlib.annotations.client.TileRenderer;
 import org.zeith.hammerlib.api.IRecipeProvider;
 import org.zeith.hammerlib.api.io.NBTSerializationHelper;
 import org.zeith.hammerlib.client.adapter.ChatMessageAdapter;
+import org.zeith.hammerlib.compat.base._hl.BaseHLCompat;
+import org.zeith.hammerlib.compat.base.CompatList;
 import org.zeith.hammerlib.core.ConfigHL;
 import org.zeith.hammerlib.core.adapter.*;
 import org.zeith.hammerlib.core.command.CommandHammerLib;
@@ -50,6 +53,8 @@ public class HammerLib
 	public static final Logger LOG = LogManager.getLogger("HammerLib");
 	public static final HLCommonProxy PROXY = DistExecutor.unsafeRunForDist(() -> HLClientProxy::new, () -> HLCommonProxy::new);
 	public static final IEventBus EVENT_BUS = BusBuilder.builder().build();
+	
+	public static final CompatList<BaseHLCompat> HL_COMPAT_LIST = CompatList.gather(BaseHLCompat.class);
 	
 	public HammerLib()
 	{
@@ -196,6 +201,11 @@ public class HammerLib
 		});
 		
 		NBTSerializationHelper.construct();
+	}
+	
+	public static ResourceLocation id(String path)
+	{
+		return new ResourceLocation(HLConstants.MOD_ID, path);
 	}
 	
 	@SubscribeEvent

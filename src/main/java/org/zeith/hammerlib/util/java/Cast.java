@@ -13,6 +13,24 @@ public class Cast
 		return () -> value;
 	}
 	
+	/**
+	 * Unwraps a supplier of a supplier and returns the inner supplier's value.
+	 *
+	 * <p>This method is useful for unwrapping a supplier of a supplier that has been returned by a method
+	 * such as {@link org.zeith.hammerlib.compat.base.sided.SidedAbilityBase#client()}.
+	 *
+	 * @param suppl
+	 * 		the supplier of a supplier to unwrap
+	 * @param <T>
+	 * 		the type of the inner supplier's value
+	 *
+	 * @return the inner supplier's value
+	 */
+	public static <T> T get2(Supplier<Supplier<T>> suppl)
+	{
+		return suppl.get().get();
+	}
+	
 	public static <T> Supplier<T> supply(Object thing, Class<T> type)
 	{
 		T result = cast(thing, type);
@@ -76,6 +94,24 @@ public class Cast
 		} catch(Throwable err)
 		{
 			return null;
+		}
+	}
+	
+	public static <T> T newInstanceWithRE(Class<T> type) throws RuntimeException
+	{
+		try
+		{
+			Constructor<T> gen = emptyCtors.get(type);
+			if(gen == null)
+			{
+				gen = type.getDeclaredConstructor();
+				gen.setAccessible(true);
+				emptyCtors.put(type, gen);
+			}
+			return gen.newInstance();
+		} catch(Throwable err)
+		{
+			throw new RuntimeException(err);
 		}
 	}
 }

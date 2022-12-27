@@ -16,7 +16,6 @@
     "ItemStackMixin",
     "LevelChunkMixin",
     "LevelMixin",
-    "PackRepositoryMixin",
     "RecipeManagerAccessor",
     "RecipeManagerMixin",
     "RegistryManagerAccessor",
