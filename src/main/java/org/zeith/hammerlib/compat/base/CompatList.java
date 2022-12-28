@@ -45,7 +45,7 @@ public class CompatList<T extends BaseCompat<T>>
 	private final List<? extends T> lst;
 	private final Map<Ability<?>, List<?>> cachedAbilities = new ConcurrentHashMap<>();
 	
-	CompatList(List<? extends T> lst)
+	protected CompatList(List<? extends T> lst)
 	{
 		this.lst = lst;
 	}
