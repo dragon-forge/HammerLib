@@ -1,7 +1,5 @@
 package org.zeith.hammerlib;
 
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -10,6 +8,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.*;
 import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.*;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -28,16 +27,17 @@ import org.zeith.hammerlib.annotations.client.ClientSetup;
 import org.zeith.hammerlib.annotations.client.TileRenderer;
 import org.zeith.hammerlib.api.IRecipeProvider;
 import org.zeith.hammerlib.api.io.NBTSerializationHelper;
-import org.zeith.hammerlib.client.adapter.ChatMessageAdapter;
-import org.zeith.hammerlib.compat.base._hl.BaseHLCompat;
 import org.zeith.hammerlib.compat.base.CompatList;
+import org.zeith.hammerlib.compat.base._hl.BaseHLCompat;
 import org.zeith.hammerlib.core.ConfigHL;
 import org.zeith.hammerlib.core.adapter.*;
 import org.zeith.hammerlib.core.command.CommandHammerLib;
 import org.zeith.hammerlib.core.init.TagsHL;
+import org.zeith.hammerlib.event.fml.FMLFingerprintCheckEvent;
 import org.zeith.hammerlib.mixins.RegistryManagerAccessor;
 import org.zeith.hammerlib.proxy.*;
 import org.zeith.hammerlib.tiles.tooltip.own.EntityTooltipRenderEngine;
+import org.zeith.hammerlib.util.CommonMessages;
 import org.zeith.hammerlib.util.charging.ItemChargeHelper;
 import org.zeith.hammerlib.util.mcf.ScanDataHelper;
 
@@ -58,39 +58,8 @@ public class HammerLib
 	
 	public HammerLib()
 	{
-		var illegalSourceNotice = ModSourceAdapter.getModSource(HammerLib.class)
-				.filter(ModSourceAdapter.ModSource::wasDownloadedIllegally)
-				.orElse(null);
-		
-		if(illegalSourceNotice != null)
-		{
-			LOG.fatal("====================================================");
-			LOG.fatal("WARNING: HammerLib was downloaded from " + illegalSourceNotice.referrerDomain() +
-					", which has been marked as illegal site over at stopmodreposts.org.");
-			LOG.fatal("Please download the mod from https://www.curseforge.com/minecraft/mc-mods/hammer-lib");
-			LOG.fatal("====================================================");
-			
-			var illegalUri = Component.literal(illegalSourceNotice.referrerDomain())
-					.withStyle(s -> s.withColor(ChatFormatting.RED));
-			var smrUri = Component.literal("stopmodreposts.org")
-					.withStyle(s -> s.withColor(ChatFormatting.BLUE)
-							.withUnderlined(true)
-							.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://stopmodreposts.org/"))
-							.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("Click to open webpage."))));
-			var curseforgeUri = Component.literal("curseforge.com")
-					.withStyle(s -> s.withColor(ChatFormatting.BLUE)
-							.withUnderlined(true)
-							.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://www.curseforge.com/minecraft/mc-mods/hammer-lib"))
-							.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("Click to open webpage."))));
-			ChatMessageAdapter.sendOnFirstWorldLoad(Component.literal("WARNING: HammerLib was downloaded from ")
-					.append(illegalUri)
-					.append(", which has been marked as illegal site over at ")
-					.append(smrUri)
-					.append(". Please download the mod from ")
-					.append(curseforgeUri)
-					.append(".")
-			);
-		}
+		CommonMessages.printMessageOnIllegalRedistribution(HammerLib.class,
+				LOG, "HammerLib", "https://www.curseforge.com/minecraft/mc-mods/hammer-lib");
 		
 		FMLJavaModLoadingContext.get().getModEventBus().register(this);
 		PROXY.construct(FMLJavaModLoadingContext.get().getModEventBus());
@@ -196,7 +165,9 @@ public class HammerLib
 				HammerLib.LOG.info("Injecting client-setup into " + data.clazz().getClassName());
 				data.getOwnerMod()
 						.map(FMLModContainer::getEventBus)
-						.ifPresent(b -> b.addListener((Consumer<FMLClientSetupEvent>) event -> RegistryAdapter.clientSetup(event, data.getOwnerClass(), data.getMemberName())));
+						.ifPresent(b -> b.addListener((Consumer<FMLClientSetupEvent>) event ->
+								RegistryAdapter.clientSetup(event, data.getOwnerClass(), data.getMemberName())
+						));
 			}
 		});
 		
@@ -209,10 +180,32 @@ public class HammerLib
 	}
 	
 	@SubscribeEvent
+	public void constructMod(FMLConstructModEvent e0)
+	{
+		ModList.get().forEachModContainer((modid, container) ->
+		{
+			if(container instanceof FMLModContainer ctr)
+			{
+				var bus = ctr.getEventBus();
+				bus.addListener((FMLCommonSetupEvent e) ->
+						ctr.getEventBus().post(new FMLFingerprintCheckEvent(ctr))
+				);
+			}
+		});
+	}
+	
+	@SubscribeEvent
 	@OnlyIn(Dist.CLIENT)
 	public void clientSetup(FMLClientSetupEvent e)
 	{
 		PROXY.clientSetup();
+	}
+	
+	@SubscribeEvent
+	public void checkFingerprint(FMLFingerprintCheckEvent e)
+	{
+		CommonMessages.printMessageOnFingerprintViolation(e, "97e852e9b3f01b83574e8315f7e77651c6605f2b455919a7319e9869564f013c",
+				LOG, "HammerLib", "https://www.curseforge.com/minecraft/mc-mods/hammer-lib");
 	}
 	
 	@SubscribeEvent

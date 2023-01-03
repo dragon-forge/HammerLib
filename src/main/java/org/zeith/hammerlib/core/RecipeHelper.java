@@ -110,6 +110,16 @@ public class RecipeHelper
 		return items[(int) ((System.currentTimeMillis() % (items.length * displayDurationMS)) / displayDurationMS) % items.length];
 	}
 	
+	public static Ingredient composeIngredient(Object... comps)
+	{
+		return Ingredient.merge(
+				Arrays.stream(comps)
+						.map(RecipeHelper::fromComponent)
+						.filter(i -> !i.isEmpty())
+						.toList()
+		);
+	}
+	
 	public static Ingredient fromComponent(Object comp)
 	{
 		Ingredient ingr = Ingredient.EMPTY;
@@ -159,7 +169,7 @@ public class RecipeHelper
 	
 	public static TagKey<Item> getItemTag(ResourceLocation path)
 	{
-		return TagKey.create(ForgeRegistries.ITEMS.getRegistryKey(), path);
+		return TagKey.create(ForgeRegistries.Keys.ITEMS, path);
 	}
 	
 	public static Ingredient fromTag(TagKey<Item> tag)
