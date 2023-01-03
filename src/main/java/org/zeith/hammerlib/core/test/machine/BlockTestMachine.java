@@ -22,8 +22,8 @@ import org.zeith.hammerlib.annotations.SimplyRegister;
 import org.zeith.hammerlib.api.blocks.ICreativeTabBlock;
 import org.zeith.hammerlib.api.forge.BlockAPI;
 import org.zeith.hammerlib.api.forge.ContainerAPI;
+import org.zeith.hammerlib.api.items.CreativeTab;
 import org.zeith.hammerlib.core.adapter.BlockHarvestAdapter;
-import org.zeith.hammerlib.core.adapter.CreativeTabAdapter;
 import org.zeith.hammerlib.proxy.HLConstants;
 import org.zeith.hammerlib.util.java.Cast;
 
@@ -119,7 +119,7 @@ public class BlockTestMachine
 	
 	@Override
 	@NotNull
-	public CreativeTabAdapter.CreativeTab getCreativeTab()
+	public CreativeTab getCreativeTab()
 	{
 		return HLConstants.HL_TAB;
 	}

@@ -11,9 +11,7 @@ import net.minecraft.world.phys.Vec3;
 import org.zeith.api.wrench.IWrenchItem;
 import org.zeith.hammerlib.annotations.RegistryName;
 import org.zeith.hammerlib.annotations.SimplyRegister;
-import org.zeith.hammerlib.api.items.IDynamicallyTaggedItem;
-import org.zeith.hammerlib.api.items.ITabItem;
-import org.zeith.hammerlib.core.adapter.CreativeTabAdapter;
+import org.zeith.hammerlib.api.items.*;
 import org.zeith.hammerlib.core.init.TagsHL;
 import org.zeith.hammerlib.proxy.HLConstants;
 
@@ -29,7 +27,7 @@ public class ItemWrench
 	@RegistryName("wrench")
 	public static final ItemWrench WRENCH = new ItemWrench(new Properties().stacksTo(1));
 	
-	public final List<CreativeTabAdapter.CreativeTab> extraTabs = new ArrayList<>(List.of(HLConstants.HL_TAB));
+	public final List<CreativeTab> extraTabs = new ArrayList<>(List.of(HLConstants.HL_TAB));
 	
 	public ItemWrench(Properties props)
 	{
@@ -39,13 +37,13 @@ public class ItemWrench
 	@Override
 	public Set<CreativeModeTab> getCreativeTabs()
 	{
-		return extraTabs.stream().map(CreativeTabAdapter.CreativeTab::get).collect(Collectors.toSet());
+		return extraTabs.stream().map(CreativeTab::tab).collect(Collectors.toSet());
 	}
 	
 	@Override
 	public CreativeModeTab getItemCategory()
 	{
-		return HLConstants.HL_TAB.get();
+		return HLConstants.HL_TAB.tab();
 	}
 	
 	@Override
