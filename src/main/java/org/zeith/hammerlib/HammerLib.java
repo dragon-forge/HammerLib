@@ -5,6 +5,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.CreativeModeTabEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.*;
 import net.minecraftforge.fml.DistExecutor;
@@ -27,6 +28,7 @@ import org.zeith.hammerlib.annotations.client.ClientSetup;
 import org.zeith.hammerlib.annotations.client.TileRenderer;
 import org.zeith.hammerlib.api.IRecipeProvider;
 import org.zeith.hammerlib.api.io.NBTSerializationHelper;
+import org.zeith.hammerlib.api.items.CreativeTab;
 import org.zeith.hammerlib.compat.base.CompatList;
 import org.zeith.hammerlib.compat.base._hl.BaseHLCompat;
 import org.zeith.hammerlib.core.ConfigHL;
@@ -39,6 +41,7 @@ import org.zeith.hammerlib.proxy.*;
 import org.zeith.hammerlib.tiles.tooltip.own.EntityTooltipRenderEngine;
 import org.zeith.hammerlib.util.CommonMessages;
 import org.zeith.hammerlib.util.charging.ItemChargeHelper;
+import org.zeith.hammerlib.util.java.ReflectionUtil;
 import org.zeith.hammerlib.util.mcf.ScanDataHelper;
 
 import java.lang.annotation.ElementType;
@@ -93,6 +96,16 @@ public class HammerLib
 								mc.getEventBus().addListener(PROXY.addTESR(data.clazz(), data.getMemberName(), data.getProperty("value").map(Type.class::cast).orElse(null)));
 							});
 			});
+		
+		ScanDataHelper.lookupAnnotatedObjects(CreativeTab.RegisterTab.class).forEach(data ->
+		{
+			if(data.getTargetType() == ElementType.FIELD)
+				data.getOwnerMod().ifPresent(mc -> mc.getEventBus().addListener((Consumer<CreativeModeTabEvent.Register>) e ->
+				{
+					Optional<CreativeTab> tab = ReflectionUtil.getStaticFinalField(data.getOwnerClass(), data.getMemberName());
+					tab.ifPresent(t -> t.register(e));
+				}));
+		});
 		
 		if(RegistryManager.ACTIVE instanceof RegistryManagerAccessor activeRegistries)
 		{
