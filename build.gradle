@@ -92,7 +92,8 @@ dependencies {
     minecraft "net.minecraftforge:forge:${config.mc_version}-${config.forge_version}"
 
     annotationProcessor "org.spongepowered:mixin:0.8.5:processor"
-    implementation fg.deobf("com.lowdragmc.shimmer:Shimmer-forge:${config.mc_version}-${config.shimmer_version}")
+
+    implementation fg.deobf("com.lowdragmc.shimmer:Shimmer-forge:1.19.2-${config.shimmer_version}")
 
     def libraries = file("libraries");
     if (!libraries.isDirectory()) libraries.mkdirs()

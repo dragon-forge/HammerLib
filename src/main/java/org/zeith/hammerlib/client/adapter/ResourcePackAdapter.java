@@ -7,6 +7,8 @@ import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
+import net.minecraft.world.flag.FeatureFlag;
+import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraftforge.event.AddPackFindersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -29,13 +31,28 @@ public class ResourcePackAdapter
 	@SubscribeEvent
 	public static void addPacks(AddPackFindersEvent e)
 	{
-		e.addRepositorySource((add, ctor) ->
+		e.addRepositorySource((add) ->
 		{
 			for(PackResources pack : ResourcePackAdapter.BUILTIN_PACKS)
 			{
 				if(pack instanceof IRegisterListener)
 					((IRegisterListener) pack).onPreRegistered();
-				add.accept(ctor.create(pack.getName(), Component.literal(pack.getName()), true, () -> pack, new PackMetadataSection(Component.translatable("fml.resources.modresources", 1), PackType.CLIENT_RESOURCES.getVersion(SharedConstants.getCurrentVersion())), Pack.Position.TOP, PackSource.BUILT_IN, pack.isHidden()));
+				
+				add.accept(Pack.create(
+						pack.packId(),
+						Component.literal(pack.packId()),
+						true,
+						(s) -> pack,
+						new Pack.Info(
+								Component.translatable("fml.resources.modresources", 1),
+								PackType.CLIENT_RESOURCES.getVersion(SharedConstants.getCurrentVersion()),
+								FeatureFlagSet.of()
+						),
+						PackType.CLIENT_RESOURCES,
+						Pack.Position.TOP,
+						pack.isHidden(),
+						PackSource.BUILT_IN
+						));
 				if(pack instanceof IRegisterListener)
 					((IRegisterListener) pack).onPostRegistered();
 			}

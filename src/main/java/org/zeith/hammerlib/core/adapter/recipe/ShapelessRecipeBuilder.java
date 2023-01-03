@@ -8,11 +8,18 @@ import org.zeith.hammerlib.util.mcf.itf.IRecipeRegistrationEvent;
 public class ShapelessRecipeBuilder
 		extends RecipeBuilder<ShapelessRecipeBuilder, Recipe<?>>
 {
-	private final NonNullList<Ingredient> ingredients = NonNullList.create();
+	protected final NonNullList<Ingredient> ingredients = NonNullList.create();
+	protected CraftingBookCategory category = CraftingBookCategory.MISC;
 	
 	public ShapelessRecipeBuilder(IRecipeRegistrationEvent<Recipe<?>> event)
 	{
 		super(event);
+	}
+	
+	public ShapelessRecipeBuilder category(CraftingBookCategory cat)
+	{
+		this.category = cat;
+		return this;
 	}
 	
 	public ShapelessRecipeBuilder add(Object ingredient)
@@ -40,6 +47,6 @@ public class ShapelessRecipeBuilder
 		if(ingredients.isEmpty())
 			throw new IllegalStateException(getClass().getSimpleName() + " does not have any defined ingredients!");
 		var id = getIdentifier();
-		event.register(id, new ShapelessRecipe(id, group, result, ingredients));
+		event.register(id, new ShapelessRecipe(id, group, category, result, ingredients));
 	}
 }

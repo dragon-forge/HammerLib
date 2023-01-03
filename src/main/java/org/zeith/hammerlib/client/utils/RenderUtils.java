@@ -4,7 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import com.mojang.math.*;
+import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -18,6 +18,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
+import org.joml.Matrix4f;
+import org.joml.Vector3d;
 import org.lwjgl.opengl.GL11;
 import org.zeith.hammerlib.util.colors.ColorHelper;
 import org.zeith.hammerlib.util.java.itf.IntToIntFunction;
@@ -337,12 +339,12 @@ public class RenderUtils
 		matrix.pushPose();
 		for(int i = 0; i < rayCount; i++)
 		{
-			matrix.mulPose(Vector3f.XP.rotationDegrees(rand.nextFloat() * 360.0F));
-			matrix.mulPose(Vector3f.YP.rotationDegrees(rand.nextFloat() * 360.0F));
-			matrix.mulPose(Vector3f.ZP.rotationDegrees(rand.nextFloat() * 360.0F));
-			matrix.mulPose(Vector3f.XP.rotationDegrees(rand.nextFloat() * 360.0F));
-			matrix.mulPose(Vector3f.YP.rotationDegrees(rand.nextFloat() * 360.0F));
-			matrix.mulPose(Vector3f.ZP.rotationDegrees(rand.nextFloat() * 360.0F + progress * 360.0F));
+			matrix.mulPose(Axis.XP.rotationDegrees(rand.nextFloat() * 360.0F));
+			matrix.mulPose(Axis.YP.rotationDegrees(rand.nextFloat() * 360.0F));
+			matrix.mulPose(Axis.ZP.rotationDegrees(rand.nextFloat() * 360.0F));
+			matrix.mulPose(Axis.XP.rotationDegrees(rand.nextFloat() * 360.0F));
+			matrix.mulPose(Axis.YP.rotationDegrees(rand.nextFloat() * 360.0F));
+			matrix.mulPose(Axis.ZP.rotationDegrees(rand.nextFloat() * 360.0F + progress * 360.0F));
 			
 			float f3 = rand.nextFloat() * 20.0F + 5.0F + f7 * 10.0F;
 			float f4 = rand.nextFloat() * 2.0F + 1.0F + f7 * 2.0F;
@@ -380,12 +382,12 @@ public class RenderUtils
 			int b = irgba & 0xFF;
 			int a = (irgba >> 24) & 0xFF;
 			
-			matrix.mulPose(Vector3f.XP.rotationDegrees(rand.nextFloat() * 360.0F));
-			matrix.mulPose(Vector3f.YP.rotationDegrees(rand.nextFloat() * 360.0F));
-			matrix.mulPose(Vector3f.ZP.rotationDegrees(rand.nextFloat() * 360.0F));
-			matrix.mulPose(Vector3f.XP.rotationDegrees(rand.nextFloat() * 360.0F));
-			matrix.mulPose(Vector3f.YP.rotationDegrees(rand.nextFloat() * 360.0F));
-			matrix.mulPose(Vector3f.ZP.rotationDegrees(rand.nextFloat() * 360.0F + progress * 360.0F));
+			matrix.mulPose(Axis.XP.rotationDegrees(rand.nextFloat() * 360.0F));
+			matrix.mulPose(Axis.YP.rotationDegrees(rand.nextFloat() * 360.0F));
+			matrix.mulPose(Axis.ZP.rotationDegrees(rand.nextFloat() * 360.0F));
+			matrix.mulPose(Axis.XP.rotationDegrees(rand.nextFloat() * 360.0F));
+			matrix.mulPose(Axis.YP.rotationDegrees(rand.nextFloat() * 360.0F));
+			matrix.mulPose(Axis.ZP.rotationDegrees(rand.nextFloat() * 360.0F + progress * 360.0F));
 			
 			float f3 = rand.nextFloat() * 20.0F + 5.0F + f7 * 10.0F;
 			float f4 = rand.nextFloat() * 2.0F + 1.0F + f7 * 2.0F;

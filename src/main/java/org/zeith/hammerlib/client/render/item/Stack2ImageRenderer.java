@@ -12,7 +12,6 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -22,6 +21,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.common.CreativeModeTabRegistry;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -29,7 +29,6 @@ import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.zeith.hammerlib.HammerLib;
-import org.zeith.hammerlib.client.utils.RenderUtils;
 import org.zeith.hammerlib.compat.jei.IJeiPluginHL;
 import org.zeith.hammerlib.core.ConfigHL;
 import org.zeith.hammerlib.proxy.HLClientProxy;
@@ -43,7 +42,6 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 @Mod.EventBusSubscriber(Dist.CLIENT)
 public class Stack2ImageRenderer
@@ -136,19 +134,11 @@ public class Stack2ImageRenderer
 		SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy-hh.mm.ss");
 		File faild = new File(HLConstants.MOD_ID, "renderers" + File.separator + "all-" + sdf.format(Date.from(Instant.now())));
 		
-		ForgeRegistries.ITEMS.getValues().stream()
-				.flatMap(item ->
-				{
-					NonNullList<ItemStack> sb = NonNullList.create();
-					try
-					{
-						for(var tab : item.getCreativeTabs())
-							item.fillItemCategory(tab, sb);
-					} catch(Throwable err)
-					{
-					}
-					return sb.stream().map(stack -> new ItemWithData(stack.getItem(), stack.getTag()));
-				}).distinct()
+		CreativeModeTabRegistry.getSortedCreativeModeTabs()
+				.stream()
+				.flatMap(tab -> tab.getDisplayItems().stream())
+				.map(stack -> new ItemWithData(stack.getItem(), stack.getTag()))
+				.distinct()
 				.forEach(s ->
 				{
 					ResourceLocation rl = ForgeRegistries.ITEMS.getKey(s.item());
@@ -162,22 +152,11 @@ public class Stack2ImageRenderer
 		SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy-hh.mm.ss");
 		File faild = new File(HLConstants.MOD_ID, "renderers" + File.separator + modid + "-" + sdf.format(Date.from(Instant.now())));
 		
-		ForgeRegistries.ITEMS.getKeys().stream()
-				.flatMap(rl ->
-				{
-					if(!rl.getNamespace().equals(modid))
-						return Stream.empty();
-					var item = ForgeRegistries.ITEMS.getValue(rl);
-					NonNullList<ItemStack> sb = NonNullList.create();
-					try
-					{
-						for(var tab : item.getCreativeTabs())
-							item.fillItemCategory(tab, sb);
-					} catch(Throwable err)
-					{
-					}
-					return sb.stream().map(stack -> new ItemWithData(stack.getItem(), stack.getTag()));
-				})
+		CreativeModeTabRegistry.getSortedCreativeModeTabs()
+				.stream()
+				.flatMap(tab -> tab.getDisplayItems().stream())
+				.filter(item -> ForgeRegistries.ITEMS.getKey(item.getItem()).getNamespace().equals(modid))
+				.map(stack -> new ItemWithData(stack.getItem(), stack.getTag()))
 				.distinct()
 				.forEach(s ->
 				{
@@ -253,7 +232,7 @@ public class Stack2ImageRenderer
 				boolean flat = !model.usesBlockLight();
 				if(flat) Lighting.setupForFlatItems();
 				else Lighting.setupFor3DItems();
-
+				
 				ir.render(stack, ItemTransforms.TransformType.GUI, false, pose, buffers, 15728880, OverlayTexture.NO_OVERLAY, model);
 				buffers.endBatch();
 				RenderSystem.enableDepthTest();

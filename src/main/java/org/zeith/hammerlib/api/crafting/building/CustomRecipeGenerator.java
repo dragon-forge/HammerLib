@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.packs.resources.IoSupplier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraftforge.common.crafting.conditions.ICondition;
 import org.zeith.hammerlib.api.crafting.IGeneralRecipe;
@@ -76,7 +77,7 @@ public abstract class CustomRecipeGenerator<T extends IGeneralRecipe, DEC extend
 		return Optional.empty();
 	}
 	
-	public boolean createExampleRecipe(Resource.IoSupplier<BufferedWriter> writer) throws IOException
+	public boolean createExampleRecipe(IoSupplier<BufferedWriter> writer) throws IOException
 	{
 		var template = createTemplate().orElse(null);
 		if(template != null)
@@ -93,7 +94,7 @@ public abstract class CustomRecipeGenerator<T extends IGeneralRecipe, DEC extend
 	 */
 	public Optional<INetworkable<T>> getSerializer()
 	{
-		Optional net = Cast.optionally(this, INetworkable.class);
-		return net;
+		Optional opt = Cast.optionally(this, INetworkable.class);
+		return opt;
 	}
 }

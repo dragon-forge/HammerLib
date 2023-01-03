@@ -1,7 +1,7 @@
 package org.zeith.hammerlib.event.listeners;
 
 import net.minecraft.core.*;
-import net.minecraft.data.BuiltinRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.crafting.conditions.ICondition;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class TagsUpdateListener
 {
-	private static RegistryAccess registryAccess = BuiltinRegistries.ACCESS;
+	private static RegistryAccess registryAccess = RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
 	private static Map<ResourceKey<? extends Registry>, Map> tagCache = new HashMap<>();
 	
 	public static final ICondition.IContext REMOTE_TAG_ACCESS = new ICondition.IContext()

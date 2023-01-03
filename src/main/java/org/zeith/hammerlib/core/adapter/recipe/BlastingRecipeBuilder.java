@@ -16,6 +16,6 @@ public class BlastingRecipeBuilder
 	@Override
 	protected Recipe<?> generateRecipe()
 	{
-		return new BlastingRecipe(getIdentifier(), group, input, result, xp, cookTime);
+		return new BlastingRecipe(getIdentifier(), group, category, input, result, xp, cookTime);
 	}
 }

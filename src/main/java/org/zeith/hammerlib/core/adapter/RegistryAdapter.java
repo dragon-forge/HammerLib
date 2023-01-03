@@ -71,8 +71,9 @@ public class RegistryAdapter
 			else
 			{
 				Item.Properties props = gen != null ? gen.createItemProperties(new Item.Properties()) : new Item.Properties();
-				if(blk instanceof ICreativeTabBlock) props = props.tab(((ICreativeTabBlock) blk).getCreativeTab());
 				item = new BlockItem(blk, props);
+				if(blk instanceof ICreativeTabBlock t)
+					t.getCreativeTab().add(item);
 			}
 			grabber.accept(e.getB(), Cast.cast(item));
 		}

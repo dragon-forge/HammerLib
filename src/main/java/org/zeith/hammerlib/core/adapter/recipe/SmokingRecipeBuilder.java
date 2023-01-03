@@ -2,7 +2,6 @@ package org.zeith.hammerlib.core.adapter.recipe;
 
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.SmokingRecipe;
-import org.zeith.hammerlib.event.recipe.RegisterRecipesEvent;
 import org.zeith.hammerlib.util.mcf.itf.IRecipeRegistrationEvent;
 
 public class SmokingRecipeBuilder
@@ -13,10 +12,10 @@ public class SmokingRecipeBuilder
 		super(event);
 		cookTime = 100;
 	}
-
+	
 	@Override
 	protected Recipe<?> generateRecipe()
 	{
-		return new SmokingRecipe(getIdentifier(), group, input, result, xp, cookTime);
+		return new SmokingRecipe(getIdentifier(), group, category, input, result, xp, cookTime);
 	}
 }

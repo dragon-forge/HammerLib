@@ -10,12 +10,19 @@ import java.util.Map;
 public class ShapedRecipeBuilder
 		extends RecipeBuilder<ShapedRecipeBuilder, Recipe<?>>
 {
-	private final Map<Character, Ingredient> dictionary = new HashMap<>();
-	private RecipeShape shape;
+	protected final Map<Character, Ingredient> dictionary = new HashMap<>();
+	protected RecipeShape shape;
+	protected CraftingBookCategory category = CraftingBookCategory.MISC;
 	
 	public ShapedRecipeBuilder(IRecipeRegistrationEvent<Recipe<?>> event)
 	{
 		super(event);
+	}
+	
+	public ShapedRecipeBuilder category(CraftingBookCategory cat)
+	{
+		this.category = cat;
+		return this;
 	}
 	
 	public ShapedRecipeBuilder shape(int width, int height, String... shapeKeys)
@@ -45,6 +52,6 @@ public class ShapedRecipeBuilder
 		if(dictionary.isEmpty())
 			throw new IllegalStateException(getClass().getSimpleName() + " does not have any defined ingredients!");
 		var id = getIdentifier();
-		event.register(id, new ShapedRecipe(id, group, shape.width, shape.height, shape.createIngredientMap(dictionary), result));
+		event.register(id, new ShapedRecipe(id, group, category, shape.width, shape.height, shape.createIngredientMap(dictionary), result));
 	}
 }
