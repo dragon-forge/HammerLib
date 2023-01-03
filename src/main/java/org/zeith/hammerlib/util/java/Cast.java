@@ -4,6 +4,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.lang.reflect.Constructor;
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class Cast
@@ -41,6 +42,11 @@ public class Cast
 	public static <T> Optional<T> optionally(Object thing, Class<T> type)
 	{
 		return type.isInstance(thing) ? Optional.of(type.cast(thing)) : Optional.empty();
+	}
+	
+	public static <IN, T> Function<IN, T> convertTo(Class<T> type)
+	{
+		return obj -> cast(obj, type);
 	}
 	
 	public static <T> Optional<T> firstInstanceof(Class<T> type, Object... input)

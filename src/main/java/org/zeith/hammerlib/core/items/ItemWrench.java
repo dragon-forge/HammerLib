@@ -12,21 +12,24 @@ import org.zeith.api.wrench.IWrenchItem;
 import org.zeith.hammerlib.annotations.RegistryName;
 import org.zeith.hammerlib.annotations.SimplyRegister;
 import org.zeith.hammerlib.api.items.IDynamicallyTaggedItem;
+import org.zeith.hammerlib.api.items.ITabItem;
+import org.zeith.hammerlib.core.adapter.CreativeTabAdapter;
 import org.zeith.hammerlib.core.init.TagsHL;
 import org.zeith.hammerlib.proxy.HLConstants;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @SimplyRegister
 public class ItemWrench
 		extends Item
-		implements IWrenchItem, IDynamicallyTaggedItem
+		implements IWrenchItem, IDynamicallyTaggedItem, ITabItem
 {
 	@RegistryName("wrench")
-	public static final ItemWrench WRENCH = new ItemWrench(new Properties().tab(HLConstants.HL_TAB).stacksTo(1));
+	public static final ItemWrench WRENCH = new ItemWrench(new Properties().stacksTo(1));
 	
-	public final List<CreativeModeTab> extraTabs = new ArrayList<>(List.of(HLConstants.HL_TAB));
+	public final List<CreativeTabAdapter.CreativeTab> extraTabs = new ArrayList<>(List.of(HLConstants.HL_TAB));
 	
 	public ItemWrench(Properties props)
 	{
@@ -34,9 +37,15 @@ public class ItemWrench
 	}
 	
 	@Override
-	public Collection<CreativeModeTab> getCreativeTabs()
+	public Set<CreativeModeTab> getCreativeTabs()
 	{
-		return extraTabs;
+		return extraTabs.stream().map(CreativeTabAdapter.CreativeTab::get).collect(Collectors.toSet());
+	}
+	
+	@Override
+	public CreativeModeTab getItemCategory()
+	{
+		return HLConstants.HL_TAB.get();
 	}
 	
 	@Override

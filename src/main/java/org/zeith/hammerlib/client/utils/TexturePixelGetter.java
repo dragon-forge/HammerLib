@@ -93,7 +93,7 @@ public class TexturePixelGetter
 		BakedModel model = Minecraft.getInstance().getItemRenderer().getModel(stack, mc.level, mc.player, 0);
 		TextureAtlasSprite spr = model.getParticleIcon(ModelData.EMPTY);
 		if(spr == null) spr = mc.getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(MissingTextureAtlasSprite.getLocation());
-		return getAllColors(getResourceLocation(spr.getName()));
+		return getAllColors(getResourceLocation(spr.contents().name()));
 	}
 	
 	public static int[] getAllColors(ResourceLocation texture)

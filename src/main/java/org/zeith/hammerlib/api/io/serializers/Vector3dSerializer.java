@@ -1,16 +1,16 @@
 package org.zeith.hammerlib.api.io.serializers;
 
-import com.mojang.math.Vector3d;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.phys.Vec3;
 import org.zeith.hammerlib.api.io.NBTSerializer;
 
-@NBTSerializer(Vector3d.class)
+@NBTSerializer(Vec3.class)
 public class Vector3dSerializer
-		implements INBTSerializer<Vector3d>
+		implements INBTSerializer<Vec3>
 {
 	@Override
-	public void serialize(CompoundTag nbt, String key, Vector3d value)
+	public void serialize(CompoundTag nbt, String key, Vec3 value)
 	{
 		if(value != null)
 		{
@@ -23,12 +23,12 @@ public class Vector3dSerializer
 	}
 
 	@Override
-	public Vector3d deserialize(CompoundTag nbt, String key)
+	public Vec3 deserialize(CompoundTag nbt, String key)
 	{
 		if(nbt.contains(key, Tag.TAG_COMPOUND))
 		{
 			CompoundTag tag = nbt.getCompound(key);
-			return new Vector3d(tag.getDouble("x"), tag.getDouble("y"), tag.getDouble("z"));
+			return new Vec3(tag.getDouble("x"), tag.getDouble("y"), tag.getDouble("z"));
 		}
 		return null;
 	}

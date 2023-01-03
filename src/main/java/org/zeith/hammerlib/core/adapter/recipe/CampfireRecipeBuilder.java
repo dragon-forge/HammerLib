@@ -16,6 +16,6 @@ public class CampfireRecipeBuilder
 	@Override
 	protected Recipe<?> generateRecipe()
 	{
-		return new CampfireCookingRecipe(getIdentifier(), group, input, result, xp, cookTime);
+		return new CampfireCookingRecipe(getIdentifier(), group, category, input, result, xp, cookTime);
 	}
 }

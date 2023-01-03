@@ -1,8 +1,8 @@
 package org.zeith.hammerlib.api.lighting;
 
-import com.mojang.math.Vector3d;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec3;
 import org.zeith.hammerlib.client.utils.IGLBufferStream;
 import org.zeith.hammerlib.client.utils.IGLWritable;
 
@@ -72,7 +72,7 @@ public class ColoredLight
 			return pos(pos.getX() + 0.5f, pos.getY() + 0.5f, pos.getZ() + 0.5f);
 		}
 
-		public Builder pos(Vector3d pos)
+		public Builder pos(Vec3 pos)
 		{
 			return pos(pos.x, pos.y, pos.z);
 		}
@@ -100,12 +100,12 @@ public class ColoredLight
 			return this;
 		}
 
-		public Builder color(Vector3d c, float alpha)
+		public Builder color(Vec3 c, float alpha)
 		{
 			return color((float) c.x, (float) c.y, (float) c.z, alpha);
 		}
 
-		public Builder color(Vector3d c)
+		public Builder color(Vec3 c)
 		{
 			return color((float) c.x, (float) c.y, (float) c.z, 1F);
 		}

@@ -1,6 +1,7 @@
 package org.zeith.hammerlib.api.blocks;
 
-import net.minecraft.world.item.CreativeModeTab;
+import org.jetbrains.annotations.NotNull;
+import org.zeith.hammerlib.core.adapter.CreativeTabAdapter;
 
 /**
  * Interface for blocks that show in a creative mode tab.
@@ -12,5 +13,6 @@ public interface ICreativeTabBlock
 	 *
 	 * @return Creative mode tab for this block.
 	 */
-	CreativeModeTab getCreativeTab();
+	@NotNull
+	CreativeTabAdapter.CreativeTab getCreativeTab();
 }

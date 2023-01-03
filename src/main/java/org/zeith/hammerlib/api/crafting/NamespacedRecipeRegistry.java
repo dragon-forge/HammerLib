@@ -196,7 +196,7 @@ public class NamespacedRecipeRegistry<T extends INameableRecipe>
 				while(itr.hasNext())
 				{
 					var file = itr.next();
-					var res = new Resource("File System", () -> new FileInputStream(file));
+					var res = new Resource(null, () -> new FileInputStream(file));
 					
 					var recipePath = new ResourceLocation("modpack", custom.getFileDir() + "/" + file.getAbsolutePath().substring(rootLength));
 					
