@@ -71,7 +71,7 @@ public class HLCommonProxy
 		return finishedLoading;
 	}
 
-	public Consumer<FMLClientSetupEvent> addTESR(Class<?> owner, String member, Type tesr)
+	public Consumer<FMLClientSetupEvent> addTESR(Type owner, String member, Type tesr)
 	{
 		return null;
 	}

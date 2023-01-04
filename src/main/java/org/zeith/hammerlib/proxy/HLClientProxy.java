@@ -115,11 +115,11 @@ public class HLClientProxy
 	}
 
 	@Override
-	public Consumer<FMLClientSetupEvent> addTESR(Class<?> owner, String member, Type tesr)
+	public Consumer<FMLClientSetupEvent> addTESR(Type owner, String member, Type tesr)
 	{
 		return e ->
 		{
-			ReflectionUtil.<TileEntityType<?>> getStaticFinalField(owner, member)
+			ReflectionUtil.<TileEntityType<?>> getStaticFinalField(ReflectionUtil.fetchClass(owner), member)
 					.ifPresent(type ->
 					{
 						if(type.getRegistryName() == null)
