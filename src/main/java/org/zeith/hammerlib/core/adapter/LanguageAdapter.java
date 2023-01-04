@@ -2,17 +2,14 @@ package org.zeith.hammerlib.core.adapter;
 
 import com.google.common.collect.Sets;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ReloadableResourceManager;
-import net.minecraft.server.packs.resources.Resource;
-import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.*;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.event.LanguageReloadEvent;
 
+import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Optional;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Stream;
 
 public class LanguageAdapter
 {
@@ -46,18 +43,23 @@ public class LanguageAdapter
 					new ResourceLocation(modId, "lang/" + e.getLang().toLowerCase() + "._hl"),
 					new ResourceLocation(modId, "langs/" + e.getLang().toLowerCase() + ".lang"),
 					new ResourceLocation(modId, "lang/" + e.getLang().toLowerCase() + ".lang"))
-					.ifPresent(langFile ->
+					.forEach(langFile ->
 					{
-						HammerLib.LOG.debug("Hooking HammerLib language adapter for namespace " + modId + ": " + langFile);
-						
 						List<Resource> resources = mgr.getResourceStack(langFile);
 						
 						try
 						{
+							boolean logged = false;
 							for(Resource res : resources)
 							{
 								try(Scanner in = new Scanner(res.open(), StandardCharsets.UTF_8))
 								{
+									if(!logged)
+									{
+										HammerLib.LOG.debug("Hooking HammerLib language adapter for namespace " + modId + ": " + langFile);
+										logged = true;
+									}
+									
 									while(in.hasNextLine())
 									{
 										String line = in.nextLine();
@@ -67,6 +69,9 @@ public class LanguageAdapter
 									}
 								}
 							}
+						} catch(FileNotFoundException err)
+						{
+							// File is not found, BE QUIET!
 						} catch(Throwable ex)
 						{
 							HammerLib.LOG.error("Failed to load language file located at " + langFile, ex);
@@ -74,11 +79,8 @@ public class LanguageAdapter
 					});
 	}
 	
-	private static Optional<ResourceLocation> findFirstExisting(ResourceManager mgr, ResourceLocation... paths)
+	private static Stream<ResourceLocation> findFirstExisting(ResourceManager mgr, ResourceLocation... paths)
 	{
-		for(ResourceLocation path : paths)
-			if(mgr.getResource(path).isPresent())
-				return Optional.of(path);
-		return Optional.empty();
+		return Stream.of(paths);
 	}
 }
