@@ -16,6 +16,10 @@ buildscript {
     }
 }
 
+plugins {
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
+}
+
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'idea'
 apply plugin: 'maven-publish'
@@ -81,9 +85,10 @@ repositories {
         url = "https://maven.zeith.org"
     }
     maven { setUrl("https://oss.sonatype.org/content/repositories/public/") }
-    flatDir { dirs 'libraries/all' }
-    flatDir { dirs 'libraries/classpathOnly' }
-    flatDir { dirs 'libraries/runtimeOnly' }
+    flatDir { dirs "libraries/${config.mc_version}/all" }
+    flatDir { dirs "libraries/${config.mc_version}/classpathOnly" }
+    flatDir { dirs "libraries/${config.mc_version}/runtimeOnly" }
+    flatDir { dirs "libraries/embedded" }
 }
 
 import net.minecraftforge.gradle.common.tasks.SignJar
@@ -95,7 +100,7 @@ dependencies {
 
     // implementation fg.deobf("com.lowdragmc.shimmer:Shimmer-forge:1.19.2-${config.shimmer_version}")
 
-    def libraries = file("libraries");
+    def libraries = new File(file("libraries"), "${config.mc_version}")
     if (!libraries.isDirectory()) libraries.mkdirs()
 
     def libDir = new File(libraries, "all");
@@ -139,6 +144,24 @@ dependencies {
             }
         }
     } else libDir.mkdir();
+
+    libDir = new File(file("libraries"), "embedded");
+    if (libDir.isDirectory()) {
+        libDir.eachFile { file ->
+            def splitPos = file.name.lastIndexOf("-")
+            def modartifact = file.name.substring(0, splitPos)
+            def modversion = file.name.substring(splitPos + 1, file.name.length() - 4)
+            def modreference = "lib:$modartifact:$modversion"
+
+            dependencies {
+                def dep = project.dependencies.create(modreference) {
+                    transitive = false
+                }
+                implementation dep
+                shadow dep
+            }
+        }
+    } else libDir.mkdir();
 }
 
 jar {
@@ -171,6 +194,16 @@ task deobfJar(type: Jar) {
         ])
     }
 }
+
+shadowJar {
+    classifier ''
+    configurations = [project.configurations.shadow]
+}
+
+reobf {
+    shadowJar {}
+}
+shadowJar.finalizedBy('reobfShadowJar')
 
 task srcJar(type: Jar, dependsOn: classes) {
     from sourceSets.main.allJava
