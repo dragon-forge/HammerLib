@@ -93,10 +93,10 @@ public class HammerLib
 							{
 								Field f = ReflectionUtil.lookupField(RegistryManager.class, "registries");
 								BiMap<ResourceLocation, ForgeRegistry<? extends IForgeRegistryEntry<?>>> registries = Cast.cast(f.get(RegistryManager.ACTIVE));
-								Class<?> registerer = data.getOwnerClass();
 								registries.values().forEach(registry ->
 								{
-									mc.getEventBus().addGenericListener(registry.getRegistrySuperType(), (Consumer<RegistryEvent.Register>) event -> RegistryAdapter.register(event.getRegistry(), registerer, mc.getModId()));
+									mc.getEventBus().addGenericListener(registry.getRegistrySuperType(), (Consumer<RegistryEvent.Register>) event ->
+											RegistryAdapter.register(event.getRegistry(), data.getOwnerClass(), mc.getModId()));
 								});
 							} catch(IllegalAccessException e)
 							{
