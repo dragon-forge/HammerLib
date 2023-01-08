@@ -45,5 +45,4 @@ public class Ability<T>
 		return "Ability[" +
 				"type=" + type + ']';
 	}
-	
 }

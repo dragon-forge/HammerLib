@@ -93,6 +93,9 @@ repositories {
 
 import net.minecraftforge.gradle.common.tasks.SignJar
 
+import java.nio.file.Files
+import java.nio.file.StandardOpenOption
+
 dependencies {
     minecraft "net.minecraftforge:forge:${config.mc_version}-${config.forge_version}"
 
@@ -273,4 +276,25 @@ publishing {
             url "file:///SERVER//Maven"
         }
     }
+}
+
+// This piece of garbage will ensure that the build number is updated after build is executed.
+tasks.build.doLast {
+    if(!hasConfig("build_candidate") || !Boolean.parseBoolean(config.build_candidate))
+    {
+        def buildTxt = configFile.toPath();
+        List<String> lines = Files.readAllLines buildTxt;
+        lines.replaceAll { String ln ->
+            if(ln.startsWith("mod_version"))
+            {
+                def version = ln.split("=")[1];
+                def dot = version.lastIndexOf('.') + 1;
+                def newVersion = version.substring(0, dot);
+                def lastOne = Integer.parseInt(version.substring(dot)) + 1;
+                return "mod_version=" + newVersion + lastOne;
+            }
+            return ln;
+        }
+        Files.write buildTxt, lines, StandardOpenOption.CREATE;
+    } else println "Build candidate enabled, we are not increasing build number after this."
 }
