@@ -2,7 +2,8 @@
 mod_id=hammerlib
 archive_name=HammerLib
 mod_name=Hammer Lib
-mod_version=19.3.45
+mod_version=19.3.46
+build_candidate=false
 
 # Maven Info
 maven_group=org.zeith.hammerlib
