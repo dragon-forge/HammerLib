@@ -84,6 +84,7 @@ repositories {
         name = "Zeitheron Maven"
         url = "https://maven.zeith.org"
     }
+    maven { url "https://maven.shedaniel.me" }
     maven { setUrl("https://oss.sonatype.org/content/repositories/public/") }
     flatDir { dirs "libraries/${config.mc_version}/all" }
     flatDir { dirs "libraries/${config.mc_version}/classpathOnly" }
@@ -100,6 +101,9 @@ dependencies {
     minecraft "net.minecraftforge:forge:${config.mc_version}-${config.forge_version}"
 
     annotationProcessor "org.spongepowered:mixin:0.8.5:processor"
+
+    implementation fg.deobf("me.shedaniel:RoughlyEnoughItems-forge:10.0.581")
+    // implementation fg.deobf("me.shedaniel:RoughlyEnoughItems-plugin-compatibilities-forge:9.1.530")
 
     // implementation fg.deobf("com.lowdragmc.shimmer:Shimmer-forge:1.19.2-${config.shimmer_version}")
 

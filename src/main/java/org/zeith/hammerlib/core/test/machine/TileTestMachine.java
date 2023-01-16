@@ -11,7 +11,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.zeith.api.wrench.IWrenchable;
-import org.zeith.hammerlib.annotations.OnlyIf;
 import org.zeith.hammerlib.annotations.RegistryName;
 import org.zeith.hammerlib.annotations.SimplyRegister;
 import org.zeith.hammerlib.annotations.client.TileRenderer;
@@ -20,6 +19,7 @@ import org.zeith.hammerlib.api.forge.BlockAPI;
 import org.zeith.hammerlib.api.inv.SimpleInventory;
 import org.zeith.hammerlib.api.io.NBTSerializable;
 import org.zeith.hammerlib.api.tiles.IContainerTile;
+import org.zeith.hammerlib.core.RecipeHelper;
 import org.zeith.hammerlib.net.properties.PropertyInt;
 import org.zeith.hammerlib.net.properties.PropertyResourceLocation;
 import org.zeith.hammerlib.tiles.TileSyncableTickable;
@@ -33,23 +33,23 @@ public class TileTestMachine
 	@TileRenderer(TESRTestMachine.class)
 	@RegistryName("test_machine")
 	public static final BlockEntityType<TileTestMachine> TEST_MACHINE = BlockAPI.createBlockEntityType(TileTestMachine::new, BlockTestMachine.TEST_MACHINE);
-
+	
 	@NBTSerializable
 	private int _progress;
-
+	
 	@NBTSerializable
 	private int _maxProgress = 200;
-
+	
 	@NBTSerializable
 	public final SimpleInventory inventory = new SimpleInventory(3);
-
+	
 	@NBTSerializable
 	private ResourceLocation _activeRecipeId;
-
+	
 	public final PropertyInt progress = new PropertyInt(DirectStorage.create(i -> _progress = i, () -> _progress));
 	public final PropertyInt maxProgress = new PropertyInt(DirectStorage.create(i -> _maxProgress = i, () -> _maxProgress));
 	public final PropertyResourceLocation activeRecipeId = new PropertyResourceLocation(DirectStorage.create(r -> _activeRecipeId = r, () -> _activeRecipeId));
-
+	
 	public TileTestMachine(BlockPos pos, BlockState state)
 	{
 		super(TEST_MACHINE, pos, state);
@@ -58,14 +58,14 @@ public class TileTestMachine
 		this.dispatcher.registerProperty("max_progress", maxProgress);
 		this.dispatcher.registerProperty("ar_id", activeRecipeId);
 	}
-
+	
 	@Override
 	public void update()
 	{
 		if(isOnServer())
 		{
 			RecipeTestMachine r = getActiveRecipe();
-
+			
 			if(isValidRecipe(r))
 			{
 				int p = _progress + 1;
@@ -74,16 +74,16 @@ public class TileTestMachine
 					ItemStack result = r.getRecipeOutput(this);
 					if(output(result))
 					{
-						inventory.getItem(0).shrink(r.in1.getCount());
-						inventory.getItem(1).shrink(r.in2.getCount());
-
+						inventory.getItem(0).shrink(r.inputA.count());
+						inventory.getItem(1).shrink(r.inputA.count());
+						
 						if(!isValidRecipe(r))
 						{
 							activeRecipeId.set(null);
 							r = null;
 							setEnabledState(false);
 						}
-
+						
 						_progress = (0);
 					}
 				} else
@@ -96,26 +96,26 @@ public class TileTestMachine
 					if(_progress <= 0)
 						setEnabledState(false);
 				}
-
+				
 				activeRecipeId.set(null);
 				r = null;
 			}
-
+			
 			if(r == null && atTickRate(10))
 			{
-				RecipeTestMachine recipe = RecipeTestMachine.REGISTRY.getRecipes().stream().filter(this::isValidRecipe).findFirst().orElse(null);
+				RecipeTestMachine recipe = RecipeHelper.getRecipes(level, RecipeTestMachine.TYPE).filter(this::isValidRecipe).findFirst().orElse(null);
 				if(recipe != null)
 				{
 					if(recipe.time != _maxProgress)
 						_progress = 0;
 					_maxProgress = recipe.time;
-					activeRecipeId.set(recipe.getRecipeName());
+					activeRecipeId.set(recipe.getId());
 					setEnabledState(true);
 				}
 			}
 		}
 	}
-
+	
 	public void setEnabledState(boolean enabled)
 	{
 		BlockState s = level.getBlockState(worldPosition);
@@ -125,12 +125,13 @@ public class TileTestMachine
 			setBlockState(s);
 		}
 	}
-
+	
 	public RecipeTestMachine getActiveRecipe()
 	{
-		return RecipeTestMachine.REGISTRY.getRecipe(_activeRecipeId);
+		return RecipeHelper.getRecipeMap(level, RecipeTestMachine.TYPE)
+				.get(_activeRecipeId);
 	}
-
+	
 	private boolean output(ItemStack stack)
 	{
 		if(canStore(stack))
@@ -142,15 +143,15 @@ public class TileTestMachine
 		}
 		return false;
 	}
-
+	
 	private boolean isValidRecipe(RecipeTestMachine recipe)
 	{
 		return recipe != null
-				&& recipe.in1.asIngredient().test(inventory.getItem(0)) && inventory.getItem(0).getCount() >= recipe.in1.getCount()
-				&& recipe.in2.asIngredient().test(inventory.getItem(1)) && inventory.getItem(1).getCount() >= recipe.in2.getCount()
+				&& recipe.inputA.test(inventory.getItem(0))
+				&& recipe.inputB.test(inventory.getItem(1))
 				&& canStore(recipe.getRecipeOutput(this));
 	}
-
+	
 	private boolean canStore(ItemStack result)
 	{
 		ItemStack stack = inventory.getItem(2);
@@ -158,13 +159,13 @@ public class TileTestMachine
 		if(!ItemStack.isSame(result, stack)) return false;
 		return stack.getCount() + result.getCount() <= Math.min(inventory.getMaxStackSize(), result.getMaxStackSize());
 	}
-
+	
 	@Override
 	public AbstractContainerMenu openContainer(Player player, int windowId)
 	{
 		return new ContainerTestMachine(player, windowId, this);
 	}
-
+	
 	@Override
 	public boolean onWrenchUsed(UseOnContext context)
 	{
@@ -173,7 +174,7 @@ public class TileTestMachine
 		
 		Direction d = context.getClickedFace();
 		if(context.getPlayer().isShiftKeyDown()) d = d.getOpposite();
-
+		
 		BlockState state = level.getBlockState(worldPosition);
 		if(state.getBlock() == BlockTestMachine.TEST_MACHINE)
 		{
@@ -188,7 +189,7 @@ public class TileTestMachine
 			if(origin != facing)
 				level.setBlockAndUpdate(worldPosition, state.setValue(BlockStateProperties.HORIZONTAL_FACING, facing));
 		}
-
+		
 		return true;
 	}
 }
