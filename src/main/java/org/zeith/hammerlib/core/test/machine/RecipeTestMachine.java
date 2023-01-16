@@ -1,67 +1,60 @@
 package org.zeith.hammerlib.core.test.machine;
 
-import com.google.gson.*;
-import net.minecraft.core.NonNullList;
+import com.google.gson.JsonObject;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.ShapedRecipe;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.common.Tags;
-import net.minecraftforge.common.crafting.conditions.ICondition;
-import org.zeith.hammerlib.HammerLib;
-import org.zeith.hammerlib.annotations.Setup;
-import org.zeith.hammerlib.api.crafting.*;
-import org.zeith.hammerlib.api.crafting.building.*;
-import org.zeith.hammerlib.api.crafting.impl.*;
-import org.zeith.hammerlib.api.crafting.itf.IFileDecoder;
-import org.zeith.hammerlib.core.RecipeHelper;
-import org.zeith.hammerlib.event.recipe.ReloadRecipeRegistryEvent;
-import org.zeith.hammerlib.util.mcf.itf.INetworkable;
+import org.jetbrains.annotations.Nullable;
+import org.zeith.hammerlib.abstractions.recipes.IRecipeVisualizer;
+import org.zeith.hammerlib.abstractions.recipes.IVisualizedRecipe;
+import org.zeith.hammerlib.abstractions.recipes.layout.ISlotBuilder;
+import org.zeith.hammerlib.abstractions.recipes.layout.IVisualizerBuilder;
+import org.zeith.hammerlib.annotations.RegistryName;
+import org.zeith.hammerlib.annotations.SimplyRegister;
+import org.zeith.hammerlib.api.recipes.*;
+import org.zeith.hammerlib.core.adapter.recipe.RecipeBuilder;
 import org.zeith.hammerlib.util.mcf.itf.IRecipeRegistrationEvent;
 
-import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 
+@SimplyRegister
 public class RecipeTestMachine
-		extends BaseNameableRecipe
+		extends BaseRecipe<RecipeTestMachine>
 {
-	public static final NamespacedRecipeRegistry<RecipeTestMachine> REGISTRY = RecipeRegistryFactory
-			.namespacedBuilder(RecipeTestMachine.class)
-			.registryId(new ResourceLocation("hammerlib", "test_machine"))
-			.recipeBuilderFactory(TestMachineRecipeBuilder::new)
-			.customRecipes(CustomTestMachineRecipeGenerator::new)
-			.onClientRecipeReceive(clientRecipe ->
-			{
-				// TODO: Add to JEI runtime or other things that you care about.
-			})
-			.build();
+	@RegistryName("test_machine")
+	public static final TestMachineRecipeType TYPE = new TestMachineRecipeType();
 	
-	public final IItemIngredient<?> in1, in2;
-	public final ItemStackResult output;
+	public final IngredientWithCount inputA, inputB;
+	public final ItemStack output;
 	public final int time;
 	
-	public RecipeTestMachine(ResourceLocation id, int time, ItemStack output, Object a, Object b)
+	public RecipeTestMachine(ResourceLocation id, String group,
+							 int time, ItemStack output,
+							 IngredientWithCount inputA, IngredientWithCount inputB)
 	{
-		this(id, time, new ItemStackResult(output), new MCIngredient(RecipeHelper.fromComponent(a)), new MCIngredient(RecipeHelper.fromComponent(b)));
-	}
-	
-	public RecipeTestMachine(ResourceLocation id, int time, ItemStack output, IItemIngredient<?> a, IItemIngredient<?> b)
-	{
-		this(id, time, new ItemStackResult(output), a, b);
-	}
-	
-	public RecipeTestMachine(ResourceLocation id, int time, ItemStackResult output, IItemIngredient<?> a, IItemIngredient<?> b)
-	{
-		super(id, output, NonNullList.of(a, b));
+		super(id, group);
+		this.vanillaResult = output;
+		if(!inputA.isEmpty()) this.vanillaIngredients.addAll(inputA.applyCount());
+		if(!inputB.isEmpty()) this.vanillaIngredients.addAll(inputB.applyCount());
 		this.time = time;
+		this.inputA = inputA;
+		this.inputB = inputB;
 		this.output = output;
-		this.in1 = a;
-		this.in2 = b;
+	}
+	
+	@Override
+	protected SerializableRecipeType<RecipeTestMachine> getRecipeType()
+	{
+		return TYPE;
+	}
+	
+	public ItemStack getRecipeOutput(TileTestMachine machine)
+	{
+		return output.copy();
 	}
 	
 	public int getTime()
@@ -69,46 +62,66 @@ public class RecipeTestMachine
 		return time;
 	}
 	
-	public ItemStack getRecipeOutput(TileTestMachine executor)
+	public static class TestMachineRecipeType
+			extends SerializableRecipeType<RecipeTestMachine>
 	{
-		return output.getOutput(executor);
-	}
-	
-	@Setup
-	public static void setup()
-	{
-		HammerLib.LOG.info("Setup Test Machine recipes!");
-//		HammerLib.EVENT_BUS.addGenericListener(RecipeTestMachine.class, RecipeTestMachine::addTestMachineRecipes);
-	}
-	
-	public static void addTestMachineRecipes(ReloadRecipeRegistryEvent.AddRecipes<RecipeTestMachine> evt)
-	{
-		if(!evt.is(RecipeTestMachine.REGISTRY)) return;
+		@Override
+		public RecipeTestMachine fromJson(ResourceLocation recipeLoc, JsonObject recipeJson)
+		{
+			var inputs = ingredientsWithCountFromArray(recipeJson.getAsJsonArray(DEFAULT_INGREDIENTS_KEY));
+			return new RecipeTestMachine(recipeLoc, GsonHelper.getAsString(recipeJson, DEFAULT_GROUP_KEY, ""),
+					GsonHelper.getAsInt(recipeJson, "time"),
+					itemStackFromJson(recipeJson.getAsJsonObject(DEFAULT_OUTPUT_KEY)),
+					inputs.get(0),
+					inputs.size() > 1 ? inputs.get(1) : IngredientWithCount.EMPTY
+			);
+		}
 		
-		var f = evt.<TestMachineRecipeBuilder> builderFactory();
+		@Override
+		public void toNetwork(FriendlyByteBuf buf, RecipeTestMachine recipe)
+		{
+			recipe.inputA.toNetwork(buf);
+			recipe.inputB.toNetwork(buf);
+			buf.writeVarInt(recipe.time);
+			buf.writeItemStack(recipe.output, false);
+			buf.writeUtf(recipe.group);
+		}
 		
-		f.get()
-				.result(Items.CHEST)
-				.top(new TagIngredient(ItemTags.LOGS).quantify(2))
-				.bottom(new TagIngredient(Tags.Items.INGOTS_IRON))
-				.time(100)
-				.register();
+		@Override
+		public @Nullable RecipeTestMachine fromNetwork(ResourceLocation recipeLoc, FriendlyByteBuf buf)
+		{
+			var ingrA = IngredientWithCount.fromNetwork(buf);
+			var ingrB = IngredientWithCount.fromNetwork(buf);
+			int time = buf.readVarInt();
+			var res = buf.readItem();
+			var group = buf.readUtf();
+			return new RecipeTestMachine(recipeLoc, group, time, res, ingrA, ingrB);
+		}
+		
+		/*
+		@Override
+		public void initVisuals(Consumer<IRecipeVisualizer<RecipeTestMachine, ?>> viualizerConsumer)
+		{
+			viualizerConsumer.accept(IRecipeVisualizer.simple(VisualizedTestMachine.class,
+					new IRecipeVisualizer.VisualizedRecipeGroup(
+							BlockTestMachine.TEST_MACHINE.getName(),
+							64,
+							38,
+							null
+					), VisualizedTestMachine::new));
+		}
+		*/
 	}
 	
-	/**
-	 * This is an example builder to use conjunction with recipe registration event.
-	 * This builder is defined in {@link RecipeRegistryFactory.NamespacedBuilder#recipeBuilderFactory(IRecipeBuilderFactory)} and is also required to be specified during recipe registration.
-	 */
 	public static class TestMachineRecipeBuilder
-			extends GeneralRecipeBuilder<RecipeTestMachine, TestMachineRecipeBuilder>
+			extends RecipeBuilder<TestMachineRecipeBuilder, Recipe<?>>
 	{
-		protected IItemIngredient<?> inputA, inputB;
-		protected ItemStack result = ItemStack.EMPTY;
+		protected IngredientWithCount inputA, inputB;
 		protected int time = 100;
 		
-		public TestMachineRecipeBuilder(IRecipeRegistrationEvent<RecipeTestMachine> registrar)
+		public TestMachineRecipeBuilder(IRecipeRegistrationEvent<Recipe<?>> event)
 		{
-			super(registrar);
+			super(event);
 		}
 		
 		public TestMachineRecipeBuilder time(int time)
@@ -135,22 +148,16 @@ public class RecipeTestMachine
 			return this;
 		}
 		
-		public TestMachineRecipeBuilder top(IItemIngredient<?> in)
+		public TestMachineRecipeBuilder top(Object in, int count)
 		{
-			this.inputA = in;
+			this.inputA = parseIngredient(in, count);
 			return this;
 		}
 		
-		public TestMachineRecipeBuilder bottom(IItemIngredient<?> in)
+		public TestMachineRecipeBuilder bottom(Object in, int count)
 		{
-			this.inputB = in;
+			this.inputB = parseIngredient(in, count);
 			return this;
-		}
-		
-		@Override
-		protected ResourceLocation generateId()
-		{
-			return registrar.nextId(result.getItem());
 		}
 		
 		@Override
@@ -165,106 +172,45 @@ public class RecipeTestMachine
 		}
 		
 		@Override
-		protected RecipeTestMachine createRecipe() throws IllegalStateException
+		public void register() throws IllegalStateException
 		{
-			return new RecipeTestMachine(getIdentifier(), time, result, inputA, inputB);
+			validate();
+			
+			var id = getIdentifier();
+			event.register(id, new RecipeTestMachine(id, group, time, result, inputA, inputB));
 		}
 	}
 	
-	/**
-	 * This is an example of how modders should make custom json recipe readers.
-	 */
-	public static class CustomTestMachineRecipeGenerator
-			extends CustomRecipeGenerator<RecipeTestMachine, GsonFileDecoder, JsonElement>
-			implements INetworkable<RecipeTestMachine>
+	public static class VisualizedTestMachine
+			implements IVisualizedRecipe<RecipeTestMachine>
 	{
-		public CustomTestMachineRecipeGenerator(ResourceLocation registryPath)
+		final RecipeTestMachine recipe;
+		
+		public VisualizedTestMachine(RecipeTestMachine recipe)
 		{
-			super(registryPath, IFileDecoder::gson);
+			this.recipe = recipe;
 		}
 		
 		@Override
-		public Optional<RecipeTestMachine> decodeRecipe(ResourceLocation recipeId, JsonElement jsonElement, MinecraftServer server, ICondition.IContext context)
+		public RecipeTestMachine getRecipe()
 		{
-			try
-			{
-				if(jsonElement.isJsonObject() && !net.minecraftforge.common.crafting.CraftingHelper.processConditions(jsonElement.getAsJsonObject(), "conditions", context))
-				{
-					HammerLib.LOG.debug("Skipping loading recipe {} as it's conditions were not met", recipeId);
-					return Optional.empty();
-				}
-				
-				var recipe = fromJson(recipeId, GsonHelper.convertToJsonObject(jsonElement, "top element"), context);
-				
-				return Optional.of(recipe);
-			} catch(IllegalArgumentException | JsonParseException jsonparseexception)
-			{
-				HammerLib.LOG.error("Parsing error loading recipe {}", recipeId, jsonparseexception);
-			}
-			
-			return Optional.empty();
-		}
-		
-		public static RecipeTestMachine fromJson(ResourceLocation recipeId, JsonObject root, ICondition.IContext context)
-		{
-			if(!root.has("top"))
-				throw new JsonSyntaxException("Missing top, expected to find an Ingredient.");
-			if(!root.has("bottom"))
-				throw new JsonSyntaxException("Missing top, expected to find an Ingredient.");
-			int time = GsonHelper.getAsInt(root, "time", 100);
-			var result = ShapedRecipe.itemStackFromJson(GsonHelper.getAsJsonObject(root, "result"));
-			var a = Ingredient.fromJson(root.get("top"));
-			var b = Ingredient.fromJson(root.get("bottom"));
-			return new RecipeTestMachine(recipeId, time, result, a, b);
+			return recipe;
 		}
 		
 		@Override
-		public Optional<JsonElement> createTemplate()
+		public void setupLayout(IVisualizerBuilder builder)
 		{
-			var $ = new JsonObject();
-			$.addProperty("time", 100);
-			$.add("result", itemStackTemplate());
-			$.add("top", ingredientTemplate());
-			$.add("bottom", ingredientTemplate());
-			return Optional.of($);
-		}
-		
-		@Override
-		public Optional<INetworkable<RecipeTestMachine>> getSerializer()
-		{
-			return Optional.of(this);
-		}
-		
-		@Override
-		public void toNetwork(FriendlyByteBuf buf, RecipeTestMachine obj)
-		{
-			buf.writeResourceLocation(obj.getRecipeName());
+			builder.addSlot(ISlotBuilder.SlotRole.INPUT, 0, 0)
+					.addItemStacks(Stream.of(recipe.inputA.input().getItems()).peek(s -> s.setCount(recipe.inputA.count())).toList())
+					.build();
 			
-			buf.writeInt(obj.time);
-			buf.writeItemStack(obj.output.getBaseOutput(), false);
+			builder.addSlot(ISlotBuilder.SlotRole.INPUT, 0, 18)
+					.addItemStacks(Stream.of(recipe.inputB.input().getItems()).peek(s -> s.setCount(recipe.inputB.count())).toList())
+					.build();
 			
-			buf.writeByte(obj.in1.getCount());
-			obj.in1.asIngredient().toNetwork(buf);
-			
-			buf.writeByte(obj.in2.getCount());
-			obj.in2.asIngredient().toNetwork(buf);
-		}
-		
-		@Override
-		public RecipeTestMachine fromNetwork(FriendlyByteBuf buf)
-		{
-			var id = buf.readResourceLocation();
-			
-			int time = buf.readInt();
-			var result = buf.readItem();
-			
-			int in1C = buf.readByte();
-			var in1 = new MCIngredient(Ingredient.fromNetwork(buf)).quantify(in1C);
-			
-			int in2C = buf.readByte();
-			var in2 = new MCIngredient(Ingredient.fromNetwork(buf)).quantify(in2C);
-			
-			return new RecipeTestMachine(id, time, result, in1, in2);
+			builder.addSlot(ISlotBuilder.SlotRole.OUTPUT, 36, 9)
+					.addItemStack(recipe.output)
+					.build();
 		}
 	}
 }

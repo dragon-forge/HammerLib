@@ -2,10 +2,12 @@ package org.zeith.hammerlib.core;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.crafting.conditions.ICondition;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.zeith.hammerlib.HammerLib;
@@ -66,6 +68,16 @@ public class RecipeHelper
 	public static void injectRecipesCustom(Map<ResourceLocation, Recipe<?>> handler, Set<ResourceLocation> removed, ICondition.IContext ctx)
 	{
 		registerCustomRecipes(handler::containsKey, r -> handler.put(r.getId(), r), removed::addAll, false, ctx);
+	}
+	
+	public static <C extends Container, T extends Recipe<C>> Map<ResourceLocation, T> getRecipeMap(Level level, RecipeType<T> type)
+	{
+		return level.getRecipeManager().byType(type);
+	}
+	
+	public static <C extends Container, T extends Recipe<C>> Stream<T> getRecipes(Level level, RecipeType<T> type)
+	{
+		return getRecipeMap(level, type).values().stream();
 	}
 	
 	private static class Internal

@@ -4,10 +4,14 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.jetbrains.annotations.Nullable;
+import org.zeith.hammerlib.api.recipes.RecipeBuilderExtension;
 import org.zeith.hammerlib.core.adapter.recipe.*;
+import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.mcf.itf.IRecipeRegistrationEvent;
 
 import java.util.*;
@@ -25,9 +29,18 @@ public class RegisterRecipesEvent
 	private final Set<ResourceLocation> removeRecipes = Sets.newHashSet();
 	private final Predicate<ResourceLocation> idInUse;
 	
+	private final Map<Class<?>, RecipeBuilderExtension> extensions;
+	
 	public RegisterRecipesEvent(Predicate<ResourceLocation> idInUse)
 	{
 		this.idInUse = idInUse;
+		this.extensions = RecipeBuilderExtension.attach(this);
+	}
+	
+	@Nullable
+	public <T> T extension(Class<T> type)
+	{
+		return Cast.cast(extensions.get(type), type);
 	}
 	
 	public void add(Recipe<?> recipe)
@@ -89,6 +102,8 @@ public class RegisterRecipesEvent
 	@Override
 	public ResourceLocation nextId(Item item)
 	{
+		if(item == null || item == Items.AIR) return null;
+		
 		ResourceLocation rl = ForgeRegistries.ITEMS.getKey(item);
 		
 		if(!isRecipeIdTaken(rl)) return rl;
