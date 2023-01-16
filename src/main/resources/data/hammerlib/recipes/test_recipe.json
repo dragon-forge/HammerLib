@@ -1,0 +1,15 @@
+{
+  "type": "hammerlib:test_machine",
+  "ingredients": [
+    {
+      "item": "minecraft:diamond"
+    },
+    {
+      "item": "minecraft:gold_ingot"
+    }
+  ],
+  "time": 300,
+  "result": {
+    "item": "minecraft:emerald"
+  }
+}

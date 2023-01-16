@@ -117,7 +117,7 @@ public class HammerLib
 											IForgeRegistry<?> reg = event.getForgeRegistry();
 											if(reg == null)
 												reg = RegistryMapping.getRegistryByType(RegistryMapping.getSuperType(event.getRegistryKey()));
-											RegistryAdapter.register(reg, data.getOwnerClass(), mc.getModId(), data.getProperty("prefix").map(Objects::toString).orElse(""));
+											RegistryAdapter.register(event, reg, data.getOwnerClass(), mc.getModId(), data.getProperty("prefix").map(Objects::toString).orElse(""));
 										});
 							});
 			});

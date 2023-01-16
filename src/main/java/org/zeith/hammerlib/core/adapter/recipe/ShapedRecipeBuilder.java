@@ -37,13 +37,20 @@ public class ShapedRecipeBuilder
 	}
 	
 	@Override
-	public void register()
+	protected void validate()
 	{
-		validate();
+		super.validate();
 		if(shape == null)
 			throw new IllegalStateException(getClass().getSimpleName() + " does not have a defined shape!");
 		if(dictionary.isEmpty())
 			throw new IllegalStateException(getClass().getSimpleName() + " does not have any defined ingredients!");
+	}
+	
+	@Override
+	public void register()
+	{
+		validate();
+		
 		var id = getIdentifier();
 		event.register(id, new ShapedRecipe(id, group, shape.width, shape.height, shape.createIngredientMap(dictionary), result));
 	}

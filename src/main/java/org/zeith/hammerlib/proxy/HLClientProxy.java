@@ -1,8 +1,6 @@
 package org.zeith.hammerlib.proxy;
 
 import com.google.common.base.Predicates;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonObject;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.datafixers.util.Either;
 import net.minecraft.ChatFormatting;
@@ -15,23 +13,22 @@ import net.minecraft.client.renderer.blockentity.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.client.event.*;
-import net.minecraftforge.client.model.geometry.IUnbakedGeometry;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.unsafe.UnsafeHacks;
+import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.objectweb.asm.Type;
 import org.zeith.hammerlib.HammerLib;
-import org.zeith.hammerlib.annotations.OnlyIf;
+import org.zeith.hammerlib.abstractions.recipes.*;
 import org.zeith.hammerlib.api.forge.ContainerAPI;
 import org.zeith.hammerlib.api.inv.IScreenContainer;
 import org.zeith.hammerlib.api.items.tooltip.TooltipColoredLine;
@@ -39,13 +36,11 @@ import org.zeith.hammerlib.api.items.tooltip.TooltipMulti;
 import org.zeith.hammerlib.api.lighting.ColoredLight;
 import org.zeith.hammerlib.api.lighting.HandleLightOverrideEvent;
 import org.zeith.hammerlib.api.lighting.impl.IGlowingEntity;
-import org.zeith.hammerlib.client.model.LoadUnbakedGeometry;
 import org.zeith.hammerlib.client.model.SimpleModelGenerator;
 import org.zeith.hammerlib.client.render.tile.IBESR;
 import org.zeith.hammerlib.client.render.tile.TESRBase;
 import org.zeith.hammerlib.client.utils.TexturePixelGetter;
 import org.zeith.hammerlib.core.adapter.ConfigAdapter;
-import org.zeith.hammerlib.core.adapter.OnlyIfAdapter;
 import org.zeith.hammerlib.core.items.tooltip.ClientTooltipColoredLine;
 import org.zeith.hammerlib.core.items.tooltip.ClientTooltipMulti;
 import org.zeith.hammerlib.event.client.ClientLoadedInEvent;
@@ -56,12 +51,12 @@ import org.zeith.hammerlib.net.packets.PingServerPacket;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.java.ReflectionUtil;
 import org.zeith.hammerlib.util.mcf.LogicalSidePredictor;
-import org.zeith.hammerlib.util.mcf.ScanDataHelper;
-import org.zeith.hammerlib.util.shaded.json.JSONObject;
 
 import java.lang.reflect.Constructor;
 import java.util.*;
-import java.util.function.*;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 public class HLClientProxy
@@ -78,10 +73,26 @@ public class HLClientProxy
 		modBus.addListener(this::registerKeybinds);
 		modBus.addListener(this::modelBake);
 		modBus.addListener(this::registerClientTooltips);
+		modBus.addListener(this::loadComplete);
 		modBus.addListener(TexturePixelGetter::reloadTexture);
 		SimpleModelGenerator.setup();
 
 //		MinecraftForge.EVENT_BUS.addListener(this::alterTooltip);
+	}
+	
+	private void loadComplete(FMLLoadCompleteEvent e)
+	{
+		for(RecipeType<?> type : ForgeRegistries.RECIPE_TYPES.getValues())
+		{
+			if(type instanceof IVisualizedRecipeType<?> visual)
+			{
+				AtomicReference<IRecipeVisualizer<?, ?>> visualizer = new AtomicReference<>();
+				visual.initVisuals(visualizer::set);
+				var vis = visualizer.get();
+				if(vis != null)
+					RecipeVisualizationRegistry.register(type, Cast.cast(vis));
+			}
+		}
 	}
 	
 	private void alterTooltip(RenderTooltipEvent.GatherComponents e)

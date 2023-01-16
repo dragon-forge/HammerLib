@@ -3,6 +3,7 @@ package org.zeith.hammerlib.event.recipe;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.common.crafting.conditions.ICondition;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.GenericEvent;
@@ -118,6 +119,8 @@ public class ReloadRecipeRegistryEvent
 		@Override
 		public ResourceLocation nextId(Item item)
 		{
+			if(item == null || item == Items.AIR) return null;
+			
 			ResourceLocation rl = ForgeRegistries.ITEMS.getKey(item);
 			
 			if(registry.getRecipe(Cast.cast(rl)) == null) return rl;

@@ -8,10 +8,12 @@ import net.minecraft.world.level.block.Block;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.RegisterEvent;
 import org.zeith.api.registry.RegistryMapping;
 import org.zeith.hammerlib.annotations.*;
 import org.zeith.hammerlib.annotations.client.ClientSetup;
 import org.zeith.hammerlib.api.blocks.*;
+import org.zeith.hammerlib.api.fml.ICustomRegistrar;
 import org.zeith.hammerlib.api.fml.IRegisterListener;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.java.ReflectionUtil;
@@ -43,7 +45,7 @@ public class RegistryAdapter
 	/**
 	 * Registers all static fields (from source) with the matching registry type, and methods that accept Consumer<T>
 	 */
-	public static <T> int register(IForgeRegistry<T> registry, Class<?> source, String modid, String prefix)
+	public static <T> int register(RegisterEvent event, IForgeRegistry<T> registry, Class<?> source, String modid, String prefix)
 	{
 		var superType = RegistryMapping.getSuperType(registry);
 		
@@ -78,6 +80,34 @@ public class RegistryAdapter
 		}
 		
 		int prevSize = registry.getValues().size();
+		
+		// ICustomRegistrar hook!
+		Arrays
+				.stream(source.getDeclaredFields())
+				.filter(f -> ICustomRegistrar.class.isAssignableFrom(f.getType()))
+				.forEach(field ->
+				{
+					if(Modifier.isStatic(field.getModifiers()) && Modifier.isFinal(field.getModifiers()))
+						try
+						{
+							field.setAccessible(true);
+							var name = field.getAnnotation(RegistryName.class);
+							var rl = new ResourceLocation(modid, name.value());
+							
+							var val = field.get(null);
+							
+							var onlyIf = field.getAnnotation(OnlyIf.class); // Bring back OnlyIf, for registries that are non-intrusive. (Mostly, for custom registry types)
+							if(!RegistryMapping.isNonIntrusive(registry)
+									|| OnlyIfAdapter.checkCondition(onlyIf, source.toString(), superType.getSimpleName(), val, rl))
+							{
+								if(val instanceof ICustomRegistrar cr)
+									cr.performRegister(event, rl);
+							}
+						} catch(IllegalArgumentException | IllegalAccessException e)
+						{
+							e.printStackTrace();
+						}
+				});
 		
 		Arrays
 				.stream(source.getDeclaredMethods())
@@ -115,13 +145,13 @@ public class RegistryAdapter
 							field.setAccessible(true);
 							var name = field.getAnnotation(RegistryName.class);
 							var rl = new ResourceLocation(modid, name.value());
-							var t = superType.cast(field.get(null));
+							
+							var val = field.get(null);
+							
 							var onlyIf = field.getAnnotation(OnlyIf.class); // Bring back OnlyIf, for registries that are non-intrusive. (Mostly, for custom registry types)
 							if(!RegistryMapping.isNonIntrusive(registry)
-									|| OnlyIfAdapter.checkCondition(onlyIf, source.toString(), superType.getSimpleName(), t, rl))
-							{
-								grabber.accept(rl, t);
-							}
+									|| OnlyIfAdapter.checkCondition(onlyIf, source.toString(), superType.getSimpleName(), val, rl))
+								grabber.accept(rl, superType.cast(val));
 						} catch(IllegalArgumentException | IllegalAccessException e)
 						{
 							e.printStackTrace();
