@@ -13,6 +13,7 @@
     "BlockEntityAccessor",
     "BlockEntityTypeAccessor",
     "BlockHitResultAccessor",
+    "ForgeHooksMixin",
     "HTTPUtilMixin",
     "ItemStackMixin",
     "LevelChunkMixin",
