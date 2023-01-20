@@ -30,7 +30,7 @@ public class RecipeHelper
 {
 	public static void registerCustomRecipes(Predicate<ResourceLocation> idInUse, Consumer<Recipe<?>> addRecipe, Consumer<Set<ResourceLocation>> removeRecipes, Map<ResourceLocation, List<ResourceLocation>> spoofedRecipes, boolean silent, ICondition.IContext context)
 	{
-		RegisterRecipesEvent rre = new RegisterRecipesEvent(idInUse, spoofedRecipes);
+		RegisterRecipesEvent rre = new RegisterRecipesEvent(idInUse);
 		HammerLib.postEvent(rre);
 		
 		if(!silent) HLConstants.LOG.info("Reloading HammerLib recipes...");
