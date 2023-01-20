@@ -13,7 +13,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.zeith.api.level.ISpoofedRecipeManager;
+import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.core.RecipeHelper;
+import org.zeith.hammerlib.event.recipe.SpoofRecipesEvent;
 import org.zeith.hammerlib.util.java.Cast;
 
 import java.util.*;
@@ -24,14 +26,14 @@ import java.util.*;
 })
 public class RecipeManagerMixin
 {
-	@Shadow
+	@Shadow(remap = false)
 	@Final
 	private ICondition.IContext context;
 	
 	@Shadow
 	public Map<ResourceLocation, Recipe<?>> byName;
 	
-	private final Map<ResourceLocation, List<ResourceLocation>> hammerLibSpoofByName = new HashMap<>();
+	private Map<ResourceLocation, List<ResourceLocation>> hammerLibSpoofByName = SpoofRecipesEvent.gather();
 	
 	@Inject(
 			method = "byKey",
@@ -44,6 +46,7 @@ public class RecipeManagerMixin
 		{
 			var recipe = findFirstRecipe_HL(hammerLibSpoofByName.getOrDefault(id, List.of(id)));
 			if(recipe.isPresent()) cir.setReturnValue(recipe);
+			else HammerLib.LOG.error("Failed to locate recipe with mapping " + id + "=" + hammerLibSpoofByName.get(id));
 		}
 	}
 	

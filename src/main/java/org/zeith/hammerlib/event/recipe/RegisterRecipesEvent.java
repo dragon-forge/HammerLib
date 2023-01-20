@@ -31,18 +31,10 @@ public class RegisterRecipesEvent
 	
 	private final Map<Class<?>, RecipeBuilderExtension> extensions;
 	
-	private final Map<ResourceLocation, List<ResourceLocation>> spoofedRecipes;
-	
-	public RegisterRecipesEvent(Predicate<ResourceLocation> idInUse, Map<ResourceLocation, List<ResourceLocation>> spoofedRecipes)
+	public RegisterRecipesEvent(Predicate<ResourceLocation> idInUse)
 	{
 		this.idInUse = idInUse;
-		this.spoofedRecipes = spoofedRecipes;
 		this.extensions = RecipeBuilderExtension.attach(this);
-	}
-	
-	public Map<ResourceLocation, List<ResourceLocation>> getSpoofedRecipes()
-	{
-		return spoofedRecipes;
 	}
 	
 	@Nullable
@@ -62,18 +54,10 @@ public class RegisterRecipesEvent
 		return Collections.unmodifiableSet(removeRecipes);
 	}
 	
-	public void removeRecipe(ResourceLocation id)
+	public RegisterRecipesEvent removeRecipe(ResourceLocation id)
 	{
 		removeRecipes.add(id);
-	}
-	
-	/**
-	 * Removes the recipe with removeId, and points its location to a newRecipeId.
-	 */
-	public void redirectRecipe(ResourceLocation removeId, ResourceLocation newRecipeId)
-	{
-		removeRecipe(removeId);
-		spoofedRecipes.computeIfAbsent(removeId, v -> new ArrayList<>()).add(newRecipeId);
+		return this;
 	}
 	
 	public StoneCutterRecipeBuilder stoneCutting()
