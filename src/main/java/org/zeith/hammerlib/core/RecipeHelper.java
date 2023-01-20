@@ -10,6 +10,7 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.crafting.conditions.ICondition;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.zeith.api.level.ISpoofedRecipeManager;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.api.crafting.AbstractRecipeRegistry;
 import org.zeith.hammerlib.api.items.IIngredientProvider;
@@ -27,9 +28,9 @@ import java.util.stream.Stream;
 
 public class RecipeHelper
 {
-	public static void registerCustomRecipes(Predicate<ResourceLocation> idInUse, Consumer<Recipe<?>> addRecipe, Consumer<Set<ResourceLocation>> removeRecipes, boolean silent, ICondition.IContext context)
+	public static void registerCustomRecipes(Predicate<ResourceLocation> idInUse, Consumer<Recipe<?>> addRecipe, Consumer<Set<ResourceLocation>> removeRecipes, Map<ResourceLocation, List<ResourceLocation>> spoofedRecipes, boolean silent, ICondition.IContext context)
 	{
-		RegisterRecipesEvent rre = new RegisterRecipesEvent(idInUse);
+		RegisterRecipesEvent rre = new RegisterRecipesEvent(idInUse, spoofedRecipes);
 		HammerLib.postEvent(rre);
 		
 		if(!silent) HLConstants.LOG.info("Reloading HammerLib recipes...");
@@ -57,17 +58,18 @@ public class RecipeHelper
 	public static void injectRecipes(RecipeManager mgr, ICondition.IContext context)
 	{
 		Internal.mutableManager(mgr);
+		var spoofed = ((ISpoofedRecipeManager) mgr).getSpoofedRecipes();
 		
 		List<Recipe<?>> recipeList = new ArrayList<>();
 		Set<ResourceLocation> removed = new HashSet<>();
-		registerCustomRecipes(id -> mgr.byKey(id).isPresent(), recipeList::add, removed::addAll, false, context);
+		registerCustomRecipes(id -> mgr.byKey(id).isPresent(), recipeList::add, removed::addAll, spoofed, false, context);
 		Internal.addRecipes(mgr, recipeList);
 		Internal.removeRecipes(mgr, removed::stream);
 	}
 	
-	public static void injectRecipesCustom(Map<ResourceLocation, Recipe<?>> handler, Set<ResourceLocation> removed, ICondition.IContext ctx)
+	public static void injectRecipesCustom(Map<ResourceLocation, Recipe<?>> handler, Set<ResourceLocation> removed, Map<ResourceLocation, List<ResourceLocation>> spoofedRecipes, ICondition.IContext ctx)
 	{
-		registerCustomRecipes(handler::containsKey, r -> handler.put(r.getId(), r), removed::addAll, false, ctx);
+		registerCustomRecipes(handler::containsKey, r -> handler.put(r.getId(), r), removed::addAll, spoofedRecipes, false, ctx);
 	}
 	
 	public static <C extends Container, T extends Recipe<C>> Map<ResourceLocation, T> getRecipeMap(Level level, RecipeType<T> type)
