@@ -1,8 +1,8 @@
 package org.zeith.hammerlib.mixins.bs.kubejs;
 
 import com.google.gson.JsonObject;
-import dev.latvian.mods.kubejs.recipe.RecipesEventJS;
 import dev.latvian.mods.kubejs.recipe.RecipeJS;
+import dev.latvian.mods.kubejs.recipe.RecipesEventJS;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.crafting.RecipeManager;
@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.zeith.api.level.ISpoofedRecipeManager;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.core.RecipeHelper;
 import org.zeith.hammerlib.mixins.RecipeManagerAccessor;
@@ -56,6 +57,7 @@ public class RecipeEventJSMixin
 		removedRecipes_HL.clear();
 		RecipeHelper.injectRecipesCustom(recipes,
 				removedRecipes_HL,
+				((ISpoofedRecipeManager) recipeManager_HL).getSpoofedRecipes(),
 				Cast.optionally(
 								Optional.ofNullable(recipeManager_HL)
 										.or(() -> Optional.ofNullable(ServerLifecycleHooks.getCurrentServer()).map(MinecraftServer::getRecipeManager)),
