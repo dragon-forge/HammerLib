@@ -10,6 +10,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(RegistryManager.class)
 public interface RegistryManagerAccessor
 {
-	@Accessor
+	@Accessor(remap = false)
 	BiMap<ResourceLocation, ForgeRegistry<?>> getRegistries();
 }

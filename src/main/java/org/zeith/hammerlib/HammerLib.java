@@ -79,7 +79,11 @@ public class HammerLib
 			if(IRecipeProvider.class.isAssignableFrom(c))
 			{
 				IRecipeProvider provider = (IRecipeProvider) UnsafeHacks.newInstance(c);
-				if(provider != null) HammerLib.EVENT_BUS.addListener(provider::provideRecipes);
+				if(provider != null)
+				{
+					HammerLib.EVENT_BUS.addListener(provider::provideRecipes);
+					HammerLib.EVENT_BUS.addListener(provider::spoofRecipes);
+				}
 			}
 		});
 		
