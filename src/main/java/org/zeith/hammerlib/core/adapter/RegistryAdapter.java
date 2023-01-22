@@ -93,7 +93,7 @@ public class RegistryAdapter
 						{
 							field.setAccessible(true);
 							var name = field.getAnnotation(RegistryName.class);
-							var rl = new ResourceLocation(modid, name.value());
+							var rl = new ResourceLocation(modid, prefix + name.value());
 							
 							var val = field.get(null);
 							
