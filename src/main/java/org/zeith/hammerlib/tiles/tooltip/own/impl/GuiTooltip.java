@@ -1,11 +1,13 @@
-package org.zeith.hammerlib.tiles.tooltip.own;
+package org.zeith.hammerlib.tiles.tooltip.own.impl;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.zeith.hammerlib.tiles.tooltip.own.*;
 
 import javax.annotation.Nullable;
 import java.util.LinkedList;
@@ -17,8 +19,10 @@ public class GuiTooltip
 	public final LinkedList<TooltipLine> infos = new LinkedList<>();
 	protected Level world;
 	protected BlockPos pos;
+	
+	protected Player player;
 	protected Entity ent;
-	protected int width, height;
+	protected float width, height;
 	
 	protected void refresh()
 	{
@@ -36,28 +40,30 @@ public class GuiTooltip
 	}
 	
 	@Override
-	public void append(IRenderableInfo info)
+	public ITooltip add(IRenderableInfo info)
 	{
 		if(infos.isEmpty())
 			newLine();
 		infos.getLast().addLast(info);
 		refresh();
+		return this;
 	}
 	
 	@Override
-	public void newLine()
+	public ITooltip newLine()
 	{
 		infos.addLast(new TooltipLine());
+		return this;
 	}
 	
 	@Override
-	public int getWidth()
+	public float getWidth()
 	{
 		return width;
 	}
 	
 	@Override
-	public int getHeight()
+	public float getHeight()
 	{
 		return height;
 	}
@@ -66,9 +72,8 @@ public class GuiTooltip
 	@OnlyIn(Dist.CLIENT)
 	public void render(PoseStack pose, float x, float y, float partialTime)
 	{
-		for(int i = 0; i < infos.size(); ++i)
+		for(TooltipLine ln : infos)
 		{
-			TooltipLine ln = infos.get(i);
 			ln.render(pose, x, y, partialTime);
 			y += ln.height;
 		}
@@ -81,17 +86,21 @@ public class GuiTooltip
 		refresh();
 	}
 	
+	public boolean isDirty()
+	{
+		return provider != null && provider.isTooltipDirty();
+	}
+	
 	public static class TooltipLine
 			extends LinkedList<IRenderableInfo>
 	{
-		protected int width, height;
+		protected float width, height;
 		
 		@OnlyIn(Dist.CLIENT)
 		public void render(PoseStack pose, float x, float y, float partialTime)
 		{
-			for(int i = 0; i < size(); ++i)
+			for(IRenderableInfo info : this)
 			{
-				IRenderableInfo info = get(i);
 				info.render(pose, x, y + (height - info.getHeight()) / 2, partialTime);
 				x += info.getWidth();
 			}
@@ -102,10 +111,8 @@ public class GuiTooltip
 			width = 0;
 			height = 0;
 			
-			for(int i = 0; i < size(); ++i)
+			for(IRenderableInfo info : this)
 			{
-				IRenderableInfo info = get(i);
-				
 				width += info.getWidth();
 				height = Math.max(height, info.getHeight());
 			}
@@ -132,6 +139,12 @@ public class GuiTooltip
 		return ent;
 	}
 	
+	@Override
+	public Player getPlayer()
+	{
+		return player;
+	}
+	
 	public GuiTooltip withLocation(Level world, BlockPos pos)
 	{
 		this.world = world;
@@ -146,8 +159,17 @@ public class GuiTooltip
 		return this;
 	}
 	
-	public GuiTooltip withProvider(ITooltipProviderHC provider)
+	public GuiTooltip withPlayer(Player player)
 	{
+		this.player = player;
+		return this;
+	}
+	
+	public ITooltipProvider provider;
+	
+	public GuiTooltip withProvider(ITooltipProvider provider)
+	{
+		this.provider = provider;
 		provider.addInformation(this);
 		return this;
 	}

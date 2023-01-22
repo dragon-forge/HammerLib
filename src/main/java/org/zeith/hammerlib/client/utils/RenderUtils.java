@@ -41,6 +41,14 @@ public class RenderUtils
 	 */
 	public static void renderItemIntoGui(PoseStack pose, ItemStack stack, int x, int y)
 	{
+		renderItemIntoGui(pose, stack, (float) x, y);
+	}
+	
+	/**
+	 * This renders the item into the GUI, with {@link PoseStack}, which is missing in vanilla render code for some reason...
+	 */
+	public static void renderItemIntoGui(PoseStack pose, ItemStack stack, float x, float y)
+	{
 		var mc = Minecraft.getInstance();
 		var ir = mc.getItemRenderer();
 		var tm = mc.getTextureManager();
@@ -84,6 +92,7 @@ public class RenderUtils
 		RenderSystem.applyModelViewMatrix();
 	}
 	
+	@Deprecated
 	public static void drawTexturedModalRect(double x, double y, double texX, double texY, double width, double height)
 	{
 		float n = 0.00390625F;
@@ -111,6 +120,7 @@ public class RenderUtils
 		tess.end();
 	}
 	
+	@Deprecated
 	public static void drawFullTexturedModalRect(double x, double y, double width, double height)
 	{
 		Tesselator tess = Tesselator.getInstance();
@@ -136,6 +146,7 @@ public class RenderUtils
 		tess.end();
 	}
 	
+	@Deprecated
 	public static void drawColoredModalRect(double x, double y, double width, double height, int rgb)
 	{
 		float r = ColorHelper.getRed(rgb), g = ColorHelper.getGreen(rgb), b = ColorHelper.getBlue(rgb), a = ColorHelper.getAlpha(rgb);
@@ -163,6 +174,7 @@ public class RenderUtils
 		tess.end();
 	}
 	
+	@Deprecated
 	public static void drawTexturedModalRect(double x, double y, double texX, double texY, double width, double height, double zLevel)
 	{
 		float n = 0.00390625F;
@@ -176,12 +188,26 @@ public class RenderUtils
 		tess.end();
 	}
 	
+	@Deprecated
 	public static void drawTexturedModalRect(double xCoord, double yCoord, @Nullable TextureAtlasSprite textureSprite, double widthIn, double heightIn)
 	{
-		float minU = textureSprite == null ? 0 : textureSprite.getU0();
-		float minV = textureSprite == null ? 0 : textureSprite.getV0();
-		float maxU = textureSprite == null ? 1 : textureSprite.getU1();
-		float maxV = textureSprite == null ? 1 : textureSprite.getV1();
+		float minU;
+		float minV;
+		float maxU;
+		float maxV;
+		if(textureSprite == null)
+		{
+			minU = 0;
+			minV = 0;
+			maxU = 1;
+			maxV = 1;
+		} else
+		{
+			minU = textureSprite.getU0();
+			minV = textureSprite.getV0();
+			maxU = textureSprite.getU1();
+			maxV = textureSprite.getV1();
+		}
 		
 		Tesselator tessellator = Tesselator.getInstance();
 		BufferBuilder vertexbuffer = tessellator.getBuilder();
@@ -197,10 +223,23 @@ public class RenderUtils
 	{
 		Matrix4f pose4f = pose.last().pose();
 		
-		float minU = textureSprite == null ? 0 : textureSprite.getU0();
-		float minV = textureSprite == null ? 0 : textureSprite.getV0();
-		float maxU = textureSprite == null ? 1 : textureSprite.getU1();
-		float maxV = textureSprite == null ? 1 : textureSprite.getV1();
+		float minU;
+		float minV;
+		float maxU;
+		float maxV;
+		if(textureSprite == null)
+		{
+			minU = 0;
+			minV = 0;
+			maxU = 1;
+			maxV = 1;
+		} else
+		{
+			minU = textureSprite.getU0();
+			minV = textureSprite.getV0();
+			maxU = textureSprite.getU1();
+			maxV = textureSprite.getV1();
+		}
 		
 		Tesselator tessellator = Tesselator.getInstance();
 		BufferBuilder vertexbuffer = tessellator.getBuilder();
@@ -212,6 +251,7 @@ public class RenderUtils
 		tessellator.end();
 	}
 	
+	@Deprecated
 	public static void drawGradientRect(double left, double top, double width, double height, int startColor, int endColor)
 	{
 		float f = (startColor >> 24 & 255) / 255F;
@@ -237,6 +277,7 @@ public class RenderUtils
 		RenderSystem.enableTexture();
 	}
 	
+	@Deprecated
 	public static void drawGradientRect(double left, double top, double width, double height, int startColor, int endColor, double zLevel)
 	{
 		float f = (startColor >> 24 & 255) / 255F;
@@ -272,6 +313,7 @@ public class RenderUtils
 		font.draw(stack, s, x, y, ColorHelper.packARGB(r, g, b, a));
 	}
 	
+	@Deprecated(forRemoval = true)
 	public static void drawLine(Vector3d start, Vector3d end, int color, float size)
 	{
 		RenderSystem.enableBlend();
@@ -288,6 +330,7 @@ public class RenderUtils
 		ColorHelper.glColor1ia(0xFFFFFFFF);
 	}
 	
+	@Deprecated(forRemoval = true)
 	public static void drawBrokenLine(int color, float size, Vector3d... points)
 	{
 		RenderSystem.enableBlend();

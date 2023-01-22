@@ -1,6 +1,6 @@
 package org.zeith.hammerlib.tiles.tooltip;
 
-public enum eNumberFormat
+public enum EnumNumberFormat
 {
 	FULL, COMPACT, COMMAS, NONE;
 }
