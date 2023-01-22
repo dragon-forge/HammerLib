@@ -36,7 +36,7 @@ import org.zeith.hammerlib.core.init.TagsHL;
 import org.zeith.hammerlib.event.fml.FMLFingerprintCheckEvent;
 import org.zeith.hammerlib.mixins.RegistryManagerAccessor;
 import org.zeith.hammerlib.proxy.*;
-import org.zeith.hammerlib.tiles.tooltip.own.EntityTooltipRenderEngine;
+import org.zeith.hammerlib.tiles.tooltip.own.impl.TooltipRenderEngine;
 import org.zeith.hammerlib.util.CommonMessages;
 import org.zeith.hammerlib.util.charging.ItemChargeHelper;
 import org.zeith.hammerlib.util.mcf.ScanDataHelper;
@@ -216,7 +216,7 @@ public class HammerLib
 	@OnlyIn(Dist.CLIENT)
 	public void clientSetup(RegisterGuiOverlaysEvent e)
 	{
-		e.registerAboveAll("tooltip_engine", new EntityTooltipRenderEngine());
+		e.registerAboveAll("tooltip_engine", new TooltipRenderEngine());
 	}
 	
 	@SubscribeEvent

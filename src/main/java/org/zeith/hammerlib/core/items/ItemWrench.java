@@ -12,6 +12,7 @@ import org.zeith.api.wrench.IWrenchItem;
 import org.zeith.hammerlib.annotations.RegistryName;
 import org.zeith.hammerlib.annotations.SimplyRegister;
 import org.zeith.hammerlib.api.items.IDynamicallyTaggedItem;
+import org.zeith.hammerlib.core.adapter.TagAdapter;
 import org.zeith.hammerlib.core.init.TagsHL;
 import org.zeith.hammerlib.proxy.HLConstants;
 
@@ -31,6 +32,7 @@ public class ItemWrench
 	public ItemWrench(Properties props)
 	{
 		super(props);
+		TagAdapter.bind(TagsHL.Items.TOOLS_WRENCH, this);
 	}
 	
 	@Override

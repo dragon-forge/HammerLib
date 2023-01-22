@@ -1,6 +1,6 @@
 package org.zeith.hammerlib.tiles.tooltip.own;
 
-public interface ITooltipProviderHC
+public interface ITooltipProvider
 {
 	boolean isTooltipDirty();
 

@@ -6,10 +6,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 public interface IRenderableInfo
 {
-	int getWidth();
-
-	int getHeight();
-
+	float getWidth();
+	
+	float getHeight();
+	
 	@OnlyIn(Dist.CLIENT)
 	void render(PoseStack matrix, float x, float y, float partialTime);
 }
