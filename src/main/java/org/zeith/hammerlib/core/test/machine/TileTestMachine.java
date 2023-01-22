@@ -2,7 +2,9 @@ package org.zeith.hammerlib.core.test.machine;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
@@ -23,12 +25,16 @@ import org.zeith.hammerlib.core.RecipeHelper;
 import org.zeith.hammerlib.net.properties.PropertyInt;
 import org.zeith.hammerlib.net.properties.PropertyResourceLocation;
 import org.zeith.hammerlib.tiles.TileSyncableTickable;
+import org.zeith.hammerlib.tiles.tooltip.EnumNumberFormat;
+import org.zeith.hammerlib.tiles.tooltip.ProgressBar;
+import org.zeith.hammerlib.tiles.tooltip.own.ITooltip;
+import org.zeith.hammerlib.tiles.tooltip.own.ITooltipProvider;
 import org.zeith.hammerlib.util.java.DirectStorage;
 
 @SimplyRegister
 public class TileTestMachine
 		extends TileSyncableTickable
-		implements IContainerTile, ICraftingExecutor, IWrenchable
+		implements IContainerTile, ICraftingExecutor, IWrenchable, ITooltipProvider
 {
 	@TileRenderer(TESRTestMachine.class)
 	@RegistryName("test_machine")
@@ -84,15 +90,15 @@ public class TileTestMachine
 							setEnabledState(false);
 						}
 						
-						_progress = (0);
+						progress.setInt(0);
 					}
 				} else
-					_progress = (p);
+					progress.setInt(p);
 			} else
 			{
 				if(_progress > 0)
 				{
-					_progress = (_progress - 1);
+					progress.setInt(_progress - 1);
 					if(_progress <= 0)
 						setEnabledState(false);
 				}
@@ -107,12 +113,15 @@ public class TileTestMachine
 				if(recipe != null)
 				{
 					if(recipe.time != _maxProgress)
-						_progress = 0;
-					_maxProgress = recipe.time;
+						progress.setInt(0);
+					maxProgress.setInt(recipe.time);
 					activeRecipeId.set(recipe.getId());
 					setEnabledState(true);
 				}
 			}
+		} else
+		{
+			setTooltipDirty(true);
 		}
 	}
 	
@@ -191,5 +200,54 @@ public class TileTestMachine
 		}
 		
 		return true;
+	}
+	
+	public boolean dirty;
+	
+	@Override
+	public boolean isTooltipDirty()
+	{
+		return dirty;
+	}
+	
+	@Override
+	public void setTooltipDirty(boolean dirty)
+	{
+		this.dirty = dirty;
+	}
+	
+	@Override
+	public void addInformation(ITooltip tip)
+	{
+		var recipe = getActiveRecipe();
+		
+		if(recipe != null)
+		{
+			var inA = RecipeHelper.cycleIngredientStack(recipe.inputA.input(), 1000L);
+			var inB = RecipeHelper.cycleIngredientStack(recipe.inputB.input(), 1000L);
+			if(!inA.isEmpty()) inA.setCount(recipe.inputA.count());
+			if(!inB.isEmpty()) inB.setCount(recipe.inputB.count());
+			
+			tip.addStack(inA, 9, 9)
+					.addText(Component.literal(" + "))
+					.addStack(inB, 9, 9)
+					.addText(Component.literal(" = "))
+					.addStack(recipe.getRecipeOutput(this), 9, 9)
+					.newLine();
+			
+			tip.addSpacing(0, 4).newLine();
+			
+			var bar = new ProgressBar(_maxProgress)
+					.setProgress(_progress)
+					.withStyle(ProgressBar.ProgressBarStyle.FORGE_ENERGY_STYLE)
+					.withNumberFormat(EnumNumberFormat.FULL);
+			
+			float hue = bar.getProgress() / 3.5F;
+			
+			bar.filledMainColor = 255 << 24 | Mth.hsvToRgb(hue, 1F, 1F);
+			bar.filledAlternateColor = 255 << 24 | Mth.hsvToRgb(hue, 1F, 0.75F);
+			
+			tip.addText(Component.literal("Progress: ")).addProgressBar(bar);
+		}
 	}
 }

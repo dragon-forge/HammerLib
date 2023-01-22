@@ -4,57 +4,57 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.zeith.hammerlib.tiles.tooltip.own.IRenderableInfo;
 
-public class StringTooltipInfo
+public class TooltipInfoText
 		implements IRenderableInfo
 {
-	protected String text;
+	protected MutableComponent text;
 	public Font fontRenderer;
-	public int color = 0xFF_FF_FF_FF;
 	public boolean dropShadow = true;
-
-	public StringTooltipInfo(String text)
+	
+	public TooltipInfoText(Component text)
 	{
-		this.text = text;
+		this.text = text instanceof MutableComponent mc ? mc : text.copy();
 		this.fontRenderer = Minecraft.getInstance().font;
 	}
-
-	public String getText()
+	
+	public void setDropShadow(boolean dropShadow)
 	{
-		return text;
+		this.dropShadow = dropShadow;
 	}
-
-	public void setText(String text)
+	
+	public void setText(MutableComponent text)
 	{
 		this.text = text;
 	}
-
+	
 	@Override
-	public int getWidth()
+	public float getWidth()
 	{
 		return fontRenderer.width(getText());
 	}
-
+	
 	@Override
-	public int getHeight()
+	public float getHeight()
 	{
 		return fontRenderer.lineHeight;
 	}
-
+	
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public void render(PoseStack matrix, float x, float y, float partialTime)
 	{
-		if(dropShadow) fontRenderer.drawShadow(matrix, getText(), x, y, color);
-		else fontRenderer.draw(matrix, getText(), x, y, color);
+		if(dropShadow) fontRenderer.drawShadow(matrix, getText(), x, y, 0xFFFFFFFF);
+		else fontRenderer.draw(matrix, getText(), x, y, 0xFFFFFFFF);
 	}
-
-	public StringTooltipInfo appendColor(ChatFormatting tf)
+	
+	public MutableComponent getText()
 	{
-		text = tf.toString() + text;
-		return this;
+		return text;
 	}
 }
