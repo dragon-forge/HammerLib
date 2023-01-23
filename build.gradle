@@ -58,6 +58,7 @@ minecraft {
             mods {
                 examplemod {
                     source sourceSets.main
+                    resource sourceSets.main.resources
                 }
             }
         }
@@ -69,6 +70,7 @@ minecraft {
             mods {
                 examplemod {
                     source sourceSets.main
+                    resource sourceSets.main.resources
                 }
             }
         }
