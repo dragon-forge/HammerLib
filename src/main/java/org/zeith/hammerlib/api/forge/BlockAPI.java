@@ -1,13 +1,16 @@
 package org.zeith.hammerlib.api.forge;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.*;
+import net.minecraft.world.level.block.state.BlockState;
 import org.zeith.api.level.IBlockEntityLevel;
 import org.zeith.hammerlib.mixins.BlockEntityAccessor;
 import org.zeith.hammerlib.tiles.TileSyncableTickable;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * A class that provides utility methods for working with {@link BlockEntity} and {@link BlockEntityType}.
@@ -50,6 +53,26 @@ public class BlockAPI
 	}
 	
 	/**
+	 * Creates a new {@link BlockEntityType} with the given generator and blocks.
+	 * Used in conjuction with @{@link org.zeith.hammerlib.annotations.SimplyRegister} and @{@link org.zeith.hammerlib.annotations.RegistryName}
+	 *
+	 * @param <T>
+	 * 		The type of {@link BlockEntity} that the type is for.
+	 * @param generator
+	 * 		The {@link DynamicBlockEntitySupplier} used to generate new instances of the {@link BlockEntity}.
+	 * @param blocks
+	 * 		The {@link Block}s that the {@link BlockEntityType} is associated with.
+	 *
+	 * @return A new {@link BlockEntityType} with the given generator and blocks.
+	 */
+	public static <T extends BlockEntity> BlockEntityType<T> createBlockEntityType(DynamicBlockEntitySupplier<T> generator, Block... blocks)
+	{
+		AtomicReference<BlockEntityType<T>> typeRef = new AtomicReference<>();
+		typeRef.set(BlockEntityType.Builder.of((pos, state) -> generator.create(typeRef.get(), pos, state), blocks).build(null));
+		return typeRef.get();
+	}
+	
+	/**
 	 * Returns a {@link List} of all loaded {@link BlockEntity} instances on the given {@link Level}.
 	 *
 	 * @param level
@@ -76,5 +99,11 @@ public class BlockAPI
 	public static <T extends BlockEntity> void spoofBlockEntityType(T be, BlockEntityType<T> type)
 	{
 		((BlockEntityAccessor) be).setType_HammerLib(type);
+	}
+	
+	@FunctionalInterface
+	public interface DynamicBlockEntitySupplier<T extends BlockEntity>
+	{
+		T create(BlockEntityType<T> type, BlockPos pos, BlockState state);
 	}
 }
