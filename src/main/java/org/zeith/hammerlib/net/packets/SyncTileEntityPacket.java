@@ -15,6 +15,7 @@ import org.zeith.hammerlib.net.*;
 public class SyncTileEntityPacket
 		implements IPacket
 {
+	BlockPos pos;
 	CompoundTag nbt;
 	boolean updateTag;
 	
@@ -24,12 +25,15 @@ public class SyncTileEntityPacket
 	
 	public SyncTileEntityPacket(BlockEntity tile, boolean updateTag)
 	{
+		this.pos = tile.getBlockPos();
 		this.nbt = updateTag ? tile.getUpdateTag() : tile.serializeNBT();
+		this.updateTag = updateTag;
 	}
 	
 	@Override
 	public void write(FriendlyByteBuf buf)
 	{
+		buf.writeBlockPos(pos);
 		buf.writeNbt(nbt);
 		buf.writeBoolean(updateTag);
 	}
@@ -37,6 +41,7 @@ public class SyncTileEntityPacket
 	@Override
 	public void read(FriendlyByteBuf buf)
 	{
+		pos = buf.readBlockPos();
 		nbt = buf.readNbt();
 		updateTag = buf.readBoolean();
 	}
@@ -46,8 +51,9 @@ public class SyncTileEntityPacket
 	public void clientExecute(PacketContext ctx)
 	{
 		Level world = LogicalSidedProvider.CLIENTWORLD.get(LogicalSide.CLIENT).orElse(null);
-		BlockPos pos = new BlockPos(nbt.getInt("x"), nbt.getInt("y"), nbt.getInt("z"));
-		BlockEntity tile = world == null ? null : world.getBlockEntity(pos);
+		if(world == null) return;
+		
+		BlockEntity tile = world.getBlockEntity(pos);
 		if(tile != null)
 		{
 			if(updateTag)
