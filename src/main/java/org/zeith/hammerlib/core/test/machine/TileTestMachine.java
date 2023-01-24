@@ -66,63 +66,63 @@ public class TileTestMachine
 	}
 	
 	@Override
-	public void update()
+	public void serverTick()
 	{
-		if(isOnServer())
+		RecipeTestMachine r = getActiveRecipe();
+		
+		if(isValidRecipe(r))
 		{
-			RecipeTestMachine r = getActiveRecipe();
-			
-			if(isValidRecipe(r))
+			int p = _progress + 1;
+			if(p >= r.getTime())
 			{
-				int p = _progress + 1;
-				if(p >= r.getTime())
+				ItemStack result = r.getRecipeOutput(this);
+				if(output(result))
 				{
-					ItemStack result = r.getRecipeOutput(this);
-					if(output(result))
+					inventory.getItem(0).shrink(r.inputA.count());
+					inventory.getItem(1).shrink(r.inputA.count());
+					
+					if(!isValidRecipe(r))
 					{
-						inventory.getItem(0).shrink(r.inputA.count());
-						inventory.getItem(1).shrink(r.inputA.count());
-						
-						if(!isValidRecipe(r))
-						{
-							activeRecipeId.set(null);
-							r = null;
-							setEnabledState(false);
-						}
-						
-						progress.setInt(0);
-					}
-				} else
-					progress.setInt(p);
-			} else
-			{
-				if(_progress > 0)
-				{
-					progress.setInt(_progress - 1);
-					if(_progress <= 0)
+						activeRecipeId.set(null);
+						r = null;
 						setEnabledState(false);
+					}
+					
+					progress.setInt(0);
 				}
-				
-				activeRecipeId.set(null);
-				r = null;
-			}
-			
-			if(r == null && atTickRate(10))
-			{
-				RecipeTestMachine recipe = RecipeHelper.getRecipes(level, RecipeTestMachine.TYPE).filter(this::isValidRecipe).findFirst().orElse(null);
-				if(recipe != null)
-				{
-					if(recipe.time != _maxProgress)
-						progress.setInt(0);
-					maxProgress.setInt(recipe.time);
-					activeRecipeId.set(recipe.getId());
-					setEnabledState(true);
-				}
-			}
+			} else
+				progress.setInt(p);
 		} else
 		{
-			setTooltipDirty(true);
+			if(_progress > 0)
+			{
+				progress.setInt(_progress - 1);
+				if(_progress <= 0)
+					setEnabledState(false);
+			}
+			
+			activeRecipeId.set(null);
+			r = null;
 		}
+		
+		if(r == null && atTickRate(10))
+		{
+			RecipeTestMachine recipe = RecipeHelper.getRecipes(level, RecipeTestMachine.TYPE).filter(this::isValidRecipe).findFirst().orElse(null);
+			if(recipe != null)
+			{
+				if(recipe.time != _maxProgress)
+					progress.setInt(0);
+				maxProgress.setInt(recipe.time);
+				activeRecipeId.set(recipe.getId());
+				setEnabledState(true);
+			}
+		}
+	}
+	
+	@Override
+	public void clientTick()
+	{
+		setTooltipDirty(true);
 	}
 	
 	public void setEnabledState(boolean enabled)

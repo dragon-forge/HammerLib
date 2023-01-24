@@ -6,6 +6,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.*;
 import net.minecraft.world.level.block.state.BlockState;
 import org.zeith.api.level.IBlockEntityLevel;
+import org.zeith.hammerlib.api.tiles.ISidedTickableTile;
 import org.zeith.hammerlib.mixins.BlockEntityAccessor;
 import org.zeith.hammerlib.tiles.TileSyncableTickable;
 
@@ -31,6 +32,27 @@ public class BlockAPI
 		{
 			if(entity instanceof TileSyncableTickable t)
 				t.tick(level, pos, state, entity);
+		};
+	}
+	
+	/**
+	 * Returns a {@link BlockEntityTicker} that ticks all {@link ISidedTickableTile} instances using sided tickers to get rid of an extra side check.
+	 *
+	 * @param <T>
+	 * 		The type of {@link BlockEntity} that the ticker is for.
+	 *
+	 * @return A {@link BlockEntityTicker} that ticks {@link TileSyncableTickable} instances.
+	 */
+	public static <T extends BlockEntity> BlockEntityTicker<T> ticker(Level lvl)
+	{
+		return lvl.isClientSide ? (level, pos, state, entity) ->
+		{
+			if(entity instanceof ISidedTickableTile t)
+				t.clientTick(level, pos, state, entity);
+		} : (level, pos, state, entity) ->
+		{
+			if(entity instanceof ISidedTickableTile t)
+				t.serverTick(level, pos, state, entity);
 		};
 	}
 	
