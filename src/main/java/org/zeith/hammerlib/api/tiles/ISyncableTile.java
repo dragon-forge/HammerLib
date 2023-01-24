@@ -22,7 +22,7 @@ public interface ISyncableTile
 	 */
 	default void syncNow()
 	{
-		syncWithHLPipeline();
+		syncUpdateTagHLPipeline();
 	}
 	
 	default void syncWithHLPipeline()

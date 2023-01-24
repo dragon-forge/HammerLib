@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface ITooltipTile
 {
-	static ProgressBar[] NO_BARS = new ProgressBar[0];
+	ProgressBar[] NO_BARS = new ProgressBar[0];
 	
 	void getTextTooltip(List<Component> list, Player player);
 	
