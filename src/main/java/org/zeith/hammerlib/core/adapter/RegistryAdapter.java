@@ -5,13 +5,18 @@ import net.minecraft.util.Tuple;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.RegisterEvent;
 import org.zeith.api.registry.RegistryMapping;
+import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.annotations.*;
 import org.zeith.hammerlib.annotations.client.ClientSetup;
+import org.zeith.hammerlib.annotations.client.TileRenderer;
 import org.zeith.hammerlib.api.blocks.*;
 import org.zeith.hammerlib.api.fml.ICustomRegistrar;
 import org.zeith.hammerlib.api.fml.IRegisterListener;
@@ -41,6 +46,14 @@ public class RegistryAdapter
 	}
 	
 	private static final Map<Class<?>, List<Tuple<Block, ResourceLocation>>> blocks = new ConcurrentHashMap<>();
+	
+	public static int register(RegisterEvent event, Class<?> source, String modid, String prefix)
+	{
+		IForgeRegistry<?> reg = event.getForgeRegistry();
+		if(reg == null)
+			reg = RegistryMapping.getRegistryByType(RegistryMapping.getSuperType(event.getRegistryKey()));
+		return RegistryAdapter.register(event, reg, source, modid, prefix);
+	}
 	
 	/**
 	 * Registers all static fields (from source) with the matching registry type, and methods that accept Consumer<T>
@@ -78,6 +91,8 @@ public class RegistryAdapter
 			}
 			grabber.accept(e.getB(), Cast.cast(item));
 		}
+		
+		boolean tileRegistryOnClient = BlockEntityType.class.equals(superType) && FMLEnvironment.dist == Dist.CLIENT;
 		
 		int prevSize = registry.getValues().size();
 		
@@ -151,7 +166,20 @@ public class RegistryAdapter
 							var onlyIf = field.getAnnotation(OnlyIf.class); // Bring back OnlyIf, for registries that are non-intrusive. (Mostly, for custom registry types)
 							if(!RegistryMapping.isNonIntrusive(registry)
 									|| OnlyIfAdapter.checkCondition(onlyIf, source.toString(), superType.getSimpleName(), val, rl))
-								grabber.accept(rl, superType.cast(val));
+							{
+								var fval = superType.cast(val);
+								grabber.accept(rl, fval);
+								
+								if(tileRegistryOnClient)
+								{
+									var tesr = TileRenderer.RendererTarget.get(source, field.getName());
+									if(tesr != null)
+									{
+										tesr.apply();
+										HammerLib.LOG.debug("Applied TESR registration for " + field.getType().getSimpleName() + "[" + registry.getKey(fval) + "] " + source.getSimpleName() + '.' + field.getName());
+									}
+								}
+							}
 						} catch(IllegalArgumentException | IllegalAccessException e)
 						{
 							e.printStackTrace();

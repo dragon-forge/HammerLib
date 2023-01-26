@@ -16,15 +16,13 @@ import net.minecraftforge.fml.javafmlmod.FMLModContainer;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.moddiscovery.ModAnnotation;
 import net.minecraftforge.fml.unsafe.UnsafeHacks;
-import net.minecraftforge.forgespi.Environment;
-import net.minecraftforge.registries.*;
+import net.minecraftforge.registries.RegisterEvent;
+import net.minecraftforge.registries.RegistryManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.objectweb.asm.Type;
 import org.zeith.api.registry.RegistryMapping;
 import org.zeith.hammerlib.annotations.*;
 import org.zeith.hammerlib.annotations.client.ClientSetup;
-import org.zeith.hammerlib.annotations.client.TileRenderer;
 import org.zeith.hammerlib.api.IRecipeProvider;
 import org.zeith.hammerlib.api.io.NBTSerializationHelper;
 import org.zeith.hammerlib.compat.base.CompatList;
@@ -87,17 +85,6 @@ public class HammerLib
 			}
 		});
 		
-		if(Environment.get().getDist() == Dist.CLIENT)
-			ScanDataHelper.lookupAnnotatedObjects(TileRenderer.class).forEach(data ->
-			{
-				if(data.getTargetType() == ElementType.FIELD)
-					data.getOwnerMod()
-							.ifPresent(mc ->
-							{
-								mc.getEventBus().addListener(PROXY.addTESR(data.clazz(), data.getMemberName(), data.getProperty("value").map(Type.class::cast).orElse(null)));
-							});
-			});
-		
 		if(RegistryManager.ACTIVE instanceof RegistryManagerAccessor activeRegistries)
 		{
 			for(var registry : activeRegistries.getRegistries().values())
@@ -115,14 +102,9 @@ public class HammerLib
 							.ifPresent(mc ->
 							{
 								LOG.info("Hooked " + data.clazz() + " from " + mc.getModId() + " to register it's stuff.");
-								mc.getEventBus()
-										.addListener((Consumer<RegisterEvent>) event ->
-										{
-											IForgeRegistry<?> reg = event.getForgeRegistry();
-											if(reg == null)
-												reg = RegistryMapping.getRegistryByType(RegistryMapping.getSuperType(event.getRegistryKey()));
-											RegistryAdapter.register(event, reg, data.getOwnerClass(), mc.getModId(), data.getProperty("prefix").map(Objects::toString).orElse(""));
-										});
+								mc.getEventBus().addListener((Consumer<RegisterEvent>) event ->
+										RegistryAdapter.register(event, data.getOwnerClass(), mc.getModId(), data.getProperty("prefix").map(Objects::toString).orElse(""))
+								);
 							});
 			});
 		} else
