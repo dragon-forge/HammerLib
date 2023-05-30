@@ -25,7 +25,7 @@ public class ItemWrench
 		implements IWrenchItem, IDynamicallyTaggedItem
 {
 	@RegistryName("wrench")
-	public static final ItemWrench WRENCH = new ItemWrench(new Properties().tab(HLConstants.HL_TAB).stacksTo(1));
+	public static final ItemWrench WRENCH = new ItemWrench(new Properties().stacksTo(1));
 	
 	public final List<CreativeModeTab> extraTabs = new ArrayList<>(List.of(HLConstants.HL_TAB));
 	

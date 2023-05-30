@@ -17,10 +17,10 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.phys.BlockHitResult;
 import org.zeith.hammerlib.annotations.RegistryName;
 import org.zeith.hammerlib.annotations.SimplyRegister;
-import org.zeith.hammerlib.api.blocks.ICreativeTabBlock;
 import org.zeith.hammerlib.api.forge.BlockAPI;
 import org.zeith.hammerlib.api.forge.ContainerAPI;
 import org.zeith.hammerlib.core.adapter.BlockHarvestAdapter;
+import org.zeith.hammerlib.core.adapter.CreativeTabAdapter;
 import org.zeith.hammerlib.proxy.HLConstants;
 import org.zeith.hammerlib.util.java.Cast;
 
@@ -30,7 +30,6 @@ import java.util.List;
 @SimplyRegister
 public class BlockTestMachine
 		extends BaseEntityBlock
-		implements ICreativeTabBlock
 {
 	@RegistryName("test_machine")
 	public static final BlockTestMachine TEST_MACHINE = new BlockTestMachine();
@@ -45,6 +44,7 @@ public class BlockTestMachine
 		);
 		
 		BlockHarvestAdapter.bindTool(BlockHarvestAdapter.MineableType.PICKAXE, Tiers.IRON, this);
+		CreativeTabAdapter.bindTab(this, HLConstants.HL_TAB);
 	}
 	
 	@Override
@@ -112,11 +112,5 @@ public class BlockTestMachine
 				.setValue(BlockStateProperties.HORIZONTAL_FACING, ctx.getPlayer() != null
 						? ctx.getPlayer().getDirection().getOpposite()
 						: Direction.NORTH);
-	}
-	
-	@Override
-	public CreativeModeTab getCreativeTab()
-	{
-		return HLConstants.HL_TAB;
 	}
 }

@@ -138,5 +138,11 @@ public class ReloadRecipeRegistryEvent
 		{
 			addRecipe(entry);
 		}
+		
+		@Override
+		public boolean enableRecipe(ResourceLocation recipeId)
+		{
+			return true;
+		}
 	}
 }

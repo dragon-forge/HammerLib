@@ -15,6 +15,7 @@
     "BlockHitResultAccessor",
     "ForgeHooksMixin",
     "HTTPUtilMixin",
+    "ItemMixin",
     "ItemStackMixin",
     "LevelChunkMixin",
     "LevelMixin",

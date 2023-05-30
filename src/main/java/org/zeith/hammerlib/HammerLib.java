@@ -205,6 +205,7 @@ public class HammerLib
 	public void finish(FMLLoadCompleteEvent e)
 	{
 		PROXY.finishLoading();
+		CreativeTabAdapter.deque();
 	}
 	
 	public void registerCommands(RegisterCommandsEvent e)
