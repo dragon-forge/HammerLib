@@ -44,6 +44,7 @@ public class ShapelessRecipeBuilder
 	public void register()
 	{
 		validate();
+		if(!event.enableRecipe(getIdentifier())) return;
 		if(ingredients.isEmpty())
 			throw new IllegalStateException(getClass().getSimpleName() + " does not have any defined ingredients!");
 		var id = getIdentifier();

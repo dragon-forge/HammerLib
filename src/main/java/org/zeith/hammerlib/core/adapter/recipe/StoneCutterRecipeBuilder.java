@@ -16,6 +16,7 @@ public class StoneCutterRecipeBuilder
 	public void register()
 	{
 		validate();
+		if(!event.enableRecipe(getIdentifier())) return;
 		var id = getIdentifier();
 		event.register(id, new StonecutterRecipe(id, group, input, result));
 	}

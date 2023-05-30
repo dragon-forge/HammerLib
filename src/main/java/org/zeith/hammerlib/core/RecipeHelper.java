@@ -32,6 +32,7 @@ public class RecipeHelper
 	{
 		RegisterRecipesEvent rre = new RegisterRecipesEvent(idInUse);
 		HammerLib.postEvent(rre);
+		rre.cleanup();
 		
 		if(!silent) HLConstants.LOG.info("Reloading HammerLib recipes...");
 		

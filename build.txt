@@ -2,7 +2,7 @@
 mod_id=hammerlib
 archive_name=HammerLib
 mod_name=Hammer Lib
-mod_version=19.5.56
+mod_version=19.5.57
 build_candidate=false
 
 # Maven Info
@@ -23,6 +23,7 @@ java=17
 
 # Project ID on CurseForge
 cf_project=247401
+modrinth_project=PlkSuVtM
 
 # alpha, beta, release
 release_type=release
