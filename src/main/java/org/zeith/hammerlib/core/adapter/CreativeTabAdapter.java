@@ -12,6 +12,8 @@ import net.minecraftforge.registries.ForgeRegistries;
 import org.zeith.hammerlib.api.items.CreativeTab;
 import org.zeith.hammerlib.api.items.ITabItem;
 import org.zeith.hammerlib.util.java.Cast;
+import org.zeith.hammerlib.util.java.tuples.Tuple2;
+import org.zeith.hammerlib.util.java.tuples.Tuples;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,6 +24,8 @@ import java.util.stream.Collectors;
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class CreativeTabAdapter
 {
+	private static final List<Tuple2<ItemLike, CreativeTab[]>> REGISTRARS = new ArrayList<>();
+	
 	private static final List<CreativeTab> CUSTOM_TABS = new ArrayList<>();
 	private static final Map<CreativeModeTab, CreativeTab> REGISTERED = new ConcurrentHashMap<>();
 	private static final Supplier<Set<ITabItem>> CUSTOM_TAB_ITEMS = Suppliers.memoize(() ->
@@ -69,5 +73,32 @@ public class CreativeTabAdapter
 	public static List<CreativeTab> getCustomTabs()
 	{
 		return CUSTOM_TABS;
+	}
+	
+	/**
+	 * Assigns one or more creative tabs to an item.
+	 *
+	 * @param item
+	 * 		the item to assign the creative tabs to
+	 * @param tabs
+	 * 		the creative tabs to assign
+	 * @param <T>
+	 * 		the type of the item
+	 *
+	 * @return the item with the assigned creative tabs
+	 */
+	public static <T extends ItemLike> T bindTab(T item, CreativeTab... tabs)
+	{
+		REGISTRARS.add(Tuples.immutable(item, tabs)); // store ItemLike(s) so that if that is a block, it would unwrap properly.
+		return item;
+	}
+	
+	public static void deque()
+	{
+		while(!REGISTRARS.isEmpty())
+		{
+			var tup = REGISTRARS.remove(0);
+			for(var t : tup.b()) t.add(tup.a());
+		}
 	}
 }
