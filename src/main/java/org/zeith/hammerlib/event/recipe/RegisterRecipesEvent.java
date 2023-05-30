@@ -1,17 +1,18 @@
 package org.zeith.hammerlib.event.recipe;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.zeith.hammerlib.api.recipes.RecipeBuilderExtension;
 import org.zeith.hammerlib.core.adapter.recipe.*;
 import org.zeith.hammerlib.util.java.Cast;
+import org.zeith.hammerlib.util.mcf.RecipeRegistrationContext;
 import org.zeith.hammerlib.util.mcf.itf.IRecipeRegistrationEvent;
 
 import java.util.*;
@@ -29,6 +30,8 @@ public class RegisterRecipesEvent
 	private final Set<ResourceLocation> removeRecipes = Sets.newHashSet();
 	private final Predicate<ResourceLocation> idInUse;
 	
+	private final Map<String, RecipeRegistrationContext> contextMap = Maps.newHashMap();
+	
 	private final Map<Class<?>, RecipeBuilderExtension> extensions;
 	
 	public RegisterRecipesEvent(Predicate<ResourceLocation> idInUse)
@@ -45,8 +48,30 @@ public class RegisterRecipesEvent
 	
 	public void add(Recipe<?> recipe)
 	{
+		// Not sure if it's a good idea, but sure, let's do it.
+		if(!enableRecipe(recipe)) return;
+		
 		if(recipe != null)
 			recipes.add(recipe);
+	}
+	
+	/**
+	 * Registers a recipe.
+	 *
+	 * @param recipe
+	 * 		the recipe to register
+	 *
+	 * @return {@code true} if the recipe is enabled via configs and was successfully registered, {@code false} otherwise
+	 */
+	public boolean register(Recipe<?> recipe)
+	{
+		if(recipe != null && enableRecipe(recipe.getId()))
+		{
+			recipes.add(recipe);
+			return true;
+		}
+		
+		return false;
 	}
 	
 	public Set<ResourceLocation> removedRecipes()
@@ -126,5 +151,29 @@ public class RegisterRecipesEvent
 	public Stream<Recipe<?>> getRecipes()
 	{
 		return recipes.stream();
+	}
+	
+	@Override
+	public boolean enableRecipe(ResourceLocation recipeId)
+	{
+		return getContext(recipeId.getNamespace()).enableRecipe(recipeId);
+	}
+	
+	public boolean enableRecipe(Recipe<?> recipe)
+	{
+		return enableRecipe(recipe.getId());
+	}
+	
+	public RecipeRegistrationContext getContext(String modid)
+	{
+		return contextMap.computeIfAbsent(modid, RecipeRegistrationContext::load);
+	}
+	
+	@ApiStatus.Internal
+	public void cleanup()
+	{
+		for(RecipeRegistrationContext value : contextMap.values())
+			value.save();
+		contextMap.clear();
 	}
 }

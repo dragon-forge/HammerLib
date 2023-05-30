@@ -2,7 +2,7 @@
 mod_id=hammerlib
 archive_name=HammerLib
 mod_name=Hammer Lib
-mod_version=19.3.56
+mod_version=19.3.57
 build_candidate=false
 
 # Maven Info
@@ -23,6 +23,17 @@ java=17
 
 # Project ID on CurseForge
 cf_project=247401
+modrinth_project=PlkSuVtM
+
+# List of mods separated by ;
+# If a specific mod for one platform is needed, @m: or @c: prefixes are used.
+# Example for adding Hammer Lib for both Modrinth & CurseForge:
+# @m:PlkSuVtM;@c:hammer-lib;
+# Which can be simplified to be just "hammer-lib" since the slug is the same on both platforms.
+required_mods=
+optional_mods=
+incompatible_mods=
+embedded_mods=
 
 # alpha, beta, release
 release_type=release

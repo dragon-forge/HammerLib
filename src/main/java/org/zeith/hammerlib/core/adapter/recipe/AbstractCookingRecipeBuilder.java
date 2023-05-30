@@ -8,30 +8,31 @@ public abstract class AbstractCookingRecipeBuilder<R extends AbstractCookingReci
 {
 	protected int cookTime = 200;
 	protected float xp = 0;
-
+	
 	public AbstractCookingRecipeBuilder(IRecipeRegistrationEvent<Recipe<?>> event)
 	{
 		super(event);
 	}
-
+	
 	public R cookTime(int time)
 	{
 		this.cookTime = time;
 		return (R) this;
 	}
-
+	
 	public R xp(float xp)
 	{
 		this.xp = xp;
 		return (R) this;
 	}
-
+	
 	protected abstract Recipe<?> generateRecipe();
-
+	
 	@Override
 	public void register()
 	{
 		validate();
+		if(!event.enableRecipe(getIdentifier())) return;
 		
 		var rec = generateRecipe();
 		event.register(rec.getId(), rec);
