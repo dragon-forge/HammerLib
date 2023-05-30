@@ -57,6 +57,7 @@ public class ShapedRecipeBuilder
 	public void register()
 	{
 		validate();
+		if(!event.enableRecipe(getIdentifier())) return;
 		
 		var id = getIdentifier();
 		event.register(id, new ShapedRecipe(id, group, category, shape.width, shape.height, shape.createIngredientMap(dictionary), result));

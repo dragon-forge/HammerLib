@@ -62,7 +62,7 @@ public abstract class RecipeBuilder<R extends RecipeBuilder<R, RT>, RT>
 		return (R) this;
 	}
 	
-	protected ResourceLocation getIdentifier()
+	public ResourceLocation getIdentifier()
 	{
 		if(this.identifier != null) return this.identifier;
 		return this.identifier = event.nextId(result.getItem());
