@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 
 public class Cast
 {
-	public static <T> Supplier<T> staticValue(T value)
+	public static <T> Supplier<T> constant(T value)
 	{
 		return () -> value;
 	}
