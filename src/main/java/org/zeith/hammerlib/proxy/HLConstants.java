@@ -16,8 +16,13 @@ public class HLConstants
 	public static final Component CRAFTING_MATERIAL = Component.translatable("info.hammerlib.material").withStyle(ChatFormatting.GRAY);
 	
 	@CreativeTab.RegisterTab
-	public static final CreativeTab HL_TAB = new CreativeTab(new ResourceLocation(HLConstants.MOD_ID, "root"),
+	public static final CreativeTab HL_TAB = new CreativeTab(id("root"),
 			b -> b.icon(() -> ItemsHL.WRENCH.getDefaultInstance())
 					.title(Component.translatable("itemGroup." + MOD_ID))
 	);
+	
+	public static ResourceLocation id(String path)
+	{
+		return new ResourceLocation(HLConstants.MOD_ID, path);
+	}
 }
