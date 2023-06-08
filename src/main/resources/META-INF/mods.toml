@@ -1,31 +1,28 @@
 modLoader = "javafml"
-loaderVersion = "[44,)"
-issueTrackerURL = "https://github.com/dragon-forge/HammerLib/issues"
-license = "All rights reserved"
+loaderVersion = "${forge_version_range}"
+issueTrackerURL = "${issue_tracker}"
+license = "${mod_license}"
 [[mods]]
-modId = "hammerlib"
-version = "${file.jarVersion}"
-displayName = "HammerLib"
-updateJSONURL="https://api.modrinth.com/updates/PlkSuVtM/forge_updates.json"
+modId = "${mod_id}"
+version = "${mod_version}"
+displayName = "${mod_name}"
+updateJSONURL = "https://api.modrinth.com/updates/${modrinth_project}/forge_updates.json"
 displayURL = "http://h.zeith.org/api/fmlhp/247401"
 logoFile = "logo.png"
-authors = "Zeitheron"
+authors = "${mod_authors}"
 
-description = '''
-HammerLib is an essential tool for developing mods easily.
-Packed with a lot of utilities, this library provides nearly anything a modder would need, in one handy package!
-'''
+description='''${mod_description}'''
 
-[[dependencies.hammerlib]]
+[[dependencies.${mod_id}]]
 modId = "forge"
 mandatory = true
-versionRange = "[44.1,)"
+versionRange = "${forge_version_range}"
 ordering = "NONE" # NONE/BEFORE/AFTER
 side = "BOTH"
 
-[[dependencies.hammerlib]]
+[[dependencies.${mod_id}]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.19.3,1.20)"
+versionRange = "${minecraft_version_range}"
 ordering = "NONE"
 side = "BOTH"

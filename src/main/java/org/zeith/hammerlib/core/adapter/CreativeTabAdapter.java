@@ -5,7 +5,7 @@ import net.minecraft.Util;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.event.CreativeModeTabEvent;
+import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -47,7 +47,7 @@ public class CreativeTabAdapter
 	}
 	
 	@SubscribeEvent
-	public static void populate(CreativeModeTabEvent.BuildContents e)
+	public static void populate(BuildCreativeModeTabContentsEvent e)
 	{
 		CreativeTab tab = REGISTERED.get(e.getTab());
 		if(tab != null)

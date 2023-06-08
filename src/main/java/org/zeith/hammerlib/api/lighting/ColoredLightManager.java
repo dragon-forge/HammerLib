@@ -119,7 +119,7 @@ public class ColoredLightManager
 			Player pl = getClientPlayer();
 			if(pl != null)
 			{
-				List<Entity> ents = pl.level.getEntitiesOfClass(Entity.class, pl.getBoundingBox().inflate(128));
+				List<Entity> ents = pl.level().getEntitiesOfClass(Entity.class, pl.getBoundingBox().inflate(128));
 				Stream<ColoredLight> players = ents.stream().flatMap(ent ->
 				{
 					Stream.Builder<ColoredLight> lights = Stream.builder();
@@ -154,7 +154,7 @@ public class ColoredLightManager
 					return evt.getNewLight();
 				}));
 				entities = Stream.concat(entities, HammerLib.PROXY.getGlowingParticles(partialTicks));
-				Stream<ColoredLight> tiles = BlockAPI.getAllLoadedBlockEntities(pl.level).stream().map(e ->
+				Stream<ColoredLight> tiles = BlockAPI.getAllLoadedBlockEntities(pl.level()).stream().map(e ->
 				{
 					ColoredLight l = e instanceof IGlowingEntity ? ((IGlowingEntity) e).produceColoredLight(partialTicks) : null;
 					HandleLightOverrideEvent<BlockEntity> evt = new HandleLightOverrideEvent<>(e, partialTicks, l);

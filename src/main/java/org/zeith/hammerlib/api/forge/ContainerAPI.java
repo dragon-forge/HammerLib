@@ -23,7 +23,7 @@ public class ContainerAPI
 	@RegistryName("tile_container")
 	public static final MenuType<AbstractContainerMenu> TILE_CONTAINER = IForgeMenuType.create((windowId, playerInv, extraData) ->
 	{
-		BlockEntity tile = playerInv.player.level.getBlockEntity(extraData.readBlockPos());
+		BlockEntity tile = playerInv.player.level().getBlockEntity(extraData.readBlockPos());
 		return Cast
 				.optionally(tile, IContainerTile.class)
 				.map(ict -> ict.openContainer(playerInv.player, windowId))

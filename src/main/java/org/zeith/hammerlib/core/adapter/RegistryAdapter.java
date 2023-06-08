@@ -1,5 +1,7 @@
 package org.zeith.hammerlib.core.adapter;
 
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.item.BlockItem;
@@ -31,6 +33,24 @@ import java.util.function.BiConsumer;
 
 public class RegistryAdapter
 {
+	public static <T> Optional<BiConsumer<ResourceLocation, T>> createRegisterer(RegisterEvent event, ResourceKey<Registry<T>> registryType, String prefix)
+	{
+		if(event.getRegistryKey().equals(registryType))
+		{
+			Registry<T> reg = event.getVanillaRegistry();
+			IForgeRegistry<T> freg = event.getForgeRegistry();
+			
+			if(prefix == null) prefix = "";
+			
+			if(freg != null)
+				return Optional.of(createRegisterer(freg, prefix));
+			else if(reg != null)
+				return Optional.of(createRegisterer(reg, prefix));
+		}
+		
+		return Optional.empty();
+	}
+	
 	public static <T> BiConsumer<ResourceLocation, T> createRegisterer(IForgeRegistry<T> registry, String prefix)
 	{
 		return (name, entry) ->
@@ -40,6 +60,20 @@ public class RegistryAdapter
 			if(l != null)
 				l.onPreRegistered();
 			registry.register(name, entry);
+			if(l != null)
+				l.onPostRegistered();
+		};
+	}
+	
+	public static <T> BiConsumer<ResourceLocation, T> createRegisterer(Registry<T> registry, String prefix)
+	{
+		return (name, entry) ->
+		{
+			name = new ResourceLocation(name.getNamespace(), prefix + name.getPath());
+			IRegisterListener l = Cast.cast(entry, IRegisterListener.class);
+			if(l != null)
+				l.onPreRegistered();
+			Registry.register(registry, name, entry);
 			if(l != null)
 				l.onPostRegistered();
 		};

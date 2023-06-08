@@ -2,21 +2,23 @@
 mod_id=hammerlib
 archive_name=HammerLib
 mod_name=Hammer Lib
-mod_version=19.5.57
+mod_version=20.0.1
 build_candidate=false
+mod_license=All rights reserved
+mod_authors=Zeitheron
+mod_description=HammerLib is an essential tool for developing mods easily.\nPacked with a lot of utilities, this library provides nearly anything a modder would need, in one handy package!
+issue_tracker=https://github.com/dragon-forge/HammerLib/issues
 
 # Maven Info
 maven_group=org.zeith.hammerlib
 shimmer_version=0.1.14
 
 # MC Info
-mc_version=1.19.3
-forge_version=44.1.0
+mc_version=1.20
+mc_range=[1.20,1.21)
+forge_version=46.0.1
+forge_range=[46,)
 mc_user=Zeitheron,63fa4c485b5640809727d5d59663e603
-
-# MCP Info
-mcp_ch=official
-mcp_vr=1.19.3
 
 # Misc Info
 java=17

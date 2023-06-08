@@ -13,8 +13,7 @@ import net.minecraft.world.level.block.entity.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.BlockHitResult;
 import org.zeith.hammerlib.annotations.RegistryName;
 import org.zeith.hammerlib.annotations.SimplyRegister;
@@ -38,7 +37,7 @@ public class BlockTestMachine
 	public BlockTestMachine()
 	{
 		super(Block.Properties
-				.of(Material.METAL)
+				.of()
 				.requiresCorrectToolForDrops()
 				.sound(SoundType.METAL)
 				.strength(1.5F)
@@ -49,7 +48,7 @@ public class BlockTestMachine
 	}
 	
 	@Override
-	public List<ItemStack> getDrops(BlockState p_60537_, LootContext.Builder p_60538_)
+	public List<ItemStack> getDrops(BlockState p_60537_, LootParams.Builder p_60538_)
 	{
 		return List.of(new ItemStack(this));
 	}

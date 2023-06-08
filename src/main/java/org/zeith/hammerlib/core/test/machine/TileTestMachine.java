@@ -165,7 +165,7 @@ public class TileTestMachine
 	{
 		ItemStack stack = inventory.getItem(2);
 		if(stack.isEmpty()) return true;
-		if(!ItemStack.isSame(result, stack)) return false;
+		if(!ItemStack.isSameItemSameTags(result, stack)) return false;
 		return stack.getCount() + result.getCount() <= Math.min(inventory.getMaxStackSize(), result.getMaxStackSize());
 	}
 	

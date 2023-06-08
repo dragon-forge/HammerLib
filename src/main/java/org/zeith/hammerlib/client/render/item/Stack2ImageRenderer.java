@@ -18,8 +18,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.CreativeModeTabRegistry;
 import net.minecraftforge.event.TickEvent;
@@ -233,7 +232,7 @@ public class Stack2ImageRenderer
 				if(flat) Lighting.setupForFlatItems();
 				else Lighting.setupFor3DItems();
 				
-				ir.render(stack, ItemTransforms.TransformType.GUI, false, pose, buffers, 15728880, OverlayTexture.NO_OVERLAY, model);
+				ir.render(stack, ItemDisplayContext.GUI, false, pose, buffers, 15728880, OverlayTexture.NO_OVERLAY, model);
 				buffers.endBatch();
 				RenderSystem.enableDepthTest();
 				if(flat) Lighting.setupFor3DItems();

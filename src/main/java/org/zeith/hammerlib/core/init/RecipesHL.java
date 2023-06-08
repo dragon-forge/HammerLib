@@ -3,6 +3,7 @@ package org.zeith.hammerlib.core.init;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraftforge.common.Tags;
 import org.zeith.hammerlib.annotations.ProvideRecipes;
 import org.zeith.hammerlib.api.IRecipeProvider;
 import org.zeith.hammerlib.core.test.HammerLibRecipeExtension;
@@ -13,9 +14,9 @@ public class RecipesHL
 		implements IRecipeProvider
 {
 	@Override
-	public void provideRecipes(RegisterRecipesEvent event)
+	public void provideRecipes(RegisterRecipesEvent e)
 	{
-		var $ = event.extension(HammerLibRecipeExtension.class);
+		var $ = e.extension(HammerLibRecipeExtension.class);
 		if($ != null)
 		{
 			$.testMachine()
@@ -24,6 +25,15 @@ public class RecipesHL
 					.result(new ItemStack(Items.GLASS))
 					.register();
 		}
+		
+		GearsHL.recipes(e);
+		
+		e.shaped()
+				.shape("i i", " g ", " i ")
+				.map('i', Tags.Items.INGOTS_IRON)
+				.map('g', TagsHL.Items.GEARS_IRON)
+				.result(ItemsHL.WRENCH)
+				.registerIf(ItemsHL.WRENCH::defaultRecipe);
 		
 		/*
 		event.shaped()

@@ -1,6 +1,7 @@
 package org.zeith.hammerlib.tiles.tooltip.own;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -100,7 +101,7 @@ public interface ITooltip
 	 * 		events, TESRs.
 	 */
 	@OnlyIn(Dist.CLIENT)
-	void render(PoseStack pose, float x, float y, float partialTime);
+	void render(GuiGraphics pose, float x, float y, float partialTime);
 	
 	/**
 	 * Clears current tooltip and resets width, height, x and y of renderer

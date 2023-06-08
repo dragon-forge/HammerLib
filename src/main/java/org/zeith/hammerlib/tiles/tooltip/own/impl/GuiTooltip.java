@@ -1,6 +1,7 @@
 package org.zeith.hammerlib.tiles.tooltip.own.impl;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -70,7 +71,7 @@ public class GuiTooltip
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void render(PoseStack pose, float x, float y, float partialTime)
+	public void render(GuiGraphics pose, float x, float y, float partialTime)
 	{
 		for(TooltipLine ln : infos)
 		{
@@ -97,7 +98,7 @@ public class GuiTooltip
 		protected float width, height;
 		
 		@OnlyIn(Dist.CLIENT)
-		public void render(PoseStack pose, float x, float y, float partialTime)
+		public void render(GuiGraphics pose, float x, float y, float partialTime)
 		{
 			for(IRenderableInfo info : this)
 			{
@@ -155,7 +156,7 @@ public class GuiTooltip
 	public GuiTooltip withEntity(Entity ent)
 	{
 		this.ent = ent;
-		this.world = ent.level;
+		this.world = ent.level();
 		return this;
 	}
 	

@@ -1,11 +1,12 @@
 package org.zeith.hammerlib;
 
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.CreativeModeTabEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.*;
 import net.minecraftforge.fml.DistExecutor;
@@ -91,10 +92,22 @@ public class HammerLib
 		ScanDataHelper.lookupAnnotatedObjects(CreativeTab.RegisterTab.class).forEach(data ->
 		{
 			if(data.getTargetType() == ElementType.FIELD)
-				data.getOwnerMod().ifPresent(mc -> mc.getEventBus().addListener((Consumer<CreativeModeTabEvent.Register>) e ->
+				data.getOwnerMod().ifPresent(mc -> mc.getEventBus().addListener((Consumer<RegisterEvent>) e ->
 				{
-					Optional<CreativeTab> tab = ReflectionUtil.getStaticFinalField(data.getOwnerClass(), data.getMemberName());
-					tab.ifPresent(t -> t.register(e));
+					var registrar = RegistryAdapter.createRegisterer(e, Registries.CREATIVE_MODE_TAB, null);
+					
+					registrar.ifPresent(register ->
+					{
+						Optional<CreativeTab> tab = ReflectionUtil.getStaticFinalField(data.getOwnerClass(), data.getMemberName());
+						tab.ifPresent(t0 -> t0.register(t ->
+						{
+							var tabBuilder = CreativeModeTab.builder();
+							t.factory().accept(tabBuilder);
+							var ct = tabBuilder.build();
+							register.accept(t.id(), ct);
+							return ct;
+						}));
+					});
 				}));
 		});
 		

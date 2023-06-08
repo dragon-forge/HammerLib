@@ -2,6 +2,7 @@ package org.zeith.hammerlib.core.items.tooltip;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import org.zeith.hammerlib.api.items.tooltip.TooltipMulti;
@@ -40,11 +41,11 @@ public class ClientTooltipMulti
 	}
 	
 	@Override
-	public void renderImage(Font font, int x, int y, PoseStack pose, ItemRenderer renderer, int z)
+	public void renderImage(Font font, int x, int y, GuiGraphics pose)
 	{
 		for(ClientTooltipComponent child : children)
 		{
-			child.renderImage(font, x, y, pose, renderer, z);
+			child.renderImage(font, x, y, pose);
 			y += child.getHeight() + 2;
 		}
 	}
