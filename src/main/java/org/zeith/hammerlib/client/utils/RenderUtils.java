@@ -311,7 +311,7 @@ public class RenderUtils
 		var sdr = RenderSystem.getShader();
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		drawColoredModalRect(pose, x, y, width, height, color);
-		RenderSystem.setShader(Cast.staticValue(sdr));
+		RenderSystem.setShader(Cast.constant(sdr));
 	}
 	
 	public static class PlayerRenderUtil

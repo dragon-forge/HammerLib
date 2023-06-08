@@ -119,7 +119,7 @@ public class Network
 		if(dim == null || packet == null)
 			return;
 		if(LogicalSidePredictor.getCurrentLogicalSide() == LogicalSide.SERVER)
-			channel.send(PacketDistributor.DIMENSION.with(Cast.staticValue(dim)), toPlain(packet));
+			channel.send(PacketDistributor.DIMENSION.with(Cast.constant(dim)), toPlain(packet));
 	}
 	
 	public static void sendToAll(IPacket packet)
@@ -139,7 +139,7 @@ public class Network
 	{
 		if(point == null || packet == null) return;
 		if(LogicalSidePredictor.getCurrentLogicalSide() == LogicalSide.SERVER)
-			channel.send(PacketDistributor.NEAR.with(Cast.staticValue(point)), toPlain(packet));
+			channel.send(PacketDistributor.NEAR.with(Cast.constant(point)), toPlain(packet));
 	}
 	
 	public static void sendToServer(IPacket packet)
