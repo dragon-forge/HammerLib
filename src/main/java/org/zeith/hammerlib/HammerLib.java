@@ -39,6 +39,7 @@ import org.zeith.hammerlib.mixins.RegistryManagerAccessor;
 import org.zeith.hammerlib.proxy.*;
 import org.zeith.hammerlib.tiles.tooltip.own.impl.TooltipRenderEngine;
 import org.zeith.hammerlib.util.CommonMessages;
+import org.zeith.hammerlib.util.ZeithLinkRepository;
 import org.zeith.hammerlib.util.charging.ItemChargeHelper;
 import org.zeith.hammerlib.util.java.ReflectionUtil;
 import org.zeith.hammerlib.util.mcf.ScanDataHelper;
@@ -71,6 +72,7 @@ public class HammerLib
 		LanguageAdapter.registerMod(HLConstants.MOD_ID);
 		
 		TagsHL.init();
+		ZeithLinkRepository.initialize(); // Ask to initialize the link repository offthread somewhere.
 		
 		ItemChargeHelper.setup();
 		
