@@ -2,6 +2,7 @@ package org.zeith.hammerlib.tiles.tooltip.own.impl;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Block;
@@ -28,7 +29,7 @@ public class TooltipRenderEngine
 	public GuiTooltip lastTooltip;
 	
 	@Override
-	public void render(ForgeGui gui, PoseStack poseStack, float partialTick, int screenWidth, int screenHeight)
+	public void render(ForgeGui gui, GuiGraphics poseStack, float partialTick, int screenWidth, int screenHeight)
 	{
 		var mc = Minecraft.getInstance();
 		HitResult res = mc.hitResult;

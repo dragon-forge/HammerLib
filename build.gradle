@@ -10,18 +10,16 @@ buildscript {
         }
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
-        classpath "gradle.plugin.com.matthewprenger:CurseGradle:1.4.0"
+        classpath "gradle.plugin.com.matthewprenger:CurseGradle:1.4.+"
         classpath 'org.spongepowered:mixingradle:0.7.+'
     }
 }
 
 plugins {
     id "com.modrinth.minotaur" version "2.+"
-    id 'com.github.johnrengelman.shadow' version '6.1.0'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
 }
 
-apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'idea'
 apply plugin: 'maven-publish'
 apply plugin: "com.matthewprenger.cursegradle"
@@ -53,17 +51,19 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 
 minecraft {
-    mappings channel: config.mcp_ch, version: config.mcp_vr
+    mappings channel: 'official', version: config.mc_version
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+    copyIdeResources = true
     runs {
         client {
             workingDirectory project.file('run/client')
             property 'forge.logging.console.level', 'debug'
+            property 'forge.enabledGameTestNamespaces', config.mod_id
             setArgs(Arrays.asList("--mixin mixins.${config.mod_id}.json --username ${config.mc_user.split(',')[0]} --uuid ${config.mc_user.split(',')[1]}".split(' ')))
+
             mods {
-                examplemod {
+                "${config.mod_id}" {
                     source sourceSets.main
-                    resource sourceSets.main.resources
                 }
             }
         }
@@ -72,10 +72,10 @@ minecraft {
             workingDirectory project.file('run/server')
             property 'forge.logging.console.level', 'debug'
             setArgs(Arrays.asList("--mixin mixins.${config.mod_id}.json".split(' ')))
+            property 'forge.enabledGameTestNamespaces', config.mod_id
             mods {
-                examplemod {
+                "${config.mod_id}" {
                     source sourceSets.main
-                    resource sourceSets.main.resources
                 }
             }
         }
@@ -129,7 +129,7 @@ dependencies {
             def modartifact = file.name.substring(0, splitPos)
             def modversion = file.name.substring(splitPos + 1, file.name.length() - 4)
             dependencies {
-                compileClasspath fg.deobf(project.dependencies.create("_classpath:$modartifact:$modversion") {
+                compileOnly fg.deobf(project.dependencies.create("_classpath:$modartifact:$modversion") {
                     transitive = false
                 })
             }
@@ -143,7 +143,7 @@ dependencies {
             def modartifact = file.name.substring(0, splitPos)
             def modversion = file.name.substring(splitPos + 1, file.name.length() - 4)
             dependencies {
-                runtimeClasspath fg.deobf(project.dependencies.create("_runtime:$modartifact:$modversion") {
+                runtimeOnly fg.deobf(project.dependencies.create("_runtime:$modartifact:$modversion") {
                     transitive = false
                 })
             }
@@ -169,15 +169,32 @@ dependencies {
     } else libDir.mkdir();
 }
 
+def resourceTargets = ['META-INF/mods.toml', 'pack.mcmeta']
+def replaceProperties = [
+        minecraft_version: config.mc_version, minecraft_version_range: config.mc_range,
+        forge_version: "${config.mc_version}-${config.forge_version}", forge_version_range: config.forge_range,
+        mod_id: config.mod_id, mod_name: config.mod_name, mod_license: config.mod_license, mod_version: config.mod_version,
+        issue_tracker: config.issue_tracker, modrinth_project: config.modrinth_project,
+        mod_authors: config.mod_authors, mod_description: config.mod_description
+]
+processResources {
+    inputs.properties replaceProperties
+    replaceProperties.put 'project', project
+
+    filesMatching(resourceTargets) {
+        expand replaceProperties
+    }
+}
+
 jar {
     manifest {
         attributes([
-                "Specification-Title"     : "${config.mod_id}",
-                "Specification-Vendor"    : "Zeitheron",
+                "Specification-Title"     : config.mod_id,
+                "Specification-Vendor"    : config.mod_authors,
                 "Specification-Version"   : "1",
                 "Implementation-Title"    : project.name,
                 "Implementation-Version"  : archiveVersion,
-                "Implementation-Vendor"   : "Zeitheron",
+                "Implementation-Vendor"   : config.mod_authors,
                 "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
                 "MixinConfigs"            : "mixins.${config.mod_id}.json"
         ])
@@ -185,34 +202,25 @@ jar {
 }
 
 task deobfJar(type: Jar) {
-    classifier = 'deobf'
+    archiveClassifier = 'deobf'
     from sourceSets.main.output
     manifest {
-        attributes(["Specification-Title"     : "${config.mod_id}",
-                    "Specification-Vendor"    : "Zeitheron",
-                    "Specification-Version"   : "1",
-                    "Implementation-Title"    : project.name,
-                    "Implementation-Version"  : archiveVersion,
-                    "Implementation-Vendor"   : "Zeitheron",
-                    "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-                    "MixinConfigs"            : "mixins.${config.mod_id}.json"
+        attributes([
+                "Specification-Title"     : config.mod_id,
+                "Specification-Vendor"    : config.mod_authors,
+                "Specification-Version"   : "1",
+                "Implementation-Title"    : project.name,
+                "Implementation-Version"  : archiveVersion,
+                "Implementation-Vendor"   : config.mod_authors,
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                "MixinConfigs"            : "mixins.${config.mod_id}.json"
         ])
     }
 }
 
-shadowJar {
-    classifier ''
-    configurations = [project.configurations.shadow]
-}
-
-reobf {
-    shadowJar {}
-}
-shadowJar.finalizedBy('reobfShadowJar')
-
 task srcJar(type: Jar, dependsOn: classes) {
     from sourceSets.main.allJava
-    classifier = 'sources'
+    archiveClassifier = 'sources'
 }
 
 artifacts {
@@ -318,4 +326,8 @@ tasks.build.doLast {
         }
         Files.write buildTxt, lines, StandardOpenOption.CREATE;
     } else println "Build candidate enabled, we are not increasing build number after this."
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
 }

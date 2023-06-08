@@ -1,6 +1,7 @@
 package org.zeith.hammerlib.core.test.machine;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import org.zeith.hammerlib.client.screen.IAdvancedGui;
@@ -31,7 +32,7 @@ public class ScreenTestMachine
 	}
 	
 	@Override
-	protected void renderBackground(PoseStack pose, float partialTime, int mouseX, int mouseY)
+	protected void renderBackground(GuiGraphics pose, float partialTime, int mouseX, int mouseY)
 	{
 		FXUtils.bindTexture(HLConstants.MOD_ID, "textures/gui/test_machine.png");
 		RenderUtils.drawTexturedModalRect(pose, leftPos, topPos, 0, 0, imageWidth, imageHeight);

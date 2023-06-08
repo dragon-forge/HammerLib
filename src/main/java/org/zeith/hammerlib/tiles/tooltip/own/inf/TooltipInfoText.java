@@ -1,9 +1,8 @@
 package org.zeith.hammerlib.tiles.tooltip.own.inf;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraftforge.api.distmarker.Dist;
@@ -47,10 +46,9 @@ public class TooltipInfoText
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void render(PoseStack matrix, float x, float y, float partialTime)
+	public void render(GuiGraphics gfx, float x, float y, float partialTime)
 	{
-		if(dropShadow) fontRenderer.drawShadow(matrix, getText(), x, y, 0xFFFFFFFF);
-		else fontRenderer.draw(matrix, getText(), x, y, 0xFFFFFFFF);
+		gfx.drawString(fontRenderer, getText().getVisualOrderText(), x, y, 0xFFFFFFFF, dropShadow);
 	}
 	
 	public MutableComponent getText()

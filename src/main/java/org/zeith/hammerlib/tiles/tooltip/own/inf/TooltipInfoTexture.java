@@ -2,6 +2,7 @@ package org.zeith.hammerlib.tiles.tooltip.own.inf;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -45,13 +46,13 @@ public class TooltipInfoTexture
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void render(PoseStack matrix, float x, float y, float partialTime)
+	public void render(GuiGraphics matrix, float x, float y, float partialTime)
 	{
 		RenderSystem.enableBlend();
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.setShaderColor(red, green, blue, alpha);
 		FXUtils.bindTexture(texture);
-		RenderUtils.drawTexturedModalRect(matrix, x, y, null, width, height);
+		RenderUtils.drawTexturedModalRect(matrix.pose(), x, y, null, width, height);
 		RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
 	}
 }

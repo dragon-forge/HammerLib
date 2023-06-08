@@ -1,11 +1,9 @@
 package org.zeith.hammerlib.client.pipelines.shaders;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.ints.*;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.client.gui.components.toasts.ToastComponent;
 import net.minecraft.network.chat.Component;
@@ -16,10 +14,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import org.lwjgl.opengl.ARBShaderObjects;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL32;
+import org.lwjgl.opengl.*;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.annotations.Setup;
 import org.zeith.hammerlib.client.utils.GLBuffer;
@@ -27,10 +22,7 @@ import org.zeith.hammerlib.client.utils.GLHelperHL;
 import org.zeith.hammerlib.util.java.Once;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -53,7 +45,7 @@ public class VariableShaderProgram
 	private ResourceLocation id;
 	private boolean doGLLog = true, hasCompiled, compilationFailed;
 	private final List<Throwable> compilationErrors = new ArrayList<>();
-
+	
 	public VariableShaderProgram id(ResourceLocation id)
 	{
 		if(this.id == null)
@@ -65,7 +57,7 @@ public class VariableShaderProgram
 			throw new RuntimeException("ID already assigned to shader pipe: " + this.id + " (tried to override to " + id + ")");
 		return this;
 	}
-
+	
 	/**
 	 * Note: if any errors occur, logging will still happen!
 	 */
@@ -74,59 +66,59 @@ public class VariableShaderProgram
 		this.doGLLog = flag;
 		return this;
 	}
-
+	
 	public VariableShaderProgram subscribe4Events()
 	{
 		if(!PROGRAMS.contains(this)) PROGRAMS.add(this);
 		return this;
 	}
-
+	
 	public VariableShaderProgram addVariable(ShaderVar var)
 	{
 		var.setProgram(this);
 		variables.add(var);
 		return this;
 	}
-
+	
 	public VariableShaderProgram onBind(Consumer<VariableShaderProgram> onBind)
 	{
 		this.onBind.add(onBind);
 		return this;
 	}
-
+	
 	public VariableShaderProgram linkGeometrySource(ShaderSource src)
 	{
 		return linkSource(GL32.GL_GEOMETRY_SHADER, src);
 	}
-
+	
 	public VariableShaderProgram linkVertexSource(ShaderSource src)
 	{
 		return linkSource(GL20.GL_VERTEX_SHADER, src);
 	}
-
+	
 	public VariableShaderProgram linkFragmentSource(ShaderSource src)
 	{
 		return linkSource(GL20.GL_FRAGMENT_SHADER, src);
 	}
-
+	
 	public VariableShaderProgram linkSource(int type, ShaderSource src)
 	{
 		sources.put(type, src);
 		return this;
 	}
-
+	
 	public VariableShaderProgram onCompilationFailed(Consumer<VariableShaderProgram> errorHandler)
 	{
 		onCompilationFailed.add(errorHandler);
 		return this;
 	}
-
+	
 	protected void createProgram()
 	{
 		hasCompiled = false;
 		compilationFailed = false;
 		compilationErrors.clear();
-
+		
 		try
 		{
 			if(program != null) GL20.glDeleteProgram(program);
@@ -160,7 +152,7 @@ public class VariableShaderProgram
 		{
 			compilationErrors.add(err);
 		}
-
+		
 		if(!compilationErrors.isEmpty())
 		{
 			if(program != null) GL20.glDeleteProgram(program);
@@ -171,7 +163,7 @@ public class VariableShaderProgram
 			onCompilationFailed.forEach(c -> c.accept(VariableShaderProgram.this));
 		}
 	}
-
+	
 	public void update()
 	{
 		if(program == null && variables.stream().peek(ShaderVar::update).anyMatch(v -> v.hasChanged))
@@ -180,39 +172,39 @@ public class VariableShaderProgram
 			variables.forEach(v -> v.hasChanged = false);
 		}
 	}
-
+	
 	public void onReload()
 	{
 		createProgram();
 	}
-
+	
 	/*
 	 * Status resolvers.
 	 * Useful for disabling mod features if the shader wasn't able to compile properly.
 	 */
-
+	
 	public boolean hasCompiled()
 	{
 		return hasCompiled;
 	}
-
+	
 	public boolean hasCompilationFailed()
 	{
 		return compilationFailed;
 	}
-
+	
 	public List<Throwable> getCompilationErrors()
 	{
 		return compilationErrors;
 	}
-
+	
 	/* End status resolvers */
-
+	
 	public final ResourceLocation getId()
 	{
 		return id;
 	}
-
+	
 	public int getUniformLocation(String location)
 	{
 		if(program == null) return 0;
@@ -220,61 +212,61 @@ public class VariableShaderProgram
 			uniformCache.put(location, GL20.glGetUniformLocation(program, location));
 		return uniformCache.getInt(location);
 	}
-
+	
 	public void setUniform(String uniform, int value)
 	{
 		if(!hasCompiled) return;
 		GL20.glUniform1i(getUniformLocation(uniform), value);
 	}
-
+	
 	public void setUniform(String uniform, boolean value)
 	{
 		if(!hasCompiled) return;
 		GL20.glUniform1i(getUniformLocation(uniform), value ? 1 : 0);
 	}
-
+	
 	public void setUniform(String uniform, float value)
 	{
 		if(!hasCompiled) return;
 		GL20.glUniform1f(getUniformLocation(uniform), value);
 	}
-
+	
 	public void setUniform(String uniform, int v1, int v2)
 	{
 		if(!hasCompiled) return;
 		GL20.glUniform2i(getUniformLocation(uniform), v1, v2);
 	}
-
+	
 	public void setUniform(String uniform, int v1, int v2, int v3)
 	{
 		if(!hasCompiled) return;
 		GL20.glUniform3i(getUniformLocation(uniform), v1, v2, v3);
 	}
-
+	
 	public void setUniform(String uniform, float v1, float v2)
 	{
 		if(!hasCompiled) return;
 		GL20.glUniform2f(getUniformLocation(uniform), v1, v2);
 	}
-
+	
 	public void setUniform(String uniform, float v1, float v2, float v3)
 	{
 		if(!hasCompiled) return;
 		GL20.glUniform3f(getUniformLocation(uniform), v1, v2, v3);
 	}
-
+	
 	public void setUniform(String uniform, float v1, float v2, float v3, float v4)
 	{
 		if(!hasCompiled) return;
 		GL20.glUniform4f(getUniformLocation(uniform), v1, v2, v3, v4);
 	}
-
+	
 	public void setBuffer(String blockName, GLBuffer buffer)
 	{
 		if(!hasCompiled) return;
 		buffer.bindToShader(program, 0, blockName);
 	}
-
+	
 	public void bindShader()
 	{
 		if(compilationFailed) return;
@@ -283,14 +275,14 @@ public class VariableShaderProgram
 		GL20.glUseProgram(program);
 		if(!onBind.isEmpty()) onBind.forEach(c -> c.accept(this));
 	}
-
+	
 	public void unbindShader()
 	{
 		GL20.glUseProgram(0);
 	}
-
+	
 	private static final Once initShaders = Once.run(() -> HammerLib.postEvent(new InitializeShadersEvent()));
-
+	
 	@Setup(side = Dist.CLIENT)
 	public static void reloadShaders()
 	{
@@ -301,28 +293,28 @@ public class VariableShaderProgram
 			PROGRAMS.forEach(VariableShaderProgram::onReload);
 		});
 	}
-
+	
 	@SubscribeEvent
 	public static void tickShader(TickEvent.ClientTickEvent e)
 	{
 		if(e.phase == TickEvent.Phase.START) PROGRAMS.forEach(VariableShaderProgram::update);
 	}
-
+	
 	public static VariableShaderProgram byId(ResourceLocation id)
 	{
 		return PROGRAM_REGISTRY.get(id);
 	}
-
+	
 	public boolean isActive()
 	{
 		return hasCompiled && program != null && program.equals(GLHelperHL.activeShaderProgram());
 	}
-
+	
 	public enum ToastCompilationErrorHandler
 			implements Consumer<VariableShaderProgram>
 	{
 		INSTANCE;
-
+		
 		@Override
 		public void accept(VariableShaderProgram program)
 		{
@@ -334,7 +326,7 @@ public class VariableShaderProgram
 			}
 		}
 	}
-
+	
 	@OnlyIn(Dist.CLIENT)
 	public static class ShaderErrorToast
 			implements Toast
@@ -343,38 +335,38 @@ public class VariableShaderProgram
 		private Component subtitle;
 		private long firstDrawTime;
 		private boolean newDisplay;
-
+		
 		public ShaderErrorToast(Component titleComponent, @Nullable Component subtitleComponent)
 		{
 			this.title = titleComponent;
 			this.subtitle = subtitleComponent == null ? null : subtitleComponent;
 		}
-
+		
 		@Override
-		public Visibility render(PoseStack m, ToastComponent toastGui, long delta)
+		public Visibility render(GuiGraphics m, ToastComponent toastGui, long delta)
 		{
 			if(this.newDisplay)
 			{
 				this.firstDrawTime = delta;
 				this.newDisplay = false;
 			}
-
-			toastGui.getMinecraft().getTextureManager().bindForSetup(TEXTURE);
-			GL11.glColor3f(1.0F, 1.0F, 1.0F);
-			toastGui.blit(m, 0, 0, 0, 64, 160, 32);
-
+			
+			m.blit(TEXTURE, 0, 0, 0, 64, 160, 32);
+			
+			var font = toastGui.getMinecraft().font;
+			
 			if(this.subtitle == null)
 			{
-				toastGui.getMinecraft().font.draw(m, this.title, 18, 12, -256);
+				m.drawString(font, this.title, 18, 12, -256);
 			} else
 			{
-				toastGui.getMinecraft().font.draw(m, this.title, 18, 7, -256);
-				toastGui.getMinecraft().font.draw(m, this.subtitle, 18, 18, -1);
+				m.drawString(font, this.title, 18, 7, -256);
+				m.drawString(font, this.subtitle, 18, 18, -1);
 			}
-
+			
 			return delta - this.firstDrawTime < 5000L ? Visibility.SHOW : Visibility.HIDE;
 		}
-
+		
 		public void setDisplayedText(MutableComponent titleComponent, @Nullable MutableComponent subtitleComponent)
 		{
 			this.title = titleComponent;

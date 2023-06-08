@@ -7,9 +7,8 @@ import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
@@ -17,11 +16,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix4f;
-import org.joml.Vector3d;
-import org.lwjgl.opengl.GL11;
 import org.zeith.hammerlib.util.colors.ColorHelper;
+import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.java.itf.IntToIntFunction;
 
 import javax.annotation.Nullable;
@@ -66,7 +65,7 @@ public class RenderUtils
 		// copy the given pose over to the model view.
 		posestack.mulPoseMatrix(pose.last().pose());
 		
-		posestack.translate(x, y, 100.0F + ir.blitOffset);
+		posestack.translate(x, y, 100.0F);
 		posestack.translate(8.0D, 8.0D, 0.0D);
 		posestack.scale(1.0F, -1.0F, 1.0F);
 		posestack.scale(16.0F, 16.0F, 16.0F);
@@ -80,7 +79,7 @@ public class RenderUtils
 			Lighting.setupForFlatItems();
 		}
 		
-		ir.render(stack, ItemTransforms.TransformType.GUI, false, posestack1, multibuffersource$buffersource, 15728880, OverlayTexture.NO_OVERLAY, p_115131_);
+		ir.render(stack, ItemDisplayContext.GUI, false, posestack1, multibuffersource$buffersource, 15728880, OverlayTexture.NO_OVERLAY, p_115131_);
 		multibuffersource$buffersource.endBatch();
 		RenderSystem.enableDepthTest();
 		if(flag)
@@ -92,18 +91,9 @@ public class RenderUtils
 		RenderSystem.applyModelViewMatrix();
 	}
 	
-	@Deprecated
-	public static void drawTexturedModalRect(double x, double y, double texX, double texY, double width, double height)
+	public static void drawTexturedModalRect(GuiGraphics pose, float x, float y, float texX, float texY, float width, float height)
 	{
-		float n = 0.00390625F;
-		Tesselator tess = Tesselator.getInstance();
-		BufferBuilder vb = tess.getBuilder();
-		vb.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-		vb.vertex(x, y + height, zLevel).uv((float) texX * n, (float) (texY + height) * n).endVertex();
-		vb.vertex(x + width, y + height, zLevel).uv((float) (texX + width) * n, (float) (texY + height) * n).endVertex();
-		vb.vertex(x + width, y, zLevel).uv((float) (texX + width) * n, (float) texY * n).endVertex();
-		vb.vertex(x, y, zLevel).uv((float) texX * n, (float) texY * n).endVertex();
-		tess.end();
+		drawTexturedModalRect(pose.pose(), x, y, texX, texY, width, height);
 	}
 	
 	public static void drawTexturedModalRect(PoseStack pose, float x, float y, float texX, float texY, float width, float height)
@@ -120,22 +110,9 @@ public class RenderUtils
 		tess.end();
 	}
 	
-	@Deprecated
-	public static void drawFullTexturedModalRect(double x, double y, double width, double height)
+	public static void drawFullTexturedModalRect(GuiGraphics pose, float x, float y, float width, float height)
 	{
-		Tesselator tess = Tesselator.getInstance();
-		BufferBuilder vb = tess.getBuilder();
-		vb.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-		vb.vertex(x, y + height, zLevel).uv(0, 1).endVertex();
-		vb.vertex(x + width, y + height, zLevel).uv(1, 1).endVertex();
-		vb.vertex(x + width, y, zLevel).uv(1, 0).endVertex();
-		vb.vertex(x, y, zLevel).uv(0, 0).endVertex();
-		tess.end();
-	}
-	
-	public static void drawFullTexturedModalRect(PoseStack pose, float x, float y, float width, float height)
-	{
-		Matrix4f pose4f = pose.last().pose();
+		Matrix4f pose4f = pose.pose().last().pose();
 		Tesselator tess = Tesselator.getInstance();
 		BufferBuilder vb = tess.getBuilder();
 		vb.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
@@ -146,23 +123,9 @@ public class RenderUtils
 		tess.end();
 	}
 	
-	@Deprecated
-	public static void drawColoredModalRect(double x, double y, double width, double height, int rgb)
+	public static void drawColoredModalRect(GuiGraphics pose, float x, float y, float width, float height, int rgb)
 	{
-		float r = ColorHelper.getRed(rgb), g = ColorHelper.getGreen(rgb), b = ColorHelper.getBlue(rgb), a = ColorHelper.getAlpha(rgb);
-		Tesselator tess = Tesselator.getInstance();
-		BufferBuilder vb = tess.getBuilder();
-		vb.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-		vb.vertex(x, y + height, zLevel).color(r, g, b, a).endVertex();
-		vb.vertex(x + width, y + height, zLevel).color(r, g, b, a).endVertex();
-		vb.vertex(x + width, y, zLevel).color(r, g, b, a).endVertex();
-		vb.vertex(x, y, zLevel).color(r, g, b, a).endVertex();
-		tess.end();
-	}
-	
-	public static void drawColoredModalRect(PoseStack pose, float x, float y, float width, float height, int rgb)
-	{
-		Matrix4f pose4f = pose.last().pose();
+		Matrix4f pose4f = pose.pose().last().pose();
 		float r = ColorHelper.getRed(rgb), g = ColorHelper.getGreen(rgb), b = ColorHelper.getBlue(rgb), a = ColorHelper.getAlpha(rgb);
 		Tesselator tess = Tesselator.getInstance();
 		BufferBuilder vb = tess.getBuilder();
@@ -172,51 +135,6 @@ public class RenderUtils
 		vb.vertex(pose4f, x + width, y, zLevel).color(r, g, b, a).endVertex();
 		vb.vertex(pose4f, x, y, zLevel).color(r, g, b, a).endVertex();
 		tess.end();
-	}
-	
-	@Deprecated
-	public static void drawTexturedModalRect(double x, double y, double texX, double texY, double width, double height, double zLevel)
-	{
-		float n = 0.00390625F;
-		Tesselator tess = Tesselator.getInstance();
-		BufferBuilder vb = tess.getBuilder();
-		vb.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-		vb.vertex(x, y + height, zLevel).uv((float) texX * n, (float) (texY + height) * n).endVertex();
-		vb.vertex(x + width, y + height, zLevel).uv((float) (texX + width) * n, (float) (texY + height) * n).endVertex();
-		vb.vertex(x + width, y, zLevel).uv((float) (texX + width) * n, (float) texY * n).endVertex();
-		vb.vertex(x, y, zLevel).uv((float) texX * n, (float) texY * n).endVertex();
-		tess.end();
-	}
-	
-	@Deprecated
-	public static void drawTexturedModalRect(double xCoord, double yCoord, @Nullable TextureAtlasSprite textureSprite, double widthIn, double heightIn)
-	{
-		float minU;
-		float minV;
-		float maxU;
-		float maxV;
-		if(textureSprite == null)
-		{
-			minU = 0;
-			minV = 0;
-			maxU = 1;
-			maxV = 1;
-		} else
-		{
-			minU = textureSprite.getU0();
-			minV = textureSprite.getV0();
-			maxU = textureSprite.getU1();
-			maxV = textureSprite.getV1();
-		}
-		
-		Tesselator tessellator = Tesselator.getInstance();
-		BufferBuilder vertexbuffer = tessellator.getBuilder();
-		vertexbuffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-		vertexbuffer.vertex(xCoord, yCoord + heightIn, 0).uv(minU, maxV).endVertex();
-		vertexbuffer.vertex(xCoord + widthIn, yCoord + heightIn, 0).uv(maxU, maxV).endVertex();
-		vertexbuffer.vertex(xCoord + widthIn, yCoord, 0).uv(maxU, minV).endVertex();
-		vertexbuffer.vertex(xCoord, yCoord, 0).uv(minU, minV).endVertex();
-		tessellator.end();
 	}
 	
 	public static void drawTexturedModalRect(PoseStack pose, float xCoord, float yCoord, @Nullable TextureAtlasSprite textureSprite, float widthIn, float heightIn)
@@ -251,100 +169,14 @@ public class RenderUtils
 		tessellator.end();
 	}
 	
-	@Deprecated
-	public static void drawGradientRect(double left, double top, double width, double height, int startColor, int endColor)
+	public static void drawTextRGBA(Font font, GuiGraphics stack, String s, int x, int y, int r, int g, int b, int a)
 	{
-		float f = (startColor >> 24 & 255) / 255F;
-		float f1 = (startColor >> 16 & 255) / 255F;
-		float f2 = (startColor >> 8 & 255) / 255F;
-		float f3 = (startColor & 255) / 255F;
-		float f4 = (endColor >> 24 & 255) / 255F;
-		float f5 = (endColor >> 16 & 255) / 255F;
-		float f6 = (endColor >> 8 & 255) / 255F;
-		float f7 = (endColor & 255) / 255F;
-		RenderSystem.disableTexture();
-		RenderSystem.enableBlend();
-		RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-		Tesselator tessellator = Tesselator.getInstance();
-		BufferBuilder vertexbuffer = tessellator.getBuilder();
-		vertexbuffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-		vertexbuffer.vertex(left + width, top, zLevel).color(f1, f2, f3, f).endVertex();
-		vertexbuffer.vertex(left, top, zLevel).color(f1, f2, f3, f).endVertex();
-		vertexbuffer.vertex(left, top + height, zLevel).color(f5, f6, f7, f4).endVertex();
-		vertexbuffer.vertex(left + width, top + height, zLevel).color(f5, f6, f7, f4).endVertex();
-		tessellator.end();
-		RenderSystem.disableBlend();
-		RenderSystem.enableTexture();
+		stack.drawString(font, s, x, y, ColorHelper.packARGB(r, g, b, a));
 	}
 	
-	@Deprecated
-	public static void drawGradientRect(double left, double top, double width, double height, int startColor, int endColor, double zLevel)
+	public static void drawTextRGBA(Font font, GuiGraphics stack, Component s, int x, int y, int r, int g, int b, int a)
 	{
-		float f = (startColor >> 24 & 255) / 255F;
-		float f1 = (startColor >> 16 & 255) / 255F;
-		float f2 = (startColor >> 8 & 255) / 255F;
-		float f3 = (startColor & 255) / 255F;
-		float f4 = (endColor >> 24 & 255) / 255F;
-		float f5 = (endColor >> 16 & 255) / 255F;
-		float f6 = (endColor >> 8 & 255) / 255F;
-		float f7 = (endColor & 255) / 255F;
-		RenderSystem.disableTexture();
-		RenderSystem.enableBlend();
-		RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-		Tesselator tess = Tesselator.getInstance();
-		BufferBuilder vb = tess.getBuilder();
-		vb.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-		vb.vertex(left + width, top, zLevel).color(f1, f2, f3, f).endVertex();
-		vb.vertex(left, top, zLevel).color(f1, f2, f3, f).endVertex();
-		vb.vertex(left, top + height, zLevel).color(f5, f6, f7, f4).endVertex();
-		vb.vertex(left + width, top + height, zLevel).color(f5, f6, f7, f4).endVertex();
-		tess.end();
-		RenderSystem.disableBlend();
-		RenderSystem.enableTexture();
-	}
-	
-	public static void drawTextRGBA(Font font, PoseStack stack, String s, int x, int y, int r, int g, int b, int a)
-	{
-		font.draw(stack, s, x, y, ColorHelper.packARGB(r, g, b, a));
-	}
-	
-	public static void drawTextRGBA(Font font, PoseStack stack, Component s, int x, int y, int r, int g, int b, int a)
-	{
-		font.draw(stack, s, x, y, ColorHelper.packARGB(r, g, b, a));
-	}
-	
-	@Deprecated(forRemoval = true)
-	public static void drawLine(Vector3d start, Vector3d end, int color, float size)
-	{
-		RenderSystem.enableBlend();
-		RenderSystem.disableTexture();
-		ColorHelper.glColor1ia(color);
-		GL11.glPushMatrix();
-		GL11.glLineWidth(size);
-		GL11.glBegin(GL11.GL_LINES);
-		GL11.glVertex3d(start.x, start.y, start.z);
-		GL11.glVertex3d(end.x, end.y, end.z);
-		GL11.glEnd();
-		GL11.glPopMatrix();
-		RenderSystem.enableTexture();
-		ColorHelper.glColor1ia(0xFFFFFFFF);
-	}
-	
-	@Deprecated(forRemoval = true)
-	public static void drawBrokenLine(int color, float size, Vector3d... points)
-	{
-		RenderSystem.enableBlend();
-		RenderSystem.disableTexture();
-		ColorHelper.glColor1ia(color);
-		GL11.glPushMatrix();
-		GL11.glLineWidth(size);
-		GL11.glBegin(GL11.GL_LINES);
-		for(Vector3d point : points)
-			GL11.glVertex3d(point.x, point.y, point.z);
-		GL11.glEnd();
-		GL11.glPopMatrix();
-		RenderSystem.enableTexture();
-		ColorHelper.glColor1ia(0xFFFFFFFF);
+		stack.drawString(font, s, x, y, ColorHelper.packARGB(r, g, b, a));
 	}
 	
 	private static final Random rand = new Random();
@@ -453,132 +285,73 @@ public class RenderUtils
 	
 	private static final float HALF_SQRT_3 = (float) (Math.sqrt(3.0D) / 2.0D);
 	
-	private static void vertex01(VertexConsumer p_229061_0_, Matrix4f p_229061_1_, int r, int g, int b, int a)
+	private static void vertex01(VertexConsumer c, Matrix4f pose, int r, int g, int b, int a)
 	{
-		p_229061_0_.vertex(p_229061_1_, 0.0F, 0.0F, 0.0F).color(r, g, b, a).endVertex();
-		p_229061_0_.vertex(p_229061_1_, 0.0F, 0.0F, 0.0F).color(r, g, b, a).endVertex();
+		c.vertex(pose, 0.0F, 0.0F, 0.0F).color(r, g, b, a).endVertex();
+		c.vertex(pose, 0.0F, 0.0F, 0.0F).color(r, g, b, a).endVertex();
 	}
 	
-	private static void vertex2(VertexConsumer p_229060_0_, Matrix4f p_229060_1_, float p_229060_2_, float p_229060_3_, int r, int g, int b)
+	private static void vertex2(VertexConsumer c, Matrix4f pose, float p_229060_2_, float p_229060_3_, int r, int g, int b)
 	{
-		p_229060_0_.vertex(p_229060_1_, -HALF_SQRT_3 * p_229060_3_, p_229060_2_, -0.5F * p_229060_3_).color(r, g, b, 0).endVertex();
+		c.vertex(pose, -HALF_SQRT_3 * p_229060_3_, p_229060_2_, -0.5F * p_229060_3_).color(r, g, b, 0).endVertex();
 	}
 	
-	private static void vertex3(VertexConsumer p_229062_0_, Matrix4f p_229062_1_, float p_229062_2_, float p_229062_3_, int r, int g, int b)
+	private static void vertex3(VertexConsumer c, Matrix4f pose, float p_229062_2_, float p_229062_3_, int r, int g, int b)
 	{
-		p_229062_0_.vertex(p_229062_1_, HALF_SQRT_3 * p_229062_3_, p_229062_2_, -0.5F * p_229062_3_).color(r, g, b, 0).endVertex();
+		c.vertex(pose, HALF_SQRT_3 * p_229062_3_, p_229062_2_, -0.5F * p_229062_3_).color(r, g, b, 0).endVertex();
 	}
 	
-	private static void vertex4(VertexConsumer p_229063_0_, Matrix4f p_229063_1_, float p_229063_2_, float p_229063_3_, int r, int g, int b)
+	private static void vertex4(VertexConsumer c, Matrix4f pose, float p_229063_2_, float p_229063_3_, int r, int g, int b)
 	{
-		p_229063_0_.vertex(p_229063_1_, 0.0F, p_229063_2_, p_229063_3_).color(r, g, b, 0).endVertex();
+		c.vertex(pose, 0.0F, p_229063_2_, p_229063_3_).color(r, g, b, 0).endVertex();
 	}
 	
-	public static void drawHorizontalGradientRect(float left, float top, float width, float height, int startColor, int endColor)
+	public static void drawRect(GuiGraphics pose, int x, int y, int width, int height, int color)
 	{
-		float f = (float) (startColor >> 24 & 255) / 255.0F;
-		float f1 = (float) (startColor >> 16 & 255) / 255.0F;
-		float f2 = (float) (startColor >> 8 & 255) / 255.0F;
-		float f3 = (float) (startColor & 255) / 255.0F;
-		
-		float f4 = (float) (endColor >> 24 & 255) / 255.0F;
-		float f5 = (float) (endColor >> 16 & 255) / 255.0F;
-		float f6 = (float) (endColor >> 8 & 255) / 255.0F;
-		float f7 = (float) (endColor & 255) / 255.0F;
-		
-		float right = left + width;
-		float bottom = top + height;
-		
-		RenderSystem.disableTexture();
-		RenderSystem.enableBlend();
-		RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-		Tesselator tessellator = Tesselator.getInstance();
-		BufferBuilder bufferbuilder = tessellator.getBuilder();
-		bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-		bufferbuilder.vertex(right, top, 0).color(f1, f2, f3, f).endVertex();
-		bufferbuilder.vertex(left, top, 0).color(f1, f2, f3, f).endVertex();
-		bufferbuilder.vertex(left, bottom, 0).color(f5, f6, f7, f4).endVertex();
-		bufferbuilder.vertex(right, bottom, 0).color(f5, f6, f7, f4).endVertex();
-		tessellator.end();
-		RenderSystem.disableBlend();
-		RenderSystem.enableTexture();
-	}
-	
-	public static void drawVerticalGradientRect(float left, float top, float width, float height, int startColor, int endColor)
-	{
-		float f = (float) (startColor >> 24 & 255) / 255.0F;
-		float f1 = (float) (startColor >> 16 & 255) / 255.0F;
-		float f2 = (float) (startColor >> 8 & 255) / 255.0F;
-		float f3 = (float) (startColor & 255) / 255.0F;
-		
-		float f4 = (float) (endColor >> 24 & 255) / 255.0F;
-		float f5 = (float) (endColor >> 16 & 255) / 255.0F;
-		float f6 = (float) (endColor >> 8 & 255) / 255.0F;
-		float f7 = (float) (endColor & 255) / 255.0F;
-		
-		float right = left + width;
-		float bottom = top + height;
-		
-		RenderSystem.disableTexture();
-		RenderSystem.enableBlend();
-		RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-		Tesselator tessellator = Tesselator.getInstance();
-		BufferBuilder bufferbuilder = tessellator.getBuilder();
-		bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-		bufferbuilder.vertex(right, top, 0).color(f5, f6, f7, f4).endVertex();
-		bufferbuilder.vertex(left, top, 0).color(f1, f2, f3, f).endVertex();
-		bufferbuilder.vertex(left, bottom, 0).color(f1, f2, f3, f).endVertex();
-		bufferbuilder.vertex(right, bottom, 0).color(f5, f6, f7, f4).endVertex();
-		tessellator.end();
-		RenderSystem.disableBlend();
-		RenderSystem.enableTexture();
-	}
-	
-	public static void drawRect(PoseStack pose, int x, int y, int width, int height, int color)
-	{
-		RenderSystem.disableTexture();
+		var sdr = RenderSystem.getShader();
+		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		drawColoredModalRect(pose, x, y, width, height, color);
-		RenderSystem.enableTexture();
+		RenderSystem.setShader(Cast.staticValue(sdr));
 	}
 	
 	public static class PlayerRenderUtil
 	{
-		public static void rotateIfSneaking(Player player)
+		public static void rotateIfSneaking(PoseStack pose, Player player)
 		{
 			if(player.isShiftKeyDown())
-				applySneakingRotation();
+				applySneakingRotation(pose);
 		}
 		
-		public static void applySneakingRotation()
+		public static void applySneakingRotation(PoseStack pose)
 		{
-			GL11.glTranslatef(0F, 0.2F, 0F);
-			GL11.glRotatef(90F / (float) Math.PI, 1.0F, 0.0F, 0.0F);
+			pose.translate(0F, 0.2F, 0F);
+			pose.mulPose(Axis.XP.rotationDegrees(90F));
 		}
 		
-		public static void translateToHeadLevel(Player player)
+		public static void translateToHeadLevel(PoseStack pose, Player player)
 		{
-			GL11.glTranslatef(0, -player.getEyeHeight(), 0);
+			pose.translate(0, -player.getEyeHeight(), 0);
 			if(player.isShiftKeyDown())
-				GL11.glTranslatef(0.25F * Mth.sin(player.getYRot() * (float) Math.PI / 180), 0.25F * Mth.cos(player.getYRot() * (float) Math.PI / 180), 0F);
+				pose.translate(0.25F * Mth.sin(player.getYRot() * (float) Math.PI / 180), 0.25F * Mth.cos(player.getYRot() * (float) Math.PI / 180), 0F);
 		}
 		
-		public static void translateToFace()
+		public static void translateToFace(PoseStack pose)
 		{
-			GL11.glRotatef(90F, 0F, 1F, 0F);
-			GL11.glRotatef(180F, 1F, 0F, 0F);
-			GL11.glTranslatef(0f, -4.35f, -1.27f);
+			pose.mulPose(Axis.YP.rotationDegrees(90F));
+			pose.mulPose(Axis.XP.rotationDegrees(180F));
+			pose.translate(0f, -4.35f, -1.27f);
 		}
 		
-		public static void defaultTransforms()
+		public static void defaultTransforms(PoseStack pose)
 		{
-			GL11.glTranslatef(0, 3, 1);
-			GL11.glScalef(0.55F, 0.55F, 0.55F);
+			pose.translate(0, 3, 1);
+			pose.scale(0.55F, 0.55F, 0.55F);
 		}
 		
-		public static void translateToChest()
+		public static void translateToChest(PoseStack pose)
 		{
-			GL11.glRotatef(180F, 1F, 0F, 0F);
-			GL11.glTranslatef(0F, -3.2F, -0.85F);
+			pose.mulPose(Axis.XP.rotationDegrees(180F));
+			pose.translate(0F, -3.2F, -0.85F);
 		}
 	}
 }

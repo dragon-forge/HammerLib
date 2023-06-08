@@ -177,6 +177,6 @@ public class Network
 	{
 		ServerPlayer spe = Cast.cast(player, ServerPlayer.class);
 		if(spe != null)
-			spe.getLevel().getChunkSource().broadcastAndSend(spe, new ClientboundAnimatePacket(player, hand == InteractionHand.MAIN_HAND ? 0 : 3));
+			spe.serverLevel().getChunkSource().broadcastAndSend(spe, new ClientboundAnimatePacket(player, hand == InteractionHand.MAIN_HAND ? 0 : 3));
 	}
 }

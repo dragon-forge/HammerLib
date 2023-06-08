@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FastColor;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.event.TextureStitchEvent;
@@ -165,16 +166,16 @@ public class TexturePixelGetter
 			{
 				int rgba = img.getPixelRGBA(x, y);
 				
-				int a = NativeImage.getA(rgba);
+				int a = FastColor.ABGR32.alpha(rgba);
 				
 				if(a <= alphaThreshold)
 					continue;
 				
 				int rgb = ColorHelper.packARGBi(
 						a,
-						NativeImage.getR(rgba),
-						NativeImage.getG(rgba),
-						NativeImage.getB(rgba)
+						FastColor.ABGR32.red(rgba),
+						FastColor.ABGR32.green(rgba),
+						FastColor.ABGR32.blue(rgba)
 				);
 				
 				ints.add(rgb);

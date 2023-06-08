@@ -2,6 +2,7 @@ package org.zeith.hammerlib.tiles.tooltip.own.inf;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
@@ -26,14 +27,16 @@ public record TooltipInfoStack(ItemStack stack, float width, float height)
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void render(PoseStack matrix, float x, float y, float partialTime)
+	public void render(GuiGraphics matrix, float x, float y, float partialTime)
 	{
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		
-		matrix.pushPose();
-		matrix.translate(x, y, 0);
-		matrix.scale(width / 16F, height / 16F, 1);
-		RenderUtils.renderItemIntoGui(matrix, stack, 0F, 0F);
-		matrix.popPose();
+		var pose = matrix.pose();
+		
+		pose.pushPose();
+		pose.translate(x, y, 0);
+		pose.scale(width / 16F, height / 16F, 1);
+		RenderUtils.renderItemIntoGui(pose, stack, 0F, 0F);
+		pose.popPose();
 	}
 }

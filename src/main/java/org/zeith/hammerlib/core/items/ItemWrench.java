@@ -9,8 +9,6 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.zeith.api.wrench.IWrenchItem;
-import org.zeith.hammerlib.annotations.RegistryName;
-import org.zeith.hammerlib.annotations.SimplyRegister;
 import org.zeith.hammerlib.api.items.*;
 import org.zeith.hammerlib.core.adapter.TagAdapter;
 import org.zeith.hammerlib.core.init.TagsHL;
@@ -20,20 +18,27 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@SimplyRegister
 public class ItemWrench
 		extends Item
 		implements IWrenchItem, IDynamicallyTaggedItem, ITabItem
 {
-	@RegistryName("wrench")
-	public static final ItemWrench WRENCH = new ItemWrench(new Properties().stacksTo(1));
-	
+	protected boolean defaultRecipe = true;
 	public final List<CreativeTab> extraTabs = new ArrayList<>(List.of(HLConstants.HL_TAB));
 	
 	public ItemWrench(Properties props)
 	{
 		super(props);
 		TagAdapter.bind(TagsHL.Items.TOOLS_WRENCH, this);
+	}
+	
+	public void disableDefaultRecipe()
+	{
+		defaultRecipe = false;
+	}
+	
+	public boolean defaultRecipe()
+	{
+		return defaultRecipe;
 	}
 	
 	@Override

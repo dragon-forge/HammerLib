@@ -5,7 +5,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.event.CreativeModeTabEvent;
 import org.zeith.hammerlib.core.adapter.CreativeTabAdapter;
 import org.zeith.hammerlib.util.java.tuples.Tuple1;
 
@@ -13,6 +12,7 @@ import java.lang.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class CreativeTab
 {
@@ -60,9 +60,9 @@ public class CreativeTab
 		return contents;
 	}
 	
-	public void register(CreativeModeTabEvent.Register e)
+	public void register(Function<CreativeTab, CreativeModeTab> e)
 	{
-		tab(e.registerCreativeModeTab(id(), factory()));
+		tab(e.apply(this));
 		CreativeTabAdapter.getRegistered().put(tab(), this);
 	}
 	
