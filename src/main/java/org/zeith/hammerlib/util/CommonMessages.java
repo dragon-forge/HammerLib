@@ -11,6 +11,8 @@ import java.net.URL;
 
 public class CommonMessages
 {
+	public static final Component CRAFTING_MATERIAL = Component.translatable("info.hammerlib.material").withStyle(ChatFormatting.GRAY);
+	
 	public static CheckResult printMessageOnIllegalRedistribution(Class<?> modClass, Logger log, String modName, String downloadUrl)
 	{
 		var illegalSourceNotice = ModSourceAdapter.getModSource(modClass)

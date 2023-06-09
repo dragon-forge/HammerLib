@@ -10,7 +10,7 @@ import org.zeith.hammerlib.proxy.HLConstants;
 
 import java.util.List;
 
-import static org.zeith.hammerlib.proxy.HLConstants.CRAFTING_MATERIAL;
+import static org.zeith.hammerlib.util.CommonMessages.CRAFTING_MATERIAL;
 
 public class ItemGear
 		extends Item
