@@ -22,6 +22,7 @@ import org.zeith.hammerlib.client.screen.IAdvancedGui;
 import org.zeith.hammerlib.core.RecipeHelper;
 import org.zeith.hammerlib.proxy.HLConstants;
 import org.zeith.hammerlib.util.java.Cast;
+import org.zeith.hammerlib.util.java.tuples.Tuple2;
 import org.zeith.hammerlib.util.mcf.ScanDataHelper;
 
 import java.util.*;
@@ -76,19 +77,33 @@ public class JeiHammerLib
 		this.runtime = jeiRuntime;
 	}
 	
+	static final RecipeVisualizationRegistry visRegistry = new RecipeVisualizationRegistry();
 	static final Map<RecipeType<?>, mezz.jei.api.recipe.RecipeType<?>> MC2JEI = new HashMap<>();
+	
+	mezz.jei.api.recipe.RecipeType jeiFromMc(Tuple2<RecipeType<?>, IRecipeVisualizer<?, ?>> tup)
+	{
+		var type = tup.a();
+		var typeID = ForgeRegistries.RECIPE_TYPES.getKey(type);
+		if(typeID == null) return null;
+		var vis = tup.b();
+		return Cast.cast(MC2JEI.computeIfAbsent(type, vanilla -> new mezz.jei.api.recipe.RecipeType<>(typeID, vis.getVisualizedType())));
+	}
+	
+	public Stream<Tuple2<RecipeType<?>, IRecipeVisualizer<?, ?>>> getVisualizedEntries()
+	{
+		return visRegistry.getVisualizedEntries();
+	}
 	
 	@Override
 	public void registerCategories(IRecipeCategoryRegistration registration)
 	{
-		RecipeVisualizationRegistry.getVisualizedEntries().forEach(tup ->
+		visRegistry.reload();
+		
+		getVisualizedEntries().forEach(tup ->
 		{
-			var type = tup.a();
-			var typeID = ForgeRegistries.RECIPE_TYPES.getKey(type);
-			if(typeID == null) return;
-			var vis = tup.b();
-			mezz.jei.api.recipe.RecipeType jeiRT = MC2JEI.computeIfAbsent(type, vanilla -> new mezz.jei.api.recipe.RecipeType<>(typeID, vis.getVisualizedType()));
-			var cat = new VisualizedRecipeCategory<>(jeiRT, vis.getGroup());
+			var jeiRT = jeiFromMc(tup);
+			if(jeiRT == null) return;
+			var cat = new VisualizedRecipeCategory<>(jeiRT, tup.b().getGroup());
 			registration.addRecipeCategories(cat);
 		});
 	}
@@ -96,18 +111,19 @@ public class JeiHammerLib
 	@Override
 	public void registerRecipes(IRecipeRegistration registration)
 	{
-		RecipeVisualizationRegistry.getVisualizedEntries().forEach(tup ->
+		getVisualizedEntries().forEach(tup ->
 		{
+			var jeiRT = jeiFromMc(tup);
+			if(jeiRT == null) return;
 			var type = tup.a();
 			var typeID = ForgeRegistries.RECIPE_TYPES.getKey(type);
 			if(typeID == null) return;
-			var vis = tup.b();
-			mezz.jei.api.recipe.RecipeType jeiRT = MC2JEI.computeIfAbsent(type, vanilla -> new mezz.jei.api.recipe.RecipeType<>(typeID, vis.getVisualizedType()));
-			registerRecipesFor(registration, (RecipeType) type, jeiRT, (IRecipeVisualizer) vis);
+			registerRecipesFor(registration, (RecipeType) type, jeiRT, (IRecipeVisualizer) tup.b());
 		});
 	}
 	
-	private <R extends Recipe<C>, C extends net.minecraft.world.Container, T extends IVisualizedRecipe<R>> void registerRecipesFor(
+	private <R extends Recipe<C>, C extends net.minecraft.world.Container, T extends IVisualizedRecipe<R>>
+	void registerRecipesFor(
 			IRecipeRegistration reg,
 			RecipeType<R> recipeType, mezz.jei.api.recipe.RecipeType<T> type,
 			IRecipeVisualizer<R, T> visualizer)
@@ -124,6 +140,20 @@ public class JeiHammerLib
 				.map(ScanDataHelper.ModAwareAnnotationData::getOwnerClass)
 				.filter(raw -> AbstractContainerScreen.class.isAssignableFrom(raw) && IAdvancedGui.class.isAssignableFrom(raw))
 				.forEach(f -> registration.addGuiContainerHandler(f.asSubclass(AbstractContainerScreen.class), Cast.cast(AdvancedGuiToJeiWrapper.get())));
+	}
+	
+	@Override
+	public void registerRecipeCatalysts(IRecipeCatalystRegistration registration)
+	{
+		getVisualizedEntries().forEach(tup ->
+		{
+			mezz.jei.api.recipe.RecipeType jeiRT = jeiFromMc(tup);
+			if(jeiRT == null) return;
+			var vis = tup.b();
+			var g = vis.getGroup();
+			for(ItemStack stack : g.catalyst())
+				registration.addRecipeCatalyst(stack, jeiRT);
+		});
 	}
 	
 	@Override

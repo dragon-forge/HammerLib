@@ -79,7 +79,7 @@ public class TileTestMachine
 				if(output(result))
 				{
 					inventory.getItem(0).shrink(r.inputA.count());
-					inventory.getItem(1).shrink(r.inputA.count());
+					inventory.getItem(1).shrink(r.inputB.count());
 					
 					if(!isValidRecipe(r))
 					{
@@ -223,8 +223,24 @@ public class TileTestMachine
 		
 		if(recipe != null)
 		{
-			var inA = RecipeHelper.cycleIngredientStack(recipe.inputA.input(), 1000L);
-			var inB = RecipeHelper.cycleIngredientStack(recipe.inputB.input(), 1000L);
+			var ingA = recipe.inputA;
+			var ingB = recipe.inputB;
+			
+			var stored0 = inventory.getItem(0);
+			var stored1 = inventory.getItem(1);
+			
+			ItemStack inA;
+			if(ingA.test(stored0))
+				inA = stored0.copy();
+			else
+				inA = RecipeHelper.cycleIngredientStack(ingA.input(), 1000L);
+			
+			ItemStack inB;
+			if(ingB.test(stored1))
+				inB = stored1.copy();
+			else
+				inB = RecipeHelper.cycleIngredientStack(ingB.input(), 1000L);
+			
 			if(!inA.isEmpty()) inA.setCount(recipe.inputA.count());
 			if(!inB.isEmpty()) inB.setCount(recipe.inputB.count());
 			

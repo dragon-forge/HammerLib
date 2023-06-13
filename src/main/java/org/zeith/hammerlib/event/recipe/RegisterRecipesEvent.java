@@ -6,6 +6,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.fml.event.IModBusEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
@@ -24,11 +26,13 @@ import java.util.stream.Stream;
  */
 public class RegisterRecipesEvent
 		extends Event
-		implements IRecipeRegistrationEvent<Recipe<?>>
+		implements IRecipeRegistrationEvent<Recipe<?>>, IModBusEvent
 {
 	private final List<Recipe<?>> recipes = Lists.newArrayList();
 	private final Set<ResourceLocation> removeRecipes = Sets.newHashSet();
 	private final Predicate<ResourceLocation> idInUse;
+	
+	protected String contextModId;
 	
 	private final Map<String, RecipeRegistrationContext> contextMap = Maps.newHashMap();
 	
@@ -38,6 +42,11 @@ public class RegisterRecipesEvent
 	{
 		this.idInUse = idInUse;
 		this.extensions = RecipeBuilderExtension.attach(this);
+	}
+	
+	public void setContextModId(String contextModId)
+	{
+		this.contextModId = contextModId;
 	}
 	
 	@Nullable
@@ -125,12 +134,20 @@ public class RegisterRecipesEvent
 		return idInUse.test(id) || recipes.stream().map(Recipe::getId).anyMatch(id::equals);
 	}
 	
+	protected ResourceLocation transformRecipeIdToContext(ResourceLocation loc)
+	{
+		if(contextModId == null) return loc;
+		if(loc.getNamespace().equals(contextModId))
+			return loc;
+		return new ResourceLocation(contextModId, loc.getNamespace() + "/" + loc.getPath());
+	}
+	
 	@Override
 	public ResourceLocation nextId(Item item)
 	{
 		if(item == null || item == Items.AIR) return null;
 		
-		ResourceLocation rl = ForgeRegistries.ITEMS.getKey(item);
+		ResourceLocation rl = transformRecipeIdToContext(ForgeRegistries.ITEMS.getKey(item));
 		
 		if(!isRecipeIdTaken(rl)) return rl;
 		
@@ -138,7 +155,8 @@ public class RegisterRecipesEvent
 		while(true)
 		{
 			rl = new ResourceLocation(rl.getNamespace(), rl.getPath() + "_" + (lastIdx++));
-			if(!isRecipeIdTaken(rl)) return rl;
+			var tf = transformRecipeIdToContext(rl);
+			if(!isRecipeIdTaken(tf)) return tf;
 		}
 	}
 	

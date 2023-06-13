@@ -79,14 +79,22 @@ public class HammerLib
 		// Register all recipe providers
 		ScanDataHelper.lookupAnnotatedObjects(ProvideRecipes.class).forEach(data ->
 		{
+			var ow = data.getOwnerMod().orElse(null);
+			if(ow == null)
+			{
+				LOG.info("Skipping mod-less @ProvideRecipes annotation in " + data.getOwnerClass());
+				return;
+			}
+			
 			Class<?> c = data.getOwnerClass();
 			if(IRecipeProvider.class.isAssignableFrom(c))
 			{
 				IRecipeProvider provider = (IRecipeProvider) UnsafeHacks.newInstance(c);
 				if(provider != null)
 				{
-					HammerLib.EVENT_BUS.addListener(provider::provideRecipes);
-					HammerLib.EVENT_BUS.addListener(provider::spoofRecipes);
+					var bus = ow.getEventBus();
+					bus.addListener(provider::provideRecipes);
+					bus.addListener(provider::spoofRecipes);
 				}
 			}
 		});
@@ -250,5 +258,13 @@ public class HammerLib
 		if(logHLEvents || (cfgs != null && cfgs.internal.logHLBusEvents))
 			HammerLib.LOG.info("[HammerLib.postEvent] " + evt);
 		return HammerLib.EVENT_BUS.post(evt);
+	}
+	
+	public static boolean postEvent(Event evt, IEventBusInvokeDispatcher dispatcher)
+	{
+		ConfigHL cfgs = ConfigHL.INSTANCE.getCurrent();
+		if(logHLEvents || (cfgs != null && cfgs.internal.logHLBusEvents))
+			HammerLib.LOG.info("[HammerLib.postEvent] " + evt);
+		return HammerLib.EVENT_BUS.post(evt, dispatcher);
 	}
 }

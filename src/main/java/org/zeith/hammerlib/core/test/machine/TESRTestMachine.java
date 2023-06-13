@@ -17,6 +17,8 @@ public class TESRTestMachine
 	@Override
 	public void render(TileTestMachine tile, float partial, PoseStack matrix, MultiBufferSource buf, int lighting, int overlay)
 	{
+		matrix.translate(0.5, 1, 0.5);
+		
 		BlockState s = tile.getLevel().getBlockState(tile.getBlockPos());
 		if(s.getBlock() == BlockTestMachine.TEST_MACHINE)
 		{
@@ -27,7 +29,9 @@ public class TESRTestMachine
 			float progress = mp > 0 ? p / mp : 0F;
 			
 			if(e)
-				RenderUtils.renderLightRayEffects(buf, matrix, Mth.hsvToRgb(progress / 3F, 1, 1) | 0xFF << 24, Mth.getSeed(tile.getBlockPos()), progress, 5, 2F, 32);
+				RenderUtils.renderLightRayEffects(buf, matrix,
+						Mth.hsvToRgb(progress / 3F, 1, 1) | 0xFF << 24,
+						Mth.getSeed(tile.getBlockPos()), progress, 5, progress, 32);
 		}
 	}
 }

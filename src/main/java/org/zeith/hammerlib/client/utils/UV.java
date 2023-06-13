@@ -6,9 +6,11 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.zeith.hammerlib.client.render.IGuiDrawable;
 import org.zeith.hammerlib.util.colors.ColorHelper;
 
 public class UV
+		implements IGuiDrawable
 {
 	public ResourceLocation path;
 	public float posX, posY, width, height;
@@ -89,5 +91,11 @@ public class UV
 				", width=" + width +
 				", height=" + height +
 				'}';
+	}
+	
+	@Override
+	public void renderDrawable(GuiGraphics gfx, int xOffset, int yOffset, int width, int height)
+	{
+		render(gfx, xOffset, yOffset, width, height);
 	}
 }
