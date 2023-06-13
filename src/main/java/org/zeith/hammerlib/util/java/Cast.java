@@ -4,11 +4,30 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.lang.reflect.Constructor;
 import java.util.*;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.function.*;
 
 public class Cast
 {
+	public static BooleanSupplier constantB(boolean value)
+	{
+		return () -> value;
+	}
+	
+	public static DoubleSupplier constantD(double value)
+	{
+		return () -> value;
+	}
+	
+	public static IntSupplier constantI(int value)
+	{
+		return () -> value;
+	}
+	
+	public static LongSupplier constantL(long value)
+	{
+		return () -> value;
+	}
+	
 	public static <T> Supplier<T> constant(T value)
 	{
 		return () -> value;

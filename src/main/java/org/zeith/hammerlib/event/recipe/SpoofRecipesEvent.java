@@ -2,12 +2,15 @@ package org.zeith.hammerlib.event.recipe;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.eventbus.api.Event;
-import org.zeith.hammerlib.HammerLib;
+import net.minecraftforge.fml.ModLoader;
+import net.minecraftforge.fml.event.IModBusEvent;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SpoofRecipesEvent
 		extends Event
+		implements IModBusEvent
 {
 	private final Map<ResourceLocation, List<ResourceLocation>> spoofedRecipes;
 	
@@ -23,8 +26,8 @@ public class SpoofRecipesEvent
 	
 	public static Map<ResourceLocation, List<ResourceLocation>> gather()
 	{
-		var event = new SpoofRecipesEvent(new HashMap<>());
-		HammerLib.EVENT_BUS.post(event);
-		return event.spoofedRecipes;
+		return ModLoader.get().postEventWithReturn(
+				new SpoofRecipesEvent(new ConcurrentHashMap<>())
+		).spoofedRecipes;
 	}
 }
