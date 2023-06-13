@@ -2,7 +2,7 @@
 mod_id=hammerlib
 archive_name=HammerLib
 mod_name=Hammer Lib
-mod_version=20.0.5
+mod_version=20.0.6
 build_candidate=false
 mod_license=All rights reserved
 mod_authors=Zeitheron
