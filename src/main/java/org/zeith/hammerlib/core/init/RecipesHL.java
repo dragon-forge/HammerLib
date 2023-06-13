@@ -8,6 +8,7 @@ import org.zeith.hammerlib.annotations.ProvideRecipes;
 import org.zeith.hammerlib.api.IRecipeProvider;
 import org.zeith.hammerlib.core.test.HammerLibRecipeExtension;
 import org.zeith.hammerlib.event.recipe.RegisterRecipesEvent;
+import org.zeith.hammerlib.util.java.Cast;
 
 @ProvideRecipes
 public class RecipesHL
@@ -23,7 +24,7 @@ public class RecipesHL
 					.top(ItemTags.SAND, 1)
 					.bottom(ItemTags.LOGS_THAT_BURN, 1)
 					.result(new ItemStack(Items.GLASS))
-					.register();
+					.registerIf(Cast.constantB(false));
 		}
 		
 		GearsHL.recipes(e);

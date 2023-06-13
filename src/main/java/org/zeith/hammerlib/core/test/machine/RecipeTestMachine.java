@@ -7,6 +7,8 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.ItemLike;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 import org.zeith.hammerlib.abstractions.recipes.IRecipeVisualizer;
 import org.zeith.hammerlib.abstractions.recipes.IVisualizedRecipe;
@@ -15,6 +17,7 @@ import org.zeith.hammerlib.abstractions.recipes.layout.IVisualizerBuilder;
 import org.zeith.hammerlib.annotations.RegistryName;
 import org.zeith.hammerlib.annotations.SimplyRegister;
 import org.zeith.hammerlib.api.recipes.*;
+import org.zeith.hammerlib.client.render.IGuiDrawable;
 import org.zeith.hammerlib.core.adapter.recipe.RecipeBuilder;
 import org.zeith.hammerlib.util.mcf.itf.IRecipeRegistrationEvent;
 
@@ -98,19 +101,18 @@ public class RecipeTestMachine
 			return new RecipeTestMachine(recipeLoc, group, time, res, ingrA, ingrB);
 		}
 		
-		/*
 		@Override
 		public void initVisuals(Consumer<IRecipeVisualizer<RecipeTestMachine, ?>> viualizerConsumer)
 		{
 			viualizerConsumer.accept(IRecipeVisualizer.simple(VisualizedTestMachine.class,
-					new IRecipeVisualizer.VisualizedRecipeGroup(
-							BlockTestMachine.TEST_MACHINE.getName(),
-							64,
-							38,
-							null
-					), VisualizedTestMachine::new));
+					IRecipeVisualizer.groupBuilder()
+							.title(BlockTestMachine.TEST_MACHINE.getName())
+							.size(52, 36)
+							.icon(IGuiDrawable.ofItem(new ItemStack(BlockTestMachine.TEST_MACHINE)))
+							.catalyst(new ItemStack(BlockTestMachine.TEST_MACHINE))
+							.build(),
+					VisualizedTestMachine::new));
 		}
-		*/
 	}
 	
 	public static class TestMachineRecipeBuilder
@@ -181,6 +183,7 @@ public class RecipeTestMachine
 		}
 	}
 	
+	@OnlyIn(Dist.CLIENT)
 	public static class VisualizedTestMachine
 			implements IVisualizedRecipe<RecipeTestMachine>
 	{

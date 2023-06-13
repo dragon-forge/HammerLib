@@ -9,6 +9,10 @@ import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.crafting.conditions.ICondition;
+import net.minecraftforge.eventbus.api.*;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.ModLoader;
+import net.minecraftforge.fml.javafmlmod.FMLModContainer;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.zeith.api.level.ISpoofedRecipeManager;
 import org.zeith.hammerlib.HammerLib;
@@ -31,7 +35,13 @@ public class RecipeHelper
 	public static void registerCustomRecipes(Predicate<ResourceLocation> idInUse, Consumer<Recipe<?>> addRecipe, Consumer<Set<ResourceLocation>> removeRecipes, Map<ResourceLocation, List<ResourceLocation>> spoofedRecipes, boolean silent, ICondition.IContext context)
 	{
 		RegisterRecipesEvent rre = new RegisterRecipesEvent(idInUse);
-		HammerLib.postEvent(rre);
+		ModList.get().forEachModInOrder(mc ->
+		{
+			if(!(mc instanceof FMLModContainer fmc)) return;
+			rre.setContextModId(mc.getModId());
+			fmc.getEventBus().post(rre);
+		});
+		rre.setContextModId(null);
 		rre.cleanup();
 		
 		if(!silent) HLConstants.LOG.info("Reloading HammerLib recipes...");

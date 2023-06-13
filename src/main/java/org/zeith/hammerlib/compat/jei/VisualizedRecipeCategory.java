@@ -62,7 +62,7 @@ public class VisualizedRecipeCategory<T extends IVisualizedRecipe<?>>
 		public void draw(GuiGraphics poseStack, int xOffset, int yOffset)
 		{
 			var ico = group.icon();
-			if(ico != null) ico.render(poseStack, xOffset, yOffset, 16, 16);
+			if(ico != null) ico.renderDrawable(poseStack, xOffset, yOffset, 16, 16);
 		}
 	};
 	

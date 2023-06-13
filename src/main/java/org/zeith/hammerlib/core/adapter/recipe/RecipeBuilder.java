@@ -8,6 +8,7 @@ import org.zeith.hammerlib.api.recipes.IngredientWithCount;
 import org.zeith.hammerlib.core.RecipeHelper;
 import org.zeith.hammerlib.util.mcf.itf.IRecipeRegistrationEvent;
 
+import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
 
@@ -76,6 +77,12 @@ public abstract class RecipeBuilder<R extends RecipeBuilder<R, RT>, RT>
 	
 	public abstract void register();
 	
+	public ResourceLocation registerAndGetId()
+	{
+		register();
+		return getIdentifier();
+	}
+	
 	public void registerIf(BooleanSupplier condition)
 	{
 		if(condition.getAsBoolean())
@@ -86,6 +93,26 @@ public abstract class RecipeBuilder<R extends RecipeBuilder<R, RT>, RT>
 	{
 		if(condition.test(identifier))
 			register();
+	}
+	
+	public Optional<ResourceLocation> registerIfAndGetId(BooleanSupplier condition)
+	{
+		if(condition.getAsBoolean())
+		{
+			register();
+			return Optional.of(getIdentifier());
+		}
+		return Optional.empty();
+	}
+	
+	public Optional<ResourceLocation> registerIfAndGetId(Predicate<ResourceLocation> condition)
+	{
+		if(condition.test(identifier))
+		{
+			register();
+			return Optional.of(getIdentifier());
+		}
+		return Optional.empty();
 	}
 	
 	protected Ingredient parseIngredient(Object obj)

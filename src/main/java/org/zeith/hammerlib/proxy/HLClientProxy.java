@@ -82,17 +82,7 @@ public class HLClientProxy
 	
 	private void loadComplete(FMLLoadCompleteEvent e)
 	{
-		for(RecipeType<?> type : ForgeRegistries.RECIPE_TYPES.getValues())
-		{
-			if(type instanceof IVisualizedRecipeType<?> visual)
-			{
-				AtomicReference<IRecipeVisualizer<?, ?>> visualizer = new AtomicReference<>();
-				visual.initVisuals(visualizer::set);
-				var vis = visualizer.get();
-				if(vis != null)
-					RecipeVisualizationRegistry.register(type, Cast.cast(vis));
-			}
-		}
+	
 	}
 	
 	private void alterTooltip(RenderTooltipEvent.GatherComponents e)
