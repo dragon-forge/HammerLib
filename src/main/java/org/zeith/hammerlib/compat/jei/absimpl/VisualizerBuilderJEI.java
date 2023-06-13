@@ -1,8 +1,8 @@
 package org.zeith.hammerlib.compat.jei.absimpl;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
+import net.minecraft.client.gui.GuiGraphics;
 import org.zeith.hammerlib.abstractions.recipes.layout.ISlotBuilder;
 import org.zeith.hammerlib.abstractions.recipes.layout.IVisualizerBuilder;
 import org.zeith.hammerlib.client.utils.UV;
@@ -40,9 +40,9 @@ public class VisualizerBuilderJEI
 			}
 			
 			@Override
-			public void draw(PoseStack poseStack, int x, int y)
+			public void draw(GuiGraphics gfx, int x, int y)
 			{
-				uv.render(poseStack, x, y);
+				uv.render(gfx, x, y);
 			}
 		};
 	}

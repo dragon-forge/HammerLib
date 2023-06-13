@@ -8,6 +8,7 @@ import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
@@ -38,7 +39,7 @@ public class VisualizedRecipeCategory<T extends IVisualizedRecipe<?>>
 		}
 		
 		@Override
-		public void draw(PoseStack poseStack, int xOffset, int yOffset)
+		public void draw(GuiGraphics poseStack, int xOffset, int yOffset)
 		{
 		}
 	};
@@ -58,7 +59,7 @@ public class VisualizedRecipeCategory<T extends IVisualizedRecipe<?>>
 		}
 		
 		@Override
-		public void draw(PoseStack poseStack, int xOffset, int yOffset)
+		public void draw(GuiGraphics poseStack, int xOffset, int yOffset)
 		{
 			var ico = group.icon();
 			if(ico != null) ico.render(poseStack, xOffset, yOffset, 16, 16);
@@ -102,9 +103,9 @@ public class VisualizedRecipeCategory<T extends IVisualizedRecipe<?>>
 	}
 	
 	@Override
-	public void draw(T recipe, IRecipeSlotsView recipeSlotsView, PoseStack stack, double mouseX, double mouseY)
+	public void draw(T recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics gfx, double mouseX, double mouseY)
 	{
-		recipe.drawBackground(stack, mouseX, mouseY);
+		recipe.drawBackground(gfx, mouseX, mouseY);
 	}
 	
 	@Override
