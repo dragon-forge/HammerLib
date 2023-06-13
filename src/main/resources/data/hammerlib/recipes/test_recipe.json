@@ -11,5 +11,10 @@
   "time": 300,
   "result": {
     "item": "minecraft:emerald"
-  }
+  },
+  "conditions": [
+    {
+      "type": "forge:false"
+    }
+  ]
 }
