@@ -1,7 +1,7 @@
 package org.zeith.hammerlib.abstractions.recipes;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraftforge.api.distmarker.Dist;
@@ -17,7 +17,7 @@ public interface IVisualizedRecipe<T extends Recipe<?>>
 	
 	void setupLayout(IVisualizerBuilder builder);
 	
-	default void drawBackground(PoseStack poseStack, double mouseX, double mouseY)
+	default void drawBackground(GuiGraphics gfx, double mouseX, double mouseY)
 	{
 	}
 	

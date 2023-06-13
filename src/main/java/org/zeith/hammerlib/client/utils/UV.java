@@ -2,6 +2,7 @@ package org.zeith.hammerlib.client.utils;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -32,11 +33,23 @@ public class UV
 	}
 	
 	@OnlyIn(Dist.CLIENT)
+	public void render(GuiGraphics gfx, double x, double y, float width, float height)
+	{
+		render(gfx.pose(), x, y, width, height);
+	}
+	
+	@OnlyIn(Dist.CLIENT)
 	public void render(PoseStack pose, float x, float y)
 	{
 		RenderSystem.enableBlend();
 		bindTexture();
 		RenderUtils.drawTexturedModalRect(pose, x, y, posX, posY, width, height);
+	}
+	
+	@OnlyIn(Dist.CLIENT)
+	public void render(GuiGraphics gfx, float x, float y)
+	{
+		render(gfx.pose(), x, y);
 	}
 	
 	@OnlyIn(Dist.CLIENT)

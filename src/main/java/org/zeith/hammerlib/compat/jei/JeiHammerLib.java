@@ -1,15 +1,21 @@
 package org.zeith.hammerlib.compat.jei;
 
+import com.google.common.base.Preconditions;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
+import mezz.jei.api.constants.VanillaTypes;
+import mezz.jei.api.forge.ForgeTypes;
+import mezz.jei.api.ingredients.IIngredientType;
 import mezz.jei.api.registration.*;
 import mezz.jei.api.runtime.IIngredientListOverlay;
 import mezz.jei.api.runtime.IJeiRuntime;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.zeith.hammerlib.abstractions.recipes.*;
 import org.zeith.hammerlib.client.screen.IAdvancedGui;
@@ -26,9 +32,34 @@ public class JeiHammerLib
 		implements IModPlugin, IJeiPluginHL
 {
 	public static final ResourceLocation HL_PLUGIN = new ResourceLocation(HLConstants.MOD_ID, "jei");
+	public static final Map<Class<?>, IIngredientType<?>> INGREDIENT_TYPES = new HashMap<>();
 	
 	{
 		Container.active = this;
+		
+		
+		// Default JEI values. Mods may register this at any point they see fit.
+		registerType(ItemStack.class, VanillaTypes.ITEM_STACK);
+		registerType(FluidStack.class, ForgeTypes.FLUID_STACK);
+	}
+	
+	public static <T> Optional<IIngredientType<T>> findType(Class<T> type)
+	{
+		Class<?> cl = type;
+		do
+		{
+			cl = cl.getSuperclass();
+			if(INGREDIENT_TYPES.containsKey(cl))
+				return Cast.cast(Optional.of(INGREDIENT_TYPES.get(cl)));
+		} while(cl != null);
+		return Optional.empty();
+	}
+	
+	public static <T> void registerType(Class<T> type, IIngredientType<T> iType)
+	{
+		Preconditions.checkNotNull(type, "type");
+		Preconditions.checkNotNull(iType, "iType");
+		INGREDIENT_TYPES.put(type, iType);
 	}
 	
 	@Override
