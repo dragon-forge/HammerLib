@@ -2,7 +2,7 @@
 mod_id=hammerlib
 archive_name=HammerLib
 mod_name=Hammer Lib
-mod_version=20.0.6
+mod_version=20.0.7
 build_candidate=false
 mod_license=All rights reserved
 mod_authors=Zeitheron
@@ -16,7 +16,7 @@ shimmer_version=0.1.14
 # MC Info
 mc_version=1.20
 mc_range=[1.20,1.21)
-forge_version=46.0.2
+forge_version=46.0.14
 forge_range=[46,)
 mc_user=Zeitheron,63fa4c485b5640809727d5d59663e603
 
