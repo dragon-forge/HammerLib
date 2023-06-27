@@ -37,18 +37,6 @@ public class TagAdapter
 		tags.computeIfAbsent(tag, b -> new HashSet<>()).addAll(List.of(values));
 	}
 	
-	@Deprecated(forRemoval = true)
-	public static void bindStaticTag(TagKey<Block> tag, Block... blocks)
-	{
-		bind(tag, blocks);
-	}
-	
-	@Deprecated(forRemoval = true)
-	public static void bindStaticTag(TagKey<Item> tag, Item... items)
-	{
-		bind(tag, items);
-	}
-	
 	@SuppressWarnings({
 			"rawtypes",
 			"Convert2MethodRef"

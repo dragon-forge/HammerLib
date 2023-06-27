@@ -31,15 +31,6 @@ public interface IWrenchItem
 	void playWrenchSound(UseOnContext context);
 	
 	/**
-	 * @deprecated This method is no longer used and will be removed in a future update.
-	 * Use {@link #canWrench(ItemStack)} instead.
-	 */
-	@Deprecated(forRemoval = true, since = "")
-	default void onWrenchUsed(UseOnContext context)
-	{
-	}
-	
-	/**
 	 * Determines if the given item is a wrench.
 	 *
 	 * @param stack Item to check.

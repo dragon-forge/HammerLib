@@ -1,22 +1,32 @@
 package org.zeith.hammerlib.core.adapter.recipe;
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.*;
 import org.zeith.hammerlib.core.RecipeHelper;
+import org.zeith.hammerlib.core.recipes.HLShapedRecipe;
+import org.zeith.hammerlib.core.recipes.replacers.*;
 import org.zeith.hammerlib.util.mcf.itf.IRecipeRegistrationEvent;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Stream;
 
 public class ShapedRecipeBuilder
 		extends RecipeBuilder<ShapedRecipeBuilder, Recipe<?>>
 {
 	protected final Map<Character, Ingredient> dictionary = new HashMap<>();
+	protected final List<ResourceLocation> replacers = new ArrayList<>();
 	protected RecipeShape shape;
 	protected CraftingBookCategory category = CraftingBookCategory.MISC;
 	
 	public ShapedRecipeBuilder(IRecipeRegistrationEvent<Recipe<?>> event)
 	{
 		super(event);
+	}
+	
+	public ShapedRecipeBuilder replacers(IRemainingItemReplacer... replacers)
+	{
+		Stream.of(replacers).map(RemainingReplacerRegistrar::key).filter(Objects::nonNull).forEach(this.replacers::add);
+		return this;
 	}
 	
 	public ShapedRecipeBuilder category(CraftingBookCategory cat)
@@ -60,6 +70,8 @@ public class ShapedRecipeBuilder
 		if(!event.enableRecipe(getIdentifier())) return;
 		
 		var id = getIdentifier();
-		event.register(id, new ShapedRecipe(id, group, category, shape.width, shape.height, shape.createIngredientMap(dictionary), result));
+		var rec = new HLShapedRecipe(id, group, category, shape.width, shape.height, shape.createIngredientMap(dictionary), result);
+		rec.addReplacers(replacers);
+		event.register(id, rec);
 	}
 }

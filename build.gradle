@@ -87,6 +87,10 @@ repositories {
         name = "Zeitheron Maven"
         url = "https://maven.zeith.org"
     }
+    maven {
+        name = "Jared's maven"
+        url = "https://maven.blamejared.com/" // location of the maven that hosts JEI files since January 2023
+    }
     maven { setUrl("https://oss.sonatype.org/content/repositories/public/") }
     flatDir { dirs "libraries/${config.mc_version}/all" }
     flatDir { dirs "libraries/${config.mc_version}/classpathOnly" }
@@ -101,6 +105,12 @@ import java.nio.file.StandardOpenOption
 
 dependencies {
     minecraft "net.minecraftforge:forge:${config.mc_version}-${config.forge_version}"
+
+    if (hasConfig("jei_version") && !config.jei_version.isEmpty()) {
+        compileOnly fg.deobf("mezz.jei:jei-${config.mc_version}-common-api:${config.jei_version}")
+        compileOnly fg.deobf("mezz.jei:jei-${config.mc_version}-forge-api:${config.jei_version}")
+        runtimeOnly fg.deobf("mezz.jei:jei-${config.mc_version}-forge:${config.jei_version}")
+    }
 
     annotationProcessor "org.spongepowered:mixin:0.8.5:processor"
     // implementation fg.deobf("com.lowdragmc.shimmer:Shimmer-forge:${config.mc_version}-${config.shimmer_version}")
