@@ -18,6 +18,7 @@
     "ItemStackMixin",
     "LevelChunkMixin",
     "LevelMixin",
+    "PotionBrewingAccessor",
     "RecipeManagerAccessor",
     "RecipeManagerMixin",
     "RegistryManagerAccessor",

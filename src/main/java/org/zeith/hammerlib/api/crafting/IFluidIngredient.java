@@ -32,19 +32,8 @@ public interface IFluidIngredient<T extends IFluidIngredient<T>>
 	 */
 	boolean takeFrom(IFluidTank tank, IngredientStack<T> stack);
 	
-	/**
-	 * @return The list of fluids represented in this ingredient that can be taken.
-	 * The amount of fluid in every entry of the list is NOT set to the correct amount required by the recipe
-	 * (see {@link #asIngredient(IngredientStack)}) version of this method.
-	 */
-	@Deprecated(forRemoval = true)
-	default List<FluidStack> asIngredient()
-	{
-		return List.of();
-	}
-	
 	default List<FluidStack> asIngredient(IngredientStack<T> stack)
 	{
-		return stack.ingredient.asIngredient();
+		return stack.ingredient.asIngredient(stack);
 	}
 }

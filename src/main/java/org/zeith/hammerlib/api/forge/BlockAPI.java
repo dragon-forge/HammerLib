@@ -58,7 +58,7 @@ public class BlockAPI
 	
 	/**
 	 * Creates a new {@link BlockEntityType} with the given generator and blocks.
-	 * Used in conjuction with @{@link org.zeith.hammerlib.annotations.SimplyRegister} and @{@link org.zeith.hammerlib.annotations.RegistryName}
+	 * Used in conjunction with @{@link org.zeith.hammerlib.annotations.SimplyRegister} and @{@link org.zeith.hammerlib.annotations.RegistryName}
 	 *
 	 * @param <T>
 	 * 		The type of {@link BlockEntity} that the type is for.

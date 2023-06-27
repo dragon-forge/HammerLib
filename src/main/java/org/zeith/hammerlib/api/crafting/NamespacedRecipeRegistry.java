@@ -37,15 +37,6 @@ public class NamespacedRecipeRegistry<T extends INameableRecipe>
 	protected final Set<ResourceLocation> customRecipes = Collections.synchronizedSet(new HashSet<>());
 	private final Map<ResourceLocation, Boolean> recipeStates = new HashMap<>();
 	
-	/**
-	 * Please use {@link RecipeRegistryFactory#namespacedBuilder(Class)} instead! This will ensure that multiple registries with same type and ID won't be created, and ensures same instance over few method calls.
-	 */
-	@Deprecated(forRemoval = true)
-	public NamespacedRecipeRegistry(Class<T> type, ResourceLocation id)
-	{
-		this(new RecipeRegistryFactory.RegistryFingerprint<>(type, id), null);
-	}
-	
 	NamespacedRecipeRegistry(RecipeRegistryFactory.RegistryFingerprint<T> fingerprint, CustomRecipeGenerator<T, ?, ?> custom)
 	{
 		super(fingerprint.type(), new NamespacedRecipeContainer<>(fingerprint), fingerprint.regId(), custom);

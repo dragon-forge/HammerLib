@@ -139,12 +139,6 @@ public abstract class AbstractRecipeRegistry<T extends IGeneralRecipe, CTR exten
 		return id;
 	}
 	
-	@Deprecated(forRemoval = true)
-	public void reload()
-	{
-		reload(null, TagsUpdateListener.REMOTE_TAG_ACCESS);
-	}
-	
 	public void reload(MinecraftServer server, ICondition.IContext context)
 	{
 		if(server == null)

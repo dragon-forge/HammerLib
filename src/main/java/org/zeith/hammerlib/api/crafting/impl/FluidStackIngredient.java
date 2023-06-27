@@ -1,10 +1,8 @@
 package org.zeith.hammerlib.api.crafting.impl;
 
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.IFluidTank;
+import net.minecraftforge.fluids.*;
 import net.minecraftforge.fluids.capability.IFluidHandler;
-import org.zeith.hammerlib.api.crafting.IFluidIngredient;
-import org.zeith.hammerlib.api.crafting.IngredientStack;
+import org.zeith.hammerlib.api.crafting.*;
 import org.zeith.hammerlib.util.mcf.fluid.FluidIngredient;
 
 import java.util.List;
@@ -34,12 +32,6 @@ public record FluidStackIngredient(FluidIngredient ingredient)
 		}
 		
 		return false;
-	}
-	
-	@Override
-	public List<FluidStack> asIngredient()
-	{
-		return List.of(ingredient.getValues());
 	}
 	
 	@Override
