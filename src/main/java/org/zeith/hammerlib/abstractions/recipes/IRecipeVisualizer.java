@@ -1,10 +1,13 @@
 package org.zeith.hammerlib.abstractions.recipes;
 
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.*;
 import org.zeith.hammerlib.client.render.IGuiDrawable;
 
+import java.lang.annotation.*;
 import java.util.*;
 import java.util.function.Function;
 
@@ -52,10 +55,26 @@ public interface IRecipeVisualizer<T extends Recipe<?>, VIS extends IVisualizedR
 			Component title,
 			int width, int height,
 			IGuiDrawable icon,
-			List<ItemStack> catalyst
-	)
+			List<ItemStack> catalyst,
+			List<ClickArea> clickAreas
+	) {}
+	
+	/**
+	 * Annotating your constant field of {@link AssignedClickArea} register a call of recipe type
+	 */
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.FIELD)
+	@interface JEIClickArea
 	{
 	}
+	
+	record AssignedClickArea(RecipeType<?> type, ClickArea area) {}
+	
+	record ClickArea(
+			Class<? extends AbstractContainerScreen<?>> menu,
+			int x, int y,
+			int width, int height
+	) {}
 	
 	class VisualizedRecipeGroupBuilder
 	{
@@ -63,6 +82,13 @@ public interface IRecipeVisualizer<T extends Recipe<?>, VIS extends IVisualizedR
 		protected int width = 116, height = 54;
 		protected IGuiDrawable icon = IGuiDrawable.EMPTY;
 		protected List<ItemStack> catalysts = new ArrayList<>();
+		protected List<ClickArea> clickAreas = new ArrayList<>();
+		
+		public VisualizedRecipeGroupBuilder clickArea(ClickArea area)
+		{
+			this.clickAreas.add(area);
+			return this;
+		}
 		
 		public VisualizedRecipeGroupBuilder title(Component title)
 		{
@@ -101,7 +127,8 @@ public interface IRecipeVisualizer<T extends Recipe<?>, VIS extends IVisualizedR
 					title,
 					width, height,
 					icon,
-					catalysts
+					catalysts,
+					clickAreas
 			);
 		}
 	}
