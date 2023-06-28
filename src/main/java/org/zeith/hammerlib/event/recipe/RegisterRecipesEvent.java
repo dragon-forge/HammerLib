@@ -2,15 +2,12 @@ package org.zeith.hammerlib.event.recipe;
 
 import com.google.common.collect.*;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.fml.event.IModBusEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.ForgeRegistries;
-import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.*;
 import org.zeith.hammerlib.api.recipes.RecipeBuilderExtension;
 import org.zeith.hammerlib.core.adapter.recipe.*;
 import org.zeith.hammerlib.util.java.Cast;
@@ -49,8 +46,21 @@ public class RegisterRecipesEvent
 		this.contextModId = contextModId;
 	}
 	
+	/**
+	 * Returns a non-null instance of the provided extension class if the class has the @{@link RecipeBuilderExtension.RegisterExt} annotation.
+	 *
+	 * @param type
+	 * 		The class object representing the extension type.
+	 * @param <T>
+	 * 		The type parameter representing the extension class.
+	 *
+	 * @return A non-null instance of the provided extension class if the class has the @{@link RecipeBuilderExtension.RegisterExt} annotation.
+	 *
+	 * @throws IllegalArgumentException
+	 * 		If the provided extension class does not have the @{@link RecipeBuilderExtension.RegisterExt} annotation.
+	 */
 	@Nullable
-	public <T> T extension(Class<T> type)
+	public <T extends RecipeBuilderExtension> T extension(Class<T> type)
 	{
 		return Cast.cast(extensions.get(type), type);
 	}
