@@ -17,6 +17,7 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.apache.logging.log4j.*;
 import org.zeith.hammerlib.abstractions.recipes.*;
 import org.zeith.hammerlib.client.screen.IAdvancedGui;
 import org.zeith.hammerlib.core.RecipeHelper;
@@ -32,6 +33,7 @@ import java.util.stream.Stream;
 public class JeiHammerLib
 		implements IModPlugin, IJeiPluginHL
 {
+	public static final Logger LOG = LogManager.getLogger(JeiHammerLib.class);
 	public static final ResourceLocation HL_PLUGIN = new ResourceLocation(HLConstants.MOD_ID, "jei");
 	public static final Map<Class<?>, IIngredientType<?>> INGREDIENT_TYPES = new HashMap<>();
 	
@@ -135,10 +137,46 @@ public class JeiHammerLib
 	@Override
 	public void registerGuiHandlers(IGuiHandlerRegistration registration)
 	{
+		getVisualizedEntries().forEach(tup ->
+		{
+			var jeiRT = jeiFromMc(tup);
+			if(jeiRT == null) return;
+			var vis = tup.b();
+			var g = vis.getGroup();
+			for(IRecipeVisualizer.ClickArea area : g.clickAreas())
+				registration.addRecipeClickArea(area.menu(), area.x(), area.y(), area.width(), area.height(), jeiRT);
+		});
+		
+		for(var data : ScanDataHelper.lookupAnnotatedObjects(IRecipeVisualizer.JEIClickArea.class)
+				.stream()
+				.toList())
+		{
+			try
+			{
+				var f = data.getOwnerClass().getDeclaredField(data.getMemberName());
+				f.setAccessible(true);
+				var area = IRecipeVisualizer.AssignedClickArea.class.cast(f.get(null));
+				var unas = area.area();
+				
+				var jeiType = JeiVisRecipeType.getJEIType(area.type());
+				if(jeiType == null)
+				{
+					LOG.warn("Tried to assign a click area to non-visualized recipe type. This is not supposed to happen!");
+					continue;
+				}
+				
+				registration.addRecipeClickArea(unas.menu(), unas.x(), unas.y(), unas.width(), unas.height(), jeiType);
+			} catch(ReflectiveOperationException e)
+			{
+				LOG.error("Failed to read click area " + data.clazz() + "." + data.getMemberName());
+			}
+		}
+		
 		ScanDataHelper.lookupAnnotatedObjects(IAdvancedGui.ApplyToJEI.class)
 				.stream()
 				.map(ScanDataHelper.ModAwareAnnotationData::getOwnerClass)
-				.filter(raw -> AbstractContainerScreen.class.isAssignableFrom(raw) && IAdvancedGui.class.isAssignableFrom(raw))
+				.filter(raw -> AbstractContainerScreen.class.isAssignableFrom(raw) &&
+						IAdvancedGui.class.isAssignableFrom(raw))
 				.forEach(f -> registration.addGuiContainerHandler(f.asSubclass(AbstractContainerScreen.class), Cast.cast(AdvancedGuiToJeiWrapper.get())));
 	}
 	

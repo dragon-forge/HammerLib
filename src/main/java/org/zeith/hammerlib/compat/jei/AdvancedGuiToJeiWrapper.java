@@ -7,6 +7,7 @@ import mezz.jei.api.runtime.IClickableIngredient;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import org.jetbrains.annotations.NotNull;
 import org.zeith.hammerlib.client.screen.IAdvancedGui;
 import org.zeith.hammerlib.util.java.Cast;
 
@@ -19,6 +20,7 @@ public class AdvancedGuiToJeiWrapper<T extends AbstractContainerScreen<CTR> & IA
 {
 	private static final AdvancedGuiToJeiWrapper RAW_INSTANCE = new AdvancedGuiToJeiWrapper();
 	
+	@NotNull
 	public static <T extends AbstractContainerScreen<CTR> & IAdvancedGui, CTR extends AbstractContainerMenu> IGuiContainerHandler<T> get()
 	{
 		return RAW_INSTANCE;
