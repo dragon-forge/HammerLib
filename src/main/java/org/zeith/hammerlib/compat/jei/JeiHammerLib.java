@@ -1,23 +1,21 @@
 package org.zeith.hammerlib.compat.jei;
 
 import com.google.common.base.Preconditions;
-import mezz.jei.api.IModPlugin;
-import mezz.jei.api.JeiPlugin;
+import mezz.jei.api.*;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.forge.ForgeTypes;
 import mezz.jei.api.ingredients.IIngredientType;
 import mezz.jei.api.registration.*;
-import mezz.jei.api.runtime.IIngredientListOverlay;
-import mezz.jei.api.runtime.IJeiRuntime;
+import mezz.jei.api.runtime.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.*;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.*;
+import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.abstractions.recipes.*;
 import org.zeith.hammerlib.client.screen.IAdvancedGui;
 import org.zeith.hammerlib.core.RecipeHelper;
@@ -122,6 +120,12 @@ public class JeiHammerLib
 			if(typeID == null) return;
 			registerRecipesFor(registration, (RecipeType) type, jeiRT, (IRecipeVisualizer) tup.b());
 		});
+		
+		HammerLib.EVENT_BUS.post(new RecipeVisualizationRegistry.RegisterIngredientInfoEvent(
+				registration::addItemStackInfo,
+				(fluidStacks, components) ->
+						registration.addIngredientInfo(fluidStacks, ForgeTypes.FLUID_STACK, components)
+		));
 	}
 	
 	private <R extends Recipe<C>, C extends net.minecraft.world.Container, T extends IVisualizedRecipe<R>>
@@ -155,11 +159,30 @@ public class JeiHammerLib
 			{
 				var f = data.getOwnerClass().getDeclaredField(data.getMemberName());
 				f.setAccessible(true);
-				var area = IRecipeVisualizer.AssignedClickArea.class.cast(f.get(null));
-				var unas = area.area();
 				
-				var jeiType = JeiVisRecipeType.getJEIType(area.type());
-				if(jeiType == null)
+				var obj = f.get(null);
+				
+				IRecipeVisualizer.ClickArea unas = null;
+				mezz.jei.api.recipe.RecipeType jeiType = null;
+				
+				if(obj instanceof IRecipeVisualizer.AssignedClickArea assigned)
+				{
+					unas = assigned.area();
+					jeiType = JeiVisRecipeType.getJEIType(assigned.type());
+				} else if(obj instanceof IRecipeVisualizer.JeiBasedClickArea jb)
+				{
+					unas = jb.area();
+					try
+					{
+						jeiType = jb.type().staticGet();
+					} catch(Throwable e)
+					{
+						// class-cast
+						LOG.error("Failed to staticGet JEI RecipeType from " + jb.type());
+					}
+				}
+				
+				if(jeiType == null || unas == null)
 				{
 					LOG.warn("Tried to assign a click area to non-visualized recipe type. This is not supposed to happen!");
 					continue;
