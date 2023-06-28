@@ -6,6 +6,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import org.zeith.hammerlib.client.render.IGuiDrawable;
+import org.zeith.hammerlib.util.java.reflection.Accessor;
 
 import java.lang.annotation.*;
 import java.util.*;
@@ -67,6 +68,11 @@ public interface IRecipeVisualizer<T extends Recipe<?>, VIS extends IVisualizedR
 	@interface JEIClickArea
 	{
 	}
+	
+	/**
+	 * Accessor must point to a {@link mezz.jei.api.recipe.RecipeType}
+	 */
+	record JeiBasedClickArea(Accessor type, ClickArea area) {}
 	
 	record AssignedClickArea(RecipeType<?> type, ClickArea area) {}
 	

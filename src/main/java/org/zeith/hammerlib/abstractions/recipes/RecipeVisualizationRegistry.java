@@ -1,18 +1,22 @@
 package org.zeith.hammerlib.abstractions.recipes;
 
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.util.java.Cast;
+import org.zeith.hammerlib.util.java.consumers.Consumer2;
 import org.zeith.hammerlib.util.java.tuples.Tuple2;
 import org.zeith.hammerlib.util.java.tuples.Tuples;
 
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public class RecipeVisualizationRegistry
@@ -76,6 +80,39 @@ public class RecipeVisualizationRegistry
 		public <T extends Recipe<?>> void register(RecipeType<T> type, IRecipeVisualizer<T, ?> visualizer)
 		{
 			registry.register(type, visualizer);
+		}
+	}
+	
+	public static class RegisterIngredientInfoEvent
+			extends Event
+	{
+		protected final Consumer2<List<ItemStack>, Component[]> stackInfo;
+		protected final Consumer2<List<FluidStack>, Component[]> fluidInfo;
+		
+		public RegisterIngredientInfoEvent(Consumer2<List<ItemStack>, Component[]> stackInfo, Consumer2<List<FluidStack>, Component[]> fluidInfo)
+		{
+			this.stackInfo = stackInfo;
+			this.fluidInfo = fluidInfo;
+		}
+		
+		public <T extends Recipe<?>> void registerStack(ItemStack item, Component... tooltip)
+		{
+			stackInfo.accept(List.of(item), tooltip);
+		}
+		
+		public <T extends Recipe<?>> void registerStacks(List<ItemStack> items, Component... tooltip)
+		{
+			stackInfo.accept(items, tooltip);
+		}
+		
+		public <T extends Recipe<?>> void registerFluid(FluidStack fluid, Component... tooltip)
+		{
+			fluidInfo.accept(List.of(fluid), tooltip);
+		}
+		
+		public <T extends Recipe<?>> void registerFluids(List<FluidStack> fluids, Component... tooltip)
+		{
+			fluidInfo.accept(fluids, tooltip);
 		}
 	}
 }
