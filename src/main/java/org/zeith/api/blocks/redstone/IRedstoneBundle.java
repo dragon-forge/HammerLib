@@ -49,7 +49,7 @@ public interface IRedstoneBundle
 	 *
 	 * @return {@code true} if the operation was successful, {@code false} otherwise.
 	 */
-	default boolean setSignal(BundleColor color, boolean signal)
+	default boolean setSignal(MCColor color, boolean signal)
 	{
 		var s = getSerializedBundleSignal();
 		var has = IRedstoneBundleAccessor.hasSerialized(s, color);
