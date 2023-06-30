@@ -61,7 +61,7 @@ public class BundledCCCapability
 		}
 		
 		@Override
-		public boolean hasSignal(BundleColor color)
+		public boolean hasSignal(MCColor color)
 		{
 			if(computer.getBlockState().getBlock() instanceof IBundledRedstoneBlock blk)
 			{
@@ -73,7 +73,7 @@ public class BundledCCCapability
 		}
 		
 		@Override
-		public boolean setSignal(BundleColor color, boolean signal)
+		public boolean setSignal(MCColor color, boolean signal)
 		{
 			return false;
 		}

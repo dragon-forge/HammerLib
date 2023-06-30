@@ -25,7 +25,7 @@ public interface IRedstoneBundleAccessor
 	 *
 	 * @return {@code true} if the specified color has a redstone signal, {@code false} otherwise.
 	 */
-	default boolean hasSignal(BundleColor color)
+	default boolean hasSignal(MCColor color)
 	{
 		return hasSerialized(getSerializedBundleSignal(), color);
 	}
@@ -40,7 +40,7 @@ public interface IRedstoneBundleAccessor
 	 *
 	 * @return {@code true} if the specified color has a redstone signal, {@code false} otherwise.
 	 */
-	static boolean hasSerialized(int colors, BundleColor color)
+	static boolean hasSerialized(int colors, MCColor color)
 	{
 		int mask = color.bitmask;
 		return (colors & mask) == mask;
@@ -57,7 +57,7 @@ public interface IRedstoneBundleAccessor
 	static int getSerializedBundleSignal(IRedstoneBundleAccessor bundle)
 	{
 		int r = 0;
-		for(var color : BundleColor.values())
+		for(var color : MCColor.values())
 			if(bundle.hasSignal(color))
 				r |= color.bitmask;
 		return r;
@@ -73,7 +73,7 @@ public interface IRedstoneBundleAccessor
 	 *
 	 * @return The updated serialized bundle signal.
 	 */
-	static int add(int serialized, BundleColor... colors)
+	static int add(int serialized, MCColor... colors)
 	{
 		for(var color : colors)
 			serialized |= color.bitmask;
@@ -90,7 +90,7 @@ public interface IRedstoneBundleAccessor
 	 *
 	 * @return The updated serialized bundle signal.
 	 */
-	static int remove(int serialized, BundleColor... colors)
+	static int remove(int serialized, MCColor... colors)
 	{
 		for(var color : colors)
 			serialized &= ~color.bitmask;

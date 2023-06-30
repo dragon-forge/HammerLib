@@ -7,11 +7,11 @@ public class TestBundles
 		SimpleRedstoneBundle bundle = new SimpleRedstoneBundle();
 		bundle.setSerializedBundleSignal(65535);
 		
-		bundle.setSignal(BundleColor.BLACK, false);
+		bundle.setSignal(MCColor.BLACK, false);
 		
 		System.out.println(bundle.getSerializedBundleSignal());
 		
-		for(var c : BundleColor.values())
+		for(var c : MCColor.values())
 			if(bundle.hasSignal(c))
 				System.out.println("Found " + c);
 	}
