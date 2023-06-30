@@ -3,7 +3,7 @@ package org.zeith.hammerlib.event.recipe;
 import com.google.common.collect.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.*;
-import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.*;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.fml.event.IModBusEvent;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -68,10 +68,8 @@ public class RegisterRecipesEvent
 	public void add(Recipe<?> recipe)
 	{
 		// Not sure if it's a good idea, but sure, let's do it.
-		if(!enableRecipe(recipe)) return;
-		
-		if(recipe != null)
-			recipes.add(recipe);
+		if(recipe == null || !enableRecipe(recipe)) return;
+		recipes.add(recipe);
 	}
 	
 	/**
@@ -84,7 +82,7 @@ public class RegisterRecipesEvent
 	 */
 	public boolean register(Recipe<?> recipe)
 	{
-		if(recipe != null && enableRecipe(recipe.getId()))
+		if(recipe != null && enableRecipe(recipe.getType(), recipe.getId()))
 		{
 			recipes.add(recipe);
 			return true;
@@ -182,14 +180,14 @@ public class RegisterRecipesEvent
 	}
 	
 	@Override
-	public boolean enableRecipe(ResourceLocation recipeId)
+	public boolean enableRecipe(RecipeType<?> type, ResourceLocation recipeId)
 	{
-		return getContext(recipeId.getNamespace()).enableRecipe(recipeId);
+		return getContext(recipeId.getNamespace()).enableRecipe(type, recipeId);
 	}
 	
 	public boolean enableRecipe(Recipe<?> recipe)
 	{
-		return enableRecipe(recipe.getId());
+		return enableRecipe(recipe.getType(), recipe.getId());
 	}
 	
 	public RecipeRegistrationContext getContext(String modid)

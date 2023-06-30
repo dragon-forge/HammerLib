@@ -9,14 +9,11 @@ import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.crafting.conditions.ICondition;
-import net.minecraftforge.eventbus.api.*;
 import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.ModLoader;
 import net.minecraftforge.fml.javafmlmod.FMLModContainer;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.zeith.api.level.ISpoofedRecipeManager;
 import org.zeith.hammerlib.HammerLib;
-import org.zeith.hammerlib.api.crafting.AbstractRecipeRegistry;
 import org.zeith.hammerlib.api.items.IIngredientProvider;
 import org.zeith.hammerlib.core.adapter.OreDictionaryAdapter;
 import org.zeith.hammerlib.event.ParseIngredientEvent;
@@ -44,7 +41,8 @@ public class RecipeHelper
 		rre.setContextModId(null);
 		rre.cleanup();
 		
-		if(!silent) HLConstants.LOG.info("Reloading HammerLib recipes...");
+		if(!silent)
+			HLConstants.LOG.info("Reloading HammerLib recipes...");
 		
 		AtomicLong count = new AtomicLong();
 		
@@ -56,14 +54,11 @@ public class RecipeHelper
 		
 		removeRecipes.accept(rre.removedRecipes());
 		
-		if(!silent) HLConstants.LOG.info("HammerLib injected {} recipes into recipe map. Removed {} recipes from the game.", count.longValue(), rre.removedRecipes().size());
-		
-		List<AbstractRecipeRegistry<?, ?, ?>> registries = AbstractRecipeRegistry.getAllRegistries();
-		if(!silent) HLConstants.LOG.info("Reloading {} custom registries.", registries.size());
-		for(AbstractRecipeRegistry<?, ?, ?> registry : registries)
-			registry.reload(null, context);
 		if(!silent)
-			HLConstants.LOG.info("{} custom registries reloaded, added {} total recipes.", registries.size(), registries.stream().mapToInt(AbstractRecipeRegistry::getRecipeCount).sum());
+			HLConstants.LOG.info("HammerLib injected {} recipes into recipe map. Removed {} recipes from the game.",
+					count.longValue(),
+					rre.removedRecipes().size()
+			);
 	}
 	
 	public static void injectRecipes(RecipeManager mgr, ICondition.IContext context)
@@ -73,7 +68,8 @@ public class RecipeHelper
 		
 		List<Recipe<?>> recipeList = new ArrayList<>();
 		Set<ResourceLocation> removed = new HashSet<>();
-		registerCustomRecipes(id -> mgr.byKey(id).isPresent(), recipeList::add, removed::addAll, spoofed, false, context);
+		registerCustomRecipes(id -> mgr.byKey(id)
+				.isPresent(), recipeList::add, removed::addAll, spoofed, false, context);
 		Internal.addRecipes(mgr, recipeList);
 		Internal.removeRecipes(mgr, removed::stream);
 	}
@@ -132,7 +128,8 @@ public class RecipeHelper
 	{
 		if(ingr.isEmpty()) return ItemStack.EMPTY;
 		var items = ingr.getItems();
-		return items[(int) ((System.currentTimeMillis() % (items.length * displayDurationMS)) / displayDurationMS) % items.length];
+		return items[(int) ((System.currentTimeMillis() % (items.length * displayDurationMS)) / displayDurationMS) %
+				items.length];
 	}
 	
 	public static Ingredient composeIngredient(Object... comps)

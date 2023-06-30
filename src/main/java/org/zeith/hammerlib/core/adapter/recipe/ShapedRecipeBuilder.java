@@ -11,7 +11,7 @@ import java.util.*;
 import java.util.stream.Stream;
 
 public class ShapedRecipeBuilder
-		extends RecipeBuilder<ShapedRecipeBuilder, Recipe<?>>
+		extends RecipeBuilderMC<ShapedRecipeBuilder>
 {
 	protected final Map<Character, Ingredient> dictionary = new HashMap<>();
 	protected final List<ResourceLocation> replacers = new ArrayList<>();
@@ -67,7 +67,7 @@ public class ShapedRecipeBuilder
 	public void register()
 	{
 		validate();
-		if(!event.enableRecipe(getIdentifier())) return;
+		if(!event.enableRecipe(RecipeType.CRAFTING, getIdentifier())) return;
 		
 		var id = getIdentifier();
 		var rec = new HLShapedRecipe(id, group, category, shape.width, shape.height, shape.createIngredientMap(dictionary), result);

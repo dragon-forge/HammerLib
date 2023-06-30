@@ -1,7 +1,6 @@
 package org.zeith.hammerlib.core.adapter.recipe;
 
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.StonecutterRecipe;
+import net.minecraft.world.item.crafting.*;
 import org.zeith.hammerlib.util.mcf.itf.IRecipeRegistrationEvent;
 
 public class StoneCutterRecipeBuilder
@@ -16,7 +15,7 @@ public class StoneCutterRecipeBuilder
 	public void register()
 	{
 		validate();
-		if(!event.enableRecipe(getIdentifier())) return;
+		if(!event.enableRecipe(RecipeType.STONECUTTING, getIdentifier())) return;
 		var id = getIdentifier();
 		event.register(id, new StonecutterRecipe(id, group, input, result));
 	}

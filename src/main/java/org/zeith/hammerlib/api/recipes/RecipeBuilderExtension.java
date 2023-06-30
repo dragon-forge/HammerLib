@@ -41,15 +41,16 @@ public abstract class RecipeBuilderExtension
 						return ctor.newInstance(evt);
 					} catch(InstantiationException | IllegalAccessException | InvocationTargetException e)
 					{
-						HammerLib.LOG.error("Failed to attach " + type.getName() + " to recipe registration.");
+						HammerLib.LOG.error("Failed to attach {} to recipe registration.", type.getName());
 					}
 					return null;
 				};
 				
 				map.put(type, generator);
+				HammerLib.LOG.error("Register attachment for RegisterRecipesEvent: {}.", type.getName());
 			} catch(ReflectiveOperationException roe)
 			{
-				HammerLib.LOG.error("Failed to register " + type.getName() + " constructor.");
+				HammerLib.LOG.error("Failed to register {} constructor.", type.getName());
 			}
 		}
 	}));
@@ -104,7 +105,7 @@ public abstract class RecipeBuilderExtension
 						return Tuples.mutable(e.getKey(), e.getValue().apply(evt));
 					} catch(Exception err)
 					{
-						HammerLib.LOG.error("Failed to decode recipe builder extension of type " + e.getKey());
+						HammerLib.LOG.error("Failed to decode recipe builder extension of type {}", e.getKey());
 						return null;
 					}
 				})
