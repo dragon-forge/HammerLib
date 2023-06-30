@@ -2,13 +2,11 @@ package org.zeith.hammerlib.event.listeners;
 
 import net.minecraft.core.*;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.*;
 import net.minecraftforge.common.crafting.conditions.ICondition;
 import net.minecraftforge.event.TagsUpdatedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import org.zeith.hammerlib.api.crafting.AbstractRecipeRegistry;
 
 import java.util.*;
 import java.util.function.UnaryOperator;
@@ -51,9 +49,6 @@ public class TagsUpdateListener
 		{
 			registryAccess = e.getRegistryAccess();
 			tagCache.clear();
-			
-			AbstractRecipeRegistry.getAllRegistries()
-					.forEach(AbstractRecipeRegistry::addClientsideContents);
 		}
 	}
 }
