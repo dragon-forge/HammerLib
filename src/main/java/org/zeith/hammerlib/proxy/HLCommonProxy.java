@@ -7,6 +7,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.server.ServerLifecycleHooks;
@@ -25,6 +26,7 @@ public class HLCommonProxy
 	public HLCommonProxy()
 	{
 		MinecraftForge.EVENT_BUS.addListener(this::serverTick);
+		MinecraftForge.EVENT_BUS.addListener(this::serverStopping);
 	}
 	
 	public void queueTask(Level level, int delay, Runnable task)
@@ -44,6 +46,11 @@ public class HLCommonProxy
 				--i;
 			}
 		}
+	}
+	
+	private void serverStopping(ServerStoppingEvent e)
+	{
+		serverTickTasks.clear();
 	}
 	
 	public void construct(IEventBus modBus)
