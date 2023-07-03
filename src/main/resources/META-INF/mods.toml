@@ -7,8 +7,8 @@ modId = "${mod_id}"
 version = "${mod_version}"
 displayName = "${mod_name}"
 updateJSONURL = "https://api.modrinth.com/updates/${modrinth_project}/forge_updates.json"
-displayURL = "https://legacy.curseforge.com/minecraft/mc-mods/hammer-lib"
-logoFile = "logo.png"
+displayURL = "https://modrinth.com/mod/PlkSuVtM"
+logoFile = "assets/${mod_id}/logo.png"
 authors = "${mod_authors}"
 
 description='''${mod_description}'''

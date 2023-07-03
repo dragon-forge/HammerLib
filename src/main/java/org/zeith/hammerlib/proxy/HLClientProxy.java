@@ -248,11 +248,13 @@ public class HLClientProxy
 	
 	private void clientTick(ClientTickEvent e)
 	{
+		var mc = Minecraft.getInstance();
+		
 		if(e.phase == TickEvent.Phase.START)
 		{
-			if(Minecraft.getInstance().level != null)
+			if(mc.level != null)
 			{
-				if(!Minecraft.getInstance().isPaused())
+				if(!mc.isPaused())
 				{
 					pingTimer--;
 					if(pingTimer <= 0)
@@ -269,6 +271,9 @@ public class HLClientProxy
 			
 			return;
 		}
+		
+		if(mc.level == null)
+			clientTickTasks.clear();
 		
 		for(int i = 0; i < clientTickTasks.size(); i++)
 		{
