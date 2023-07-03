@@ -27,6 +27,7 @@
     "bs.kubejs.RecipeEventJSMixin"
   ],
   "client": [
+    "client.BlockElementFaceAccessor",
     "client.ClientLanguageAccessor",
     "client.I18nAccessor",
     "client.LanguageManagerMixin",

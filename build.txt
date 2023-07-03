@@ -1,5 +1,5 @@
 # Mod Info
-mod_version=20.1.9
+mod_version=20.1.10
 build_candidate=false
 
 # Mod dependencies
@@ -17,7 +17,7 @@ issue_tracker=https://github.com/dragon-forge/HammerLib/issues
 
 # Maven Info
 maven_group=org.zeith.hammerlib
-shimmer_version=0.1.14
+shimmer_version=0.1.15
 
 # MC Info
 mc_version=1.20.1

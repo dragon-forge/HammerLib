@@ -14,11 +14,13 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -62,10 +64,25 @@ import java.util.stream.Stream;
 public class HLClientProxy
 		extends HLCommonProxy
 {
+	protected List<QueuedTask> clientTickTasks = new ArrayList<>();
+	
 	public static final KeyMapping RENDER_GUI_ITEM = new KeyMapping("key.hammerlib.render_item", KeyConflictContext.GUI, InputConstants.Type.KEYSYM, InputConstants.UNKNOWN.getValue(), "key.categories.ui");
 	
 	public static Map<ParticleRenderType, Queue<Particle>> PARTICLE_MAP;
 	int pingTimer;
+	
+	public HLClientProxy()
+	{
+		MinecraftForge.EVENT_BUS.addListener(this::clientTick);
+	}
+	
+	@Override
+	public void queueTask(Level level, int delay, Runnable task)
+	{
+		super.queueTask(level, delay, task);
+		if(level.isClientSide)
+			clientTickTasks.add(new QueuedTask(delay, task));
+	}
 	
 	@Override
 	public void construct(IEventBus modBus)
@@ -143,7 +160,7 @@ public class HLClientProxy
 	{
 		return e ->
 		{
-			ReflectionUtil.<BlockEntityType<?>> getStaticFinalField(ReflectionUtil.fetchClass(owner), member)
+			ReflectionUtil.<BlockEntityType<?>>getStaticFinalField(ReflectionUtil.fetchClass(owner), member)
 					.ifPresent(type ->
 					{
 						ResourceLocation name = ForgeRegistries.BLOCK_ENTITY_TYPES.getKey(type);
@@ -184,7 +201,8 @@ public class HLClientProxy
 									{
 										BlockEntityRenderer<?> r = (BlockEntityRenderer<?>) ctr.newInstance();
 										theTesr = c -> r;
-									} else if(ctr.getParameterCount() == 1 && ctr.getParameterTypes()[0] == BlockEntityRendererProvider.Context.class)
+									} else if(ctr.getParameterCount() == 1 &&
+											ctr.getParameterTypes()[0] == BlockEntityRendererProvider.Context.class)
 									{
 										theTesr = ctx ->
 										{
@@ -206,7 +224,8 @@ public class HLClientProxy
 						}
 						
 						if(theTesr == null)
-							throw new RuntimeException("Unable to find a valid constructor for " + name + "'s TESR " + anyTesr);
+							throw new RuntimeException(
+									"Unable to find a valid constructor for " + name + "'s TESR " + anyTesr);
 						
 						Function<BlockEntityRendererProvider.Context, BlockEntityRenderer<?>> finalTheTesr = theTesr;
 						BlockEntityRenderers.register(type, (BlockEntityRendererProvider<BlockEntity>) ctx -> Cast.cast(finalTheTesr.apply(ctx)));
@@ -227,24 +246,37 @@ public class HLClientProxy
 		}
 	}
 	
-	@SubscribeEvent
-	public void clientTick(ClientTickEvent e)
+	private void clientTick(ClientTickEvent e)
 	{
-		if(Minecraft.getInstance().level != null)
+		if(e.phase == TickEvent.Phase.START)
 		{
-			if(!Minecraft.getInstance().isPaused())
+			if(Minecraft.getInstance().level != null)
 			{
-				pingTimer--;
-				if(pingTimer <= 0)
+				if(!Minecraft.getInstance().isPaused())
 				{
-					pingTimer += 40;
-					Network.sendToServer(new PingServerPacket(System.currentTimeMillis()));
+					pingTimer--;
+					if(pingTimer <= 0)
+					{
+						pingTimer += 40;
+						Network.sendToServer(new PingServerPacket(System.currentTimeMillis()));
+					}
 				}
+			} else if(renderedWorld)
+			{
+				renderedWorld = false;
+				ConfigAdapter.resetClientsideSync();
 			}
-		} else if(renderedWorld)
+			
+			return;
+		}
+		
+		for(int i = 0; i < clientTickTasks.size(); i++)
 		{
-			renderedWorld = false;
-			ConfigAdapter.resetClientsideSync();
+			if(clientTickTasks.get(i).shouldRemove())
+			{
+				clientTickTasks.remove(i);
+				--i;
+			}
 		}
 	}
 	
@@ -254,7 +286,8 @@ public class HLClientProxy
 		if(Minecraft.getInstance().options.renderDebug)
 		{
 			List<String> tip = f3.getLeft();
-			tip.add(ChatFormatting.GOLD + "[HammerLib]" + ChatFormatting.RESET + " Ping: ~" + PingServerPacket.lastPingTime + " ms.");
+			tip.add(ChatFormatting.GOLD + "[HammerLib]" + ChatFormatting.RESET + " Ping: ~" +
+					PingServerPacket.lastPingTime + " ms.");
 		}
 	}
 	

@@ -96,6 +96,19 @@ repositories {
     flatDir { dirs "libraries/${config.mc_version}/classpathOnly" }
     flatDir { dirs "libraries/${config.mc_version}/runtimeOnly" }
     flatDir { dirs "libraries/embedded" }
+
+    maven {
+        url "https://maven.firstdarkdev.xyz/snapshots"
+        content {
+            includeGroupByRegex "com\\.lowdragmc.*"
+        }
+    }
+    maven {
+        url = "https://jitpack.io"
+        content {
+            includeGroupByRegex "com\\.github\\.LlamaLad7.*"
+        }
+    }
 }
 
 import net.minecraftforge.gradle.common.tasks.SignJar
@@ -113,7 +126,8 @@ dependencies {
     }
 
     annotationProcessor "org.spongepowered:mixin:0.8.5:processor"
-    // implementation fg.deobf("com.lowdragmc.shimmer:Shimmer-forge:${config.mc_version}-${config.shimmer_version}")
+
+    implementation fg.deobf("com.lowdragmc.shimmer:Shimmer-forge:1.20-${config.shimmer_version}")
 
     def libraries = new File(file("libraries"), "${config.mc_version}")
     if (!libraries.isDirectory()) libraries.mkdirs()

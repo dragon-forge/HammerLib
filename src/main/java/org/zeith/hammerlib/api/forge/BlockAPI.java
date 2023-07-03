@@ -10,7 +10,7 @@ import org.zeith.hammerlib.api.tiles.ISidedTickableTile;
 import org.zeith.hammerlib.mixins.BlockEntityAccessor;
 import org.zeith.hammerlib.tiles.TileSyncableTickable;
 
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -50,10 +50,10 @@ public class BlockAPI
 			if(entity instanceof ISidedTickableTile t)
 				t.clientTick(level, pos, state, entity);
 		} : (level, pos, state, entity) ->
-		{
-			if(entity instanceof ISidedTickableTile t)
-				t.serverTick(level, pos, state, entity);
-		};
+			   {
+				   if(entity instanceof ISidedTickableTile t)
+					   t.serverTick(level, pos, state, entity);
+			   };
 	}
 	
 	/**
@@ -90,7 +90,8 @@ public class BlockAPI
 	public static <T extends BlockEntity> BlockEntityType<T> createBlockEntityType(DynamicBlockEntitySupplier<T> generator, Block... blocks)
 	{
 		AtomicReference<BlockEntityType<T>> typeRef = new AtomicReference<>();
-		typeRef.set(BlockEntityType.Builder.of((pos, state) -> generator.create(typeRef.get(), pos, state), blocks).build(null));
+		typeRef.set(BlockEntityType.Builder.of((pos, state) -> generator.create(typeRef.get(), pos, state), blocks)
+				.build(null));
 		return typeRef.get();
 	}
 	
@@ -121,6 +122,26 @@ public class BlockAPI
 	public static <T extends BlockEntity> void spoofBlockEntityType(T be, BlockEntityType<T> type)
 	{
 		((BlockEntityAccessor) be).setType_HammerLib(type);
+	}
+	
+	/**
+	 * Sends a block update to the specified position in the given level. This method
+	 * is used to trigger a visual update of a block and its surroundings in the client.
+	 * It updates the block's model data, block state, and neighboring blocks.
+	 *
+	 * @param level
+	 * 		The level in which the block update should occur.
+	 * @param pos
+	 * 		The position of the block that needs to be updated.
+	 */
+	public static void sendBlockUpdate(Level level, BlockPos pos)
+	{
+		if(level == null || pos == null) return;
+		Optional.ofNullable(level.getBlockEntity(pos)).ifPresent(BlockEntity::requestModelDataUpdate);
+		var state = level.getBlockState(pos);
+		level.sendBlockUpdated(pos, state, state, 3);
+		level.blockUpdated(pos, state.getBlock());
+		level.setBlockAndUpdate(pos, Block.updateFromNeighbourShapes(state, level, pos));
 	}
 	
 	@FunctionalInterface
