@@ -38,22 +38,26 @@ public class RecipeHelper
 		
 		AtomicLong count = new AtomicLong();
 		
-		rre.getRecipes().forEach(recipe ->
+		var rem = rre.removedRecipes();
+		
+		rre.getRecipes().filter(rec -> !rem.contains(rec.getId())).forEach(recipe ->
 		{
 			addRecipe.accept(recipe);
 			count.incrementAndGet();
 		});
 		
-		removeRecipes.accept(rre.removedRecipes());
+		removeRecipes.accept(rem);
 		
-		if(!silent) HLConstants.LOG.info("HammerLib injected {} recipes into recipe map. Removed {} recipes from the game.", count.longValue(), rre.removedRecipes().size());
+		if(!silent)
+			HLConstants.LOG.info("HammerLib injected {} recipes into recipe map. Removed {} recipes from the game.", count.longValue(), rem.size());
 		
 		List<AbstractRecipeRegistry<?, ?, ?>> registries = AbstractRecipeRegistry.getAllRegistries();
 		if(!silent) HLConstants.LOG.info("Reloading {} custom registries.", registries.size());
 		for(AbstractRecipeRegistry<?, ?, ?> registry : registries)
 			registry.reload(null, context);
 		if(!silent)
-			HLConstants.LOG.info("{} custom registries reloaded, added {} total recipes.", registries.size(), registries.stream().mapToInt(AbstractRecipeRegistry::getRecipeCount).sum());
+			HLConstants.LOG.info("{} custom registries reloaded, added {} total recipes.", registries.size(), registries.stream()
+					.mapToInt(AbstractRecipeRegistry::getRecipeCount).sum());
 	}
 	
 	public static void injectRecipes(RecipeManager mgr, ICondition.IContext context)
@@ -63,7 +67,8 @@ public class RecipeHelper
 		
 		List<Recipe<?>> recipeList = new ArrayList<>();
 		Set<ResourceLocation> removed = new HashSet<>();
-		registerCustomRecipes(id -> mgr.byKey(id).isPresent(), recipeList::add, removed::addAll, spoofed, false, context);
+		registerCustomRecipes(id -> mgr.byKey(id)
+				.isPresent(), recipeList::add, removed::addAll, spoofed, false, context);
 		Internal.addRecipes(mgr, recipeList);
 		Internal.removeRecipes(mgr, removed::stream);
 	}
@@ -83,9 +88,9 @@ public class RecipeHelper
 		return getRecipeMap(level, type).values().stream();
 	}
 	
-	private static class Internal
+	public static class Internal
 	{
-		private static void addRecipes(RecipeManager mgr, List<Recipe<?>> recipes)
+		public static void addRecipes(RecipeManager mgr, Collection<Recipe<?>> recipes)
 		{
 			recipes.forEach(r ->
 			{
@@ -96,7 +101,7 @@ public class RecipeHelper
 			HammerLib.LOG.info("Registered {} additional recipes.", recipes.size());
 		}
 		
-		private static void removeRecipes(RecipeManager mgr, Supplier<Stream<ResourceLocation>> recipes)
+		public static void removeRecipes(RecipeManager mgr, Supplier<Stream<ResourceLocation>> recipes)
 		{
 			recipes.get().forEach(id ->
 			{
@@ -109,7 +114,7 @@ public class RecipeHelper
 			});
 		}
 		
-		private static void mutableManager(RecipeManager mgr)
+		public static void mutableManager(RecipeManager mgr)
 		{
 			mgr.byName = new HashMap<>(mgr.byName);
 			mgr.recipes = new HashMap<>(mgr.recipes);
@@ -122,7 +127,8 @@ public class RecipeHelper
 	{
 		if(ingr.isEmpty()) return ItemStack.EMPTY;
 		var items = ingr.getItems();
-		return items[(int) ((System.currentTimeMillis() % (items.length * displayDurationMS)) / displayDurationMS) % items.length];
+		return items[(int) ((System.currentTimeMillis() % (items.length * displayDurationMS)) / displayDurationMS) %
+				items.length];
 	}
 	
 	public static Ingredient composeIngredient(Object... comps)

@@ -1,5 +1,6 @@
 package org.zeith.hammerlib.proxy;
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import org.apache.logging.log4j.Logger;
@@ -19,4 +20,9 @@ public class HLConstants
 			return new ItemStack(ItemWrench.WRENCH);
 		}
 	};
+	
+	public static ResourceLocation id(String id)
+	{
+		return new ResourceLocation(MOD_ID, id);
+	}
 }

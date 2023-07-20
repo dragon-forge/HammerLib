@@ -15,7 +15,7 @@ public class ForgeHooksMixin
 			at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/storage/loot/LootTable;freeze()V"),
 			index = 6
 	)
-	private static LootTable loadLootTable_BotanicAdditions(LootTable table)
+	private static LootTable loadLootTable_HammerLib(LootTable table)
 	{
 		return LootTableAdapter.alter(table);
 	}
