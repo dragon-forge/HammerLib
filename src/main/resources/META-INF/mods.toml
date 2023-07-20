@@ -7,8 +7,8 @@ modId="hammerlib"
 version="${file.jarVersion}"
 displayName="HammerLib"
 updateJSONURL="https://api.modrinth.com/updates/PlkSuVtM/forge_updates.json"
-displayURL="http://h.zeith.org/api/fmlhp/247401"
-logoFile="logo.png" #optional
+displayURL="https://modrinth.com/mod/PlkSuVtM"
+logoFile="assets/hammerlib/logo.png" #optional
 authors="Zeitheron" #optional
 description='''
 HammerLib is an essential tool for developing mods easily.
