@@ -76,6 +76,14 @@ public class Cast
 		return Optional.empty();
 	}
 	
+	public static <T> T or(T... input)
+	{
+		for(var i : input)
+			if(i != null)
+				return i;
+		return null;
+	}
+	
 	@Nullable
 	public static <T> T cast(Object thing, Class<T> type)
 	{
@@ -122,7 +130,8 @@ public class Cast
 		}
 	}
 	
-	public static <T> T newInstanceWithRE(Class<T> type) throws RuntimeException
+	public static <T> T newInstanceWithRE(Class<T> type)
+			throws RuntimeException
 	{
 		try
 		{
