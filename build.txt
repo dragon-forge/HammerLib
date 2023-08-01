@@ -22,8 +22,8 @@ shimmer_version=0.1.15
 # MC Info
 mc_version=1.20.1
 mc_range=[1.20.1,1.21)
-forge_version=47.0.34
-forge_range=[47,)
+forge_version=47.1.58
+forge_range=[47.1,)
 mc_user=Zeitheron,63fa4c485b5640809727d5d59663e603
 
 # Misc Info
