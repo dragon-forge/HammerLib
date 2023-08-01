@@ -1,6 +1,5 @@
 buildscript {
     repositories {
-        maven { url = 'https://maven.minecraftforge.net' }
         maven { url "https://plugins.gradle.org/m2/" }
         jcenter()
         mavenCentral()
@@ -17,7 +16,7 @@ buildscript {
 
 plugins {
     id "com.modrinth.minotaur" version "2.+"
-    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'net.neoforged.gradle' version '[6.0.13, 6.2)'
 }
 
 apply plugin: 'idea'
@@ -117,7 +116,7 @@ import java.nio.file.Files
 import java.nio.file.StandardOpenOption
 
 dependencies {
-    minecraft "net.minecraftforge:forge:${config.mc_version}-${config.forge_version}"
+    minecraft "net.neoforged:forge:${config.mc_version}-${config.forge_version}"
 
     if (hasConfig("jei_version") && !config.jei_version.isEmpty()) {
         compileOnly fg.deobf("mezz.jei:jei-${config.mc_version}-common-api:${config.jei_version}")
@@ -259,6 +258,7 @@ modrinth {
     versionType = config.release_type as String
     uploadFile = jar
     gameVersions = [config.mc_version as String]
+    loaders = ['Forge', 'NeoForge']
 }
 
 curseforge {
@@ -270,6 +270,7 @@ curseforge {
         releaseType = config.release_type as String
         addGameVersion config.mc_version as String
         addGameVersion "Forge"
+        addGameVersion "NeoForge"
         mainArtifact(jar) {
             displayName = "[${config.mc_version}] ${config.mod_name} - ${config.mod_version}"
         }
