@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.zeitheron.hammercore.client.adapter.ChatMessageAdapter;
 import org.lwjgl.opengl.GL11;
 
 import com.zeitheron.hammercore.HammerCore;
@@ -86,6 +87,9 @@ public class Render3D
 				Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new TextComponentTranslation("chat.hammercore:corrupt", TextFormatting.AQUA + mc.getName() + TextFormatting.RESET).appendText(" ").appendSibling(tct));
 			}
 		});
+		
+		while(!ChatMessageAdapter.messages.isEmpty())
+			Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(ChatMessageAdapter.messages.remove(0));
 	}
 	
 	@SubscribeEvent(priority = EventPriority.LOWEST)

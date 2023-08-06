@@ -150,6 +150,16 @@ public enum HCNet
 		channel.sendToAllAround(wrap(new PacketHolder(packet), null), point);
 	}
 
+	public void sendToAllAroundTracking(IPacket packet, TargetPoint point)
+	{
+		channel.sendToAllTracking(wrap(new PacketHolder(packet), null), point);
+	}
+
+	public void sendToAllAroundTracking(IPacket packet, Entity point)
+	{
+		channel.sendToAllTracking(wrap(new PacketHolder(packet), null), point);
+	}
+
 	public void sendToDimension(IPacket packet, int dimensionId)
 	{
 		channel.sendToDimension(wrap(new PacketHolder(packet), null), dimensionId);
