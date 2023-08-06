@@ -73,10 +73,8 @@ import java.util.function.Supplier;
 
 /**
  * The core of Hammer Core. <br>
- * <span style="text-decoration: underline;"> <em>This really sounds weird
- * :/</em></span>
  **/
-@Mod(modid = "hammercore", version = "@VERSION@", name = "Hammer Core", guiFactory = "com.zeitheron.hammercore.cfg.gui.GuiConfigFactory", certificateFingerprint = HammerCore.CERTIFICATE_FINGERPRINT, updateJSON = "http://dccg.herokuapp.com/api/fmluc/247401")
+@Mod(modid = "hammercore", version = "@VERSION@", name = "HammerLib", guiFactory = "com.zeitheron.hammercore.cfg.gui.GuiConfigFactory", certificateFingerprint = HammerCore.CERTIFICATE_FINGERPRINT, updateJSON = "https://h.zeith.org/api/fmluc/247401")
 public class HammerCore
 {
 	public static final String CERTIFICATE_FINGERPRINT = "9f5e2a811a8332a842b34f6967b7db0ac4f24856";
