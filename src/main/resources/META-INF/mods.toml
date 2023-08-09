@@ -8,12 +8,9 @@ version="${file.jarVersion}"
 displayName="HammerLib"
 updateJSONURL="https://api.modrinth.com/updates/PlkSuVtM/forge_updates.json"
 displayURL="https://modrinth.com/mod/PlkSuVtM"
-logoFile="assets/hammerlib/logo.png" #optional
+logoFile="logo.png" #optional
 authors="Zeitheron" #optional
-description='''
-HammerLib is an essential tool for developing mods easily.
-Packed with a lot of utilities, this library provides nearly anything a modder would need, in one handy package!
-'''
+description="HammerLib is an essential tool for developing mods easily.\nPacked with a lot of utilities, this library provides nearly anything a modder would need, in one handy package!"
 [[dependencies.hammerlib]]
     modId="forge"
     mandatory=true

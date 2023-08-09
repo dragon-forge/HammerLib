@@ -8,7 +8,13 @@ import java.util.function.Supplier;
 
 public class Cast
 {
+	@Deprecated
 	public static <T> Supplier<T> staticValue(T value)
+	{
+		return () -> value;
+	}
+	
+	public static <T> Supplier<T> constant(T value)
 	{
 		return () -> value;
 	}
@@ -105,7 +111,8 @@ public class Cast
 		}
 	}
 	
-	public static <T> T newInstanceWithRE(Class<T> type) throws RuntimeException
+	public static <T> T newInstanceWithRE(Class<T> type)
+			throws RuntimeException
 	{
 		try
 		{
