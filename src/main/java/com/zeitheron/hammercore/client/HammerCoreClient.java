@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
+import com.zeitheron.hammercore.api.lighting.ColoredLightManager;
 import com.zeitheron.hammercore.event.client.ClientLoadedInEvent;
 import com.zeitheron.hammercore.net.HCNet;
 import com.zeitheron.hammercore.net.internal.PacketPing;
@@ -72,7 +73,10 @@ public class HammerCoreClient
 		
 		boolean inWorld = Minecraft.getMinecraft().world != null;
 		if(renderedWorld && !inWorld)
-			renderedWorld = inWorld;
+		{
+			renderedWorld = false;
+			ColoredLightManager.resetTileCache();
+		}
 		
 		if(renderedWorld && pingTimer-- <= 0)
 		{
