@@ -408,22 +408,20 @@ public class RenderProxy_Client
 
 	public static void registerRenders(Iterable<Item> items)
 	{
-		Iterator<Item> iter = items.iterator();
-		while(iter.hasNext())
-			registerRender(iter.next());
+		for(Item item : items) registerRender(item);
 	}
 
 	public static void registerRender(Item item)
 	{
-		if(item.getClass().getAnnotation(HasNoModel.class) != null || (item instanceof ItemBlock && ((ItemBlock) item).getBlock().getClass().getAnnotation(HasNoModel.class) != null))
+		if(item.getClass().isAnnotationPresent(HasNoModel.class) || (item instanceof ItemBlock && ((ItemBlock) item).getBlock().getClass().isAnnotationPresent(HasNoModel.class)))
 			return;
-		HammerCore.LOG.info("Model definition for location " + item.getTranslationKey().substring(5));
-		Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, 0, new ModelResourceLocation(new ResourceLocation(item.getTranslationKey().substring(5)), "inventory"));
+		HammerCore.LOG.debug("Model definition for location " + item.getTranslationKey().substring(5));
+		Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, 0, new ModelResourceLocation(item.getRegistryName(), "inventory"));
 	}
 
 	public static void registerRender(Item item, int meta, String modelName)
 	{
-		HammerCore.LOG.info("Model definition for location " + modelName);
+		HammerCore.LOG.debug("Model definition for location " + modelName);
 		Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, meta, new ModelResourceLocation(new ResourceLocation(modelName), "inventory"));
 	}
 

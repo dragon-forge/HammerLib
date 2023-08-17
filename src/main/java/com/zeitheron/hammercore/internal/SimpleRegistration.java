@@ -2,9 +2,7 @@ package com.zeitheron.hammercore.internal;
 
 import com.google.common.collect.Maps;
 import com.zeitheron.hammercore.HammerCore;
-import com.zeitheron.hammercore.annotations.PreRegisterHook;
-import com.zeitheron.hammercore.annotations.RecipeRegister;
-import com.zeitheron.hammercore.annotations.RegisterIf;
+import com.zeitheron.hammercore.annotations.*;
 import com.zeitheron.hammercore.api.INoItemBlock;
 import com.zeitheron.hammercore.api.ITileBlock;
 import com.zeitheron.hammercore.api.blocks.IBlockItemRegisterListener;
@@ -51,11 +49,11 @@ public class SimpleRegistration
 		int i = 0;
 		int j = 0;
 		int k = 0;
-
+		
 		if(recipeComponents[i] instanceof String[])
 		{
 			String[] astring = ((String[]) recipeComponents[i++]);
-
+			
 			for(String s2 : astring)
 			{
 				++k;
@@ -72,14 +70,14 @@ public class SimpleRegistration
 				s = s + s1;
 			}
 		}
-
+		
 		Map<Character, Ingredient> map;
-
-		for(map = Maps.<Character, Ingredient> newHashMap(); i < recipeComponents.length; i += 2)
+		
+		for(map = Maps.<Character, Ingredient>newHashMap(); i < recipeComponents.length; i += 2)
 		{
 			Character character = (Character) recipeComponents[i];
 			Ingredient ingr = null;
-
+			
 			if(recipeComponents[i + 1] instanceof Item)
 				ingr = Ingredient.fromItem((Item) recipeComponents[i + 1]);
 			else if(recipeComponents[i + 1] instanceof Block)
@@ -96,29 +94,32 @@ public class SimpleRegistration
 				ingr = new OreIngredient(recipeComponents[i + 1] + "");
 			else if(recipeComponents[i + 1] instanceof Ingredient)
 				ingr = (Ingredient) recipeComponents[i + 1];
-
+			
 			map.put(character, ingr);
 		}
-
+		
 		NonNullList<Ingredient> aitemstack = NonNullList.withSize(j * k, Ingredient.EMPTY);
-
+		
 		for(int l = 0; l < j * k; ++l)
 		{
 			char c0 = s.charAt(l);
-
+			
 			if(map.containsKey(c0))
 				aitemstack.set(l, map.get(c0));
 		}
-
+		
 		return new ShapedRecipes(name, j, k, aitemstack, stack);
 	}
-
+	
 	/**
 	 * This should only be used for registering recipes for vanilla objects and
 	 * not mod-specific objects.
 	 *
-	 * @param stack            The output stack.
-	 * @param recipeComponents The recipe components.
+	 * @param stack
+	 * 		The output stack.
+	 * @param recipeComponents
+	 * 		The recipe components.
+	 *
 	 * @return The parsed recipe
 	 */
 	public static ShapelessRecipes parseShapelessRecipe(ItemStack stack, Object... recipeComponents)
@@ -126,11 +127,11 @@ public class SimpleRegistration
 		ModContainer mc = Loader.instance().activeModContainer();
 		String name = (mc != null ? mc.getModId() : "hammercore") + ":" + stack.getTranslationKey();
 		NonNullList<Ingredient> list = NonNullList.create();
-
+		
 		for(Object object : recipeComponents)
 		{
 			Ingredient ingr = null;
-
+			
 			if(object instanceof Item)
 				ingr = Ingredient.fromItem((Item) object);
 			else if(object instanceof Block)
@@ -147,20 +148,22 @@ public class SimpleRegistration
 				ingr = new OreIngredient(object + "");
 			else if(object instanceof Ingredient)
 				ingr = (Ingredient) object;
-
+			
 			if(ingr != null)
 				list.add(ingr);
 			else
-				throw new IllegalArgumentException("Invalid shapeless recipe: unknown type " + object.getClass().getName() + "!");
+				throw new IllegalArgumentException(
+						"Invalid shapeless recipe: unknown type " + object.getClass().getName() + "!");
 		}
-
+		
 		return new ShapelessRecipes(name, stack, list);
 	}
-
+	
 	public static void registerFieldItemsFrom(Class<?> owner, String modid, CreativeTabs tab)
 	{
 		for(Method m : owner.getDeclaredMethods())
-			if(m.getAnnotation(PreRegisterHook.class) != null && m.getParameterCount() == 0 && Modifier.isStatic(m.getModifiers()))
+			if(m.getAnnotation(PreRegisterHook.class) != null && m.getParameterCount() == 0 &&
+					Modifier.isStatic(m.getModifiers()))
 			{
 				m.setAccessible(true);
 				try
@@ -171,19 +174,25 @@ public class SimpleRegistration
 					e.printStackTrace();
 				}
 			}
-
+		
+		boolean simplyRegister = owner.isAnnotationPresent(SimplyRegister.class);
 		Field[] fs = owner.getDeclaredFields();
 		for(Field f : fs)
 			if(Item.class.isAssignableFrom(f.getType()) && doRegister(f))
 				try
 				{
+					if(simplyRegister && f.isAnnotationPresent(RegistryName.class)) // handled by @SimplyRegister
+					{
+						HammerCore.LOG.info("Skipped {} as it has @RegistryName.", f);
+						continue;
+					}
 					f.setAccessible(true);
 					registerItem((Item) f.get(null), modid, tab);
 				} catch(Throwable err)
 				{
 				}
 	}
-
+	
 	public static void disableIf(boolean statement, Object instance)
 	{
 		if(statement)
@@ -191,11 +200,12 @@ public class SimpleRegistration
 				if(Modifier.isStatic(f.getModifiers()))
 					ReflectionUtil.setStaticFinalField(f, null);
 	}
-
+	
 	public static void registerFieldBlocksFrom(Class<?> owner, String modid, CreativeTabs tab)
 	{
 		for(Method m : owner.getDeclaredMethods())
-			if(m.getAnnotation(PreRegisterHook.class) != null && m.getParameterCount() == 0 && Modifier.isStatic(m.getModifiers()))
+			if(m.getAnnotation(PreRegisterHook.class) != null && m.getParameterCount() == 0 &&
+					Modifier.isStatic(m.getModifiers()))
 			{
 				m.setAccessible(true);
 				try
@@ -206,23 +216,30 @@ public class SimpleRegistration
 					e.printStackTrace();
 				}
 			}
-
+		
+		boolean simplyRegister = owner.isAnnotationPresent(SimplyRegister.class);
 		Field[] fs = owner.getDeclaredFields();
 		for(Field f : fs)
 			if(Block.class.isAssignableFrom(f.getType()) && doRegister(f))
 				try
 				{
+					if(simplyRegister && f.isAnnotationPresent(RegistryName.class)) // handled by @SimplyRegister
+					{
+						HammerCore.LOG.info("Skipped {} as it has @RegistryName.", f);
+						continue;
+					}
 					f.setAccessible(true);
 					registerBlock((Block) f.get(null), modid, tab);
 				} catch(Throwable err)
 				{
 				}
 	}
-
+	
 	public static void registerFieldSoundsFrom(Class<?> owner)
 	{
 		for(Method m : owner.getDeclaredMethods())
-			if(m.getAnnotation(PreRegisterHook.class) != null && m.getParameterCount() == 0 && Modifier.isStatic(m.getModifiers()))
+			if(m.getAnnotation(PreRegisterHook.class) != null && m.getParameterCount() == 0 &&
+					Modifier.isStatic(m.getModifiers()))
 			{
 				m.setAccessible(true);
 				try
@@ -233,7 +250,7 @@ public class SimpleRegistration
 					e.printStackTrace();
 				}
 			}
-
+		
 		Field[] fs = owner.getDeclaredFields();
 		for(Field f : fs)
 			if(SoundObject.class.isAssignableFrom(f.getType()) && doRegister(f))
@@ -245,7 +262,7 @@ public class SimpleRegistration
 				{
 				}
 	}
-
+	
 	public static boolean doRegister(Field f)
 	{
 		RegisterIf statement = f.getAnnotation(RegisterIf.class);
@@ -266,18 +283,19 @@ public class SimpleRegistration
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Registers {@link SoundObject} to registry and populates
 	 * {@link SoundObject} with {@link SoundEvent}.
 	 *
-	 * @param sound The object containing a pahth to sound object
+	 * @param sound
+	 * 		The object containing a pahth to sound object
 	 **/
 	public static void registerSound(SoundObject sound)
 	{
 		ForgeRegistries.SOUND_EVENTS.register(sound.sound = new SoundEvent(sound.name).setRegistryName(sound.name));
 	}
-
+	
 	public static void registerItem(Item item, String modid, CreativeTabs tab)
 	{
 		if(item == null)
@@ -292,7 +310,7 @@ public class SimpleRegistration
 			((IRegisterListener) item).onRegistered();
 		ItemsHC.items.add(item);
 	}
-
+	
 	public static void registerBlock(Block block, String modid, CreativeTabs tab)
 	{
 		if(block == null)
@@ -300,17 +318,17 @@ public class SimpleRegistration
 		String name = block.getTranslationKey().substring("tile.".length());
 		block.setTranslationKey(modid + ":" + name);
 		block.setCreativeTab(tab);
-
+		
 		// ItemBlockDefinition
 		Item ib;
-
+		
 		if(block instanceof BlockMultipartProvider)
 			ib = ((BlockMultipartProvider) block).createItem();
 		else if(block instanceof IItemBlock)
 			ib = ((IItemBlock) block).getItemBlock();
 		else
 			ib = new ItemBlock(block);
-
+		
 		block.setRegistryName(modid, name);
 		ForgeRegistries.BLOCKS.register(block);
 		if(!(block instanceof INoItemBlock))
@@ -321,17 +339,17 @@ public class SimpleRegistration
 			if(block instanceof IBlockItemRegisterListener)
 				((IBlockItemRegisterListener) block).onItemBlockRegistered(ib);
 		}
-
+		
 		if(block instanceof IRegisterListener)
 			((IRegisterListener) block).onRegistered();
-
+		
 		if(block instanceof INoBlockstate)
 			HammerCore.renderProxy.noModel(block);
-
+		
 		if(block instanceof ITileBlock)
 		{
 			Class c = ((ITileBlock) block).getTileClass();
-
+			
 			// Better registration of tiles. Maybe this will fix tile
 			// disappearing?
 			TileEntity.register(modid + ":" + c.getName().substring(c.getName().lastIndexOf(".") + 1).toLowerCase(), c);
@@ -342,10 +360,11 @@ public class SimpleRegistration
 			if(t != null)
 			{
 				Class c = t.getClass();
-				TileEntity.register(modid + ":" + c.getName().substring(c.getName().lastIndexOf(".") + 1).toLowerCase(), c);
+				TileEntity.register(
+						modid + ":" + c.getName().substring(c.getName().lastIndexOf(".") + 1).toLowerCase(), c);
 			}
 		}
-
+		
 		if(!(block instanceof INoItemBlock))
 		{
 			Item i = Item.getItemFromBlock(block);
@@ -355,25 +374,27 @@ public class SimpleRegistration
 				ItemsHC.items.add(i);
 		}
 	}
-
+	
 	private static final List<Supplier<List<IRecipe>>> RECIPE_GENERATORS = new ArrayList<>();
-
+	
 	public static void registerConstantRecipes(Class<?> base)
 	{
 		for(Method m : base.getDeclaredMethods())
 		{
 			int mod = m.getModifiers();
-			if(Modifier.isStatic(mod) && m.getAnnotation(RecipeRegister.class) != null && m.getParameterTypes().length == 1 && List.class.isAssignableFrom(m.getParameterTypes()[0]))
+			if(Modifier.isStatic(mod) && m.getAnnotation(RecipeRegister.class) != null &&
+					m.getParameterTypes().length == 1 && List.class.isAssignableFrom(m.getParameterTypes()[0]))
 			{
 				Type type = m.getParameters()[0].getParameterizedType();
 				if(type instanceof ParameterizedType)
 				{
 					type = ((ParameterizedType) type).getActualTypeArguments()[0];
-					if(Class.class.isAssignableFrom(type.getClass()) && IRecipe.class.getName().equals(type.getTypeName()))
+					if(Class.class.isAssignableFrom(type.getClass()) &&
+							IRecipe.class.getName().equals(type.getTypeName()))
 					{
 						m.setAccessible(true);
 						final Method $ = m;
-
+						
 						RECIPE_GENERATORS.add(() ->
 						{
 							List<IRecipe> recipes = new ArrayList<>();
@@ -391,7 +412,7 @@ public class SimpleRegistration
 			}
 		}
 	}
-
+	
 	public static void $addRegisterRecipes(Consumer<IRecipe> registry)
 	{
 		for(Supplier<List<IRecipe>> recipes : RECIPE_GENERATORS)

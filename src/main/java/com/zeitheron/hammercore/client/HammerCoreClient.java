@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.zeitheron.hammercore.api.lighting.ColoredLightManager;
+import com.zeitheron.hammercore.client.render.shader.GlShaderStack;
 import com.zeitheron.hammercore.event.client.ClientLoadedInEvent;
 import com.zeitheron.hammercore.net.HCNet;
 import com.zeitheron.hammercore.net.internal.PacketPing;
@@ -70,6 +71,8 @@ public class HammerCoreClient
 	{
 		if(cte.phase != Phase.START)
 			return;
+		
+		GlShaderStack.clearStack();
 		
 		boolean inWorld = Minecraft.getMinecraft().world != null;
 		if(renderedWorld && !inWorld)

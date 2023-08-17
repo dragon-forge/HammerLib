@@ -84,6 +84,20 @@ public class ReflectionUtil
 		}
 	}
 	
+	public static Object getValue(Class<?> object, String fieldName)
+	{
+		Field field = getField(object, fieldName);
+		if(field == null || !Modifier.isStatic(field.getModifiers()))
+			return null;
+		try
+		{
+			return field.get(null);
+		} catch(Exception e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+	
 	public static Field getField(Class<?> clazz, Class<?> type)
 	{
 		Field ret = null;

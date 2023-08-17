@@ -16,19 +16,17 @@ public class BlockBorderedCobblestone extends BlockConnectable
 {
 	protected EnumConnTexVersion connV = EnumConnTexVersion.V1;
 	
-	public BlockBorderedCobblestone(String sub, EnumConnTexVersion v)
+	public BlockBorderedCobblestone(EnumConnTexVersion v)
 	{
 		super(Material.ROCK);
 		this.connV = v;
 		setHardness(2F);
-		setTranslationKey(sub + "_bordered_cobblestone");
 	}
 	
-	public BlockBorderedCobblestone(String sub)
+	public BlockBorderedCobblestone()
 	{
 		super(Material.ROCK);
 		setHardness(2F);
-		setTranslationKey(sub + "_bordered_cobblestone");
 	}
 	
 	@Override

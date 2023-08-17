@@ -16,7 +16,7 @@ buildscript {
 }
 
 plugins {
-    id 'com.matthewprenger.cursegradle' version '1.1.0'
+    id 'com.matthewprenger.cursegradle' version '1.4.0'
 	id 'se.bjurr.gitchangelog.git-changelog-gradle-plugin' version '1.56'
 }
 
@@ -138,6 +138,7 @@ curseforge {
 		changelog = file('changelog.html')
 		releaseType = "${config.release_type}"
 		addGameVersion "${config.minecraft_version}"
+		addGameVersion "Forge"
 		mainArtifact(jar) {
 		  displayName = "[${config.minecraft_version}] ${config.mod_name} - ${config.mod_version}"
 		}

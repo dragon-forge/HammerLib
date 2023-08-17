@@ -2,23 +2,16 @@ package com.zeitheron.hammercore;
 
 import com.zeitheron.hammercore.annotations.MCFBus;
 import com.zeitheron.hammercore.api.*;
-import com.zeitheron.hammercore.api.GameRules.GameRuleEntry;
-import com.zeitheron.hammercore.api.GameRules.ValueType;
-import com.zeitheron.hammercore.api.mhb.IRayRegistry;
-import com.zeitheron.hammercore.api.mhb.RaytracePlugin;
-import com.zeitheron.hammercore.cfg.ConfigHolder;
-import com.zeitheron.hammercore.cfg.HCModConfigurations;
-import com.zeitheron.hammercore.cfg.IConfigReloadListener;
+import com.zeitheron.hammercore.api.GameRules.*;
+import com.zeitheron.hammercore.api.mhb.*;
+import com.zeitheron.hammercore.cfg.*;
 import com.zeitheron.hammercore.cfg.tickslip.TickSlipConfig;
 import com.zeitheron.hammercore.command.*;
 import com.zeitheron.hammercore.event.GetAllRequiredApisEvent;
 import com.zeitheron.hammercore.fluiddict.FluidDictionary;
-import com.zeitheron.hammercore.internal.GuiManager;
-import com.zeitheron.hammercore.internal.SimpleRegistration;
+import com.zeitheron.hammercore.internal.*;
 import com.zeitheron.hammercore.internal.chunk.ChunkLoaderHC;
-import com.zeitheron.hammercore.internal.init.BlocksHC;
-import com.zeitheron.hammercore.internal.init.ItemsHC;
-import com.zeitheron.hammercore.internal.init.ManualHC;
+import com.zeitheron.hammercore.internal.init.*;
 import com.zeitheron.hammercore.lib.zlib.database.SafeStore;
 import com.zeitheron.hammercore.lib.zlib.weupnp.AttuneResult;
 import com.zeitheron.hammercore.net.HCNet;
@@ -28,15 +21,12 @@ import com.zeitheron.hammercore.utils.*;
 import com.zeitheron.hammercore.utils.charging.ItemChargeHelper;
 import com.zeitheron.hammercore.utils.color.ColorHelper;
 import com.zeitheron.hammercore.utils.recipes.BrewingRecipe;
-import com.zeitheron.hammercore.utils.recipes.helper.RecipeRegistry;
-import com.zeitheron.hammercore.utils.recipes.helper.RegisterRecipes;
+import com.zeitheron.hammercore.utils.recipes.helper.*;
 import com.zeitheron.hammercore.utils.structure.StructureAPI;
-import com.zeitheron.hammercore.world.WorldGenHammerCore;
-import com.zeitheron.hammercore.world.WorldGenHelper;
+import com.zeitheron.hammercore.world.*;
 import com.zeitheron.hammercore.world.data.PerChunkDataManager;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.*;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
@@ -49,32 +39,28 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.*;
-import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.Mod.Instance;
+import net.minecraftforge.fml.common.Mod.*;
 import net.minecraftforge.fml.common.ProgressManager.ProgressBar;
 import net.minecraftforge.fml.common.event.*;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
-import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.*;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.registries.IForgeRegistry;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.*;
 import org.xml.sax.SAXException;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 import java.util.function.Supplier;
 
 /**
  * The core of Hammer Core. <br>
  **/
-@Mod(modid = "hammercore", version = "@VERSION@", name = "HammerLib", guiFactory = "com.zeitheron.hammercore.cfg.gui.GuiConfigFactory", certificateFingerprint = HammerCore.CERTIFICATE_FINGERPRINT, updateJSON = "https://h.zeith.org/api/fmluc/247401")
+@Mod(modid = "hammercore", version = "@VERSION@", name = "HammerLib", guiFactory = "com.zeitheron.hammercore.cfg.gui.GuiConfigFactory", certificateFingerprint = HammerCore.CERTIFICATE_FINGERPRINT, updateJSON = "https://api.modrinth.com/updates/PlkSuVtM/forge_updates.json")
 public class HammerCore
 {
 	public static final String CERTIFICATE_FINGERPRINT = "9f5e2a811a8332a842b34f6967b7db0ac4f24856";
@@ -132,7 +118,7 @@ public class HammerCore
 	
 	public static final Map<IHammerCoreAPI, HammerCoreAPI> APIS = new HashMap<>();
 	
-	public static final Logger LOG = LogManager.getLogger("HammerCore");
+	public static final Logger LOG = LogManager.getLogger("HammerLib");
 	
 	// public static final CSVFile FIELD_CSV, METHODS_CSV;
 	
@@ -169,6 +155,8 @@ public class HammerCore
 		renderProxy.construct();
 		audioProxy.construct();
 		
+		SimpleRegisterKernel.doScan(e.getASMHarvestedData());
+		
 		if(!FluidRegistry.isUniversalBucketEnabled())
 			FluidRegistry.enableUniversalBucket();
 		
@@ -192,7 +180,7 @@ public class HammerCore
 		
 		toRegister.add(this);
 		
-		ProgressBar bar = ProgressManager.push("Loading", 6 + apis.size() + toRegister.size() + listeners.size());
+		ProgressBar bar = ProgressManager.push("Loading", 4 + apis.size() + toRegister.size() + listeners.size());
 		
 		bar.step("Registering Chunk Storage");
 		PerChunkDataManager.register();
@@ -247,12 +235,6 @@ public class HammerCore
 				APIS.put(api, apia);
 			}
 		}
-		
-		bar.step("Registering Blocks");
-		SimpleRegistration.registerFieldBlocksFrom(BlocksHC.class, "hammercore", HammerCore.tab);
-		
-		bar.step("Registering Items");
-		SimpleRegistration.registerFieldItemsFrom(ItemsHC.class, "hammercore", HammerCore.tab);
 		
 		bar.step("Setting up Network");
 		HCNet.INSTANCE.init();

@@ -5,6 +5,7 @@ keybind.hammercorerenderstack=[HC] Render Item
 ###ITEMS###
 
 item.hammercore:manual.name=Hammer Core Manual
+item.hammercore:wrench.name=Wrench
 
 ###########
 

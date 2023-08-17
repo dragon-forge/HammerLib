@@ -1,8 +1,8 @@
 [
 {
   "modid": "hammercore",
-  "name": "Hammer Core",
-  "description": "Core used by most of Zeitheron's Mods.",
+  "name": "HammerLib",
+  "description": "Extended library used by most of Zeitheron's Mods.",
   "url": "",
   "updateUrl": "",
   "authorList": ["Zeitheron"],

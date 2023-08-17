@@ -38,7 +38,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 @UserModule(username = "Zeitheron")
 public class ZeitheronModule extends PerUserModule
 {
-	public static final KeyBinding openEyeColor = new KeyBinding("Eye changing GUI", Keyboard.KEY_APOSTROPHE, "key.categories.gameplay");
+	private final KeyBinding openEyeColor = new KeyBinding("Eye changing GUI", Keyboard.KEY_APOSTROPHE, "key.categories.gameplay");
 	
 	@Override
 	public CTButton[] getSkinButtons()
