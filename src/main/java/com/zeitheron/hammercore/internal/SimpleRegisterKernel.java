@@ -161,11 +161,13 @@ public class SimpleRegisterKernel
 						if(!(block instanceof INoItemBlock))
 						{
 							if(ib != null)
+							{
 								ForgeRegistries.ITEMS.register(ib.setRegistryName(block.getRegistryName()));
+								if(block instanceof IBlockItemRegisterListener)
+									((IBlockItemRegisterListener) block).onItemBlockRegistered(ib);
+							}
 							if(ib instanceof IRegisterListener)
 								((IRegisterListener) ib).onRegistered();
-							if(block instanceof IBlockItemRegisterListener)
-								((IBlockItemRegisterListener) block).onItemBlockRegistered(ib);
 						}
 						
 						if(block instanceof INoBlockstate)
@@ -237,5 +239,10 @@ public class SimpleRegisterKernel
 			HammerCore.LOG.info("Applied @SimplyRegister to {}, which belongs to {} ({})", data.getClassName(), mod.getModId(), mod.getName());
 		}
 		return kernels;
+	}
+	
+	public boolean is(String modid)
+	{
+		return Objects.equals(container.getModId(), modid);
 	}
 }

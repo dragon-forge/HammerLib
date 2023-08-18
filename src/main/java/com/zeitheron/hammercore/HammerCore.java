@@ -167,6 +167,16 @@ public class HammerCore
 	
 	public List<Object> MCFBusObjects;
 	
+	public static void registerKernelsForMod(String modid)
+	{
+		for(SimpleRegisterKernel kernel : instance.kernels)
+		{
+			if(!kernel.is(modid)) continue;
+			kernel.registerBlocks();
+			kernel.registerItems();
+		}
+	}
+	
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent e)
 	{
@@ -176,11 +186,7 @@ public class HammerCore
 		
 		renderProxy.preInit(e.getAsmData());
 		
-		for(SimpleRegisterKernel kernel : kernels)
-		{
-			kernel.registerBlocks();
-			kernel.registerItems();
-		}
+		registerKernelsForMod("hammercore");
 		
 		TickSlipConfig.reload(new File(e.getModConfigurationDirectory(),
 				"hammercore" + File.separator + "tile_entity_tick_slip.json"
