@@ -149,13 +149,15 @@ public class HammerCore
 		invalidCertificates.put("hammercore", "https://www.curseforge.com/projects/247401");
 	}
 	
+	private List<SimpleRegisterKernel> kernels;
+	
 	@EventHandler
 	public void construct(FMLConstructionEvent e)
 	{
 		renderProxy.construct();
 		audioProxy.construct();
 		
-		SimpleRegisterKernel.doScan(e.getASMHarvestedData());
+		kernels = SimpleRegisterKernel.doScan(e.getASMHarvestedData());
 		
 		if(!FluidRegistry.isUniversalBucketEnabled())
 			FluidRegistry.enableUniversalBucket();
@@ -173,6 +175,12 @@ public class HammerCore
 		List<IConfigReloadListener> listeners = AnnotatedInstanceUtil.getInstances(e.getAsmData(), HCModConfigurations.class, IConfigReloadListener.class);
 		
 		renderProxy.preInit(e.getAsmData());
+		
+		for(SimpleRegisterKernel kernel : kernels)
+		{
+			kernel.registerBlocks();
+			kernel.registerItems();
+		}
 		
 		TickSlipConfig.reload(new File(e.getModConfigurationDirectory(),
 				"hammercore" + File.separator + "tile_entity_tick_slip.json"

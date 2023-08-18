@@ -35,6 +35,7 @@ public class SimpleRegisterKernel
 	protected Map<Class<?>, List<Tuple2<IForgeRegistryEntry<?>, ResourceLocation>>> fields;
 	
 	protected CreativeTabs assignedTab;
+	protected boolean registeredItems, registeredBlocks;
 	
 	public SimpleRegisterKernel(String className, ModContainer container)
 	{
@@ -91,6 +92,16 @@ public class SimpleRegisterKernel
 		return fields;
 	}
 	
+	public void registerItems()
+	{
+		register(new RegistryEvent.Register<>(GameData.ITEMS, ForgeRegistries.ITEMS));
+	}
+	
+	public void registerBlocks()
+	{
+		register(new RegistryEvent.Register<>(GameData.BLOCKS, ForgeRegistries.BLOCKS));
+	}
+	
 	@SubscribeEvent
 	protected void register(RegistryEvent.Register evt)
 	{
@@ -107,6 +118,12 @@ public class SimpleRegisterKernel
 		boolean blocks = base.equals(Block.class);
 		boolean items = base.equals(Item.class);
 		String modid = container.getModId();
+		
+		if(blocks && registeredBlocks) return;
+		if(items && registeredItems) return;
+		
+		if(blocks) registeredBlocks = true;
+		if(items) registeredItems = true;
 		
 		try
 		{
@@ -143,7 +160,8 @@ public class SimpleRegisterKernel
 						
 						if(!(block instanceof INoItemBlock))
 						{
-							ForgeRegistries.ITEMS.register(ib.setRegistryName(block.getRegistryName()));
+							if(ib != null)
+								ForgeRegistries.ITEMS.register(ib.setRegistryName(block.getRegistryName()));
 							if(ib instanceof IRegisterListener)
 								((IRegisterListener) ib).onRegistered();
 							if(block instanceof IBlockItemRegisterListener)
@@ -203,8 +221,9 @@ public class SimpleRegisterKernel
 		Loader.instance().setActiveModContainer(old);
 	}
 	
-	public static void doScan(ASMDataTable table)
+	public static List<SimpleRegisterKernel> doScan(ASMDataTable table)
 	{
+		List<SimpleRegisterKernel> kernels = new ArrayList<>();
 		for(ASMDataTable.ASMData data : table.getAll(SimplyRegister.class.getCanonicalName()))
 		{
 			ModContainer mod = data.getCandidate().getContainedMods().stream().findFirst().orElse(null);
@@ -214,8 +233,9 @@ public class SimpleRegisterKernel
 				continue;
 			}
 			
-			new SimpleRegisterKernel(data.getClassName(), mod);
+			kernels.add(new SimpleRegisterKernel(data.getClassName(), mod));
 			HammerCore.LOG.info("Applied @SimplyRegister to {}, which belongs to {} ({})", data.getClassName(), mod.getModId(), mod.getName());
 		}
+		return kernels;
 	}
 }
