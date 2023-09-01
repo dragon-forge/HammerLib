@@ -1,9 +1,11 @@
 package org.zeith.hammerlib.api.inv;
 
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerListener;
+import net.minecraft.world.inventory.*;
+import org.jetbrains.annotations.Nullable;
 import org.zeith.hammerlib.mixins.AbstractContainerMenuAccessor;
+import org.zeith.hammerlib.net.packets.SendPropertiesPacket;
 import org.zeith.hammerlib.net.properties.PropertyDispatcher;
+import org.zeith.hammerlib.util.java.Cast;
 
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -12,7 +14,8 @@ import java.util.function.BiConsumer;
 /**
  * Used to track all properties you might need to sync across server <---> client
  */
-public class ComplexProgressManager extends PropertyDispatcher
+public class ComplexProgressManager
+		extends PropertyDispatcher
 {
 	static final ThreadLocal<ByteBuffer> buffers2 = ThreadLocal.withInitial(() -> ByteBuffer.allocate(2));
 	static final ThreadLocal<ByteBuffer> buffers4 = ThreadLocal.withInitial(() -> ByteBuffer.allocate(4));
@@ -22,7 +25,7 @@ public class ComplexProgressManager extends PropertyDispatcher
 	
 	public ComplexProgressManager(int size, int startIndex)
 	{
-		super(() ->
+		super(Cast.constant(null), () ->
 		{
 		});
 		this.buffer = new byte[size];
@@ -222,5 +225,19 @@ public class ComplexProgressManager extends PropertyDispatcher
 	public byte[] getBytes()
 	{
 		return buffer;
+	}
+	
+	@Nullable
+	@Override
+	public SendPropertiesPacket detectAndGenerateChanges(boolean cleanse)
+	{
+		return null;
+	}
+	
+	@Nullable
+	@Override
+	public SendPropertiesPacket createGlobalUpdate()
+	{
+		return null;
 	}
 }
