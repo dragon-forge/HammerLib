@@ -7,6 +7,7 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import org.zeith.hammerlib.abstractions.sources.IObjectSource;
 import org.zeith.hammerlib.api.io.NBTSerializationHelper;
 import org.zeith.hammerlib.api.tiles.ISyncableTile;
 import org.zeith.hammerlib.net.properties.IPropertyTile;
@@ -18,7 +19,7 @@ public class TileSyncable
 		extends BlockEntity
 		implements ISyncableTile, IPropertyTile
 {
-	protected final PropertyDispatcher dispatcher = new PropertyDispatcher(this::syncProperties);
+	protected final PropertyDispatcher dispatcher = new PropertyDispatcher(IObjectSource.ofTile(this), this::syncProperties);
 	protected Random rand = new Random();
 
 	public TileSyncable(BlockEntityType<?> type, BlockPos pos, BlockState state)

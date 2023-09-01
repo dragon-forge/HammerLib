@@ -16,7 +16,7 @@ public class TileSyncableTickable
 		implements ISidedTickableTile
 {
 	/**
-	 * If changed in the constructor, may change random's seed.
+	 * If changed in the constructor, may change randoms seed.
 	 */
 	protected boolean positionedRandom = false;
 	public int ticksExisted = 0;
@@ -30,7 +30,7 @@ public class TileSyncableTickable
 	@Override
 	public Random getRNG()
 	{
-		/** Make unique random for each position */
+		/* Make unique random for each position */
 		if(rand == null)
 			rand = new Random(positionedRandom && level != null ? ((level instanceof ServerLevel ? ((ServerLevel) level).getSeed() : 0L) + worldPosition.asLong() + WorldHelper.getLevelId(level).hashCode() * 41L - getClass().getName().hashCode()) : System.nanoTime());
 		return rand;
@@ -61,6 +61,7 @@ public class TileSyncableTickable
 		if(be != this) return;
 		this.level = level;
 		
+		dispatcher.tick(level);
 		clientTick();
 		ticksExisted++;
 	}
@@ -71,6 +72,7 @@ public class TileSyncableTickable
 		if(be != this) return;
 		this.level = level;
 		
+		dispatcher.tick(level);
 		serverTick();
 		ticksExisted++;
 	}

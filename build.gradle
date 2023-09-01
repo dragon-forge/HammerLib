@@ -196,6 +196,7 @@ def resourceTargets = ['META-INF/mods.toml', 'pack.mcmeta']
 def replaceProperties = [
         minecraft_version: config.mc_version, minecraft_version_range: config.mc_range,
         forge_version: "${config.mc_version}-${config.forge_version}", forge_version_range: config.forge_range,
+        fmljava_range: config.fmljava_range,
         mod_id: config.mod_id, mod_name: config.mod_name, mod_license: config.mod_license, mod_version: config.mod_version,
         issue_tracker: config.issue_tracker, modrinth_project: config.modrinth_project,
         mod_authors: config.mod_authors, mod_description: config.mod_description

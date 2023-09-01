@@ -3,15 +3,16 @@ package org.zeith.hammerlib.event.listeners;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.event.TickEvent.Phase;
-import net.minecraftforge.event.TickEvent.ServerTickEvent;
+import net.minecraftforge.event.TickEvent.*;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import org.zeith.hammerlib.api.tiles.ISyncableTile;
 import org.zeith.hammerlib.net.Network;
 import org.zeith.hammerlib.net.packets.SyncTileEntityPacket;
-import org.zeith.hammerlib.net.properties.IPropertyTile;
+import org.zeith.hammerlib.net.properties.*;
+import org.zeith.hammerlib.util.mcf.LogicalSidePredictor;
 
 import java.util.*;
 
@@ -20,6 +21,7 @@ public class ServerListener
 {
 	public static final List<BlockEntity> NEED_SYNC = new ArrayList<>();
 	public static final List<BlockEntity> NEED_PROP_SYNC = new ArrayList<>();
+	public static final List<IBasePropertyHolder> NEED_PROP_SYNC_GENERIC = new ArrayList<>();
 	
 	@SubscribeEvent
 	public static void serverTick(ServerTickEvent e)
@@ -50,13 +52,20 @@ public class ServerListener
 				if(tile instanceof IPropertyTile ipt)
 					ipt.syncPropertiesNow();
 			}
+			
+			while(!NEED_PROP_SYNC_GENERIC.isEmpty())
+			{
+				var data = NEED_PROP_SYNC_GENERIC.remove(0);
+				if(data != null)
+					data.syncPropertiesNow();
+			}
 		}
 	}
 	
-	public static void syncProperties(BlockEntity tileEntity)
+	public static void syncProperties(IBasePropertyHolder ent)
 	{
-		if(tileEntity != null && tileEntity.getLevel() instanceof ServerLevel sl && !sl.isClientSide)
-			NEED_PROP_SYNC.add(tileEntity);
+		if(LogicalSidePredictor.getCurrentLogicalSide() == LogicalSide.SERVER)
+			NEED_PROP_SYNC_GENERIC.add(ent);
 	}
 	
 	public static void syncTileEntity(BlockEntity tileEntity)
