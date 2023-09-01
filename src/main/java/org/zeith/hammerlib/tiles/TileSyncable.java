@@ -4,12 +4,11 @@ import net.minecraft.block.BlockState;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.tileentity.*;
+import org.zeith.hammerlib.abstractions.sources.IObjectSource;
 import org.zeith.hammerlib.api.io.NBTSerializationHelper;
 import org.zeith.hammerlib.api.tiles.ISyncableTile;
-import org.zeith.hammerlib.net.properties.IPropertyTile;
-import org.zeith.hammerlib.net.properties.PropertyDispatcher;
+import org.zeith.hammerlib.net.properties.*;
 
 import java.util.Random;
 
@@ -17,7 +16,7 @@ public class TileSyncable
 		extends TileEntity
 		implements ISyncableTile, IPropertyTile
 {
-	protected final PropertyDispatcher dispatcher = new PropertyDispatcher(this::syncProperties);
+	protected final PropertyDispatcher dispatcher = new PropertyDispatcher(IObjectSource.ofTile(this), this::syncProperties);
 	protected Random rand = new Random();
 
 	public TileSyncable(TileEntityType<?> type)

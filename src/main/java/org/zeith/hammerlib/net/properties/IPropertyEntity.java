@@ -6,9 +6,9 @@ import org.zeith.hammerlib.event.listeners.ServerListener;
 import org.zeith.hammerlib.net.Network;
 
 /**
- * Attachable to any tile to allow keep track of any properties.
+ * Attachable to any entity to allow keep track of any properties.
  */
-public interface IPropertyTile
+public interface IPropertyEntity
 		extends IBasePropertyHolder
 {
 	/**
