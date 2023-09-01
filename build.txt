@@ -1,5 +1,5 @@
 # Mod Info
-mod_version=20.1.13
+mod_version=20.1.14
 build_candidate=false
 
 # Mod dependencies
@@ -24,6 +24,7 @@ mc_version=1.20.1
 mc_range=[1.20.1,1.21)
 forge_version=47.1.58
 forge_range=[47.1,)
+fmljava_range=[47,)
 mc_user=Zeitheron,63fa4c485b5640809727d5d59663e603
 
 # Misc Info

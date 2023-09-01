@@ -1,29 +1,42 @@
 package org.zeith.hammerlib.net.properties;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import net.minecraft.core.BlockPos;
+import com.google.common.collect.*;
+import io.netty.buffer.*;
 import net.minecraft.network.FriendlyByteBuf;
-import org.zeith.hammerlib.net.packets.SendPropertiesPacket;
+import net.minecraft.world.level.Level;
+import org.zeith.hammerlib.abstractions.sources.IObjectSource;
+import org.zeith.hammerlib.net.Network;
+import org.zeith.hammerlib.net.packets.*;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Supplier;
 
 public class PropertyDispatcher
 {
 	public final BiMap<String, IProperty<?>> properties = HashBiMap.create();
 	public final BiMap<IProperty<?>, String> propertiesInverse = properties.inverse();
 	public final Map<String, IProperty<?>> dirty = new HashMap<>();
+	public final Supplier<? extends IObjectSource<?>> source;
 	public final Runnable onDirty;
-
-	public PropertyDispatcher(Runnable onDirty)
+	
+	protected boolean clientSideSynced = false;
+	
+	public PropertyDispatcher(Supplier<? extends IObjectSource<?>> source, Runnable onDirty)
 	{
+		this.source = source;
 		this.onDirty = onDirty;
 	}
-
+	
+	public void tick(Level level)
+	{
+		if(level.isClientSide && !clientSideSynced)
+		{
+			clientSideSynced = true;
+			requestProperties();
+		}
+	}
+	
 	public <T> IProperty<T> registerProperty(String id, IProperty<T> property)
 	{
 		if(id.startsWith("!")) id = "." + id.substring(1);
@@ -31,13 +44,13 @@ public class PropertyDispatcher
 		property.setDispatcher(this);
 		return property;
 	}
-
+	
 	public IProperty<?> getProperty(String id)
 	{
 		if(id.startsWith("!")) id = "." + id.substring(1);
 		return properties.get(id);
 	}
-
+	
 	public void decodeChanges(FriendlyByteBuf buf)
 	{
 		String str;
@@ -48,7 +61,7 @@ public class PropertyDispatcher
 				prop.read(buf);
 		}
 	}
-
+	
 	public void notifyOfChange(IProperty<?> prop)
 	{
 		String id = propertiesInverse.get(prop);
@@ -58,9 +71,14 @@ public class PropertyDispatcher
 			if(onDirty != null) onDirty.run();
 		}
 	}
-
+	
+	public void requestProperties()
+	{
+		Network.sendToServer(new RequestPropertiesPacket(source.get()));
+	}
+	
 	@Nullable
-	public SendPropertiesPacket detectAndGenerateChanges(BlockPos pos, boolean cleanse)
+	public SendPropertiesPacket detectAndGenerateChanges(boolean cleanse)
 	{
 		ByteBuf bb = Unpooled.buffer();
 		FriendlyByteBuf buf = new FriendlyByteBuf(bb);
@@ -79,15 +97,35 @@ public class PropertyDispatcher
 			if(cleanse)
 				dirty.clear();
 		}
-		buf.writeUtf("!");
 		int size = bb.writerIndex();
 		if(size > 0)
 		{
+			buf.writeUtf("!");
 			bb.readerIndex(0);
 			byte[] data = new byte[size];
 			bb.readBytes(data);
-			return new SendPropertiesPacket(pos.asLong(), data);
+			return new SendPropertiesPacket(source.get(), data);
 		}
 		return null;
+	}
+	
+	@Nullable
+	public SendPropertiesPacket createGlobalUpdate()
+	{
+		if(properties.isEmpty()) return null;
+		
+		ByteBuf bb = Unpooled.buffer();
+		FriendlyByteBuf buf = new FriendlyByteBuf(bb);
+		properties.forEach((id, prop) ->
+		{
+			buf.writeUtf(id);
+			prop.write(buf);
+		});
+		buf.writeUtf("!");
+		int size = bb.writerIndex();
+		bb.readerIndex(0);
+		byte[] data = new byte[size];
+		bb.readBytes(data);
+		return new SendPropertiesPacket(source.get(), data);
 	}
 }
