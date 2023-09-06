@@ -1,19 +1,19 @@
-package org.zeith.hammerlib.util.charging.impl;
+package org.zeith.hammerlib.compat.curios;
 
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.wrapper.InvWrapper;
 import org.zeith.hammerlib.util.charging.IPlayerInventoryLister;
+import top.theillusivec4.curios.api.CuriosApi;
 
 import java.util.function.Consumer;
 
-@IPlayerInventoryLister.InventoryLister
-class VanillaPlayerInvLister
+public class CuriosInvLister
 		implements IPlayerInventoryLister
 {
 	@Override
 	public void listItemHandlers(Player player, Consumer<IItemHandlerModifiable> handlers)
 	{
-		handlers.accept(new InvWrapper(player.getInventory()));
+		CuriosApi.getCuriosInventory(player)
+				.ifPresent(h -> handlers.accept(h.getEquippedCurios()));
 	}
 }

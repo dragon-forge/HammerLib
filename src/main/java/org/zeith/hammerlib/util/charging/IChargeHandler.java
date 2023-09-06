@@ -7,6 +7,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.concurrent.atomic.AtomicReference;
 
 public interface IChargeHandler<T extends AbstractCharge>
 {
@@ -32,7 +33,7 @@ public interface IChargeHandler<T extends AbstractCharge>
 	 * @return leftover charge that may be calculated like so:
 	 * <code>charge - consumed</code>
 	 */
-	T charge(ItemStack stack, T charge, ChargeAction action);
+	T charge(AtomicReference<ItemStack> stack, T charge, ChargeAction action);
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.TYPE)
