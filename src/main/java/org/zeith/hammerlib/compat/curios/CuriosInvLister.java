@@ -13,7 +13,8 @@ public class CuriosInvLister
 	@Override
 	public void listItemHandlers(Player player, Consumer<IItemHandlerModifiable> handlers)
 	{
-		CuriosApi.getCuriosInventory(player)
-				.ifPresent(h -> handlers.accept(h.getEquippedCurios()));
+		CuriosApi.getCuriosHelper()
+				.getEquippedCurios(player)
+				.ifPresent(handlers::accept);
 	}
 }
