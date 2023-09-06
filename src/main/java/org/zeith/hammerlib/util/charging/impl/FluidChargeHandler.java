@@ -6,6 +6,8 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import org.zeith.hammerlib.util.charging.IChargeHandler;
 import org.zeith.hammerlib.util.charging.fluid.FluidCharge;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 @IChargeHandler.ChargeHandler(FluidCharge.class)
 public class FluidChargeHandler
 		implements IChargeHandler<FluidCharge>
@@ -25,10 +27,15 @@ public class FluidChargeHandler
 	}
 	
 	@Override
-	public FluidCharge charge(ItemStack stack, FluidCharge charge, ChargeAction simulate)
+	public FluidCharge charge(AtomicReference<ItemStack> stack, FluidCharge charge, ChargeAction action)
 	{
-		return stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM, null)
-				.map(cap -> charge.discharge(cap.fill(charge.fluid.copy(), simulate.asFluidAction())))
+		return stack.get().getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM, null)
+				.map(cap ->
+				{
+					var c = charge.discharge(cap.fill(charge.fluid.copy(), action.asFluidAction()));
+					stack.set(cap.getContainer());
+					return c;
+				})
 				.orElse(charge);
 	}
 }

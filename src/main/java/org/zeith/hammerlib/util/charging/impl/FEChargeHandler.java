@@ -5,6 +5,8 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import org.zeith.hammerlib.util.charging.IChargeHandler;
 import org.zeith.hammerlib.util.charging.fe.FECharge;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 @IChargeHandler.ChargeHandler(FECharge.class)
 public class FEChargeHandler
 		implements IChargeHandler<FECharge>
@@ -22,10 +24,10 @@ public class FEChargeHandler
 	}
 	
 	@Override
-	public FECharge charge(ItemStack stack, FECharge charge, ChargeAction simulate)
+	public FECharge charge(AtomicReference<ItemStack> stack, FECharge charge, ChargeAction action)
 	{
-		return stack.getCapability(ForgeCapabilities.ENERGY, null)
-				.map(cap -> charge.discharge(cap.receiveEnergy(charge.FE, simulate.simulate())))
+		return stack.get().getCapability(ForgeCapabilities.ENERGY, null)
+				.map(cap -> charge.discharge(cap.receiveEnergy(charge.FE, action.simulate())))
 				.orElse(charge);
 	}
 }

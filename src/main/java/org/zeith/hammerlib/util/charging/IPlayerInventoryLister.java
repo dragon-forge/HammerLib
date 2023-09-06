@@ -8,10 +8,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.List;
+import java.util.function.Consumer;
 
 public interface IPlayerInventoryLister
 {
-	void listItemHandlers(Player player, List<IItemHandlerModifiable> handlers);
+	void listItemHandlers(Player player, Consumer<IItemHandlerModifiable> handlers);
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.TYPE)
