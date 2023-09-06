@@ -259,7 +259,6 @@ modrinth {
     versionType = config.release_type as String
     uploadFile = jar
     gameVersions = [config.mc_version as String]
-    loaders = ['Forge', 'NeoForge']
 }
 
 curseforge {
