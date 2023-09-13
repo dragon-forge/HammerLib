@@ -2,6 +2,7 @@ package org.zeith.hammerlib.api.io.serializers;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import org.jetbrains.annotations.NotNull;
 import org.zeith.hammerlib.util.java.Cast;
 
 import java.util.function.Function;
@@ -21,7 +22,7 @@ public class NumberSerializer<N extends Number, NBT extends Tag>
 	}
 
 	@Override
-	public void serialize(CompoundTag nbt, String key, N value)
+	public void serialize(CompoundTag nbt, String key, @NotNull N value)
 	{
 		if(value != null)
 			nbt.put(key, encode.apply(value));
