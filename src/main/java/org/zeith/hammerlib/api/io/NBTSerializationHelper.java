@@ -1,21 +1,16 @@
 package org.zeith.hammerlib.api.io;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
+import com.google.common.collect.*;
 import net.minecraft.nbt.*;
 import net.minecraftforge.common.util.INBTSerializable;
-import net.minecraftforge.fml.unsafe.UnsafeHacks;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.*;
 import org.objectweb.asm.Type;
 import org.zeith.hammerlib.api.io.serializers.*;
-import org.zeith.hammerlib.util.java.Cast;
-import org.zeith.hammerlib.util.java.ReflectionUtil;
+import org.zeith.hammerlib.util.java.*;
 import org.zeith.hammerlib.util.mcf.ScanDataHelper;
 
 import java.lang.reflect.*;
-import java.math.BigDecimal;
-import java.math.BigInteger;
+import java.math.*;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -62,17 +57,25 @@ public class NBTSerializationHelper
 		{
 			data.getProperty("value").map(List.class::cast).ifPresent(ts ->
 			{
-				List<Type> types = ts;
-				INBTSerializer ser = Cast.cast(UnsafeHacks.newInstance(data.getOwnerClass()));
-				for(Type type : types)
+				try
 				{
-					Class<?> c = ReflectionUtil.fetchClassAny(type);
-					if(c != null)
+					List<Type> types = ts;
+					var ctor = data.getOwnerClass().getDeclaredConstructor();
+					ctor.setAccessible(true);
+					INBTSerializer ser = Cast.cast(ctor.newInstance());
+					for(Type type : types)
 					{
-						SERIALIZER_MAP.putIfAbsent(c, ser);
-						LOG.debug("Registered NBT serializer for type " + c + ": " + ser);
-					} else
-						LOG.error("Unable to find class " + type.getInternalName() + "!");
+						Class<?> c = ReflectionUtil.fetchClassAny(type);
+						if(c != null)
+						{
+							SERIALIZER_MAP.putIfAbsent(c, ser);
+							LOG.debug("Registered NBT serializer for type " + c + ": " + ser);
+						} else
+							LOG.error("Unable to find class " + type.getInternalName() + "!");
+					}
+				} catch(ReflectiveOperationException roe)
+				{
+					LOG.error("Failed to create an instance of " + data.getOwnerClass().getName(), roe);
 				}
 			});
 		});
