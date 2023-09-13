@@ -55,7 +55,8 @@ public class NBTSerializationHelper
 		registerSerializer(long.class, new NumberSerializer<>(Tag.TAG_LONG, LongTag::valueOf, LongTag::getAsLong));
 		
 		registerSerializer(BigInteger.class, new NumberSerializer<>(Tag.TAG_BYTE_ARRAY, b -> new ByteArrayTag(b.toByteArray()), (ByteArrayTag nbt) -> new BigInteger(nbt.getAsByteArray())));
-		registerSerializer(BigDecimal.class, new NumberSerializer<>(Tag.TAG_BYTE_ARRAY, b -> new ByteArrayTag(b.toString().getBytes(StandardCharsets.UTF_8)), (ByteArrayTag nbt) -> new BigDecimal(new String(nbt.getAsByteArray(), StandardCharsets.UTF_8))));
+		registerSerializer(BigDecimal.class, new NumberSerializer<>(Tag.TAG_BYTE_ARRAY, b -> new ByteArrayTag(b.toString()
+				.getBytes(StandardCharsets.UTF_8)), (ByteArrayTag nbt) -> new BigDecimal(new String(nbt.getAsByteArray(), StandardCharsets.UTF_8))));
 		
 		ScanDataHelper.lookupAnnotatedObjects(NBTSerializer.class).forEach(data ->
 		{
@@ -79,6 +80,8 @@ public class NBTSerializationHelper
 	
 	public static void serializeField(Class<?> type, Object instance, CompoundTag nbt, String key)
 	{
+		if(instance == null) return;
+		
 		INBTSerializer<?> serializer;
 		if(type.isEnum()) serializer = forEnum(Cast.cast(type));
 		else serializer = SERIALIZER_MAP.get(type);
@@ -90,18 +93,15 @@ public class NBTSerializationHelper
 		{
 			if(type.isArray())
 			{
-				if(instance != null)
+				CompoundTag lst = new CompoundTag();
+				Class<?> compType = type.getComponentType();
+				int length = Array.getLength(instance);
+				for(int i = 0; i < length; ++i)
 				{
-					CompoundTag lst = new CompoundTag();
-					Class<?> compType = type.getComponentType();
-					int length = Array.getLength(instance);
-					for(int i = 0; i < length; ++i)
-					{
-						Object component = Array.get(instance, i);
-						serializeField(compType, component, lst, Integer.toString(i));
-					}
-					nbt.put(key, lst);
+					Object component = Array.get(instance, i);
+					serializeField(compType, component, lst, Integer.toString(i));
 				}
+				nbt.put(key, lst);
 			} else
 				LOG.warn("Don't know how to serialize " + type + " " + key + " in " + type);
 		}
@@ -211,7 +211,9 @@ public class NBTSerializationHelper
 							{
 								if(nbt.contains(name))
 								{
-									LOG.warn("Can't deserialize " + field + " in " + type + " since the final value is null. Trying to deserialize tag: " + nbt.get(name));
+									LOG.warn("Can't deserialize " + field + " in " + type +
+											" since the final value is null. Trying to deserialize tag: " +
+											nbt.get(name));
 								}
 							} else
 								LOG.warn("Don't know how to deserialize " + field + " in " + type);

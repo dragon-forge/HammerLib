@@ -3,6 +3,7 @@ package org.zeith.hammerlib.api.io.serializers;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.NotNull;
 import org.zeith.hammerlib.api.io.NBTSerializer;
 
 @NBTSerializer(Component.class)
@@ -10,7 +11,7 @@ public class ComponentSerializer
 		implements INBTSerializer<Component>
 {
 	@Override
-	public void serialize(CompoundTag nbt, String key, Component value)
+	public void serialize(CompoundTag nbt, String key, @NotNull Component value)
 	{
 		if(value != null)
 			nbt.putString(key, Component.Serializer.toJson(value));
