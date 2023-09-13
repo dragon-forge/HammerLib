@@ -2,6 +2,7 @@ package org.zeith.hammerlib.api.io.serializers;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import org.jetbrains.annotations.NotNull;
 
 public class EnumNBTSerializer<ET extends Enum<ET>>
 		implements INBTSerializer<ET>
@@ -16,7 +17,7 @@ public class EnumNBTSerializer<ET extends Enum<ET>>
 	}
 
 	@Override
-	public void serialize(CompoundTag nbt, String key, ET value)
+	public void serialize(CompoundTag nbt, String key, @NotNull ET value)
 	{
 		if(value != null)
 			nbt.putInt(key, value.ordinal());

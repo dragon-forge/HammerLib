@@ -2,6 +2,7 @@ package org.zeith.hammerlib.api.io.serializers;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import org.jetbrains.annotations.NotNull;
 import org.zeith.hammerlib.api.io.NBTSerializer;
 
 @NBTSerializer(int[].class)
@@ -9,7 +10,7 @@ public class IntArraySerializer
 		implements INBTSerializer<int[]>
 {
 	@Override
-	public void serialize(CompoundTag nbt, String key, int[] value)
+	public void serialize(CompoundTag nbt, String key, int @NotNull [] value)
 	{
 		if(value != null)
 			nbt.putIntArray(key, value);

@@ -2,6 +2,7 @@ package org.zeith.hammerlib.api.io.serializers;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import org.jetbrains.annotations.NotNull;
 import org.zeith.hammerlib.api.io.NBTSerializer;
 
 import java.util.UUID;
@@ -11,7 +12,7 @@ public class UUIDSerializer
 		implements INBTSerializer<UUID>
 {
 	@Override
-	public void serialize(CompoundTag nbt, String key, UUID value)
+	public void serialize(CompoundTag nbt, String key, @NotNull UUID value)
 	{
 		if(value != null)
 			nbt.putUUID(key, value);

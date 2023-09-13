@@ -3,6 +3,7 @@ package org.zeith.hammerlib.api.io.serializers;
 import com.mojang.math.Vector3d;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import org.jetbrains.annotations.NotNull;
 import org.zeith.hammerlib.api.io.NBTSerializer;
 
 @NBTSerializer(Vector3d.class)
@@ -10,7 +11,7 @@ public class Vector3dSerializer
 		implements INBTSerializer<Vector3d>
 {
 	@Override
-	public void serialize(CompoundTag nbt, String key, Vector3d value)
+	public void serialize(CompoundTag nbt, String key, @NotNull Vector3d value)
 	{
 		if(value != null)
 		{
