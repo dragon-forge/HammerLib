@@ -33,11 +33,9 @@ public class ResourcePackAdapter
 		{
 			for(PackResources pack : ResourcePackAdapter.BUILTIN_PACKS)
 			{
-				if(pack instanceof IRegisterListener)
-					((IRegisterListener) pack).onPreRegistered();
+				if(pack instanceof IRegisterListener rl) rl.onPreRegistered();
 				add.accept(ctor.create(pack.getName(), Component.literal(pack.getName()), true, () -> pack, new PackMetadataSection(Component.translatable("fml.resources.modresources", 1), PackType.CLIENT_RESOURCES.getVersion(SharedConstants.getCurrentVersion())), Pack.Position.TOP, PackSource.BUILT_IN, pack.isHidden()));
-				if(pack instanceof IRegisterListener)
-					((IRegisterListener) pack).onPostRegistered();
+				if(pack instanceof IRegisterListener rl) rl.onPostRegistered();
 			}
 		});
 	}
