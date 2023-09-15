@@ -2,6 +2,7 @@ package org.zeith.hammerlib.client.adapter;
 
 import net.minecraft.SharedConstants;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
@@ -35,8 +36,8 @@ public class ResourcePackAdapter
 		{
 			for(PackResources pack : ResourcePackAdapter.BUILTIN_PACKS)
 			{
-				if(pack instanceof IRegisterListener)
-					((IRegisterListener) pack).onPreRegistered();
+				if(pack instanceof IRegisterListener rl)
+					rl.onPreRegistered(new ResourceLocation(pack.packId()));
 				
 				add.accept(Pack.create(
 						pack.packId(),
@@ -53,8 +54,9 @@ public class ResourcePackAdapter
 						pack.isHidden(),
 						PackSource.BUILT_IN
 						));
-				if(pack instanceof IRegisterListener)
-					((IRegisterListener) pack).onPostRegistered();
+				
+				if(pack instanceof IRegisterListener rl)
+					rl.onPostRegistered(new ResourceLocation(pack.packId()));
 			}
 		});
 	}

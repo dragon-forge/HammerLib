@@ -14,6 +14,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.RegisterEvent;
+import org.apache.logging.log4j.LogManager;
 import org.zeith.api.registry.RegistryMapping;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.annotations.*;
@@ -24,6 +25,7 @@ import org.zeith.hammerlib.api.fml.ICustomRegistrar;
 import org.zeith.hammerlib.api.fml.IRegisterListener;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.java.ReflectionUtil;
+import org.zeith.hammerlib.util.java.tuples.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
@@ -57,11 +59,9 @@ public class RegistryAdapter
 		{
 			name = new ResourceLocation(name.getNamespace(), prefix + name.getPath());
 			IRegisterListener l = Cast.cast(entry, IRegisterListener.class);
-			if(l != null)
-				l.onPreRegistered();
+			if(l != null) l.onPreRegistered(name);
 			registry.register(name, entry);
-			if(l != null)
-				l.onPostRegistered();
+			if(l != null) l.onPostRegistered(name);
 		};
 	}
 	
@@ -71,15 +71,13 @@ public class RegistryAdapter
 		{
 			name = new ResourceLocation(name.getNamespace(), prefix + name.getPath());
 			IRegisterListener l = Cast.cast(entry, IRegisterListener.class);
-			if(l != null)
-				l.onPreRegistered();
+			if(l != null) l.onPreRegistered(name);
 			Registry.register(registry, name, entry);
-			if(l != null)
-				l.onPostRegistered();
+			if(l != null) l.onPostRegistered(name);
 		};
 	}
 	
-	private static final Map<Class<?>, List<Tuple<Block, ResourceLocation>>> blocks = new ConcurrentHashMap<>();
+	private static final Map<Class<?>, List<Tuple2<Block, ResourceLocation>>> blocks = new ConcurrentHashMap<>();
 	
 	public static int register(RegisterEvent event, Class<?> source, String modid, String prefix)
 	{
@@ -95,24 +93,19 @@ public class RegistryAdapter
 	public static <T> int register(RegisterEvent event, IForgeRegistry<T> registry, Class<?> source, String modid, String prefix)
 	{
 		var superType = RegistryMapping.getSuperType(registry);
+		var regKey = event.getRegistryKey();
 		
-		if(superType == null)
-		{
-			// Unknown registry.
-			return 0;
-		}
-		
-		List<Tuple<Block, ResourceLocation>> blockList = blocks.computeIfAbsent(source, s -> new ArrayList<>());
+		List<Tuple2<Block, ResourceLocation>> blockList = blocks.computeIfAbsent(source, s -> new ArrayList<>());
 		
 		BiConsumer<ResourceLocation, T> grabber = createRegisterer(registry, prefix).andThen((key, handler) ->
 		{
 			if(handler instanceof Block b)
-				blockList.add(new Tuple<>(b, key));
+				blockList.add(Tuples.immutable(b, key));
 		});
 		
-		if(Item.class.equals(superType)) for(Tuple<Block, ResourceLocation> e : blockList)
+		if(Item.class.equals(superType)) for(var e : blockList)
 		{
-			Block blk = e.getA();
+			Block blk = e.a();
 			if(blk instanceof INoItemBlock) continue;
 			BlockItem item;
 			IItemPropertySupplier gen = Cast.cast(blk, IItemPropertySupplier.class);
@@ -124,12 +117,12 @@ public class RegistryAdapter
 				if(blk instanceof ICreativeTabBlock t)
 					t.getCreativeTab().add(item);
 			}
-			grabber.accept(e.getB(), Cast.cast(item));
+			grabber.accept(e.b(), Cast.cast(item));
 		}
 		
 		boolean tileRegistryOnClient = BlockEntityType.class.equals(superType) && FMLEnvironment.dist == Dist.CLIENT;
 		
-		int prevSize = registry.getValues().size();
+		int prevSize = registry != null ? registry.getValues().size() : 0;
 		
 		// ICustomRegistrar hook!
 		Arrays
@@ -147,17 +140,21 @@ public class RegistryAdapter
 							var val = field.get(null);
 							
 							var onlyIf = field.getAnnotation(OnlyIf.class); // Bring back OnlyIf, for registries that are non-intrusive. (Mostly, for custom registry types)
-							if(!RegistryMapping.isNonIntrusive(registry)
-									|| OnlyIfAdapter.checkCondition(onlyIf, source.toString(), superType.getSimpleName(), val, rl))
+							if(!RegistryMapping.isNonIntrusive(regKey)
+									|| OnlyIfAdapter.checkCondition(onlyIf, source.toString(),
+									superType != null ? superType.getSimpleName() : field.getType().getSimpleName(), val, rl))
 							{
 								if(val instanceof ICustomRegistrar cr)
 									cr.performRegister(event, rl);
 							}
 						} catch(IllegalArgumentException | IllegalAccessException e)
 						{
-							e.printStackTrace();
+							LogManager.getLogger(modid + "/" + source.getSimpleName()).error("Failed to register field {}", field.getName(), e);
 						}
 				});
+		
+		if(superType == null)
+			return registry == null ? 0 : registry.getValues().size() - prevSize;
 		
 		Arrays
 				.stream(source.getDeclaredMethods())
@@ -180,7 +177,7 @@ public class RegistryAdapter
 							method.invoke(null, grabber2);
 						} catch(IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
 						{
-							e.printStackTrace();
+							LogManager.getLogger(modid + "/" + source.getSimpleName()).error("Failed to register method {}", method.getName(), e);
 						}
 				});
 		
@@ -199,7 +196,7 @@ public class RegistryAdapter
 							var val = field.get(null);
 							
 							var onlyIf = field.getAnnotation(OnlyIf.class); // Bring back OnlyIf, for registries that are non-intrusive. (Mostly, for custom registry types)
-							if(!RegistryMapping.isNonIntrusive(registry)
+							if(!RegistryMapping.isNonIntrusive(regKey)
 									|| OnlyIfAdapter.checkCondition(onlyIf, source.toString(), superType.getSimpleName(), val, rl))
 							{
 								var fval = superType.cast(val);
@@ -217,7 +214,7 @@ public class RegistryAdapter
 							}
 						} catch(IllegalArgumentException | IllegalAccessException e)
 						{
-							e.printStackTrace();
+							LogManager.getLogger(modid + "/" + source.getSimpleName()).error("Failed to register field {}", field.getName(), e);
 						}
 				});
 		

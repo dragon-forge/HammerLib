@@ -34,6 +34,7 @@ import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacerTy
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProviderType;
 import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecoratorType;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.IForgeRegistry;
 import org.zeith.hammerlib.util.java.Cast;
@@ -69,6 +70,9 @@ public class RegistryMapping
 		report(Activity.class, ForgeRegistries.ACTIVITIES);
 		report(ChunkStatus.class, ForgeRegistries.CHUNK_STATUS);
 		report(Biome.class, ForgeRegistries.BIOMES);
+		
+		// Forge is dumb, yes.
+		TYPE_BY_REG.put(ForgeRegistries.Keys.FLUID_TYPES, FluidType.class);
 		
 		// Generics.
 		reportRaw(EntityType.class, ForgeRegistries.ENTITY_TYPES);
@@ -182,8 +186,8 @@ public class RegistryMapping
 	 *
 	 * @return true if the provided Forge registry is non-intrusive, false otherwise
 	 */
-	public static boolean isNonIntrusive(IForgeRegistry<?> registry)
+	public static boolean isNonIntrusive(ResourceKey<? extends Registry<?>> registry)
 	{
-		return NON_INTRUSIVE_REGISTRIES.contains(registry.getRegistryKey());
+		return registry != null && NON_INTRUSIVE_REGISTRIES.contains(registry);
 	}
 }
