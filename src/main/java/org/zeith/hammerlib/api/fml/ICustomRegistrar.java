@@ -5,6 +5,8 @@ import net.minecraftforge.registries.RegisterEvent;
 
 /**
  * This interface gets invoked when an instance implementing of it is placed in a class of @{@link org.zeith.hammerlib.annotations.SimplyRegister} and the @{@link org.zeith.hammerlib.annotations.RegistryName} for the field.
+ * Instances that are implemented by this interface will NOT get treated as individual objects to be registered.
+ * Example: If the {@link net.minecraft.world.level.block.Block} implements {@link ICustomRegistrar}, it will not be registered.
  */
 public interface ICustomRegistrar
 {
