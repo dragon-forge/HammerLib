@@ -8,8 +8,10 @@ public class FrictionRotator
 {
 	@NBTSerializable("current_speed")
 	public float currentSpeed;
+	
 	@NBTSerializable
 	public float rotation, speed, friction = 1;
+	
 	public float prevRotation;
 
 	public void speedupTo(float dstSpeed, float maxStep)
@@ -25,6 +27,11 @@ public class FrictionRotator
 	public float getActualRotation(float partialTime)
 	{
 		return (prevRotation + (rotation - prevRotation) * partialTime) % 360;
+	}
+
+	public float getActualRotationRaw(float partialTime)
+	{
+		return prevRotation + (rotation - prevRotation) * partialTime;
 	}
 
 	public void update()

@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import org.zeith.hammerlib.abstractions.recipes.IRecipeVisualizer;
 import org.zeith.hammerlib.abstractions.recipes.IVisualizedRecipeType;
 import org.zeith.hammerlib.api.fml.ICustomRegistrar;
+import org.zeith.hammerlib.util.java.Cast;
 
 import java.util.function.Consumer;
 
@@ -81,17 +82,8 @@ public abstract class SerializableRecipeType<T extends Recipe<?>>
 	@Override
 	public void performRegister(RegisterEvent event, ResourceLocation id)
 	{
-		var key = event.getRegistryKey();
-		
-		if(key.equals(ForgeRegistries.Keys.RECIPE_TYPES))
-		{
-			ForgeRegistries.RECIPE_TYPES.register(id, this);
-		}
-		
-		if(key.equals(ForgeRegistries.Keys.RECIPE_SERIALIZERS))
-		{
-			ForgeRegistries.RECIPE_SERIALIZERS.register(id, this);
-		}
+		event.register(ForgeRegistries.Keys.RECIPE_TYPES, id, Cast.constant(this));
+		event.register(ForgeRegistries.Keys.RECIPE_SERIALIZERS, id, Cast.constant(this));
 	}
 	
 	@Override
@@ -102,7 +94,7 @@ public abstract class SerializableRecipeType<T extends Recipe<?>>
 	/**
 	 * Returns a string representation of the recipe type and its associated registry ID.
 	 *
-	 * @return a string in the format "ClassName{recipeTypeID}"
+	 * @return a string in the format "ClassName{recipeTypeId=[recipeTypeID],recipeSerializerId=[recipeSerializerID]}"
 	 */
 	@Override
 	public String toString()

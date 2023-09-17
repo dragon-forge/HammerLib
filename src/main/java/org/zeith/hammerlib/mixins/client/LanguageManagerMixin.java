@@ -26,7 +26,7 @@ public class LanguageManagerMixin
 		{
 			if(!(cl.getStorage() instanceof HashMap))
 				cl.setStorage(new HashMap<>(cl.getStorage()));
-			LanguageHelper.reloadLanguage(cl.getStorage()::put);
+			LanguageHelper.reloadLanguage((HashMap<String, String>) cl.getStorage());
 		}
 	}
 }

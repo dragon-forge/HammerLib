@@ -4,25 +4,24 @@ import net.minecraft.world.entity.player.Player;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.event.LanguageReloadEvent;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 public class LanguageHelper
 {
-	public static void reloadLanguage(BiConsumer<String, String> handler)
+	// This is a direct reference to a hash map of languages stored in client's i18n language at any given moment.
+	public static HashMap<String, String> clientLanguageMap = new HashMap<>();
+	
+	public static void reloadLanguage(HashMap<String, String> handler)
 	{
 		String lng = HammerLib.PROXY.getLanguage();
-		List<String> langs = new ArrayList<>();
-		langs.add("en_us");
-		if(!langs.contains(lng)) langs.add(lng);
 
 		LangMap exist = new LangMap(lng);
 		reloadLang("en_us", exist);
 		if(!lng.equals("en_us")) reloadLang(lng, exist);
 		exist.apply(handler);
+		
+		clientLanguageMap = handler;
 	}
 
 	private static void reloadLang(String lang, LangMap lmap)

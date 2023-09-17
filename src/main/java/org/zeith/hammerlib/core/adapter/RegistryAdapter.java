@@ -182,7 +182,8 @@ public class RegistryAdapter
 		
 		Arrays
 				.stream(source.getDeclaredFields())
-				.filter(f -> superType.isAssignableFrom(f.getType()))
+				.filter(f -> superType.isAssignableFrom(f.getType())
+						&& !ICustomRegistrar.class.isAssignableFrom(f.getType())) // Custom registrars have been called by now.
 				.forEach(field ->
 				{
 					if(Modifier.isStatic(field.getModifiers()) && Modifier.isFinal(field.getModifiers()))
