@@ -15,6 +15,7 @@ public interface ClientLanguageAccessor
 {
 	@Accessor
 	Map<String, String> getStorage();
+	
 	@Mutable
 	@Accessor
 	void setStorage(Map<String, String> storage);
