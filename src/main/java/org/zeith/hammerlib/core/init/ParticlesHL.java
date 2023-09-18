@@ -5,10 +5,10 @@ import net.minecraft.core.particles.SimpleParticleType;
 import org.zeith.hammerlib.annotations.*;
 import org.zeith.hammerlib.annotations.client.Particles;
 
-@SimplyRegister
+//@SimplyRegister
 public interface ParticlesHL
 {
-	@RegistryName("test")
-	@Particles(SuspendedTownParticle.Provider.class)
-	SimpleParticleType TEST_PARTICLE = new SimpleParticleType(false);
+//	@RegistryName("test")
+//	@Particles(SuspendedTownParticle.Provider.class)
+//	SimpleParticleType TEST_PARTICLE = new SimpleParticleType(false);
 }
