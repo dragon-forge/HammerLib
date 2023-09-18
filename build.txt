@@ -9,7 +9,7 @@ jei_version=15.2.0.22
 # Persistent mod info
 mod_id=hammerlib
 archive_name=HammerLib
-mod_name=Hammer Lib
+mod_name=HammerLib
 mod_license=All Rights Reserved
 mod_authors=Zeitheron
 mod_description=HammerLib is an essential tool for developing mods easily.\nPacked with a lot of utilities, this library provides nearly anything a modder would need, in one handy package!
