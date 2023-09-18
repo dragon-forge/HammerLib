@@ -17,6 +17,7 @@ buildscript {
 plugins {
     id "com.modrinth.minotaur" version "2.+"
     id 'net.neoforged.gradle' version '[6.0.13, 6.2)'
+    id 'org.parchmentmc.librarian.forgegradle' version '1.+'
 }
 
 apply plugin: 'idea'
@@ -50,7 +51,7 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 
 minecraft {
-    mappings channel: 'official', version: config.mc_version
+    mappings channel: 'parchment', version: "1.20.1-2023.09.03-${config.mc_version}"
     accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
     copyIdeResources = true
     runs {

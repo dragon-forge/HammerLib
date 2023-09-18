@@ -1,64 +1,51 @@
 package org.zeith.hammerlib.proxy;
 
-import com.google.common.base.Predicates;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.datafixers.util.Either;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.KeyMapping;
-import net.minecraft.client.Minecraft;
+import net.minecraft.*;
+import net.minecraft.client.*;
 import net.minecraft.client.gui.screens.MenuScreens;
-import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.client.particle.*;
+import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.renderer.blockentity.*;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.*;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.eventbus.api.*;
 import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
+import net.minecraftforge.fml.event.lifecycle.*;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.objectweb.asm.Type;
 import org.zeith.hammerlib.HammerLib;
-import org.zeith.hammerlib.abstractions.recipes.*;
 import org.zeith.hammerlib.api.forge.ContainerAPI;
 import org.zeith.hammerlib.api.inv.IScreenContainer;
-import org.zeith.hammerlib.api.items.tooltip.TooltipColoredLine;
-import org.zeith.hammerlib.api.items.tooltip.TooltipMulti;
-import org.zeith.hammerlib.api.lighting.ColoredLight;
-import org.zeith.hammerlib.api.lighting.HandleLightOverrideEvent;
+import org.zeith.hammerlib.api.items.tooltip.*;
+import org.zeith.hammerlib.api.lighting.*;
 import org.zeith.hammerlib.api.lighting.impl.IGlowingEntity;
 import org.zeith.hammerlib.client.model.SimpleModelGenerator;
-import org.zeith.hammerlib.client.render.tile.IBESR;
-import org.zeith.hammerlib.client.render.tile.TESRBase;
+import org.zeith.hammerlib.client.render.tile.*;
 import org.zeith.hammerlib.client.utils.TexturePixelGetter;
 import org.zeith.hammerlib.core.adapter.ConfigAdapter;
-import org.zeith.hammerlib.core.items.tooltip.ClientTooltipColoredLine;
-import org.zeith.hammerlib.core.items.tooltip.ClientTooltipMulti;
+import org.zeith.hammerlib.core.items.tooltip.*;
 import org.zeith.hammerlib.event.client.ClientLoadedInEvent;
 import org.zeith.hammerlib.mixins.client.ParticleEngineAccessor;
 import org.zeith.hammerlib.net.Network;
-import org.zeith.hammerlib.net.packets.PacketPlayerReady;
-import org.zeith.hammerlib.net.packets.PingServerPacket;
-import org.zeith.hammerlib.util.java.Cast;
-import org.zeith.hammerlib.util.java.ReflectionUtil;
+import org.zeith.hammerlib.net.packets.*;
+import org.zeith.hammerlib.util.java.*;
 import org.zeith.hammerlib.util.mcf.LogicalSidePredictor;
 
 import java.lang.reflect.Constructor;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.function.*;
 import java.util.stream.Stream;
 
 public class HLClientProxy
@@ -128,6 +115,7 @@ public class HLClientProxy
 	@Override
 	public void clientSetup()
 	{
+		//noinspection DataFlowIssue,rawtypes
 		MenuScreens.register(ContainerAPI.TILE_CONTAINER, (MenuScreens.ScreenConstructor) (ctr, inv, txt) -> Cast
 				.optionally(ctr, IScreenContainer.class)
 				.map(c -> c.openScreen(inv, txt))
@@ -152,7 +140,7 @@ public class HLClientProxy
 			HandleLightOverrideEvent<Particle> evt = new HandleLightOverrideEvent<>(particle, partialTicks, l);
 			HammerLib.postEvent(evt);
 			return evt.getNewLight();
-		}).filter(Predicates.notNull());
+		}).filter(Objects::nonNull);
 	}
 	
 	@Override
@@ -187,7 +175,8 @@ public class HLClientProxy
 								theTesr = ctx -> base;
 							} catch(ReflectiveOperationException err)
 							{
-								err.printStackTrace();
+								throw new ReportedException(new CrashReport(
+										"Unable to create IBESR(no-args) for BlockEntityType " + name, err));
 							}
 						}
 						
@@ -211,14 +200,17 @@ public class HLClientProxy
 												return Cast.cast(ctr.newInstance(ctx));
 											} catch(ReflectiveOperationException err)
 											{
-												err.printStackTrace();
+												throw new ReportedException(new CrashReport(
+														"Unable to create BlockEntityRenderer(no-args) for BlockEntityType " +
+																name, err));
 											}
-											return null;
 										};
 									}
 								} catch(ReflectiveOperationException err)
 								{
-									err.printStackTrace();
+									throw new ReportedException(new CrashReport(
+											"Unable to create BlockEntityRenderer(no-args) for BlockEntityType " +
+													name, err));
 								}
 							}
 						}
@@ -229,6 +221,101 @@ public class HLClientProxy
 						
 						Function<BlockEntityRendererProvider.Context, BlockEntityRenderer<?>> finalTheTesr = theTesr;
 						BlockEntityRenderers.register(type, (BlockEntityRendererProvider<BlockEntity>) ctx -> Cast.cast(finalTheTesr.apply(ctx)));
+					});
+		};
+	}
+	
+	@Override
+	public Consumer<RegisterParticleProvidersEvent> addParticleTypeProvider(Type owner, String member, Type tesr)
+	{
+		return e ->
+		{
+			ReflectionUtil.<ParticleType<?>>getStaticFinalField(ReflectionUtil.fetchClass(owner), member)
+					.ifPresent(type ->
+					{
+						ResourceLocation name = BuiltInRegistries.PARTICLE_TYPE.getKey(type);
+						
+						if(name == null)
+						{
+							HammerLib.LOG.info(
+									"Skipping Particles for particle type " + type + " as it is not registered.");
+							return;
+						}
+						
+						HammerLib.LOG.info("Registering ParticleProvider for particle type " + name);
+						
+						var providerCls = ReflectionUtil.fetchClass(tesr);
+						
+						if(ParticleProvider.Sprite.class.isAssignableFrom(providerCls))
+						{
+							try
+							{
+								var spc = providerCls.asSubclass(ParticleProvider.Sprite.class)
+										.getDeclaredConstructor();
+								spc.setAccessible(true);
+								e.registerSprite(type, spc.newInstance());
+								return;
+							} catch(ReflectiveOperationException ex)
+							{
+								throw new ReportedException(new CrashReport(
+										"Unable to create ParticleProvider.Sprite(no-args) for ParticleType " +
+												name, ex));
+							}
+						}
+						
+						if(ParticleEngine.SpriteParticleRegistration.class.isAssignableFrom(providerCls))
+						{
+							try
+							{
+								var spc = providerCls.asSubclass(ParticleEngine.SpriteParticleRegistration.class)
+										.getDeclaredConstructor();
+								spc.setAccessible(true);
+								e.registerSpriteSet(type, spc.newInstance());
+								return;
+							} catch(ReflectiveOperationException ex)
+							{
+								throw new ReportedException(new CrashReport(
+										"Unable to create ParticleProvider.Sprite(no-args) for ParticleType " +
+												name, ex));
+							}
+						}
+						
+						var ctors = providerCls.getConstructors();
+						for(var ctor : ctors)
+						{
+							if(ctor.getParameterCount() == 0)
+							{
+								ctor.setAccessible(true);
+								try
+								{
+									e.registerSpecial(type, Cast.cast(ctor.newInstance()));
+								} catch(ReflectiveOperationException ex)
+								{
+									throw new ReportedException(new CrashReport(
+											"Unable to create ParticleProvider(no-args) for ParticleType " + name, ex));
+								}
+								return;
+							} else if(ctor.getParameterCount() == 1)
+							{
+								if(SpriteSet.class.isAssignableFrom(ctor.getParameterTypes()[0]))
+								{
+									ctor.setAccessible(true);
+									e.registerSpriteSet(type, set ->
+									{
+										try
+										{
+											return Cast.cast(ctor.newInstance(set));
+										} catch(ReflectiveOperationException ex)
+										{
+											throw new ReportedException(new CrashReport(
+													"Unable to create ParticleProvider(no-args) for ParticleType " +
+															name, ex));
+										}
+									});
+									return;
+								}
+							}
+						}
 					});
 		};
 	}

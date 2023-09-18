@@ -1,6 +1,7 @@
 package org.zeith.hammerlib.core.adapter;
 
 import net.minecraft.core.Registry;
+import net.minecraft.core.particles.ParticleType;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Tuple;
@@ -18,8 +19,7 @@ import org.apache.logging.log4j.LogManager;
 import org.zeith.api.registry.RegistryMapping;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.annotations.*;
-import org.zeith.hammerlib.annotations.client.ClientSetup;
-import org.zeith.hammerlib.annotations.client.TileRenderer;
+import org.zeith.hammerlib.annotations.client.*;
 import org.zeith.hammerlib.api.blocks.*;
 import org.zeith.hammerlib.api.fml.ICustomRegistrar;
 import org.zeith.hammerlib.api.fml.IRegisterListener;
@@ -112,7 +112,8 @@ public class RegistryAdapter
 			if(blk instanceof ICustomBlockItem) item = ((ICustomBlockItem) blk).createBlockItem();
 			else
 			{
-				Item.Properties props = gen != null ? gen.createItemProperties(new Item.Properties()) : new Item.Properties();
+				Item.Properties props =
+						gen != null ? gen.createItemProperties(new Item.Properties()) : new Item.Properties();
 				item = new BlockItem(blk, props);
 				if(blk instanceof ICreativeTabBlock t)
 					t.getCreativeTab().add(item);
@@ -121,6 +122,7 @@ public class RegistryAdapter
 		}
 		
 		boolean tileRegistryOnClient = BlockEntityType.class.equals(superType) && FMLEnvironment.dist == Dist.CLIENT;
+		boolean particleRegistryOnClient = ParticleType.class.equals(superType) && FMLEnvironment.dist == Dist.CLIENT;
 		
 		int prevSize = registry != null ? registry.getValues().size() : 0;
 		
@@ -142,14 +144,17 @@ public class RegistryAdapter
 							var onlyIf = field.getAnnotation(OnlyIf.class); // Bring back OnlyIf, for registries that are non-intrusive. (Mostly, for custom registry types)
 							if(!RegistryMapping.isNonIntrusive(regKey)
 									|| OnlyIfAdapter.checkCondition(onlyIf, source.toString(),
-									superType != null ? superType.getSimpleName() : field.getType().getSimpleName(), val, rl))
+									superType != null ? superType.getSimpleName()
+													  : field.getType().getSimpleName(), val, rl
+							))
 							{
 								if(val instanceof ICustomRegistrar cr)
 									cr.performRegister(event, rl);
 							}
 						} catch(IllegalArgumentException | IllegalAccessException e)
 						{
-							LogManager.getLogger(modid + "/" + source.getSimpleName()).error("Failed to register field {}", field.getName(), e);
+							LogManager.getLogger(modid + "/" + source.getSimpleName())
+									.error("Failed to register field {}", field.getName(), e);
 						}
 				});
 		
@@ -158,10 +163,13 @@ public class RegistryAdapter
 		
 		Arrays
 				.stream(source.getDeclaredMethods())
-				.filter(m -> m.getAnnotation(SimplyRegister.class) != null && m.getParameterCount() == 1 && BiConsumer.class.isAssignableFrom(m.getParameterTypes()[0]) && ReflectionUtil.doesParameterTypeArgsMatch(m.getParameters()[0], ResourceLocation.class, superType))
+				.filter(m -> m.getAnnotation(SimplyRegister.class) != null && m.getParameterCount() == 1 &&
+						BiConsumer.class.isAssignableFrom(m.getParameterTypes()[0]) &&
+						ReflectionUtil.doesParameterTypeArgsMatch(m.getParameters()[0], ResourceLocation.class, superType))
 				.forEach(method ->
 				{
-					final String prefix2 = Optional.ofNullable(method.getAnnotation(SimplyRegister.class)).map(SimplyRegister::prefix).orElse("");
+					final String prefix2 = Optional.ofNullable(method.getAnnotation(SimplyRegister.class))
+							.map(SimplyRegister::prefix).orElse("");
 					
 					if(Modifier.isStatic(method.getModifiers()))
 						try
@@ -177,14 +185,16 @@ public class RegistryAdapter
 							method.invoke(null, grabber2);
 						} catch(IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
 						{
-							LogManager.getLogger(modid + "/" + source.getSimpleName()).error("Failed to register method {}", method.getName(), e);
+							LogManager.getLogger(modid + "/" + source.getSimpleName())
+									.error("Failed to register method {}", method.getName(), e);
 						}
 				});
 		
 		Arrays
 				.stream(source.getDeclaredFields())
 				.filter(f -> superType.isAssignableFrom(f.getType())
-						&& !ICustomRegistrar.class.isAssignableFrom(f.getType())) // Custom registrars have been called by now.
+						&&
+						!ICustomRegistrar.class.isAssignableFrom(f.getType())) // Custom registrars have been called by now.
 				.forEach(field ->
 				{
 					if(Modifier.isStatic(field.getModifiers()) && Modifier.isFinal(field.getModifiers()))
@@ -198,7 +208,8 @@ public class RegistryAdapter
 							
 							var onlyIf = field.getAnnotation(OnlyIf.class); // Bring back OnlyIf, for registries that are non-intrusive. (Mostly, for custom registry types)
 							if(!RegistryMapping.isNonIntrusive(regKey)
-									|| OnlyIfAdapter.checkCondition(onlyIf, source.toString(), superType.getSimpleName(), val, rl))
+									||
+									OnlyIfAdapter.checkCondition(onlyIf, source.toString(), superType.getSimpleName(), val, rl))
 							{
 								var fval = superType.cast(val);
 								grabber.accept(rl, fval);
@@ -209,13 +220,30 @@ public class RegistryAdapter
 									if(tesr != null)
 									{
 										tesr.apply();
-										HammerLib.LOG.debug("Applied TESR registration for " + field.getType().getSimpleName() + "[" + registry.getKey(fval) + "] " + source.getSimpleName() + '.' + field.getName());
+										HammerLib.LOG.debug(
+												"Applied TESR registration for " + field.getType().getSimpleName() +
+														"[" + registry.getKey(fval) + "] " + source.getSimpleName() +
+														'.' + field.getName());
+									}
+								}
+								
+								if(particleRegistryOnClient)
+								{
+									var provider = Particles.Target.get(source, field.getName());
+									if(provider != null)
+									{
+										provider.apply();
+										HammerLib.LOG.debug(
+												"Applied ParticleProvider for " + field.getType().getSimpleName() +
+														"[" + registry.getKey(fval) + "] " + source.getSimpleName() +
+														'.' + field.getName());
 									}
 								}
 							}
 						} catch(IllegalArgumentException | IllegalAccessException e)
 						{
-							LogManager.getLogger(modid + "/" + source.getSimpleName()).error("Failed to register field {}", field.getName(), e);
+							LogManager.getLogger(modid + "/" + source.getSimpleName())
+									.error("Failed to register field {}", field.getName(), e);
 						}
 				});
 		
@@ -239,7 +267,8 @@ public class RegistryAdapter
 							method.setAccessible(true);
 							if(method.getParameterCount() == 0)
 								method.invoke(null);
-							else if(method.getParameterCount() == 1 && method.getParameterTypes()[0] == FMLCommonSetupEvent.class)
+							else if(method.getParameterCount() == 1 &&
+									method.getParameterTypes()[0] == FMLCommonSetupEvent.class)
 								method.invoke(null, event);
 						} catch(IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
 						{
@@ -268,11 +297,13 @@ public class RegistryAdapter
 						try
 						{
 							OnlyIf onlyIf = method.getAnnotation(OnlyIf.class);
-							if(!OnlyIfAdapter.checkCondition(onlyIf, source.toString(), "ClientSetup", null, null)) return;
+							if(!OnlyIfAdapter.checkCondition(onlyIf, source.toString(), "ClientSetup", null, null))
+								return;
 							method.setAccessible(true);
 							if(method.getParameterCount() == 0)
 								method.invoke(null);
-							else if(method.getParameterCount() == 1 && method.getParameterTypes()[0] == FMLClientSetupEvent.class)
+							else if(method.getParameterCount() == 1 &&
+									method.getParameterTypes()[0] == FMLClientSetupEvent.class)
 								method.invoke(null, event);
 						} catch(IllegalAccessException | IllegalArgumentException | InvocationTargetException e)
 						{
