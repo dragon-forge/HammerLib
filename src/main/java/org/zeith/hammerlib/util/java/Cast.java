@@ -1,5 +1,7 @@
 package org.zeith.hammerlib.util.java;
 
+import org.jetbrains.annotations.Contract;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.lang.reflect.Constructor;
@@ -75,15 +77,10 @@ public class Cast
 		return null;
 	}
 	
+	@Contract("null -> null; _ -> _")
 	public static <T> T cast(Object thing)
 	{
-		try
-		{
-			return (T) thing;
-		} catch(Throwable err)
-		{
-			return null;
-		}
+		return (T) thing;
 	}
 	
 	static final Map<Class, Constructor> emptyCtors = new HashMap<>();

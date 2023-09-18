@@ -1,6 +1,7 @@
 package org.zeith.hammerlib.core.adapter;
 
 import net.minecraft.core.Registry;
+import net.minecraft.core.particles.ParticleType;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Tuple;
@@ -18,8 +19,7 @@ import org.apache.logging.log4j.LogManager;
 import org.zeith.api.registry.RegistryMapping;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.annotations.*;
-import org.zeith.hammerlib.annotations.client.ClientSetup;
-import org.zeith.hammerlib.annotations.client.TileRenderer;
+import org.zeith.hammerlib.annotations.client.*;
 import org.zeith.hammerlib.api.blocks.*;
 import org.zeith.hammerlib.api.fml.ICustomRegistrar;
 import org.zeith.hammerlib.api.fml.IRegisterListener;
@@ -120,6 +120,7 @@ public class RegistryAdapter
 		}
 		
 		boolean tileRegistryOnClient = BlockEntityType.class.equals(superType) && FMLEnvironment.dist == Dist.CLIENT;
+		boolean particleRegistryOnClient = ParticleType.class.equals(superType) && FMLEnvironment.dist == Dist.CLIENT;
 		
 		int prevSize = registry != null ? registry.getValues().size() : 0;
 		
@@ -209,6 +210,19 @@ public class RegistryAdapter
 									{
 										tesr.apply();
 										HammerLib.LOG.debug("Applied TESR registration for " + field.getType().getSimpleName() + "[" + registry.getKey(fval) + "] " + source.getSimpleName() + '.' + field.getName());
+									}
+								}
+								
+								if(particleRegistryOnClient)
+								{
+									var provider = Particles.Target.get(source, field.getName());
+									if(provider != null)
+									{
+										provider.apply();
+										HammerLib.LOG.debug(
+												"Applied ParticleProvider for " + field.getType().getSimpleName() +
+														"[" + registry.getKey(fval) + "] " + source.getSimpleName() +
+														'.' + field.getName());
 									}
 								}
 							}

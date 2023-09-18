@@ -1,71 +1,77 @@
 package org.zeith.hammerlib.proxy;
 
-import com.google.common.base.Predicates;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.datafixers.util.Either;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.KeyMapping;
-import net.minecraft.client.Minecraft;
+import net.minecraft.*;
+import net.minecraft.client.*;
 import net.minecraft.client.gui.screens.MenuScreens;
-import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.ParticleRenderType;
+import net.minecraft.client.particle.*;
 import net.minecraft.client.renderer.blockentity.*;
+import net.minecraft.core.particles.ParticleType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.*;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.eventbus.api.*;
 import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
+import net.minecraftforge.fml.event.lifecycle.*;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.objectweb.asm.Type;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.abstractions.recipes.*;
 import org.zeith.hammerlib.api.forge.ContainerAPI;
 import org.zeith.hammerlib.api.inv.IScreenContainer;
-import org.zeith.hammerlib.api.items.tooltip.TooltipColoredLine;
-import org.zeith.hammerlib.api.items.tooltip.TooltipMulti;
-import org.zeith.hammerlib.api.lighting.ColoredLight;
-import org.zeith.hammerlib.api.lighting.HandleLightOverrideEvent;
+import org.zeith.hammerlib.api.items.tooltip.*;
+import org.zeith.hammerlib.api.lighting.*;
 import org.zeith.hammerlib.api.lighting.impl.IGlowingEntity;
 import org.zeith.hammerlib.client.model.SimpleModelGenerator;
-import org.zeith.hammerlib.client.render.tile.IBESR;
-import org.zeith.hammerlib.client.render.tile.TESRBase;
+import org.zeith.hammerlib.client.render.tile.*;
 import org.zeith.hammerlib.client.utils.TexturePixelGetter;
 import org.zeith.hammerlib.core.adapter.ConfigAdapter;
-import org.zeith.hammerlib.core.items.tooltip.ClientTooltipColoredLine;
-import org.zeith.hammerlib.core.items.tooltip.ClientTooltipMulti;
+import org.zeith.hammerlib.core.items.tooltip.*;
 import org.zeith.hammerlib.event.client.ClientLoadedInEvent;
 import org.zeith.hammerlib.mixins.client.ParticleEngineAccessor;
 import org.zeith.hammerlib.net.Network;
-import org.zeith.hammerlib.net.packets.PacketPlayerReady;
-import org.zeith.hammerlib.net.packets.PingServerPacket;
-import org.zeith.hammerlib.util.java.Cast;
-import org.zeith.hammerlib.util.java.ReflectionUtil;
+import org.zeith.hammerlib.net.packets.*;
+import org.zeith.hammerlib.util.java.*;
 import org.zeith.hammerlib.util.mcf.LogicalSidePredictor;
 
 import java.lang.reflect.Constructor;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.function.*;
 import java.util.stream.Stream;
 
 public class HLClientProxy
 		extends HLCommonProxy
 {
+	protected List<QueuedTask> clientTickTasks = new ArrayList<>();
+	
 	public static final KeyMapping RENDER_GUI_ITEM = new KeyMapping("key.hammerlib.render_item", KeyConflictContext.GUI, InputConstants.Type.KEYSYM, InputConstants.UNKNOWN.getValue(), "key.categories.ui");
 	
 	public static Map<ParticleRenderType, Queue<Particle>> PARTICLE_MAP;
 	int pingTimer;
+	
+	public HLClientProxy()
+	{
+		MinecraftForge.EVENT_BUS.addListener(this::clientTick);
+	}
+	
+	@Override
+	public void queueTask(Level level, int delay, Runnable task)
+	{
+		if(level.isClientSide)
+			clientTickTasks.add(new QueuedTask(delay, task));
+		else
+			super.queueTask(level, delay, task);
+	}
 	
 	@Override
 	public void construct(IEventBus modBus)
@@ -121,6 +127,7 @@ public class HLClientProxy
 	@Override
 	public void clientSetup()
 	{
+		//noinspection DataFlowIssue,rawtypes
 		MenuScreens.register(ContainerAPI.TILE_CONTAINER, (MenuScreens.ScreenConstructor) (ctr, inv, txt) -> Cast
 				.optionally(ctr, IScreenContainer.class)
 				.map(c -> c.openScreen(inv, txt))
@@ -145,7 +152,7 @@ public class HLClientProxy
 			HandleLightOverrideEvent<Particle> evt = new HandleLightOverrideEvent<>(particle, partialTicks, l);
 			HammerLib.postEvent(evt);
 			return evt.getNewLight();
-		}).filter(Predicates.notNull());
+		}).filter(Objects::nonNull);
 	}
 	
 	@Override
@@ -153,7 +160,7 @@ public class HLClientProxy
 	{
 		return e ->
 		{
-			ReflectionUtil.<BlockEntityType<?>> getStaticFinalField(ReflectionUtil.fetchClass(owner), member)
+			ReflectionUtil.<BlockEntityType<?>>getStaticFinalField(ReflectionUtil.fetchClass(owner), member)
 					.ifPresent(type ->
 					{
 						ResourceLocation name = ForgeRegistries.BLOCK_ENTITY_TYPES.getKey(type);
@@ -180,7 +187,8 @@ public class HLClientProxy
 								theTesr = ctx -> base;
 							} catch(ReflectiveOperationException err)
 							{
-								err.printStackTrace();
+								throw new ReportedException(new CrashReport(
+										"Unable to create IBESR(no-args) for BlockEntityType " + name, err));
 							}
 						}
 						
@@ -194,7 +202,8 @@ public class HLClientProxy
 									{
 										BlockEntityRenderer<?> r = (BlockEntityRenderer<?>) ctr.newInstance();
 										theTesr = c -> r;
-									} else if(ctr.getParameterCount() == 1 && ctr.getParameterTypes()[0] == BlockEntityRendererProvider.Context.class)
+									} else if(ctr.getParameterCount() == 1 &&
+											ctr.getParameterTypes()[0] == BlockEntityRendererProvider.Context.class)
 									{
 										theTesr = ctx ->
 										{
@@ -203,23 +212,105 @@ public class HLClientProxy
 												return Cast.cast(ctr.newInstance(ctx));
 											} catch(ReflectiveOperationException err)
 											{
-												err.printStackTrace();
+												throw new ReportedException(new CrashReport(
+														"Unable to create BlockEntityRenderer(BlockEntityRendererProvider.Context) for BlockEntityType " +
+																name, err));
 											}
-											return null;
 										};
 									}
 								} catch(ReflectiveOperationException err)
 								{
-									err.printStackTrace();
+									throw new ReportedException(new CrashReport(
+											"Unable to create BlockEntityRenderer(no-args) for BlockEntityType " +
+													name, err));
 								}
 							}
 						}
 						
 						if(theTesr == null)
-							throw new RuntimeException("Unable to find a valid constructor for " + name + "'s TESR " + anyTesr);
+							throw new RuntimeException(
+									"Unable to find a valid constructor for " + name + "'s TESR " + anyTesr);
 						
 						Function<BlockEntityRendererProvider.Context, BlockEntityRenderer<?>> finalTheTesr = theTesr;
 						BlockEntityRenderers.register(type, (BlockEntityRendererProvider<BlockEntity>) ctx -> Cast.cast(finalTheTesr.apply(ctx)));
+					});
+		};
+	}
+	
+	@Override
+	public Consumer<RegisterParticleProvidersEvent> addParticleTypeProvider(Type owner, String member, Type tesr)
+	{
+		return e ->
+		{
+			ReflectionUtil.<ParticleType<?>>getStaticFinalField(ReflectionUtil.fetchClass(owner), member)
+					.ifPresent(type ->
+					{
+						ResourceLocation name = ForgeRegistries.PARTICLE_TYPES.getKey(type);
+						
+						if(name == null)
+						{
+							HammerLib.LOG.info(
+									"Skipping Particles for particle type " + type + " as it is not registered.");
+							return;
+						}
+						
+						HammerLib.LOG.info("Registering ParticleProvider for particle type " + name);
+						
+						var providerCls = ReflectionUtil.fetchClass(tesr);
+						
+						if(ParticleEngine.SpriteParticleRegistration.class.isAssignableFrom(providerCls))
+						{
+							try
+							{
+								var spc = providerCls.asSubclass(ParticleEngine.SpriteParticleRegistration.class)
+										.getDeclaredConstructor();
+								spc.setAccessible(true);
+								e.register(type, spc.newInstance());
+								return;
+							} catch(ReflectiveOperationException ex)
+							{
+								throw new ReportedException(new CrashReport(
+										"Unable to create ParticleProvider.Sprite(no-args) for ParticleType " +
+												name, ex));
+							}
+						}
+						
+						var ctors = providerCls.getConstructors();
+						for(var ctor : ctors)
+						{
+							if(ctor.getParameterCount() == 0)
+							{
+								ctor.setAccessible(true);
+								try
+								{
+									e.register(type, Objects.requireNonNull(Cast.cast(ctor.newInstance(), ParticleProvider.class)));
+								} catch(Exception ex)
+								{
+									throw new ReportedException(new CrashReport(
+											"Unable to create ParticleProvider(no-args) for ParticleType " + name, ex));
+								}
+								return;
+							} else if(ctor.getParameterCount() == 1)
+							{
+								if(SpriteSet.class.isAssignableFrom(ctor.getParameterTypes()[0]))
+								{
+									ctor.setAccessible(true);
+									e.register(type, set ->
+									{
+										try
+										{
+											return Cast.cast(ctor.newInstance(set));
+										} catch(ReflectiveOperationException ex)
+										{
+											throw new ReportedException(new CrashReport(
+													"Unable to create ParticleProvider(no-args) for ParticleType " +
+															name, ex));
+										}
+									});
+									return;
+								}
+							}
+						}
 					});
 		};
 	}
@@ -237,24 +328,42 @@ public class HLClientProxy
 		}
 	}
 	
-	@SubscribeEvent
-	public void clientTick(ClientTickEvent e)
+	private void clientTick(ClientTickEvent e)
 	{
-		if(Minecraft.getInstance().level != null)
+		var mc = Minecraft.getInstance();
+		
+		if(e.phase == TickEvent.Phase.START)
 		{
-			if(!Minecraft.getInstance().isPaused())
+			if(mc.level != null)
 			{
-				pingTimer--;
-				if(pingTimer <= 0)
+				if(!mc.isPaused())
 				{
-					pingTimer += 40;
-					Network.sendToServer(new PingServerPacket(System.currentTimeMillis()));
+					pingTimer--;
+					if(pingTimer <= 0)
+					{
+						pingTimer += 40;
+						Network.sendToServer(new PingServerPacket(System.currentTimeMillis()));
+					}
 				}
+			} else if(renderedWorld)
+			{
+				renderedWorld = false;
+				ConfigAdapter.resetClientsideSync();
 			}
-		} else if(renderedWorld)
+			
+			return;
+		}
+		
+		if(mc.level == null)
+			clientTickTasks.clear();
+		
+		for(int i = 0; i < clientTickTasks.size(); i++)
 		{
-			renderedWorld = false;
-			ConfigAdapter.resetClientsideSync();
+			if(clientTickTasks.get(i).shouldRemove())
+			{
+				clientTickTasks.remove(i);
+				--i;
+			}
 		}
 	}
 	
@@ -264,7 +373,8 @@ public class HLClientProxy
 		if(Minecraft.getInstance().options.renderDebug)
 		{
 			List<String> tip = f3.getLeft();
-			tip.add(ChatFormatting.GOLD + "[HammerLib]" + ChatFormatting.RESET + " Ping: ~" + PingServerPacket.lastPingTime + " ms.");
+			tip.add(ChatFormatting.GOLD + "[HammerLib]" + ChatFormatting.RESET + " Ping: ~" +
+					PingServerPacket.lastPingTime + " ms.");
 		}
 	}
 	
