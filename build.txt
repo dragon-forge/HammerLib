@@ -1,7 +1,7 @@
 # Mod Info
 mod_id=hammerlib
 archive_name=HammerLib
-mod_name=Hammer Lib
+mod_name=HammerLib
 mod_version=19.3.69
 build_candidate=false
 
