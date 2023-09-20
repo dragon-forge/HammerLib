@@ -29,6 +29,8 @@ public class CustomFoilConfigs
 {
 	private static final List<Tuple2<Item, IColoredFoilItem>> overrides = new ArrayList<>();
 	
+	public static Runnable rubidiumInstaller = null;
+	
 	@SubscribeEvent
 	public static void enqueueInterComms(InterModEnqueueEvent e)
 	{
@@ -39,7 +41,8 @@ public class CustomFoilConfigs
 		
 		// Dynamic color example
 		InterModComms.sendTo("hammerlib", "registerFoil",
-				() -> Map.<ItemLike, ToIntFunction<ItemStack>>entry(BlockTestMachine.TEST_MACHINE, (ItemStack stack) -> 0x0F0FFF | IColoredFoilItem.FULL_ALPHA)
+				() -> Map.<ItemLike, ToIntFunction<ItemStack>>entry(BlockTestMachine.TEST_MACHINE, (ItemStack stack) ->
+						0x0F0FFF | IColoredFoilItem.FULL_ALPHA)
 		);
 	}
 	
@@ -147,6 +150,8 @@ public class CustomFoilConfigs
 				overrides.add(Tuples.immutable(item, foil));
 				IColoredFoilItem.override(item, foil);
 			}
+			
+			if(rubidiumInstaller != null) rubidiumInstaller.run();
 		} catch(IOException | JSONException e)
 		{
 			throw new ReportedException(new CrashReport("", e));

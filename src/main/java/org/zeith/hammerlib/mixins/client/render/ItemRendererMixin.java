@@ -13,12 +13,11 @@ import org.spongepowered.asm.mixin.injection.callback.*;
 import org.zeith.hammerlib.api.items.IColoredFoilItem;
 import org.zeith.hammerlib.client.render.*;
 
+import static org.zeith.hammerlib.client.render.TintingVertexConsumer.hl$contextStack;
+
 @Mixin(ItemRenderer.class)
 public class ItemRendererMixin
 {
-	@Unique
-	private static ItemStack hl$contextStack = ItemStack.EMPTY;
-	
 	@Inject(
 			method = "render",
 			at = @At("HEAD")
@@ -45,11 +44,11 @@ public class ItemRendererMixin
 	private static void getArmorFoilBufferHook(MultiBufferSource pBuffer, RenderType pRenderType, boolean pNoEntity, boolean pWithGlint, CallbackInfoReturnable<VertexConsumer> cir)
 	{
 		IColoredFoilItem icgi;
-		if(pWithGlint && !hl$contextStack.isEmpty() && (icgi = IColoredFoilItem.get(hl$contextStack)) != null)
+		if(pWithGlint && TintingVertexConsumer.tintingEnabled && !hl$contextStack.isEmpty() && (icgi = IColoredFoilItem.get(hl$contextStack)) != null)
 		{
 			int color = icgi.getFoilColor(hl$contextStack);
 			cir.setReturnValue(VertexMultiConsumer.create(
-							new TintingVertexConsumer(
+							TintingVertexConsumer.wrap(
 									pBuffer.getBuffer(pNoEntity
 													  ? RenderCustomGlint.armorGlint()
 													  : RenderCustomGlint.armorEntityGlint()
@@ -70,12 +69,12 @@ public class ItemRendererMixin
 	private static void getCompassFoilBufferHook(MultiBufferSource pBuffer, RenderType pRenderType, PoseStack.Pose pMatrixEntry, CallbackInfoReturnable<VertexConsumer> cir)
 	{
 		IColoredFoilItem icgi;
-		if(!hl$contextStack.isEmpty() && (icgi = IColoredFoilItem.get(hl$contextStack)) != null)
+		if(TintingVertexConsumer.tintingEnabled && !hl$contextStack.isEmpty() && (icgi = IColoredFoilItem.get(hl$contextStack)) != null)
 		{
 			int color = icgi.getFoilColor(hl$contextStack);
 			cir.setReturnValue(VertexMultiConsumer.create(
 							new SheetedDecalTextureGenerator(
-									new TintingVertexConsumer(
+									TintingVertexConsumer.wrap(
 											pBuffer.getBuffer(RenderCustomGlint.glint()),
 											color
 									),
@@ -96,12 +95,12 @@ public class ItemRendererMixin
 	private static void getCompassFoilBufferDirectHook(MultiBufferSource pBuffer, RenderType pRenderType, PoseStack.Pose pMatrixEntry, CallbackInfoReturnable<VertexConsumer> cir)
 	{
 		IColoredFoilItem icgi;
-		if(!hl$contextStack.isEmpty() && (icgi = IColoredFoilItem.get(hl$contextStack)) != null)
+		if(TintingVertexConsumer.tintingEnabled && !hl$contextStack.isEmpty() && (icgi = IColoredFoilItem.get(hl$contextStack)) != null)
 		{
 			int color = icgi.getFoilColor(hl$contextStack);
 			cir.setReturnValue(VertexMultiConsumer.create(
 							new SheetedDecalTextureGenerator(
-									new TintingVertexConsumer(
+									TintingVertexConsumer.wrap(
 											pBuffer.getBuffer(RenderCustomGlint.glintDirect()),
 											color
 									),
@@ -122,13 +121,13 @@ public class ItemRendererMixin
 	private static void getFoilBufferHook(MultiBufferSource pBuffer, RenderType pRenderType, boolean pIsItem, boolean pGlint, CallbackInfoReturnable<VertexConsumer> cir)
 	{
 		IColoredFoilItem icgi;
-		if(pGlint && !hl$contextStack.isEmpty() && (icgi = IColoredFoilItem.get(hl$contextStack)) != null)
+		if(pGlint && TintingVertexConsumer.tintingEnabled && !hl$contextStack.isEmpty() && (icgi = IColoredFoilItem.get(hl$contextStack)) != null)
 		{
 			int color = icgi.getFoilColor(hl$contextStack);
 			cir.setReturnValue(Minecraft.useShaderTransparency() && pRenderType == Sheets.translucentItemSheet()
 							   ?
 							   VertexMultiConsumer.create(
-									   new TintingVertexConsumer(
+									   TintingVertexConsumer.wrap(
 											   pBuffer.getBuffer(RenderCustomGlint.glintTranslucent()),
 											   color
 									   ),
@@ -136,7 +135,7 @@ public class ItemRendererMixin
 							   )
 							   :
 							   VertexMultiConsumer.create(
-									   new TintingVertexConsumer(
+									   TintingVertexConsumer.wrap(
 											   pBuffer.getBuffer(pIsItem
 																 ? RenderCustomGlint.glint()
 																 : RenderCustomGlint.entityGlint()),
@@ -156,11 +155,11 @@ public class ItemRendererMixin
 	private static void getFoilBufferDirectHook(MultiBufferSource pBuffer, RenderType pRenderType, boolean pNoEntity, boolean pWithGlint, CallbackInfoReturnable<VertexConsumer> cir)
 	{
 		IColoredFoilItem icgi;
-		if(pWithGlint && !hl$contextStack.isEmpty() && (icgi = IColoredFoilItem.get(hl$contextStack)) != null)
+		if(pWithGlint && TintingVertexConsumer.tintingEnabled && !hl$contextStack.isEmpty() && (icgi = IColoredFoilItem.get(hl$contextStack)) != null)
 		{
 			int color = icgi.getFoilColor(hl$contextStack);
 			cir.setReturnValue(VertexMultiConsumer.create(
-							new TintingVertexConsumer(
+							TintingVertexConsumer.wrap(
 									pBuffer.getBuffer(pNoEntity
 													  ? RenderCustomGlint.glintDirect()
 													  : RenderCustomGlint.entityGlintDirect()),
