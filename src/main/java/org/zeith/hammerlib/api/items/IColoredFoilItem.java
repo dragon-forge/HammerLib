@@ -12,7 +12,7 @@ import java.util.Map;
  * <p>
  * For using custom glint {@link net.minecraft.client.renderer.RenderType}, refer to {@link org.zeith.hammerlib.client.render.RenderCustomGlint#glintBuffer}
  */
-@FunctionalInterface // TODO: implement color application into HumanoidArmorLayer
+@FunctionalInterface
 public interface IColoredFoilItem
 {
 	/**

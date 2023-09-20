@@ -38,6 +38,7 @@
     "client.ModelBakeryMixin",
     "client.ParticleEngineAccessor",
     "client.PlayerInfoMixin",
+    "client.render.HumanoidArmorLayerMixin",
     "client.render.ItemRendererMixin",
     "client.render.LivingEntityRendererMixin",
     "client.render.PlayerRendererMixin",

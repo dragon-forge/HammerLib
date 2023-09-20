@@ -29,6 +29,9 @@ public class CustomFoilConfigs
 {
 	private static final List<Tuple2<Item, IColoredFoilItem>> overrides = new ArrayList<>();
 	
+	public static boolean disable_with_rubidium = true;
+	public static Runnable rubidiumInstaller = null;
+	
 	@SubscribeEvent
 	public static void enqueueInterComms(InterModEnqueueEvent e)
 	{
@@ -39,7 +42,8 @@ public class CustomFoilConfigs
 		
 		// Dynamic color example
 		InterModComms.sendTo("hammerlib", "registerFoil",
-				() -> Map.<ItemLike, ToIntFunction<ItemStack>>entry(BlockTestMachine.TEST_MACHINE, (ItemStack stack) -> 0x0F0FFF | IColoredFoilItem.FULL_ALPHA)
+				() -> Map.<ItemLike, ToIntFunction<ItemStack>>entry(BlockTestMachine.TEST_MACHINE, (ItemStack stack) ->
+						0x0F0FFF | IColoredFoilItem.FULL_ALPHA)
 		);
 	}
 	
@@ -110,6 +114,8 @@ public class CustomFoilConfigs
 			{
 				JSONObject $ = new JSONObject();
 				
+				$.put("disable_with_rubidium", true);
+				
 				$.put("constant_colors",
 						new JSONObject()
 								.put(Objects.toString(ForgeRegistries.ITEMS.getKey(Items.NETHER_STAR)),
@@ -124,6 +130,14 @@ public class CustomFoilConfigs
 			}
 			
 			var $ = new JSONTokener(Files.readString(path)).nextValueOBJ().orElseThrow();
+			
+			if(!$.has("disable_with_rubidium"))
+			{
+				$.put("disable_with_rubidium", true);
+				Files.writeString(path, $.toString(2));
+			}
+			
+			disable_with_rubidium = $.optBoolean("disable_with_rubidium");
 			
 			var constant_colors = $.getJSONObject("constant_colors");
 			
@@ -147,6 +161,8 @@ public class CustomFoilConfigs
 				overrides.add(Tuples.immutable(item, foil));
 				IColoredFoilItem.override(item, foil);
 			}
+			
+			if(rubidiumInstaller != null) rubidiumInstaller.run();
 		} catch(IOException | JSONException e)
 		{
 			throw new ReportedException(new CrashReport("", e));
