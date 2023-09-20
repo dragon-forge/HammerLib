@@ -22,6 +22,8 @@ public abstract class RenderBuffersMixin
 	)
 	private void addGlint(Object2ObjectLinkedOpenHashMap map, CallbackInfo ci)
 	{
+		put(map, RenderCustomGlint.armorGlint());
+		put(map, RenderCustomGlint.armorEntityGlint());
 		put(map, RenderCustomGlint.glint());
 		put(map, RenderCustomGlint.glintDirect());
 		put(map, RenderCustomGlint.glintTranslucent());
