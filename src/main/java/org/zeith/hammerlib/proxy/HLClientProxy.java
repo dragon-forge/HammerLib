@@ -6,7 +6,6 @@ import net.minecraft.*;
 import net.minecraft.client.*;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.particle.*;
-import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.renderer.blockentity.*;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -80,7 +79,7 @@ public class HLClientProxy
 		modBus.addListener(this::loadComplete);
 		modBus.addListener(TexturePixelGetter::reloadTexture);
 		SimpleModelGenerator.setup();
-
+		
 //		MinecraftForge.EVENT_BUS.addListener(this::alterTooltip);
 	}
 	

@@ -13,6 +13,7 @@
     "BlockEntityAccessor",
     "BlockEntityTypeAccessor",
     "BlockHitResultAccessor",
+    "EntityMixin",
     "ForgeHooksMixin",
     "HTTPUtilMixin",
     "ItemStackMixin",
@@ -23,20 +24,24 @@
     "RecipeManagerAccessor",
     "RecipeManagerMixin",
     "RegistryManagerAccessor",
+    "ServerLevelMixin",
     "TagLoaderMixin",
     "bs.kubejs.RecipeEventJSMixin"
   ],
   "client": [
     "client.BlockElementFaceAccessor",
     "client.ClientLanguageAccessor",
+    "client.ClientLevelMixin",
     "client.I18nAccessor",
     "client.LanguageManagerMixin",
     "client.MinecraftMixin",
     "client.ModelBakeryMixin",
     "client.ParticleEngineAccessor",
     "client.PlayerInfoMixin",
+    "client.render.ItemRendererMixin",
     "client.render.LivingEntityRendererMixin",
-    "client.render.PlayerRendererMixin"
+    "client.render.PlayerRendererMixin",
+    "client.render.RenderBuffersMixin"
   ],
   "server": [
   ]
