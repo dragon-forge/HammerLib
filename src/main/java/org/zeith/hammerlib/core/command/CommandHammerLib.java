@@ -2,12 +2,11 @@ package org.zeith.hammerlib.core.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
+import net.minecraft.commands.*;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.server.command.ModIdArgument;
 import org.zeith.hammerlib.net.Network;
-import org.zeith.hammerlib.net.packets.RenderItemsPacket;
+import org.zeith.hammerlib.net.packets.*;
 
 public class CommandHammerLib
 {
@@ -41,18 +40,18 @@ public class CommandHammerLib
 												.executes(cs ->
 												{
 													ServerPlayer player = cs.getSource().getPlayerOrException();
-
+													
 													Network.sendTo(new RenderItemsPacket(2, 256, ""), player);
-
+													
 													return 1;
 												})
 												.then(Commands.argument("resolution", IntegerArgumentType.integer(16, 16384))
 														.executes(cs ->
 														{
 															ServerPlayer player = cs.getSource().getPlayerOrException();
-
+															
 															Network.sendTo(new RenderItemsPacket(2, IntegerArgumentType.getInteger(cs, "resolution"), ""), player);
-
+															
 															return 1;
 														})
 												)
@@ -62,25 +61,40 @@ public class CommandHammerLib
 														.then(Commands.argument("mod", ModIdArgument.modIdArgument())
 																.executes(cs ->
 																{
-																	ServerPlayer player = cs.getSource().getPlayerOrException();
-
+																	ServerPlayer player = cs.getSource()
+																			.getPlayerOrException();
+																	
 																	Network.sendTo(new RenderItemsPacket(1, 256, cs.getArgument("mod", String.class)), player);
-
+																	
 																	return 1;
 																})
 																.then(Commands.argument("resolution", IntegerArgumentType.integer(16, 16384))
 																		.executes(cs ->
 																		{
-																			ServerPlayer player = cs.getSource().getPlayerOrException();
-
+																			ServerPlayer player = cs.getSource()
+																					.getPlayerOrException();
+																			
 																			Network.sendTo(new RenderItemsPacket(1, IntegerArgumentType.getInteger(cs, "resolution"), cs.getArgument("mod", String.class)), player);
-
+																			
 																			return 1;
 																		})
 																)
 														)
 												)
 										)
+								)
+						)
+						.then(Commands.literal("reload")
+								.then(Commands.literal("foil")
+										.executes(cs ->
+										{
+											ServerPlayer player = cs.getSource()
+													.getPlayerOrException();
+											
+											Network.sendTo(player, new PacketReloadFoils());
+											
+											return 1;
+										})
 								)
 						)
 				)

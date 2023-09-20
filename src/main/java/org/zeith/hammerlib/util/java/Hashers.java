@@ -1,5 +1,8 @@
 package org.zeith.hammerlib.util.java;
 
+import net.minecraft.resources.*;
+import net.minecraft.util.StringRepresentable;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.math.BigInteger;
@@ -12,6 +15,37 @@ public class Hashers
 	public static final Hashers MD5 = new Hashers("MD5");
 	public static final Hashers SHA1 = new Hashers("SHA1");
 	public static final Hashers SHA256 = new Hashers("SHA256");
+	
+	public static long hashCodeL(Object... a)
+	{
+		if(a == null)
+			return 0;
+		long result = 1;
+		for(Object element : a)
+		{
+			long add;
+			
+			if(element instanceof StringRepresentable sr)
+				add = hashCodeL4Chars(sr.getSerializedName().toCharArray());
+			else if(element instanceof CharSequence || element instanceof ResourceLocation || element instanceof ResourceKey<?>)
+				add = hashCodeL4Chars(element.toString().toCharArray());
+			else
+				add = element == null ? 0 : element.hashCode();
+			
+			result = 31L * result + add;
+		}
+		return result;
+	}
+	
+	public static long hashCodeL4Chars(char... a)
+	{
+		if(a == null)
+			return 0;
+		long result = 1;
+		for(var el : a)
+			result = 31L * result + Character.hashCode(el);
+		return result;
+	}
 	
 	final String algorithm;
 	
@@ -103,7 +137,8 @@ public class Hashers
 				continue;
 			try
 			{
-				b.append(genHash(k) + k.getAbsolutePath().substring(prime.getAbsolutePath().length()).replace(File.separatorChar, ' ') + ";");
+				b.append(genHash(k) + k.getAbsolutePath().substring(prime.getAbsolutePath().length())
+						.replace(File.separatorChar, ' ') + ";");
 			} catch(Throwable err)
 			{
 				err.printStackTrace(System.out);
@@ -131,7 +166,8 @@ public class Hashers
 		return md5Hex;
 	}
 	
-	private byte[] createChecksum(File file) throws Exception
+	private byte[] createChecksum(File file)
+			throws Exception
 	{
 		int numRead;
 		if(!file.exists())
