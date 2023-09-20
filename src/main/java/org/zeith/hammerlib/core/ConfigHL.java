@@ -2,8 +2,10 @@ package org.zeith.hammerlib.core;
 
 import net.minecraftforge.api.distmarker.Dist;
 import org.zeith.hammerlib.api.config.*;
+import org.zeith.hammerlib.client.CustomFoilConfigs;
+import org.zeith.hammerlib.util.configured.types.ConfigCategory;
 
-@Config
+@Config(module = "main")
 public class ConfigHL
 		implements IConfigRoot
 {
@@ -34,5 +36,13 @@ public class ConfigHL
 		@Config.ConfigEntry(entry = "Gui Item Render Resolution", comment = "Which resolution should the items be rendered when using 'Render GUI Item' hotkey?")
 		@Config.IntEntry(value = 1024, min = 16, max = 16384)
 		public int guiItemRenderResolution;
+		
+		@Override
+		public void load(ConfigCategory category)
+				throws ConfigException
+		{
+			IConfigStructure.super.load(category);
+			CustomFoilConfigs.reload();
+		}
 	}
 }
