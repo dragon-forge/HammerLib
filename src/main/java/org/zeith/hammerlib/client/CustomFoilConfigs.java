@@ -12,7 +12,7 @@ import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.api.items.IColoredFoilItem;
-import org.zeith.hammerlib.core.items.ItemWrench;
+import org.zeith.hammerlib.core.init.ItemsHL;
 import org.zeith.hammerlib.core.test.machine.BlockTestMachine;
 import org.zeith.hammerlib.proxy.HLConstants;
 import org.zeith.hammerlib.util.java.*;
@@ -34,7 +34,7 @@ public class CustomFoilConfigs
 	{
 		// Constant color example
 		InterModComms.sendTo("hammerlib", "registerFoil",
-				() -> Map.<ItemLike, Integer>entry(ItemWrench.WRENCH, 0xFFFF0F | IColoredFoilItem.FULL_ALPHA)
+				() -> Map.<ItemLike, Integer>entry(ItemsHL.WRENCH, 0xFFFF0F | IColoredFoilItem.FULL_ALPHA)
 		);
 		
 		// Dynamic color example

@@ -2,7 +2,7 @@ package org.zeith.hammerlib.api.items;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.minecraft.world.item.*;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.*;
 
 import java.util.Map;
 
@@ -12,15 +12,18 @@ import java.util.Map;
  * <p>
  * For using custom glint {@link net.minecraft.client.renderer.RenderType}, refer to {@link org.zeith.hammerlib.client.render.RenderCustomGlint#glintBuffer}
  */
+@FunctionalInterface
 public interface IColoredFoilItem
 {
-	// should be used unless you want to control the intensity of said foil.
+	/**
+	 * Should be used unless you want to control the intensity of said foil.
+	 * Example use case:
+	 * <p>
+	 * <code>return 0xFF00FF | FULL_ALPHA;</code>
+	 */
 	int FULL_ALPHA = 255 << 24;
 	
-	default int getFoilColor(ItemStack stack)
-	{
-		return 0xFFFFFF | FULL_ALPHA;
-	}
+	int getFoilColor(@NotNull ItemStack stack);
 	
 	@Nullable
 	static IColoredFoilItem get(ItemStack stack)
@@ -42,14 +45,7 @@ public interface IColoredFoilItem
 	
 	static IColoredFoilItem constant(int rgba)
 	{
-		return new IColoredFoilItem()
-		{
-			@Override
-			public int getFoilColor(ItemStack stack)
-			{
-				return rgba;
-			}
-		};
+		return stack -> rgba;
 	}
 	
 	class Binds
