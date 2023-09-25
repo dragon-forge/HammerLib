@@ -2,33 +2,25 @@ package org.zeith.hammerlib.core.adapter;
 
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleType;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Tuple;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
+import net.minecraft.resources.*;
+import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.*;
 import net.minecraftforge.fml.loading.FMLEnvironment;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.RegisterEvent;
+import net.minecraftforge.registries.*;
 import org.apache.logging.log4j.LogManager;
 import org.zeith.api.registry.RegistryMapping;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.annotations.*;
 import org.zeith.hammerlib.annotations.client.*;
 import org.zeith.hammerlib.api.blocks.*;
-import org.zeith.hammerlib.api.fml.ICustomRegistrar;
-import org.zeith.hammerlib.api.fml.IRegisterListener;
-import org.zeith.hammerlib.util.java.Cast;
-import org.zeith.hammerlib.util.java.ReflectionUtil;
+import org.zeith.hammerlib.api.fml.*;
+import org.zeith.hammerlib.util.java.*;
 import org.zeith.hammerlib.util.java.tuples.*;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
@@ -205,7 +197,7 @@ public class RegistryAdapter
 								
 								if(tileRegistryOnClient)
 								{
-									var tesr = TileRenderer.RendererTarget.get(source, field.getName());
+									var tesr = TileRenderer.Info.get(source, field.getName());
 									if(tesr != null)
 									{
 										tesr.apply();
@@ -215,7 +207,7 @@ public class RegistryAdapter
 								
 								if(particleRegistryOnClient)
 								{
-									var provider = Particles.Target.get(source, field.getName());
+									var provider = Particles.Info.get(source, field.getName());
 									if(provider != null)
 									{
 										provider.apply();
