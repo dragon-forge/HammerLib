@@ -20,6 +20,12 @@ public class RubidiumCompat
 {
 	public RubidiumCompat()
 	{
+		if(ModHelper.isModLoaded("embeddium"))
+		{
+			HammerLib.LOG.info("Detected Rubidium from Embeddium. Disabling safeguard.");
+			return; // Embeddium does a compat wrapper for any other vertex consumer.
+		}
+		
 		DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () ->
 		{
 			CustomFoilConfigs.rubidiumInstaller = this::reload;
