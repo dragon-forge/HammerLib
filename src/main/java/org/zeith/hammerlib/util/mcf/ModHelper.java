@@ -21,6 +21,11 @@ public class ModHelper
 		return FMLEnvironment.dist == Dist.CLIENT;
 	}
 	
+	public static boolean isModLoaded(String modid)
+	{
+		return ModList.get().isLoaded(modid);
+	}
+	
 	public static String getModVersion(String modid)
 	{
 		StringBuilder version = new StringBuilder();
