@@ -1,35 +1,28 @@
 package com.zeitheron.hammercore.client;
 
-import java.io.ByteArrayInputStream;
-import java.lang.reflect.Field;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
-
 import com.zeitheron.hammercore.api.lighting.ColoredLightManager;
 import com.zeitheron.hammercore.client.render.shader.GlShaderStack;
 import com.zeitheron.hammercore.event.client.ClientLoadedInEvent;
 import com.zeitheron.hammercore.net.HCNet;
-import com.zeitheron.hammercore.net.internal.PacketPing;
-import com.zeitheron.hammercore.net.internal.PacketPlayerReady;
+import com.zeitheron.hammercore.net.internal.*;
 import com.zeitheron.hammercore.proxy.RenderProxy_Client;
-import com.zeitheron.hammercore.utils.ReflectionUtil;
-
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.client.resources.IResourcePack;
 import net.minecraft.client.resources.Locale;
+import net.minecraft.client.resources.*;
 import net.minecraft.client.resources.data.MetadataSerializer;
 import net.minecraft.util.text.translation.LanguageMap;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.common.gameevent.TickEvent.*;
+import net.minecraftforge.fml.relauncher.*;
+
+import java.io.ByteArrayInputStream;
+import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 @SideOnly(Side.CLIENT)
 public class HammerCoreClient

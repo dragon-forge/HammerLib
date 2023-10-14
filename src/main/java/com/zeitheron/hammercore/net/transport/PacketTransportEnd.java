@@ -12,7 +12,7 @@ public class PacketTransportEnd
 {
 	static
 	{
-		IPacket.handle(PacketTransportEnd.class, () -> new PacketTransportEnd(null));
+		IPacket.handle(PacketTransportEnd.class, PacketTransportEnd::new);
 	}
 
 	public String id;
@@ -21,7 +21,11 @@ public class PacketTransportEnd
 	{
 		this.id = id;
 	}
-
+	
+	public PacketTransportEnd()
+	{
+	}
+	
 	@Override
 	public void writeToNBT(NBTTagCompound nbt)
 	{

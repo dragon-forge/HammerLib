@@ -1,45 +1,31 @@
 package com.zeitheron.hammercore.client.utils;
 
-import java.lang.reflect.Field;
-import java.util.List;
-
 import com.zeitheron.hammercore.api.RequiredDeps;
 import com.zeitheron.hammercore.cfg.HammerCoreConfigs;
-import com.zeitheron.hammercore.client.HCClientOptions;
-import com.zeitheron.hammercore.client.HammerCoreClient;
-import com.zeitheron.hammercore.client.gui.impl.GuiConfirmAuthority;
-import com.zeitheron.hammercore.client.gui.impl.GuiCustomizeSkinHC;
-import com.zeitheron.hammercore.client.gui.impl.GuiMissingApis;
-import com.zeitheron.hammercore.client.gui.impl.smooth.GuiBrewingStandSmooth;
-import com.zeitheron.hammercore.client.gui.impl.smooth.GuiFurnaceSmooth;
+import com.zeitheron.hammercore.client.*;
+import com.zeitheron.hammercore.client.gui.impl.*;
+import com.zeitheron.hammercore.client.gui.impl.smooth.*;
 import com.zeitheron.hammercore.lib.zlib.utils.IndexedMap;
 import com.zeitheron.hammercore.tile.TileSyncable;
-import com.zeitheron.hammercore.utils.WorldUtil;
-
+import com.zeitheron.hammercore.utils.base.Cast;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiCustomizeSkin;
-import net.minecraft.client.gui.GuiMainMenu;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.inventory.GuiBrewingStand;
-import net.minecraft.client.gui.inventory.GuiFurnace;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.gui.*;
+import net.minecraft.client.gui.inventory.*;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import net.minecraftforge.client.event.GuiOpenEvent;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.*;
+
+import java.lang.reflect.Field;
+import java.util.*;
 
 @SideOnly(Side.CLIENT)
 public class RenderGui
 {
-	private static final UV hammer = new UV(new ResourceLocation("hammercore", "textures/hammer.png"), 0, 0, 256, 256);
-	private static final ResourceLocation main_menu_widgets = new ResourceLocation("hammercore", "textures/gui/main_menu_widgets.png");
-	private double modListHoverTip = 0;
 	public boolean renderF3;
 	
 	@SubscribeEvent
@@ -54,8 +40,9 @@ public class RenderGui
 	@SubscribeEvent
 	public void addF3Info(RenderGameOverlayEvent.Text f3)
 	{
-		RayTraceResult omon = Minecraft.getMinecraft().objectMouseOver;
-		World world = Minecraft.getMinecraft().world;
+		Minecraft mc = Minecraft.getMinecraft();
+		RayTraceResult omon = mc.objectMouseOver;
+		World world = mc.world;
 		
 		if(renderF3)
 		{
@@ -65,7 +52,7 @@ public class RenderGui
 			tip = f3.getRight();
 			if(world != null && omon != null && omon.typeOfHit == Type.BLOCK)
 			{
-				TileSyncable ts = WorldUtil.cast(world.getTileEntity(omon.getBlockPos()), TileSyncable.class);
+				TileSyncable ts = Cast.cast(world.getTileEntity(omon.getBlockPos()), TileSyncable.class);
 				if(ts != null)
 				{
 					String f3r = ts.getF3Registry();
@@ -86,9 +73,9 @@ public class RenderGui
 						String str = "";
 						
 						if(val instanceof Boolean)
-							str = (val == Boolean.TRUE ? TextFormatting.GREEN : TextFormatting.RED) + (val + "") + TextFormatting.RESET;
+							str = ((Boolean) val ? TextFormatting.GREEN : TextFormatting.RED) + Objects.toString(val) + TextFormatting.RESET;
 						else
-							str = val + "";
+							str = Objects.toString(val);
 						
 						tip.add(key.toLowerCase() + ": " + str);
 					}
@@ -97,8 +84,6 @@ public class RenderGui
 			renderF3 = false;
 		}
 	}
-	
-	private Thread mmDwnT;
 	
 	@SubscribeEvent
 	public void openGui(GuiOpenEvent evt)

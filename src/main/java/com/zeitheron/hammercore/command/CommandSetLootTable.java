@@ -1,20 +1,15 @@
 package com.zeitheron.hammercore.command;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.zeitheron.hammercore.utils.WorldUtil;
-
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommandSender;
+import com.zeitheron.hammercore.utils.base.Cast;
+import net.minecraft.command.*;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntityLockableLoot;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.*;
 import net.minecraft.world.storage.loot.LootTableList;
+
+import java.util.*;
 
 public class CommandSetLootTable extends CommandBase
 {
@@ -38,7 +33,7 @@ public class CommandSetLootTable extends CommandBase
 		int z = parseInt(args[2]);
 		ResourceLocation table = new ResourceLocation(args[3]);
 		
-		TileEntityLockableLoot loot = WorldUtil.cast(sender.getEntityWorld().getTileEntity(new BlockPos(x, y, z)), TileEntityLockableLoot.class);
+		TileEntityLockableLoot loot = Cast.cast(sender.getEntityWorld().getTileEntity(new BlockPos(x, y, z)), TileEntityLockableLoot.class);
 		
 		if(loot != null)
 		{

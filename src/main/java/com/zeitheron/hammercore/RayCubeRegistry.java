@@ -1,17 +1,13 @@
 package com.zeitheron.hammercore;
 
-import com.zeitheron.hammercore.api.mhb.BlockTraceable;
-import com.zeitheron.hammercore.api.mhb.ICubeManager;
-import com.zeitheron.hammercore.api.mhb.IRayCubeGetter;
-import com.zeitheron.hammercore.api.mhb.IRayCubeRegistry;
-import com.zeitheron.hammercore.utils.WorldUtil;
+import com.zeitheron.hammercore.api.mhb.*;
+import com.zeitheron.hammercore.utils.base.Cast;
 import com.zeitheron.hammercore.utils.math.vec.Cuboid6;
 import net.minecraft.block.Block;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public final class RayCubeRegistry
 		implements IRayCubeRegistry, IRayCubeGetter
@@ -51,7 +47,7 @@ public final class RayCubeRegistry
 
 	public static Cuboid6[] getCuboidsAt(World world, BlockPos pos)
 	{
-		BlockTraceable bt = WorldUtil.cast(world.getBlockState(pos).getBlock(), BlockTraceable.class);
+		BlockTraceable bt = Cast.cast(world.getBlockState(pos).getBlock(), BlockTraceable.class);
 		if(bt != null)
 		{
 			ICubeManager mgr = RayCubeRegistry.instance.getBoundCubeManager(bt);

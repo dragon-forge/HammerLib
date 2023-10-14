@@ -1,31 +1,21 @@
 package com.zeitheron.hammercore.compat.waila;
 
-import java.awt.Dimension;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.lwjgl.opengl.GL11;
-
 import com.zeitheron.hammercore.HammerCore;
 import com.zeitheron.hammercore.api.ITileBlock;
-import com.zeitheron.hammercore.tile.tooltip.ITooltipTile;
-import com.zeitheron.hammercore.tile.tooltip.ProgressBar;
-import com.zeitheron.hammercore.tile.tooltip.eTooltipEngine;
+import com.zeitheron.hammercore.tile.tooltip.*;
 import com.zeitheron.hammercore.utils.WorldLocation;
-import com.zeitheron.hammercore.utils.WorldUtil;
-
-import mcp.mobius.waila.api.IWailaCommonAccessor;
-import mcp.mobius.waila.api.IWailaConfigHandler;
-import mcp.mobius.waila.api.IWailaDataAccessor;
-import mcp.mobius.waila.api.IWailaDataProvider;
-import mcp.mobius.waila.api.IWailaRegistrar;
-import mcp.mobius.waila.api.IWailaTooltipRenderer;
-import mcp.mobius.waila.api.SpecialChars;
+import com.zeitheron.hammercore.utils.base.Cast;
+import mcp.mobius.waila.api.*;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import org.lwjgl.opengl.GL11;
+
+import java.awt.*;
+import java.util.List;
+import java.util.*;
 
 public class GetWaila implements IWailaDataProvider
 {
@@ -48,7 +38,7 @@ public class GetWaila implements IWailaDataProvider
 			@Override
 			public Dimension getSize(String[] args, IWailaCommonAccessor accessor)
 			{
-				ITooltipTile tile = WorldUtil.cast(accessor.getTileEntity(), ITooltipTile.class);
+				ITooltipTile tile = Cast.cast(accessor.getTileEntity(), ITooltipTile.class);
 				
 				if(tile != null && tile.isEngineSupported(eTooltipEngine.WAILA) && tile.hasProgressBars(accessor.getPlayer()))
 				{
@@ -64,7 +54,7 @@ public class GetWaila implements IWailaDataProvider
 			@Override
 			public void draw(String[] args, IWailaCommonAccessor accessor)
 			{
-				ITooltipTile tile = WorldUtil.cast(accessor.getTileEntity(), ITooltipTile.class);
+				ITooltipTile tile = Cast.cast(accessor.getTileEntity(), ITooltipTile.class);
 				
 				if(tile != null && tile.isEngineSupported(eTooltipEngine.WAILA) && tile.hasProgressBars(accessor.getPlayer()))
 				{

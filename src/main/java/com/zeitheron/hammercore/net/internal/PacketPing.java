@@ -1,16 +1,13 @@
 package com.zeitheron.hammercore.net.internal;
 
 import com.zeitheron.hammercore.client.HammerCoreClient;
-import com.zeitheron.hammercore.net.HCNet;
-import com.zeitheron.hammercore.net.IPacket;
-import com.zeitheron.hammercore.net.PacketContext;
+import com.zeitheron.hammercore.net.*;
+import net.minecraft.network.PacketBuffer;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.text.ChatType;
-import net.minecraft.util.text.TextComponentString;
+import java.io.IOException;
 
-public class PacketPing implements IPacket
+public class PacketPing
+		implements IPacket
 {
 	static
 	{
@@ -25,15 +22,16 @@ public class PacketPing implements IPacket
 	public long create;
 	
 	@Override
-	public void readFromNBT(NBTTagCompound nbt)
+	public void write(PacketBuffer buf)
 	{
-		create = nbt.getLong("Create");
+		buf.writeLong(create);
 	}
 	
 	@Override
-	public void writeToNBT(NBTTagCompound nbt)
+	public void read(PacketBuffer buf)
+			throws IOException
 	{
-		nbt.setLong("Create", create);
+		create = buf.readLong();
 	}
 	
 	@Override

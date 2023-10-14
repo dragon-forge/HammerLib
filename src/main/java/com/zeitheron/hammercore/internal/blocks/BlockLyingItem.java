@@ -1,15 +1,12 @@
 package com.zeitheron.hammercore.internal.blocks;
 
-import com.zeitheron.hammercore.api.INoItemBlock;
-import com.zeitheron.hammercore.api.ITileBlock;
+import com.zeitheron.hammercore.api.*;
 import com.zeitheron.hammercore.api.blocks.INoBlockstate;
 import com.zeitheron.hammercore.event.LyingItemPickedUpEvent;
 import com.zeitheron.hammercore.internal.init.BlocksHC;
 import com.zeitheron.hammercore.tile.TileLyingItem;
-import com.zeitheron.hammercore.utils.WorldUtil;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.ITileEntityProvider;
+import com.zeitheron.hammercore.utils.base.Cast;
+import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
@@ -18,14 +15,9 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumBlockRenderType;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
+import net.minecraft.util.*;
+import net.minecraft.util.math.*;
+import net.minecraft.world.*;
 import net.minecraftforge.common.MinecraftForge;
 
 public class BlockLyingItem extends Block implements ITileEntityProvider, ITileBlock<TileLyingItem>, INoItemBlock, INoBlockstate
@@ -39,7 +31,7 @@ public class BlockLyingItem extends Block implements ITileEntityProvider, ITileB
 	@Override
 	public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player)
 	{
-		TileLyingItem item = WorldUtil.cast(world.getTileEntity(pos), TileLyingItem.class);
+		TileLyingItem item = Cast.cast(world.getTileEntity(pos), TileLyingItem.class);
 		return item != null ? item.lying.get().copy() : ItemStack.EMPTY;
 	}
 	
@@ -48,7 +40,7 @@ public class BlockLyingItem extends Block implements ITileEntityProvider, ITileB
 		if(world.isBlockLoaded(pos) && world.getBlockState(pos).getBlock().isReplaceable(world, pos))
 		{
 			world.setBlockState(pos, BlocksHC.LYING_ITEM.getDefaultState());
-			TileLyingItem tile = WorldUtil.cast(world.getTileEntity(pos), TileLyingItem.class);
+			TileLyingItem tile = Cast.cast(world.getTileEntity(pos), TileLyingItem.class);
 			if(tile == null)
 				world.setTileEntity(pos, tile = new TileLyingItem());
 			tile.lying.set(stack.copy());
@@ -70,7 +62,7 @@ public class BlockLyingItem extends Block implements ITileEntityProvider, ITileB
 	{
 		if(entityIn instanceof EntityPlayer)
 		{
-			TileLyingItem tile = WorldUtil.cast(worldIn.getTileEntity(pos), TileLyingItem.class);
+			TileLyingItem tile = Cast.cast(worldIn.getTileEntity(pos), TileLyingItem.class);
 			if(tile != null)
 			{
 				try

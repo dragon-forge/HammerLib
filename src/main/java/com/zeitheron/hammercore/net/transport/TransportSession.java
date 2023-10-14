@@ -157,7 +157,7 @@ public class TransportSession
 		{
 			try
 			{
-				readThread.join(1000L); // let's not lock the current thread for longer than 1 second, please?
+				readThread.join(acp.getReadWaitTimeout()); // let's not lock the current thread for longer than 1 second, please?
 			} catch(InterruptedException e)
 			{
 				e.printStackTrace();
@@ -181,8 +181,7 @@ public class TransportSession
 	public static TransportSession genCopy(TransportSession session)
 	{
 		List<byte[]> matrix = new ArrayList<>(session.pending);
-		for(int i = 0; i < matrix.size(); ++i)
-			matrix.set(i, matrix.get(i).clone());
+		matrix.replaceAll(byte[]::clone);
 		return new TransportSession(UUID.randomUUID().toString(), session.acceptor, matrix, null, session.length);
 	}
 }

@@ -3,36 +3,27 @@ package com.zeitheron.hammercore.event.vanilla;
 import com.zeitheron.hammercore.event.WrenchEvent;
 import com.zeitheron.hammercore.internal.blocks.IWitherProofBlock;
 import com.zeitheron.hammercore.net.HCNet;
-import com.zeitheron.hammercore.tile.ITileDroppable;
-import com.zeitheron.hammercore.tile.IVoxelShapeTile;
-import com.zeitheron.hammercore.tile.TileSyncable;
-import com.zeitheron.hammercore.utils.AABBUtils;
-import com.zeitheron.hammercore.utils.WorldLocation;
-import com.zeitheron.hammercore.utils.WorldUtil;
-import com.zeitheron.hammercore.utils.wrench.IWrenchItem;
-import com.zeitheron.hammercore.utils.wrench.IWrenchable;
-import net.minecraft.block.Block;
-import net.minecraft.block.ITileEntityProvider;
+import com.zeitheron.hammercore.tile.*;
+import com.zeitheron.hammercore.utils.*;
+import com.zeitheron.hammercore.utils.base.Cast;
+import com.zeitheron.hammercore.utils.wrench.*;
+import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.boss.EntityWither;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.*;
 import net.minecraft.world.Explosion;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingDestroyBlockEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.world.BlockEvent;
-import net.minecraftforge.event.world.ExplosionEvent;
+import net.minecraftforge.event.world.*;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.common.eventhandler.*;
+import net.minecraftforge.fml.relauncher.*;
 
 import java.util.List;
 
@@ -57,7 +48,7 @@ public class TileHandler
 
 		if(player != null && !player.getHeldItem(evt.getHand()).isEmpty())
 		{
-			IWrenchItem item = WorldUtil.cast(player.getHeldItem(evt.getHand()).getItem(), IWrenchItem.class);
+			IWrenchItem item = Cast.cast(player.getHeldItem(evt.getHand()).getItem(), IWrenchItem.class);
 			if(item != null && item.canWrench(player.getHeldItem(evt.getHand())))
 			{
 				MinecraftForge.EVENT_BUS.post(new WrenchEvent(player, evt.getPos(), evt.getHand(), evt.getFace()));

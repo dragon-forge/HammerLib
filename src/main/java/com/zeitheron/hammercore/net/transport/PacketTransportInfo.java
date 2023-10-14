@@ -10,7 +10,7 @@ public class PacketTransportInfo implements IPacket
 {
 	static
 	{
-		IPacket.handle(PacketTransportInfo.class, () -> new PacketTransportInfo(null, null, 0));
+		IPacket.handle(PacketTransportInfo.class, PacketTransportInfo::new);
 	}
 	
 	public String id;
@@ -22,6 +22,10 @@ public class PacketTransportInfo implements IPacket
 		this.id = id;
 		this.clas = clas;
 		this.length = size;
+	}
+	
+	public PacketTransportInfo()
+	{
 	}
 	
 	@Override

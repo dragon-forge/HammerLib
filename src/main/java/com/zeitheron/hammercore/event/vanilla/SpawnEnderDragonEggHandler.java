@@ -5,7 +5,7 @@ import com.zeitheron.hammercore.HammerCore.HCAuthor;
 import com.zeitheron.hammercore.api.IProcess;
 import com.zeitheron.hammercore.cfg.HammerCoreConfigs;
 import com.zeitheron.hammercore.utils.HolidayTrigger;
-import com.zeitheron.hammercore.utils.WorldUtil;
+import com.zeitheron.hammercore.utils.base.Cast;
 import net.minecraft.entity.boss.EntityDragon;
 import net.minecraft.init.Blocks;
 import net.minecraft.server.MinecraftServer;
@@ -23,7 +23,7 @@ public class SpawnEnderDragonEggHandler
 	@SubscribeEvent
 	public static void dragonDieEvent(LivingDeathEvent evt)
 	{
-		EntityDragon dragon = WorldUtil.cast(evt.getEntityLiving(), EntityDragon.class);
+		EntityDragon dragon = Cast.cast(evt.getEntityLiving(), EntityDragon.class);
 
 		dde:
 		if(dragon != null && !dragon.world.isRemote)

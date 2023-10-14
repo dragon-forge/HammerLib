@@ -1,19 +1,17 @@
 package com.zeitheron.hammercore.net.internal;
 
-import com.zeitheron.hammercore.net.IPacket;
-import com.zeitheron.hammercore.net.MainThreaded;
-import com.zeitheron.hammercore.net.PacketContext;
+import com.zeitheron.hammercore.net.*;
 import com.zeitheron.hammercore.tile.TileSyncable;
-import com.zeitheron.hammercore.utils.WritablePos;
-import com.zeitheron.hammercore.utils.WorldUtil;
-
+import com.zeitheron.hammercore.utils.*;
+import com.zeitheron.hammercore.utils.base.Cast;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 
 @MainThreaded
-public class PacketSyncSyncableTile implements IPacket
+public class PacketSyncSyncableTile
+		implements IPacket
 {
 	private String pos;
 	private int world;
@@ -59,10 +57,9 @@ public class PacketSyncSyncableTile implements IPacket
 	{
 		World world = WorldUtil.getWorld(net, this.world);
 		BlockPos pos = WritablePos.fromStr(this.pos);
-		if(world != null && world.isAreaLoaded(pos, pos) /* prevent
-		                                                  * crashing... */)
+		if(world != null && world.isAreaLoaded(pos, pos) /* prevent crashing... */)
 		{
-			TileSyncable sync = WorldUtil.cast(world.getTileEntity(pos), TileSyncable.class);
+			TileSyncable sync = Cast.cast(world.getTileEntity(pos), TileSyncable.class);
 			
 			// try to recreate tile if we can
 			// @since 1.5.3

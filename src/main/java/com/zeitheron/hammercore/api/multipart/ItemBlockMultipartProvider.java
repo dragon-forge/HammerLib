@@ -1,24 +1,18 @@
 package com.zeitheron.hammercore.api.multipart;
 
-import java.util.List;
-
 import com.zeitheron.hammercore.internal.blocks.multipart.TileMultipart;
-import com.zeitheron.hammercore.utils.WorldUtil;
-
+import com.zeitheron.hammercore.utils.base.Cast;
 import net.minecraft.block.SoundType;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import net.minecraft.entity.player.*;
+import net.minecraft.item.*;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.play.server.SPacketSoundEffect;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.SoundCategory;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+
+import java.util.List;
 
 /**
  * ItemBlock for {@link BlockMultipartProvider}.
@@ -43,10 +37,10 @@ public class ItemBlockMultipartProvider extends Item
 	@Override
 	public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
 	{
-		if(WorldUtil.cast(worldIn.getTileEntity(pos), TileMultipart.class) == null && !worldIn.getBlockState(pos).getBlock().isReplaceable(worldIn, pos))
+		if(Cast.cast(worldIn.getTileEntity(pos), TileMultipart.class) == null && !worldIn.getBlockState(pos).getBlock().isReplaceable(worldIn, pos))
 			pos = pos.offset(facing);
 		
-		if(WorldUtil.cast(worldIn.getTileEntity(pos), TileMultipart.class) == null && !worldIn.getBlockState(pos).getBlock().isReplaceable(worldIn, pos))
+		if(Cast.cast(worldIn.getTileEntity(pos), TileMultipart.class) == null && !worldIn.getBlockState(pos).getBlock().isReplaceable(worldIn, pos))
 			return EnumActionResult.FAIL;
 		TileMultipart tmp = MultipartAPI.getOrPlaceMultipart(worldIn, pos);
 		
@@ -59,7 +53,7 @@ public class ItemBlockMultipartProvider extends Item
 			if(!tmp.canPlace(s) || !provider.canPlaceInto(tmp, itemstack, player, worldIn, pos, facing, hitX, hitY, hitZ))
 			{
 				pos = pos.offset(facing);
-				if(WorldUtil.cast(worldIn.getTileEntity(pos), TileMultipart.class) == null && !worldIn.getBlockState(pos).getBlock().isReplaceable(worldIn, pos))
+				if(Cast.cast(worldIn.getTileEntity(pos), TileMultipart.class) == null && !worldIn.getBlockState(pos).getBlock().isReplaceable(worldIn, pos))
 					return EnumActionResult.FAIL;
 				tmp = MultipartAPI.getOrPlaceMultipart(worldIn, pos);
 			}

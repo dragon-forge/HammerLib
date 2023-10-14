@@ -1,21 +1,17 @@
 package com.zeitheron.hammercore.client.render.world;
 
-import javax.vecmath.Vector3f;
-
-import com.zeitheron.hammercore.utils.WorldUtil;
 import com.zeitheron.hammercore.utils.XYZMap;
-
+import com.zeitheron.hammercore.utils.base.Cast;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Biomes;
-import net.minecraft.init.Blocks;
+import net.minecraft.init.*;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.WorldType;
+import net.minecraft.world.*;
 import net.minecraft.world.biome.Biome;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.*;
+
+import javax.vecmath.Vector3f;
 
 public class VirtualWorld implements IBlockAccess
 {
@@ -162,7 +158,7 @@ public class VirtualWorld implements IBlockAccess
 	@SideOnly(Side.CLIENT)
 	public VirtualWorldRender getRender()
 	{
-		VirtualWorldRender vwr = WorldUtil.cast(render, VirtualWorldRender.class);
+		VirtualWorldRender vwr = Cast.cast(render, VirtualWorldRender.class);
 		if(vwr == null)
 			render = vwr = new VirtualWorldRender(this);
 		return vwr;

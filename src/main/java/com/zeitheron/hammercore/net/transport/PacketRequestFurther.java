@@ -11,7 +11,7 @@ public class PacketRequestFurther implements IPacket
 {
 	static
 	{
-		HCNet.INSTANCE.handle(PacketRequestFurther.class, () -> new PacketRequestFurther(null, false));
+		HCNet.INSTANCE.handle(PacketRequestFurther.class, PacketRequestFurther::new);
 	}
 	
 	public String id;
@@ -21,6 +21,10 @@ public class PacketRequestFurther implements IPacket
 	{
 		this.state = state;
 		this.id = id;
+	}
+	
+	public PacketRequestFurther()
+	{
 	}
 	
 	@Override

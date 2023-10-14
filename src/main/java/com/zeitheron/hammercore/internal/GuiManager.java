@@ -1,20 +1,18 @@
 package com.zeitheron.hammercore.internal;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.zeitheron.hammercore.HammerCore;
 import com.zeitheron.hammercore.client.gui.IGuiCallback;
 import com.zeitheron.hammercore.tile.TileSyncable;
 import com.zeitheron.hammercore.utils.WorldLocation;
-import com.zeitheron.hammercore.utils.WorldUtil;
-
+import com.zeitheron.hammercore.utils.base.Cast;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.IGuiHandler;
 import net.minecraftforge.fml.common.network.internal.FMLNetworkHandler;
+
+import java.util.*;
 
 public class GuiManager implements IGuiHandler
 {
@@ -27,7 +25,7 @@ public class GuiManager implements IGuiHandler
 		if(ID == 0)
 		{
 			TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
-			TileSyncable syncable = WorldUtil.cast(te, TileSyncable.class);
+			TileSyncable syncable = Cast.cast(te, TileSyncable.class);
 			
 			if(syncable != null)
 				return syncable.getServerGuiElement(player);
@@ -49,7 +47,7 @@ public class GuiManager implements IGuiHandler
 		if(ID == 0)
 		{
 			TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
-			TileSyncable syncable = WorldUtil.cast(te, TileSyncable.class);
+			TileSyncable syncable = Cast.cast(te, TileSyncable.class);
 			
 			if(syncable != null)
 				return syncable.getClientGuiElement(player);

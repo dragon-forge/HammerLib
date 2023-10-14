@@ -11,7 +11,7 @@ public class PacketTransport implements IPacket
 {
 	static
 	{
-		IPacket.handle(PacketTransport.class, () -> new PacketTransport(null, null));
+		IPacket.handle(PacketTransport.class, PacketTransport::new);
 	}
 	
 	public String id;
@@ -21,6 +21,10 @@ public class PacketTransport implements IPacket
 	{
 		this.id = id;
 		this.data = data;
+	}
+	
+	public PacketTransport()
+	{
 	}
 	
 	@Override

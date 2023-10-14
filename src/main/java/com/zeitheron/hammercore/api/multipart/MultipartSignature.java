@@ -1,39 +1,28 @@
 package com.zeitheron.hammercore.api.multipart;
 
-import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.zeitheron.hammercore.HammerCore;
 import com.zeitheron.hammercore.api.handlers.IHandlerProvider;
 import com.zeitheron.hammercore.client.particle.ParticleDiggingState;
 import com.zeitheron.hammercore.internal.blocks.multipart.TileMultipart;
-import com.zeitheron.hammercore.net.props.IPropertyChangeHandler;
-import com.zeitheron.hammercore.net.props.NetPropertyAbstract;
+import com.zeitheron.hammercore.net.props.*;
 import com.zeitheron.hammercore.proxy.ParticleProxy_Client;
 import com.zeitheron.hammercore.utils.WorldUtil;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.SoundType;
+import com.zeitheron.hammercore.utils.base.Cast;
+import net.minecraft.block.*;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.EnumBlockRenderType;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
+import net.minecraft.nbt.*;
+import net.minecraft.util.*;
+import net.minecraft.util.math.*;
+import net.minecraft.world.*;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.*;
+
+import java.security.SecureRandom;
+import java.util.*;
 
 /**
  * The main part of {@link MultipartAPI} or the "multipart instance". This class
@@ -125,7 +114,7 @@ public abstract class MultipartSignature implements IPropertyChangeHandler
 	{
 		IHandlerProvider provider = owner;
 		if(world != null && world.isBlockLoaded(pos.offset(toFace)))
-			provider = WorldUtil.cast(world, IHandlerProvider.class);
+			provider = Cast.cast(world, IHandlerProvider.class);
 		return provider != null ? provider : owner;
 	}
 	

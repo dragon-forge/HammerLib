@@ -1,31 +1,26 @@
 package com.zeitheron.hammercore.utils;
 
-import javax.annotation.Nullable;
-
 import com.zeitheron.hammercore.HammerCore;
 import com.zeitheron.hammercore.net.HCNet;
 import com.zeitheron.hammercore.net.internal.PacketSetBiome;
 import com.zeitheron.hammercore.tile.TileSyncable;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.SoundType;
+import com.zeitheron.hammercore.utils.base.Cast;
+import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
-import net.minecraft.init.Biomes;
-import net.minecraft.init.Blocks;
+import net.minecraft.init.*;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.EnumSkyBlock;
-import net.minecraft.world.World;
+import net.minecraft.util.*;
+import net.minecraft.util.math.*;
+import net.minecraft.world.*;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
+
+import javax.annotation.Nullable;
 
 public class WorldLocation
 {
@@ -60,14 +55,14 @@ public class WorldLocation
 	
 	public <T extends TileEntity> T getTileOfType(Class<T> tile)
 	{
-		return WorldUtil.cast(getTile(), tile);
+		return Cast.cast(getTile(), tile);
 	}
 	
 	public <T> T getTileOfInterface(Class<T> tile)
 	{
 		if(!tile.isInterface())
 			throw new UnsupportedOperationException(tile.getName() + " is not an interface!");
-		return WorldUtil.cast(getTile(), tile);
+		return Cast.cast(getTile(), tile);
 	}
 	
 	public boolean isLoaded()

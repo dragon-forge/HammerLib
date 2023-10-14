@@ -2,9 +2,8 @@ package com.zeitheron.hammercore.internal.blocks.base;
 
 import com.zeitheron.hammercore.HammerCore;
 import com.zeitheron.hammercore.api.ITileBlock;
-import com.zeitheron.hammercore.utils.WorldUtil;
+import com.zeitheron.hammercore.utils.base.Cast;
 import com.zeitheron.hammercore.utils.inventory.InventoryDummy;
-
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -12,8 +11,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
+import net.minecraft.world.*;
 
 public class BlockTileHC<T extends TileEntity> extends BlockHC implements ITileEntityProvider, ITileBlock<T>
 {
@@ -67,7 +65,7 @@ public class BlockTileHC<T extends TileEntity> extends BlockHC implements ITileE
 	@Override
 	public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
 	{
-		InventoryDummy.drop(WorldUtil.cast(worldIn.getTileEntity(pos), IInventory.class), worldIn, pos);
+		InventoryDummy.drop(Cast.cast(worldIn.getTileEntity(pos), IInventory.class), worldIn, pos);
 		super.breakBlock(worldIn, pos, state);
 		worldIn.removeTileEntity(pos);
 	}

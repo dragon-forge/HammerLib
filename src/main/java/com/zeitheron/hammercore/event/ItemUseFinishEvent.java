@@ -1,10 +1,8 @@
 package com.zeitheron.hammercore.event;
 
-import com.zeitheron.hammercore.utils.WorldUtil;
-
+import com.zeitheron.hammercore.utils.base.Cast;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.event.entity.living.LivingEvent;
 
@@ -35,6 +33,6 @@ public class ItemUseFinishEvent extends LivingEvent
 	
 	public EntityPlayer getEntityPlayer()
 	{
-		return WorldUtil.cast(getEntityLiving(), EntityPlayer.class);
+		return Cast.cast(getEntityLiving(), EntityPlayer.class);
 	}
 }
