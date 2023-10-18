@@ -9,6 +9,7 @@ import com.zeitheron.hammercore.internal.blocks.IItemBlock;
 import com.zeitheron.hammercore.internal.init.ItemsHC;
 import com.zeitheron.hammercore.utils.*;
 import com.zeitheron.hammercore.utils.base.Cast;
+import com.zeitheron.hammercore.utils.forge.*;
 import com.zeitheron.hammercore.utils.java.tuples.*;
 import net.minecraft.block.*;
 import net.minecraft.creativetab.CreativeTabs;
@@ -33,6 +34,7 @@ public class SimpleRegisterKernel
 	protected final ModContainer container;
 	
 	protected Map<Class<?>, List<Tuple2<IForgeRegistryEntry<?>, ResourceLocation>>> fields;
+	protected List<Tuple2<ICustomRegistrar, ResourceLocation>> customRegistrars;
 	
 	protected CreativeTabs assignedTab;
 	protected boolean registeredItems, registeredBlocks;
@@ -42,6 +44,49 @@ public class SimpleRegisterKernel
 		this.className = className;
 		this.container = container;
 		MinecraftForge.EVENT_BUS.register(this);
+	}
+	
+	public List<Tuple2<ICustomRegistrar, ResourceLocation>> getCustomRegistrars()
+	{
+		if(customRegistrars != null) return customRegistrars;
+		customRegistrars = new ArrayList<>();
+		
+		try
+		{
+			Class<?> ownerCls = Class.forName(className);
+			
+			String prefix = "";
+			
+			SimplyRegister sr = ownerCls.getAnnotation(SimplyRegister.class);
+			if(sr != null)
+				prefix = sr.prefix();
+			
+			for(Field f : ownerCls.getDeclaredFields())
+			{
+				if(!ICustomRegistrar.class.isAssignableFrom(f.getType()) || !Modifier.isStatic(f.getModifiers()))
+					continue;
+				if(!SimpleRegistration.doRegister(f))
+				{
+					HammerCore.LOG.debug("Skipped {} since @RegisterIf returned false.", f);
+					continue;
+				}
+				
+				RegistryName key = f.getAnnotation(RegistryName.class);
+				if(key == null) continue; // silence
+				
+				f.setAccessible(true);
+				ICustomRegistrar ctr = Cast.cast(f.get(null), ICustomRegistrar.class);
+				if(ctr == null) continue;
+				
+				ResourceLocation regKey = new ResourceLocation(container.getModId(), prefix + key.value());
+				customRegistrars.add(Tuples.immutable(ctr, regKey));
+			}
+		} catch(Exception e)
+		{
+			HammerCore.LOG.error("Failed to register custom registrars from class {}", className, e);
+		}
+		
+		return customRegistrars;
 	}
 	
 	public Map<Class<?>, List<Tuple2<IForgeRegistryEntry<?>, ResourceLocation>>> getFields()
@@ -108,8 +153,6 @@ public class SimpleRegisterKernel
 		IForgeRegistry<?> reg = evt.getRegistry();
 		Class<? extends IForgeRegistryEntry<?>> base = reg.getRegistrySuperType();
 		List<Tuple2<IForgeRegistryEntry<?>, ResourceLocation>> toRegister = getFields().get(base);
-		if(toRegister == null || toRegister.isEmpty())
-			return;
 		
 		ModContainer old = Loader.instance().activeModContainer();
 		Loader.instance().setActiveModContainer(container);
@@ -125,100 +168,105 @@ public class SimpleRegisterKernel
 		if(blocks) registeredBlocks = true;
 		if(items) registeredItems = true;
 		
-		try
-		{
-			for(Tuple2<IForgeRegistryEntry<?>, ResourceLocation> tup : toRegister)
+		RegisterEvent evtHL = new RegisterEvent(evt);
+		for(Tuple2<ICustomRegistrar, ResourceLocation> registrar : getCustomRegistrars())
+			registrar.a().register(registrar.b(), evtHL);
+		
+		if(toRegister != null)
+			try
 			{
-				IForgeRegistryEntry<?> ctr = tup.a();
-				ResourceLocation regKey = tup.b();
-				ctr.setRegistryName(regKey);
-				
-				if(items)
+				for(Tuple2<IForgeRegistryEntry<?>, ResourceLocation> tup : toRegister)
 				{
-					Cast.optionally(ctr, Item.class).ifPresent(it ->
+					IForgeRegistryEntry<?> ctr = tup.a();
+					ResourceLocation regKey = tup.b();
+					ctr.setRegistryName(regKey);
+					
+					if(items)
 					{
-						it.setTranslationKey(regKey.getNamespace().concat(":").concat(regKey.getPath()));
-						if(assignedTab != null) it.setCreativeTab(assignedTab);
-						ItemsHC.items.add(it);
-					});
-				} else if(blocks)
-				{
-					Cast.optionally(ctr, Block.class).ifPresent(block ->
+						Cast.optionally(ctr, Item.class).ifPresent(it ->
+						{
+							it.setTranslationKey(regKey.getNamespace().concat(":").concat(regKey.getPath()));
+							if(assignedTab != null) it.setCreativeTab(assignedTab);
+							ItemsHC.items.add(it);
+						});
+					} else if(blocks)
 					{
-						block.setTranslationKey(regKey.getNamespace().concat(":").concat(regKey.getPath()));
-						if(assignedTab != null) block.setCreativeTab(assignedTab);
-						
-						// ItemBlockDefinition
-						Item ib;
-						
-						if(block instanceof BlockMultipartProvider)
-							ib = ((BlockMultipartProvider) block).createItem();
-						else if(block instanceof IItemBlock)
-							ib = ((IItemBlock) block).getItemBlock();
-						else
-							ib = new ItemBlock(block);
-						
-						if(!(block instanceof INoItemBlock))
+						Cast.optionally(ctr, Block.class).ifPresent(block ->
 						{
-							if(ib != null)
-							{
-								ForgeRegistries.ITEMS.register(ib.setRegistryName(block.getRegistryName()));
-								if(block instanceof IBlockItemRegisterListener)
-									((IBlockItemRegisterListener) block).onItemBlockRegistered(ib);
-							}
-							if(ib instanceof IRegisterListener)
-								((IRegisterListener) ib).onRegistered();
-						}
-						
-						if(block instanceof INoBlockstate)
-							HammerCore.renderProxy.noModel(block);
-						
-						if(block instanceof ITileBlock)
-						{
-							Class<? extends TileEntity> c = ((ITileBlock) block).getTileClass();
+							block.setTranslationKey(regKey.getNamespace().concat(":").concat(regKey.getPath()));
+							if(assignedTab != null) block.setCreativeTab(assignedTab);
 							
-							// Better registration of tiles. Maybe this will fix tile disappearing?
-							TileEntity.register(modid + ":" + c.getSimpleName().toLowerCase(), c);
-						} else if(block instanceof ITileEntityProvider)
-						{
-							try
+							// ItemBlockDefinition
+							Item ib;
+							
+							if(block instanceof BlockMultipartProvider)
+								ib = ((BlockMultipartProvider) block).createItem();
+							else if(block instanceof IItemBlock)
+								ib = ((IItemBlock) block).getItemBlock();
+							else
+								ib = new ItemBlock(block);
+							
+							if(!(block instanceof INoItemBlock))
 							{
-								ITileEntityProvider te = (ITileEntityProvider) block;
-								TileEntity t = te.createNewTileEntity(null, 0);
-								if(t != null)
+								if(ib != null)
 								{
-									Class<? extends TileEntity> c = t.getClass();
-									TileEntity.register(modid + ":" + c.getSimpleName().toLowerCase(), c);
+									ForgeRegistries.ITEMS.register(ib.setRegistryName(block.getRegistryName()));
+									if(block instanceof IBlockItemRegisterListener)
+										((IBlockItemRegisterListener) block).onItemBlockRegistered(ib);
 								}
-							} catch(Throwable e)
-							{
-								e.printStackTrace();
+								if(ib instanceof IRegisterListener)
+									((IRegisterListener) ib).onRegistered();
 							}
-						}
-						
-						if(!(block instanceof INoItemBlock))
-						{
-							Item i = Item.getItemFromBlock(block);
-							if(i != Items.AIR)
+							
+							if(block instanceof INoBlockstate)
+								HammerCore.renderProxy.noModel(block);
+							
+							if(block instanceof ITileBlock)
 							{
-								ItemsHC.items.add(i);
-								if(assignedTab != null) i.setCreativeTab(assignedTab);
+								Class<? extends TileEntity> c = ((ITileBlock) block).getTileClass();
+								
+								// Better registration of tiles. Maybe this will fix tile disappearing?
+								TileEntity.register(modid + ":" + c.getSimpleName().toLowerCase(), c);
+							} else if(block instanceof ITileEntityProvider)
+							{
+								try
+								{
+									ITileEntityProvider te = (ITileEntityProvider) block;
+									TileEntity t = te.createNewTileEntity(null, 0);
+									if(t != null)
+									{
+										Class<? extends TileEntity> c = t.getClass();
+										TileEntity.register(modid + ":" + c.getSimpleName().toLowerCase(), c);
+									}
+								} catch(Throwable e)
+								{
+									e.printStackTrace();
+								}
 							}
-						}
-					});
+							
+							if(!(block instanceof INoItemBlock))
+							{
+								Item i = Item.getItemFromBlock(block);
+								if(i != Items.AIR)
+								{
+									ItemsHC.items.add(i);
+									if(assignedTab != null) i.setCreativeTab(assignedTab);
+								}
+							}
+						});
+					}
+					
+					reg.register(Cast.cast(ctr));
+					
+					if(ctr instanceof IRegisterListener)
+						((IRegisterListener) ctr).onRegistered();
+					
+					HammerCore.LOG.debug("Registered {}: {} ({})", base.getSimpleName(), ctr, regKey);
 				}
-				
-				reg.register(Cast.cast(ctr));
-				
-				if(ctr instanceof IRegisterListener)
-					((IRegisterListener) ctr).onRegistered();
-				
-				HammerCore.LOG.debug("Registered {}: {} ({})", base.getSimpleName(), ctr, regKey);
+			} catch(Exception e)
+			{
+				HammerCore.LOG.error("Failed to register {} from class {}", base.getSimpleName(), className, e);
 			}
-		} catch(Exception e)
-		{
-			HammerCore.LOG.error("Failed to register {} from class {}", base.getSimpleName(), className, e);
-		}
 		
 		Loader.instance().setActiveModContainer(old);
 	}

@@ -1,8 +1,6 @@
 package com.zeitheron.hammercore.utils;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 import com.zeitheron.hammercore.utils.inventory.InventoryDummy;
 
@@ -108,20 +106,20 @@ public class ItemStackUtil
 	
 	public static boolean tagsEqual(NBTTagCompound a, NBTTagCompound b)
 	{
-		if(a == b)
-			return true;
-		if(a == null || b == null)
-			return false;
+		if(a == b) return true;
+		if(a == null || b == null) return false;
 		return a.equals(b);
 	}
 	
 	public static boolean itemsEqual(ItemStack a, ItemStack b)
 	{
-		if(("" + a).equals("" + b))
+		if(Objects.equals(a, b))
 			return true;
 		if(InterItemStack.isStackNull(a) || InterItemStack.isStackNull(b))
 			return false;
-		return a.getItem() == b.getItem() && a.getItemDamage() == b.getItemDamage() && tagsEqual(a.getTagCompound(), b.getTagCompound());
+		return a.getItem() == b.getItem()
+				&& a.getItemDamage() == b.getItemDamage()
+				&& tagsEqual(a.getTagCompound(), b.getTagCompound());
 	}
 	
 	public static boolean contains(ItemStack[] stacks, ItemStack stack)
@@ -247,7 +245,7 @@ public class ItemStackUtil
 			if(!to.isItemValidForSlot(i, what))
 				continue;
 			ItemStack in = to.getStackInSlot(i);
-			if(in == null)
+			if(in.isEmpty())
 			{
 				to.setInventorySlotContents(i, what);
 				return null;
@@ -272,7 +270,7 @@ public class ItemStackUtil
 			if(!to.canInsertItem(i, what, from) && !to.isItemValidForSlot(i, what))
 				continue;
 			ItemStack in = to.getStackInSlot(i);
-			if(in == null)
+			if(in.isEmpty())
 			{
 				to.setInventorySlotContents(i, what);
 				return null;
