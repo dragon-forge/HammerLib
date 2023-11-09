@@ -15,11 +15,12 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.Side;
 
-public class PacketCHCOpts implements IPacket
+public class PacketCHCOpts
+		implements IPacket
 {
 	static
 	{
-		IPacket.handle(PacketCHCOpts.class, () -> new PacketCHCOpts());
+		IPacket.handle(PacketCHCOpts.class, PacketCHCOpts::new);
 	}
 	
 	public HCClientOptions opts;
@@ -47,15 +48,18 @@ public class PacketCHCOpts implements IPacket
 	public IPacket execute(Side side, PacketContext net)
 	{
 		ServerHCClientPlayerData dat = ServerHCClientPlayerData.DATAS.get(side);
+		
 		if(opts != null)
 		{
 			dat.assign(player, opts);
 			if(dat.side == Side.SERVER)
 			{
 				EntityPlayerMP sender = net.getSender();
-				if(sender != null)
-					HCNet.INSTANCE.sendToAll(new PacketCHCOpts().setOpts(opts).setLPlayer(sender.getGameProfile().getName()));
-				HCNet.INSTANCE.sendToAll(new PacketCHCOpts().setOpts(opts).setLPlayer(player));
+				if(sender != null && (player == null || sender.getGameProfile().getName().equals(player)))
+					sender.server.addScheduledTask(() ->
+							HCNet.INSTANCE.sendToAll(new PacketCHCOpts().setOpts(opts)
+									.setLPlayer(sender.getGameProfile().getName()))
+					);
 			}
 		} else if(player != null && net.server != null)
 		{
@@ -67,6 +71,7 @@ public class PacketCHCOpts implements IPacket
 			if(mp != null)
 				return new PacketCHCOpts().setLPlayer(player).setOpts(dat.getOptionsForPlayer(mp));
 		}
+		
 		return null;
 	}
 	

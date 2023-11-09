@@ -149,7 +149,7 @@ public class HammerCore
 		invalidCertificates.put("hammercore", "https://www.curseforge.com/projects/247401");
 	}
 	
-	private List<SimpleRegisterKernel> kernels;
+	private Map<String, SimpleRegisterKernelForMod> kernels;
 	
 	@EventHandler
 	public void construct(FMLConstructionEvent e)
@@ -169,7 +169,9 @@ public class HammerCore
 	
 	public static void registerKernelsForMod(String modid)
 	{
-		for(SimpleRegisterKernel kernel : instance.kernels)
+		SimpleRegisterKernelForMod coll = instance.kernels.get(modid);
+		if(coll == null) return;
+		for(SimpleRegisterKernel kernel : coll)
 		{
 			if(!kernel.is(modid)) continue;
 			kernel.registerBlocks();

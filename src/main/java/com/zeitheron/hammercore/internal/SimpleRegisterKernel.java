@@ -21,7 +21,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.*;
 import net.minecraftforge.fml.common.discovery.ASMDataTable;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.registries.*;
 
@@ -31,7 +30,7 @@ import java.util.*;
 public class SimpleRegisterKernel
 {
 	protected final String className;
-	protected final ModContainer container;
+	protected final SimpleRegisterKernelForMod container;
 	
 	protected Map<Class<?>, List<Tuple2<IForgeRegistryEntry<?>, ResourceLocation>>> fields;
 	protected List<Tuple2<ICustomRegistrar, ResourceLocation>> customRegistrars;
@@ -39,11 +38,10 @@ public class SimpleRegisterKernel
 	protected CreativeTabs assignedTab;
 	protected boolean registeredItems, registeredBlocks;
 	
-	public SimpleRegisterKernel(String className, ModContainer container)
+	public SimpleRegisterKernel(String className, SimpleRegisterKernelForMod container)
 	{
 		this.className = className;
 		this.container = container;
-		MinecraftForge.EVENT_BUS.register(this);
 	}
 	
 	public String className()
@@ -152,16 +150,11 @@ public class SimpleRegisterKernel
 		register(new RegistryEvent.Register<>(GameData.BLOCKS, ForgeRegistries.BLOCKS));
 	}
 	
-	@SubscribeEvent
 	protected void register(RegistryEvent.Register evt)
 	{
 		IForgeRegistry<?> reg = evt.getRegistry();
 		Class<? extends IForgeRegistryEntry<?>> base = reg.getRegistrySuperType();
 		List<Tuple2<IForgeRegistryEntry<?>, ResourceLocation>> toRegister = getFields().get(base);
-		
-		ModContainer old = Loader.instance().activeModContainer();
-		Loader.instance().setActiveModContainer(container);
-		evt.setModContainer(container);
 		
 		boolean blocks = base.equals(Block.class);
 		boolean items = base.equals(Item.class);
@@ -280,13 +273,12 @@ public class SimpleRegisterKernel
 			{
 				HammerCore.LOG.error("Failed to register {} from class {}", base.getSimpleName(), className, e);
 			}
-		
-		Loader.instance().setActiveModContainer(old);
 	}
 	
-	public static List<SimpleRegisterKernel> doScan(ASMDataTable table)
+	public static Map<String, SimpleRegisterKernelForMod> doScan(ASMDataTable table)
 	{
-		List<SimpleRegisterKernel> kernels = new ArrayList<>();
+		Map<String, SimpleRegisterKernelForMod> kernels = new HashMap<>();
+		
 		for(ASMDataTable.ASMData data : table.getAll(SimplyRegister.class.getCanonicalName()))
 		{
 			ModContainer mod = data.getCandidate().getContainedMods().stream().findFirst().orElse(null);
@@ -296,10 +288,14 @@ public class SimpleRegisterKernel
 				continue;
 			}
 			
-			kernels.add(new SimpleRegisterKernel(data.getClassName(), mod));
+			SimpleRegisterKernelForMod coll = kernels.computeIfAbsent(mod.getModId(), __ -> new SimpleRegisterKernelForMod(mod));
+			coll.add(new SimpleRegisterKernel(data.getClassName(), coll));
 			HammerCore.LOG.info("Applied @SimplyRegister to {}, which belongs to {} ({})", data.getClassName(), mod.getModId(), mod.getName());
 		}
-		kernels.sort(Comparator.comparing(SimpleRegisterKernel::className));
+		
+		for(SimpleRegisterKernelForMod kernelCollection : kernels.values())
+			kernelCollection.sort(Comparator.comparing(SimpleRegisterKernel::className));
+		
 		return kernels;
 	}
 	
