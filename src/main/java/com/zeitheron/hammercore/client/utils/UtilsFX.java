@@ -76,19 +76,12 @@ public class UtilsFX
 	
 	public static void bindTexture(ResourceLocation loca)
 	{
-		bindTexture(loca.getNamespace(), loca.getPath());
+		Minecraft.getMinecraft().getTextureManager().bindTexture(loca);
 	}
 	
 	public static void bindTexture(String dom, String tex)
 	{
-		if(textures.containsKey(dom + ":" + tex))
-		{
-			Minecraft.getMinecraft().getTextureManager().bindTexture(textures.get(dom + ":" + tex));
-			return;
-		}
-		ResourceLocation value = new ResourceLocation(dom, tex);
-		textures.put(dom + ":" + tex, value);
-		Minecraft.getMinecraft().getTextureManager().bindTexture(value);
+		Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation(dom, tex));
 	}
 	
 	public static void drawTexturedQuadFull(int par1, int par2, double zLevel)

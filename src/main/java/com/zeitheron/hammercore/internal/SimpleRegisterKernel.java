@@ -46,6 +46,11 @@ public class SimpleRegisterKernel
 		MinecraftForge.EVENT_BUS.register(this);
 	}
 	
+	public String className()
+	{
+		return className;
+	}
+	
 	public List<Tuple2<ICustomRegistrar, ResourceLocation>> getCustomRegistrars()
 	{
 		if(customRegistrars != null) return customRegistrars;
@@ -215,7 +220,11 @@ public class SimpleRegisterKernel
 										((IBlockItemRegisterListener) block).onItemBlockRegistered(ib);
 								}
 								if(ib instanceof IRegisterListener)
-									((IRegisterListener) ib).onRegistered();
+								{
+									IRegisterListener rl = (IRegisterListener) ib;
+									rl.onRegistered();
+									RegisterHook.HookCollector.propagate(rl);
+								}
 							}
 							
 							if(block instanceof INoBlockstate)
@@ -259,7 +268,11 @@ public class SimpleRegisterKernel
 					reg.register(Cast.cast(ctr));
 					
 					if(ctr instanceof IRegisterListener)
-						((IRegisterListener) ctr).onRegistered();
+					{
+						IRegisterListener rl = (IRegisterListener) ctr;
+						rl.onRegistered();
+						RegisterHook.HookCollector.propagate(rl);
+					}
 					
 					HammerCore.LOG.debug("Registered {}: {} ({})", base.getSimpleName(), ctr, regKey);
 				}
@@ -286,6 +299,7 @@ public class SimpleRegisterKernel
 			kernels.add(new SimpleRegisterKernel(data.getClassName(), mod));
 			HammerCore.LOG.info("Applied @SimplyRegister to {}, which belongs to {} ({})", data.getClassName(), mod.getModId(), mod.getName());
 		}
+		kernels.sort(Comparator.comparing(SimpleRegisterKernel::className));
 		return kernels;
 	}
 	

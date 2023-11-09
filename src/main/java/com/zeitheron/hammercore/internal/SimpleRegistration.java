@@ -13,6 +13,7 @@ import com.zeitheron.hammercore.internal.init.ItemsHC;
 import com.zeitheron.hammercore.utils.IRegisterListener;
 import com.zeitheron.hammercore.utils.ReflectionUtil;
 import com.zeitheron.hammercore.utils.SoundObject;
+import com.zeitheron.hammercore.utils.forge.RegisterHook;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.creativetab.CreativeTabs;
@@ -307,7 +308,11 @@ public class SimpleRegistration
 			item.setCreativeTab(tab);
 		ForgeRegistries.ITEMS.register(item);
 		if(item instanceof IRegisterListener)
-			((IRegisterListener) item).onRegistered();
+		{
+			IRegisterListener rl = (IRegisterListener) item;
+			rl.onRegistered();
+			RegisterHook.HookCollector.propagate(rl);
+		}
 		ItemsHC.items.add(item);
 	}
 	
@@ -335,13 +340,21 @@ public class SimpleRegistration
 		{
 			ForgeRegistries.ITEMS.register(ib.setRegistryName(block.getRegistryName()));
 			if(ib instanceof IRegisterListener)
-				((IRegisterListener) ib).onRegistered();
+			{
+				IRegisterListener rl = (IRegisterListener) ib;
+				rl.onRegistered();
+				RegisterHook.HookCollector.propagate(rl);
+			}
 			if(block instanceof IBlockItemRegisterListener)
 				((IBlockItemRegisterListener) block).onItemBlockRegistered(ib);
 		}
 		
 		if(block instanceof IRegisterListener)
-			((IRegisterListener) block).onRegistered();
+		{
+			IRegisterListener rl = (IRegisterListener) block;
+			rl.onRegistered();
+			RegisterHook.HookCollector.propagate(rl);
+		}
 		
 		if(block instanceof INoBlockstate)
 			HammerCore.renderProxy.noModel(block);
@@ -369,7 +382,11 @@ public class SimpleRegistration
 		{
 			Item i = Item.getItemFromBlock(block);
 			if(i instanceof IRegisterListener)
-				((IRegisterListener) i).onRegistered();
+			{
+				IRegisterListener rl = (IRegisterListener) i;
+				rl.onRegistered();
+				RegisterHook.HookCollector.propagate(rl);
+			}
 			if(i != null)
 				ItemsHC.items.add(i);
 		}
