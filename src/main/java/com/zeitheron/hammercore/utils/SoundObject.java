@@ -36,14 +36,14 @@ public class SoundObject
 		this(new ResourceLocation(modid, path));
 	}
 	
-	public void playAt(WorldLocation location, float volume, float pitch, SoundCategory category)
-	{
-		HammerCore.audioProxy.playSoundAt(location.getWorld(), name.toString(), location.getPos(), volume, pitch, category);
-	}
-	
 	public Targeted targeted(EntityPlayerMP towards)
 	{
 		return new Targeted(towards);
+	}
+	
+	public void playAt(WorldLocation location, float volume, float pitch, SoundCategory category)
+	{
+		HammerCore.audioProxy.playSoundAt(location.getWorld(), name.toString(), location.getPos(), volume, pitch, category);
 	}
 	
 	public void playAsPlayer(Entity player, float volume, float pitch)
@@ -84,13 +84,13 @@ public class SoundObject
 		
 		public void playAsPlayer(Entity player, float volume, float pitch)
 		{
-			target.connection.sendPacket(new SPacketCustomSound(sound.getSoundName()
+			target.connection.sendPacket(new SPacketCustomSound(name
 					.toString(), SoundCategory.PLAYERS, player.posX, player.posY, player.posZ, volume, pitch));
 		}
 		
 		public void playAsMob(Entity ent, float volume, float pitch)
 		{
-			target.connection.sendPacket(new SPacketCustomSound(sound.getSoundName().toString(),
+			target.connection.sendPacket(new SPacketCustomSound(name.toString(),
 					ent instanceof IMob ? SoundCategory.HOSTILE : SoundCategory.NEUTRAL,
 					ent.posX, ent.posY, ent.posZ,
 					volume, pitch
@@ -104,14 +104,14 @@ public class SoundObject
 		
 		public void play(BlockPos pos, float volume, float pitch, SoundCategory category)
 		{
-			target.connection.sendPacket(new SPacketCustomSound(sound.getSoundName().toString(), category,
+			target.connection.sendPacket(new SPacketCustomSound(name.toString(), category,
 					pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, volume, pitch
 			));
 		}
 		
 		public void play(Vec3d pos, float volume, float pitch, SoundCategory category)
 		{
-			target.connection.sendPacket(new SPacketCustomSound(sound.getSoundName().toString(), category,
+			target.connection.sendPacket(new SPacketCustomSound(name.toString(), category,
 					pos.x, pos.y, pos.z, volume, pitch
 			));
 		}
