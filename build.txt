@@ -1,7 +1,7 @@
 forge_version=1.12.2-14.23.5.2847
 mappings=stable_39
 minecraft_version=1.12.2
-mod_version=12.2.43
+mod_version=12.2.45
 mod_name=HammerLib
 release_type=release
 jei_version=4.11.0.206

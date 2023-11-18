@@ -83,7 +83,7 @@ public abstract class TESR<T extends TileEntity> extends TileEntitySpecialRender
 	}
 	
 	@Override
-	public final void render(T te, double x, double y, double z, float partialTicks, int destroyStage, float alpha)
+	public void render(T te, double x, double y, double z, float partialTicks, int destroyStage, float alpha)
 	{
 		try
 		{
@@ -107,7 +107,7 @@ public abstract class TESR<T extends TileEntity> extends TileEntitySpecialRender
 	}
 	
 	@Override
-	public final void renderTileEntityFast(T te, double x, double y, double z, float partialTicks, int destroyStage, float partial, BufferBuilder buffer)
+	public void renderTileEntityFast(T te, double x, double y, double z, float partialTicks, int destroyStage, float partial, BufferBuilder buffer)
 	{
 		ResourceLocation destroy = null;
 		RayTraceResult over = mc.objectMouseOver;

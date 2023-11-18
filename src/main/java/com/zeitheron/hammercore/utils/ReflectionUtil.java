@@ -1,9 +1,13 @@
 package com.zeitheron.hammercore.utils;
 
-import javax.annotation.Nullable;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import com.google.common.collect.Lists;
+import com.zeitheron.hammercore.HammerCore;
+import com.zeitheron.hammercore.utils.base.Cast;
+import org.objectweb.asm.Type;
+
+import javax.annotation.*;
+import java.lang.reflect.*;
+import java.util.List;
 
 public class ReflectionUtil
 {
@@ -11,6 +15,64 @@ public class ReflectionUtil
 	private static Object reflectionFactory;
 	private static Method newFieldAccessor;
 	private static Method fieldAccessorSet;
+	
+	/**
+	 * Examples: For List< String> returns [Type(String)]
+	 */
+	public static java.lang.reflect.Type[] getTypeArgs(java.lang.reflect.Type type)
+	{
+		if(type instanceof ParameterizedType)
+		{
+			ParameterizedType pt = (ParameterizedType) type;
+			return pt.getActualTypeArguments();
+		}
+		return new java.lang.reflect.Type[0];
+	}
+	
+	public static Class<?> fetchClassAny(Type type)
+	{
+		return fetchClass(type.getSort() < Type.ARRAY ? type.getClassName() : type.getInternalName().replace('/', '.'));
+	}
+	
+	public static <T> Class<T> fetchClass(Type type)
+	{
+		return fetchClass(type.getSort() < Type.ARRAY ? type.getClassName() : type.getInternalName().replace('/', '.'));
+	}
+	
+	public static <T> Class<T> fetchClass(String name)
+	{
+		try
+		{
+			return Cast.cast(Class.forName(name));
+		} catch(ClassNotFoundException ignored)
+		{
+		} catch(RuntimeException e)
+		{
+			if(e.getMessage().contains("invalid dist"))
+			{
+				HammerCore.LOG.warn("Attempted to load class from invalid dist: " + name, e);
+			}
+		}
+		return null;
+	}
+	
+	public static Iterable<Field> getFieldsUpTo(@Nonnull Class<?> startClass,
+												@Nullable Class<?> exclusiveParent)
+	{
+		
+		List<Field> currentClassFields = Lists.newArrayList(startClass.getDeclaredFields());
+		Class<?> parentClass = startClass.getSuperclass();
+		
+		if(parentClass != null &&
+				(exclusiveParent == null || !(parentClass.equals(exclusiveParent))))
+		{
+			List<Field> parentClassFields =
+					(List<Field>) getFieldsUpTo(parentClass, exclusiveParent);
+			currentClassFields.addAll(parentClassFields);
+		}
+		
+		return currentClassFields;
+	}
 	
 	public static boolean setStaticFinalField(Class<?> cls, String var, Object val)
 	{
@@ -38,7 +100,8 @@ public class ReflectionUtil
 		return false;
 	}
 	
-	public static boolean setFinalField(Field f, @Nullable Object instance, Object thing) throws ReflectiveOperationException
+	public static boolean setFinalField(Field f, @Nullable Object instance, Object thing)
+			throws ReflectiveOperationException
 	{
 		if(f == null) return false;
 		if(Modifier.isFinal(f.getModifiers()))
@@ -54,7 +117,8 @@ public class ReflectionUtil
 		}
 	}
 	
-	private static Field makeWritable(Field f) throws ReflectiveOperationException
+	private static Field makeWritable(Field f)
+			throws ReflectiveOperationException
 	{
 		f.setAccessible(true);
 		if(modifiersField == null)

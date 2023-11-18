@@ -12,8 +12,15 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
 
+import java.util.function.Supplier;
+
 public class ParticleProxy_Common
 {
+	public Object sidedExecute(Supplier<Supplier<Object>> server, Supplier<Supplier<Object>> client)
+	{
+		return server.get().get();
+	}
+	
 	public void startProcess(IProcess proc)
 	{
 		if(proc != null && !HammerCore.updatables.contains(proc))
@@ -90,23 +97,23 @@ public class ParticleProxy_Common
 	
 	/**
 	 * Creates a new thunder FX using default fractal.
-	 * 
+	 *
 	 * @param world
-	 *            The world
+	 * 		The world
 	 * @param start
-	 *            The start
+	 * 		The start
 	 * @param end
-	 *            The end
+	 * 		The end
 	 * @param seed
-	 *            The seed
+	 * 		The seed
 	 * @param age
-	 *            The age
+	 * 		The age
 	 * @param fractMod
-	 *            The fractal modifier
+	 * 		The fractal modifier
 	 * @param core
-	 *            The core layer
+	 * 		The core layer
 	 * @param aura
-	 *            The aura layer
+	 * 		The aura layer
 	 */
 	public void spawnSimpleThunder(World world, Vec3d start, Vec3d end, long seed, int age, float fractMod, Thunder.Layer core, Thunder.Layer aura)
 	{

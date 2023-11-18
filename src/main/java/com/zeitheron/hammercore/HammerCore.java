@@ -3,6 +3,7 @@ package com.zeitheron.hammercore;
 import com.zeitheron.hammercore.annotations.MCFBus;
 import com.zeitheron.hammercore.api.*;
 import com.zeitheron.hammercore.api.GameRules.*;
+import com.zeitheron.hammercore.api.io.NBTSerializationHelper;
 import com.zeitheron.hammercore.api.mhb.*;
 import com.zeitheron.hammercore.cfg.*;
 import com.zeitheron.hammercore.cfg.tickslip.TickSlipConfig;
@@ -30,7 +31,6 @@ import net.minecraft.entity.player.*;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.brewing.BrewingRecipeRegistry;
@@ -60,7 +60,7 @@ import java.util.function.Supplier;
 /**
  * The core of Hammer Core. <br>
  **/
-@Mod(modid = "hammercore", version = "@VERSION@", name = "HammerLib", guiFactory = "com.zeitheron.hammercore.cfg.gui.GuiConfigFactory", certificateFingerprint = HammerCore.CERTIFICATE_FINGERPRINT, updateJSON = "https://api.modrinth.com/updates/PlkSuVtM/forge_updates.json")
+@Mod(modid = HLConstants.MODID, version = "@VERSION@", name = "HammerLib", guiFactory = "com.zeitheron.hammercore.cfg.gui.GuiConfigFactory", certificateFingerprint = HammerCore.CERTIFICATE_FINGERPRINT, updateJSON = "https://api.modrinth.com/updates/PlkSuVtM/forge_updates.json")
 public class HammerCore
 {
 	public static final String CERTIFICATE_FINGERPRINT = "9f5e2a811a8332a842b34f6967b7db0ac4f24856";
@@ -76,7 +76,7 @@ public class HammerCore
 	 * Render proxy for HC used to handle complicated rendering codes in a
 	 * simple way.
 	 */
-	@SidedProxy(modId = "hammercore", clientSide = "com.zeitheron.hammercore.proxy.RenderProxy_Client", serverSide = "com.zeitheron.hammercore.proxy.RenderProxy_Common")
+	@SidedProxy(modId = HLConstants.MODID, clientSide = "com.zeitheron.hammercore.proxy.RenderProxy_Client", serverSide = "com.zeitheron.hammercore.proxy.RenderProxy_Common")
 	public static RenderProxy_Common renderProxy;
 	
 	// /**
@@ -87,34 +87,34 @@ public class HammerCore
 	/**
 	 * Audio proxy for HC used to interact with audio in any way
 	 */
-	@SidedProxy(modId = "hammercore", clientSide = "com.zeitheron.hammercore.proxy.AudioProxy_Client", serverSide = "com.zeitheron.hammercore.proxy.AudioProxy_Common")
+	@SidedProxy(modId = HLConstants.MODID, clientSide = "com.zeitheron.hammercore.proxy.AudioProxy_Client", serverSide = "com.zeitheron.hammercore.proxy.AudioProxy_Common")
 	public static AudioProxy_Common audioProxy;
 	
 	/**
 	 * Particle proxy for HC used to interact with particles from both sides.
 	 */
-	@SidedProxy(modId = "hammercore", clientSide = "com.zeitheron.hammercore.proxy.ParticleProxy_Client", serverSide = "com.zeitheron.hammercore.proxy.ParticleProxy_Common")
+	@SidedProxy(modId = HLConstants.MODID, clientSide = "com.zeitheron.hammercore.proxy.ParticleProxy_Client", serverSide = "com.zeitheron.hammercore.proxy.ParticleProxy_Common")
 	public static ParticleProxy_Common particleProxy;
 	
-	@SidedProxy(modId = "hammercore", clientSide = "com.zeitheron.hammercore.proxy.BookProxy_Client", serverSide = "com.zeitheron.hammercore.proxy.BookProxy_Common")
+	@SidedProxy(modId = HLConstants.MODID, clientSide = "com.zeitheron.hammercore.proxy.BookProxy_Client", serverSide = "com.zeitheron.hammercore.proxy.BookProxy_Common")
 	public static BookProxy_Common bookProxy;
 	
-	@SidedProxy(modId = "hammercore", clientSide = "com.zeitheron.hammercore.proxy.PipelineProxy_Client", serverSide = "com.zeitheron.hammercore.proxy.PipelineProxy_Common")
+	@SidedProxy(modId = HLConstants.MODID, clientSide = "com.zeitheron.hammercore.proxy.PipelineProxy_Client", serverSide = "com.zeitheron.hammercore.proxy.PipelineProxy_Common")
 	public static PipelineProxy_Common pipelineProxy;
 	
-	@SidedProxy(modId = "hammercore", clientSide = "com.zeitheron.hammercore.proxy.NativeProxy_Client", serverSide = "com.zeitheron.hammercore.proxy.NativeProxy_Common")
+	@SidedProxy(modId = HLConstants.MODID, clientSide = "com.zeitheron.hammercore.proxy.NativeProxy_Client", serverSide = "com.zeitheron.hammercore.proxy.NativeProxy_Common")
 	public static NativeProxy_Common nativeProxy;
 	
 	/**
 	 * An instance of {@link HammerCore} class
 	 **/
-	@Instance("hammercore")
+	@Instance(HLConstants.MODID)
 	public static HammerCore instance;
 	
 	/**
 	 * Creative tab of HammerCore
 	 */
-	public static final CreativeTabs tab = HammerCoreUtils.createDynamicCreativeTab("hammercore", 60);
+	public static final CreativeTabs tab = HammerCoreUtils.createDynamicCreativeTab(HLConstants.MODID, 60);
 	
 	public static final Map<IHammerCoreAPI, HammerCoreAPI> APIS = new HashMap<>();
 	
@@ -186,12 +186,13 @@ public class HammerCore
 		List<Object> toRegister = MCFBusObjects = AnnotatedInstanceUtil.getInstances(e.getAsmData(), MCFBus.class, Object.class);
 		List<IConfigReloadListener> listeners = AnnotatedInstanceUtil.getInstances(e.getAsmData(), HCModConfigurations.class, IConfigReloadListener.class);
 		
+		NBTSerializationHelper.construct(e.getAsmData());
 		renderProxy.preInit(e.getAsmData());
 		
-		registerKernelsForMod("hammercore");
+		registerKernelsForMod(HLConstants.MODID);
 		
 		TickSlipConfig.reload(new File(e.getModConfigurationDirectory(),
-				"hammercore" + File.separator + "tile_entity_tick_slip.json"
+				HLConstants.MODID + File.separator + "tile_entity_tick_slip.json"
 		));
 		
 		toRegister.add(this);
@@ -213,7 +214,7 @@ public class HammerCore
 			ConfigHolder h = new ConfigHolder(listener, new Configuration(listener.getSuggestedConfigurationFile()));
 			h.reload();
 			configListeners.add(h);
-			LOG.info("Added \"" + h.listener.getClass().getName() + "\" to Hammer Core Simple Configs.");
+			LOG.info("Added \"" + h.listener.getClass().getName() + "\" to HammerLib Simple Configs.");
 		}
 		
 		raytracePlugins = AnnotatedInstanceUtil.getInstances(e.getAsmData(), RaytracePlugin.class, IRayRegistry.class);
@@ -262,7 +263,7 @@ public class HammerCore
 		ModMetadata meta = e.getModMetadata();
 		meta.autogenerated = false;
 		meta.version = "@VERSION@";
-		meta.description = "Core used by most of Zeitheron's Mods. ";
+		meta.description = "Core used by most of Zeitheron's Mods.";
 		
 		meta.authorList = getHCAuthorsArray();
 		
@@ -287,7 +288,7 @@ public class HammerCore
 		
 		GameRegistry.registerWorldGenerator(new WorldGenHammerCore(), 0);
 		
-		StructureAPI.registerSpawnableStructure(new ResourceLocation("hammercore", "well"));
+		StructureAPI.registerSpawnableStructure(HLConstants.id("well"));
 		
 		FMLInterModComms.sendFunctionMessage("theoneprobe", "getTheOneProbe", "com.zeitheron.hammercore.compat.top.GetTOP");
 		FMLInterModComms.sendMessage("waila", "register", "com.zeitheron.hammercore.compat.waila.GetWaila.register");
@@ -375,6 +376,7 @@ public class HammerCore
 		fr.register(SimpleRegistration.parseShapelessRecipe(new ItemStack(ItemsHC.MANUAL), new ItemStack(Items.WRITABLE_BOOK),
 				OreDictionary.doesOreNameExist("gearIron") ? "gearIron" : "ingotIron"
 		).setRegistryName("hammercore", "manual"));
+		
 		if(ItemsHC.WRENCH != null)
 			fr.register(SimpleRegistration.parseShapedRecipe(new ItemStack(ItemsHC.WRENCH), " i ", " gi", "i  ", 'i',
 					OreDictionary.doesOreNameExist("stickIron") ? "stickIron" : "ingotIron", 'g',
@@ -383,10 +385,10 @@ public class HammerCore
 		
 		for(RecipeRegistry rr : recipeRegistries)
 			rr //
-					.collect() //
-					.stream() //
-					.filter(r -> r != null && r.getRegistryName() != null) //
-					.forEach(fr::register);
+			   .collect() //
+			   .stream() //
+			   .filter(r -> r != null && r.getRegistryName() != null) //
+			   .forEach(fr::register);
 		
 		SimpleRegistration.$addRegisterRecipes(fr::register);
 	}
