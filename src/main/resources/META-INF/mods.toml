@@ -1,13 +1,13 @@
 modLoader="javafml"
 loaderVersion="[36,)"
-issueTrackerURL="https://gitlab.com/DragonForge/HammerLib/issues"
+issueTrackerURL = "https://github.com/dragon-forge/HammerLib/issues"
 license="All rights reserved"
 [[mods]]
 modId="hammerlib"
 version="${file.jarVersion}"
 displayName="HammerLib"
-updateJSONURL="http://dccg.herokuapp.com/api/fmluc/247401"
-displayURL="http://dccg.herokuapp.com/api/fmlhp/247401"
+updateJSONURL = "https://api.modrinth.com/updates/PlkSuVtM/forge_updates.json"
+displayURL = "https://modrinth.com/mod/PlkSuVtM"
 logoFile="logo.png" #optional
 authors="Zeitheron" #optional
 description='''
