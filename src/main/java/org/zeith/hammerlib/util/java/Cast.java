@@ -6,10 +6,30 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.lang.reflect.Constructor;
 import java.util.*;
-import java.util.function.Supplier;
+import java.util.function.*;
 
 public class Cast
 {
+	public static BooleanSupplier constantB(boolean value)
+	{
+		return () -> value;
+	}
+	
+	public static DoubleSupplier constantD(double value)
+	{
+		return () -> value;
+	}
+	
+	public static IntSupplier constantI(int value)
+	{
+		return () -> value;
+	}
+	
+	public static LongSupplier constantL(long value)
+	{
+		return () -> value;
+	}
+	
 	@Deprecated
 	public static <T> Supplier<T> staticValue(T value)
 	{
@@ -49,6 +69,11 @@ public class Cast
 	public static <T> Optional<T> optionally(Object thing, Class<T> type)
 	{
 		return type.isInstance(thing) ? Optional.of(type.cast(thing)) : Optional.empty();
+	}
+	
+	public static <IN, T> Function<IN, T> convertTo(Class<T> type)
+	{
+		return obj -> cast(obj, type);
 	}
 	
 	public static <T> Optional<T> firstInstanceof(Class<T> type, Object... input)
