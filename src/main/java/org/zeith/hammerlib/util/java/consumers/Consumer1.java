@@ -1,6 +1,8 @@
 package org.zeith.hammerlib.util.java.consumers;
 
-import javax.annotation.Nonnull;
+
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -11,7 +13,7 @@ public interface Consumer1<A>
 	@Override
 	void accept(A a);
 	
-	default Consumer1<A> andThen(Consumer1<A> after)
+	default Consumer1<A> andThen(Consumer1<? super A> after)
 	{
 		Objects.requireNonNull(after);
 		return (a) ->
@@ -21,9 +23,9 @@ public interface Consumer1<A>
 		};
 	}
 	
-	@Nonnull
+	@NotNull
 	@Override
-	default Consumer1<A> andThen(@Nonnull Consumer<? super A> after)
+	default Consumer1<A> andThen(@NotNull Consumer<? super A> after)
 	{
 		return andThen(after::accept);
 	}

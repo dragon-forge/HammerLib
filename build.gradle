@@ -73,6 +73,9 @@ repositories {
     maven {
         name = "Zeitheron Maven"
         url = "https://zeith.org/maven"
+        content {
+            includeGroupByRegex "org\\.zeith.*"
+        }
     }
     flatDir {
         dirs 'runtimeMods'
@@ -81,6 +84,13 @@ repositories {
 
 dependencies {
     minecraft "net.minecraftforge:forge:${config.mc_version}-${config.forge_version}"
+
+    ////// UTILITY STUFF //////
+    // implementation 'java-oo:javac-oo-plugin:0.5'
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+    compileOnly 'org.jetbrains:annotations:24.0.1'
+    ///////////////////////////
 
     if(!gradle.startParameter.taskNames.isEmpty()) {
         print "Including MIXIN annotation processor."
