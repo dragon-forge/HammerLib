@@ -1,9 +1,10 @@
 package org.zeith.hammerlib.util.java.consumers;
 
+
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.Objects;
 
 @FunctionalInterface
 public interface Consumer1<A>
@@ -11,8 +12,8 @@ public interface Consumer1<A>
 {
 	@Override
 	void accept(A a);
-	
-	default Consumer1<A> andThen(Consumer1<A> after)
+
+	default Consumer1<A> andThen(Consumer1<? super A> after)
 	{
 		Objects.requireNonNull(after);
 		return (a) ->
