@@ -4,6 +4,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.Tags;
 import org.zeith.hammerlib.annotations.ProvideRecipes;
 import org.zeith.hammerlib.api.IRecipeProvider;
+import org.zeith.hammerlib.core.items.ItemWrench;
 import org.zeith.hammerlib.core.test.TestPreferences;
 import org.zeith.hammerlib.core.test.machine.BlockTestMachine;
 import org.zeith.hammerlib.event.recipe.RegisterRecipesEvent;
@@ -24,5 +25,14 @@ public class RecipesHL
 					.map('o', Tags.Items.OBSIDIAN)
 					.result(new ItemStack(BlockTestMachine.TEST_MACHINE))
 					.register();
+		
+		GearsHL.recipes(event);
+		
+		event.shaped()
+				.shape("i i", " g ", " i ")
+				.map('i', Tags.Items.INGOTS_IRON)
+				.map('g', TagsHL.Items.GEARS_IRON)
+				.result(ItemWrench.WRENCH)
+				.register();
 	}
 }

@@ -1,12 +1,10 @@
 package org.zeith.hammerlib.core.adapter.recipe;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.IItemProvider;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.*;
 import org.zeith.hammerlib.event.recipe.RegisterRecipesEvent;
 
-import java.util.function.BooleanSupplier;
-import java.util.function.Predicate;
+import java.util.function.*;
 
 public abstract class RecipeBuilder<R extends RecipeBuilder<R>>
 {
@@ -58,8 +56,8 @@ public abstract class RecipeBuilder<R extends RecipeBuilder<R>>
 		this.result = new ItemStack(provider, count);
 		return (R) this;
 	}
-
-	protected ResourceLocation getIdentifier()
+	
+	public ResourceLocation getIdentifier()
 	{
 		if(this.identifier != null) return this.identifier;
 		return event.nextId(result.getItem());

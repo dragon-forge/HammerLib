@@ -1,16 +1,18 @@
 package org.zeith.hammerlib.util;
 
 import net.minecraft.util.text.*;
-import net.minecraft.util.text.event.ClickEvent;
-import net.minecraft.util.text.event.HoverEvent;
+import net.minecraft.util.text.event.*;
 import org.apache.logging.log4j.Logger;
 import org.zeith.hammerlib.client.adapter.ChatMessageAdapter;
 import org.zeith.hammerlib.core.adapter.ModSourceAdapter;
 
 import java.net.URL;
+import java.util.function.Supplier;
 
 public class CommonMessages
 {
+	public static final Supplier<ITextComponent> CRAFTING_MATERIAL = () -> new TranslationTextComponent("info.hammerlib.material").withStyle(TextFormatting.GRAY);
+	
 	public static CheckResult printMessageOnIllegalRedistribution(Class<?> modClass, Logger log, String modName, String downloadUrl)
 	{
 		ModSourceAdapter.ModSource illegalSourceNotice = ModSourceAdapter.getModSource(modClass)
@@ -21,7 +23,7 @@ public class CommonMessages
 		{
 			log.fatal("====================================================");
 			log.fatal("== WARNING: " + modName + " was downloaded from " + illegalSourceNotice.referrerDomain() +
-					", which has been marked as illegal site over at stopmodreposts.org.");
+					  ", which has been marked as illegal site over at stopmodreposts.org.");
 			log.fatal("== Please download the mod from " + downloadUrl);
 			log.fatal("====================================================");
 			

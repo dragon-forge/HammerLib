@@ -1,11 +1,13 @@
 package org.zeith.hammerlib.proxy;
 
+import net.minecraft.item.*;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.registries.IForgeRegistry;
 import org.apache.logging.log4j.Logger;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.api.multipart.MultipartBlock;
+import org.zeith.hammerlib.core.items.ItemWrench;
 
 import java.util.*;
 
@@ -21,4 +23,13 @@ public class HLConstants
 	{
 		return new ResourceLocation(MOD_ID, path);
 	}
+	
+	public static final ItemGroup HL_TAB = new ItemGroup(MOD_ID)
+	{
+		@Override
+		public ItemStack makeIcon()
+		{
+			return ItemWrench.WRENCH.getDefaultInstance();
+		}
+	};
 }

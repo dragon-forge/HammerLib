@@ -1,22 +1,15 @@
 package org.zeith.hammerlib.core.items;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
+import net.minecraft.block.*;
+import net.minecraft.item.*;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
-import org.zeith.api.wrench.IWrenchItem;
-import org.zeith.api.wrench.IWrenchable;
-import org.zeith.hammerlib.annotations.RegistryName;
-import org.zeith.hammerlib.annotations.SimplyRegister;
+import org.zeith.api.wrench.*;
+import org.zeith.hammerlib.annotations.*;
+import org.zeith.hammerlib.proxy.HLConstants;
 import org.zeith.hammerlib.util.java.Cast;
 
 @SimplyRegister
@@ -25,7 +18,7 @@ public class ItemWrench
 		implements IWrenchItem
 {
 	@RegistryName("wrench")
-	public static final ItemWrench WRENCH = new ItemWrench(new Properties().tab(ItemGroup.TAB_TOOLS).stacksTo(1));
+	public static final ItemWrench WRENCH = new ItemWrench(new Properties().tab(HLConstants.HL_TAB).stacksTo(1));
 
 	public ItemWrench(Properties props)
 	{

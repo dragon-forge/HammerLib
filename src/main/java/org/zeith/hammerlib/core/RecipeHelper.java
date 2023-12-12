@@ -2,17 +2,11 @@ package org.zeith.hammerlib.core;
 
 import com.google.common.collect.ImmutableMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.IRecipeType;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.item.crafting.RecipeManager;
+import net.minecraft.item.*;
+import net.minecraft.item.crafting.*;
 import net.minecraft.resources.IReloadableResourceManager;
-import net.minecraft.tags.ITag;
-import net.minecraft.tags.TagCollectionManager;
-import net.minecraft.util.IItemProvider;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.tags.*;
+import net.minecraft.util.*;
 import net.minecraftforge.common.MinecraftForge;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.api.crafting.AbstractRecipeRegistry;
@@ -26,59 +20,70 @@ import org.zeith.hammerlib.util.mcf.RunnableReloader;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.function.*;
+import java.util.stream.*;
 
 public class RecipeHelper
 {
-	public static void registerCustomRecipes(Consumer<IRecipe<?>> addRecipe, boolean silent)
+	public static void registerCustomRecipes(Predicate<ResourceLocation> idInUse, Consumer<IRecipe<?>> addRecipe, boolean silent, Consumer<Set<ResourceLocation>> removeRecipes)
 	{
-		RegisterRecipesEvent rre = new RegisterRecipesEvent();
+		RegisterRecipesEvent rre = new RegisterRecipesEvent(idInUse);
 		MinecraftForge.EVENT_BUS.post(rre);
-
+		rre.cleanup();
+		
 		if(!silent) HLConstants.LOG.info("Reloading HammerLib recipes...");
-
+		
 		AtomicLong count = new AtomicLong();
-
+		
 		rre.getRecipes().forEach(recipe ->
 		{
 			addRecipe.accept(recipe);
 			count.incrementAndGet();
 		});
-
-		if(!silent) HLConstants.LOG.info("HammerLib injected {} recipes into recipe map.", count.longValue());
-
+		
+		removeRecipes.accept(rre.removedRecipes());
+		
+		if(!silent)
+			HLConstants.LOG.info("HammerLib injected {} recipes into recipe map. Removed {} recipes from the game.",
+					count.longValue(),
+					rre.removedRecipes().size()
+			);
+		
 		List<AbstractRecipeRegistry<?, ?, ?>> registries = AbstractRecipeRegistry.getAllRegistries();
 		if(!silent) HLConstants.LOG.info("Reloading {} custom registries.", registries.size());
 		registries.forEach(AbstractRecipeRegistry::reload);
 		if(!silent)
 			HLConstants.LOG.info("{} custom registries reloaded, added {} total recipes.", registries.size(), registries.stream().mapToInt(AbstractRecipeRegistry::getRecipeCount).sum());
 	}
-
+	
 	public static void reload(RecipeManager mgr, IReloadableResourceManager rel)
 	{
 		rel.registerReloadListener(RunnableReloader.of(() ->
 		{
 			Internal.mutableManager(mgr);
+			Set<ResourceLocation> removeRecipes = new HashSet<>();
 			List<IRecipe<?>> recipeList = new ArrayList<>();
-			registerCustomRecipes(recipeList::add, false);
-			Internal.addRecipes(mgr, recipeList);
+			registerCustomRecipes(id -> mgr.byKey(id).isPresent(), recipeList::add, false, removeRecipes::addAll);
+			Internal.addRecipes(mgr, recipeList, removeRecipes);
 		}));
 	}
-
+	
 	private static class Internal
 	{
-		private static void addRecipes(RecipeManager mgr, List<IRecipe<?>> recipes)
+		private static void addRecipes(RecipeManager mgr, List<IRecipe<?>> recipes, Set<ResourceLocation> removeRecipes)
 		{
 			recipes.forEach(r ->
 			{
 				Map<ResourceLocation, IRecipe<?>> map = mgr.recipes.computeIfAbsent(r.getType(), t -> new HashMap<>());
 				map.putIfAbsent(r.getId(), r);
 			});
+			
+			for(Map<ResourceLocation, IRecipe<?>> value : mgr.recipes.values())
+				value.keySet().removeAll(removeRecipes);
+			
 			HammerLib.LOG.info("Registered {} additional recipes.", recipes.size());
 		}
-
+		
 		private static void mutableManager(RecipeManager mgr)
 		{
 			mgr.recipes = new HashMap<>(mgr.recipes);
@@ -86,20 +91,20 @@ public class RecipeHelper
 				mgr.recipes.put(type, new HashMap<>(mgr.recipes.get(type)));
 		}
 	}
-
+	
 	public enum MapMode
 	{
 		IMMUTABLE(ImmutableMap.Builder.class),
 		MAP(Map.class),
 		UNKNOWN(null);
-
+		
 		final Class<?> type;
-
+		
 		MapMode(Class<?> type)
 		{
 			this.type = type;
 		}
-
+		
 		public Consumer<IRecipe<?>> addRecipe(Map<IRecipeType<?>, ?> map)
 		{
 			if(this == IMMUTABLE)
@@ -111,25 +116,25 @@ public class RecipeHelper
 					builder.put(recipe.getId(), recipe);
 				};
 			}
-
+			
 			if(this == MAP)
 			{
 				Map<IRecipeType<?>, Map<ResourceLocation, IRecipe<?>>> mmap = Cast.cast(map);
-
+				
 				return recipe ->
 				{
 					Map<ResourceLocation, IRecipe<?>> builder = mmap.computeIfAbsent(recipe.getType(), type -> new Object2ObjectLinkedOpenHashMap<>());
 					builder.put(recipe.getId(), recipe);
 				};
 			}
-
+			
 			return recipe ->
 			{
 				HammerLib.LOG.warn("Unable to add recipe " + recipe.getId() + " due to the uncertainty of the recipe map!");
 			};
 		}
 	}
-
+	
 	public static Ingredient fromComponent(Object comp)
 	{
 		Ingredient ingr = Ingredient.EMPTY;
@@ -154,7 +159,7 @@ public class RecipeHelper
 					ResourceLocation tag;
 					if(odConv != null) tag = odConv;
 					else tag = new ResourceLocation(st.contains(":") ? st : ("forge:" + st));
-
+					
 					ITag<Item> itag = TagCollectionManager.getInstance().getItems().getTag(tag);
 					return Ingredient.fromValues(Stream.of(new Ingredient.TagList(itag)));
 				}
@@ -177,7 +182,7 @@ public class RecipeHelper
 		}
 		return ingr;
 	}
-
+	
 	public static Ingredient fromTag(ITag.INamedTag<Item> tag)
 	{
 		ITag<Item> itag = TagCollectionManager.getInstance().getItems().getTag(tag.getName());
