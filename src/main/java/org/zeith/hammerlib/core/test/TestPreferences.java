@@ -4,6 +4,6 @@ public class TestPreferences
 {
 	public static boolean enableTestMachine()
 	{
-		return true;
+		return false;
 	}
 }
