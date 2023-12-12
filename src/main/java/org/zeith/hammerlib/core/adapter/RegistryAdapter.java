@@ -4,12 +4,14 @@ import lombok.var;
 import net.minecraft.block.Block;
 import net.minecraft.item.*;
 import net.minecraft.util.*;
+import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.event.lifecycle.*;
 import net.minecraftforge.registries.*;
+import org.apache.logging.log4j.LogManager;
 import org.zeith.hammerlib.annotations.*;
 import org.zeith.hammerlib.annotations.client.ClientSetup;
 import org.zeith.hammerlib.api.blocks.*;
-import org.zeith.hammerlib.api.fml.IRegisterListener;
+import org.zeith.hammerlib.api.fml.*;
 import org.zeith.hammerlib.util.java.*;
 
 import java.lang.reflect.*;
@@ -38,8 +40,9 @@ public class RegistryAdapter
 	/**
 	 * Registers all static fields (from source) with the matching registry type, and methods that accept Consumer<T>
 	 */
-	public static <T extends IForgeRegistryEntry<T>> int register(IForgeRegistry<T> registry, Class<?> source, String modid, String prefix)
+	public static <T extends IForgeRegistryEntry<T>> int register(RegistryEvent.Register<T> event, Class<?> source, String modid, String prefix)
 	{
+		var registry = event.getRegistry();
 		var superType = registry.getRegistrySuperType();
 		
 		if(superType == null)
@@ -74,6 +77,35 @@ public class RegistryAdapter
 		
 		int prevSize = registry.getValues().size();
 		
+		
+		// ICustomRegistrar hook!
+		Arrays
+				.stream(source.getDeclaredFields())
+				.filter(f -> ICustomRegistrar.class.isAssignableFrom(f.getType()))
+				.forEach(field ->
+				{
+					if(Modifier.isStatic(field.getModifiers()) && Modifier.isFinal(field.getModifiers()))
+						try
+						{
+							field.setAccessible(true);
+							var name = field.getAnnotation(RegistryName.class);
+							var rl = new ResourceLocation(modid, prefix + name.value());
+							
+							var val = field.get(null);
+							
+							var onlyIf = field.getAnnotation(OnlyIf.class); // Bring back OnlyIf, for registries that are non-intrusive. (Mostly, for custom registry types)
+							if(OnlyIfAdapter.checkCondition(onlyIf, source.toString(), superType != null ? superType.getSimpleName() : field.getType().getSimpleName(), val))
+							{
+								if(val instanceof ICustomRegistrar)
+									((ICustomRegistrar) val).performRegister(event, rl);
+							}
+						} catch(IllegalArgumentException | IllegalAccessException e)
+						{
+							LogManager.getLogger(modid + "/" + source.getSimpleName()).error("Failed to register field {}", field.getName(), e);
+						}
+				});
+		
+		
 		Arrays
 				.stream(source.getDeclaredMethods())
 				.filter(m -> m.getAnnotation(SimplyRegister.class) != null && m.getParameterCount() == 1 && BiConsumer.class.isAssignableFrom(m.getParameterTypes()[0]) && ReflectionUtil.doesParameterTypeArgsMatch(m.getParameters()[0], ResourceLocation.class, superType))
@@ -101,7 +133,8 @@ public class RegistryAdapter
 		
 		Arrays
 				.stream(source.getDeclaredFields())
-				.filter(f -> superType.isAssignableFrom(f.getType()))
+				.filter(f -> superType.isAssignableFrom(f.getType())
+							 && !ICustomRegistrar.class.isAssignableFrom(f.getType())) // Custom registrars have been called by now.
 				.forEach(field ->
 				{
 					if(Modifier.isStatic(field.getModifiers()) && Modifier.isFinal(field.getModifiers()))

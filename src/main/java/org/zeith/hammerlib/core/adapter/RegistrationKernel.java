@@ -23,6 +23,6 @@ public class RegistrationKernel
 	@SubscribeEvent
 	public void register(RegistryEvent.Register event)
 	{
-		RegistryAdapter.register(event.getRegistry(), data.getOwnerClass(), mc.getModId(), prefix);
+		RegistryAdapter.register(event, data.getOwnerClass(), mc.getModId(), prefix);
 	}
 }
