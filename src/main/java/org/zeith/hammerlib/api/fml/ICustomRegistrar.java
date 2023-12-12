@@ -2,6 +2,10 @@ package org.zeith.hammerlib.api.fml;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.registries.IForgeRegistryEntry;
+import org.zeith.hammerlib.util.java.Cast;
+
+import java.util.function.Supplier;
 
 /**
  * This interface gets invoked when an instance implementing of it is placed in a class of @{@link org.zeith.hammerlib.annotations.SimplyRegister} and the @{@link org.zeith.hammerlib.annotations.RegistryName} for the field.
@@ -16,4 +20,10 @@ public interface ICustomRegistrar
 	 * Use the {@link ResourceLocation} id
 	 */
 	void performRegister(RegistryEvent.Register<?> event, ResourceLocation id);
+	
+	default <T extends IForgeRegistryEntry<T>> void register(RegistryEvent.Register<?> event, Class<T> base, Supplier<T> instance, ResourceLocation id)
+	{
+		if(event.getRegistry().getRegistrySuperType().isAssignableFrom(base))
+			event.getRegistry().register(Cast.cast(instance.get().setRegistryName(id)));
+	}
 }
