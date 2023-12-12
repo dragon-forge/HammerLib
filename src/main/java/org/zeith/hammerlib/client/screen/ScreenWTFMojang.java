@@ -9,9 +9,9 @@ import net.minecraft.util.text.ITextComponent;
 public abstract class ScreenWTFMojang<T extends Container>
 		extends ContainerScreen<T>
 {
-	public ScreenWTFMojang(T container, PlayerInventory plyerInv, ITextComponent name)
+	public ScreenWTFMojang(T container, PlayerInventory playerInv, ITextComponent name)
 	{
-		super(container, plyerInv, name);
+		super(container, playerInv, name);
 	}
 
 	protected void setSize(int xSize, int ySize)

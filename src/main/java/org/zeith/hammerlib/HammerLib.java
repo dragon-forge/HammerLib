@@ -1,6 +1,5 @@
 package org.zeith.hammerlib;
 
-import com.google.common.collect.BiMap;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.*;
 import net.minecraftforge.common.MinecraftForge;
@@ -12,7 +11,7 @@ import net.minecraftforge.fml.event.lifecycle.*;
 import net.minecraftforge.fml.javafmlmod.*;
 import net.minecraftforge.fml.unsafe.UnsafeHacks;
 import net.minecraftforge.forgespi.Environment;
-import net.minecraftforge.registries.*;
+import net.minecraftforge.registries.RegistryBuilder;
 import org.apache.logging.log4j.*;
 import org.objectweb.asm.Type;
 import org.zeith.hammerlib.annotations.*;
@@ -26,12 +25,10 @@ import org.zeith.hammerlib.core.init.TagsHL;
 import org.zeith.hammerlib.proxy.*;
 import org.zeith.hammerlib.util.CommonMessages;
 import org.zeith.hammerlib.util.charging.ItemChargeHelper;
-import org.zeith.hammerlib.util.java.*;
+import org.zeith.hammerlib.util.java.ReflectionUtil;
 import org.zeith.hammerlib.util.mcf.ScanDataHelper;
 
 import java.lang.annotation.ElementType;
-import java.lang.reflect.Field;
-import java.util.Objects;
 import java.util.function.Consumer;
 
 @Mod(HLConstants.MOD_ID)
@@ -43,7 +40,8 @@ public class HammerLib
 	public HammerLib()
 	{
 		CommonMessages.printMessageOnIllegalRedistribution(HammerLib.class,
-				LOG, "HammerLib", "https://www.curseforge.com/minecraft/mc-mods/hammer-lib");
+				LOG, "HammerLib", "https://www.curseforge.com/minecraft/mc-mods/hammer-lib"
+		);
 		
 		FMLJavaModLoadingContext.get().getModEventBus().register(this);
 		MinecraftForge.EVENT_BUS.register(PROXY);
@@ -81,23 +79,7 @@ public class HammerLib
 		ScanDataHelper.lookupAnnotatedObjects(SimplyRegister.class).forEach(data ->
 		{
 			if(data.getTargetType() == ElementType.TYPE)
-				data.getOwnerMod()
-						.ifPresent(mc ->
-						{
-							try
-							{
-								Field f = ReflectionUtil.lookupField(RegistryManager.class, "registries");
-								BiMap<ResourceLocation, ForgeRegistry<? extends IForgeRegistryEntry<?>>> registries = Cast.cast(f.get(RegistryManager.ACTIVE));
-								registries.values().forEach(registry ->
-								{
-									mc.getEventBus().addGenericListener(registry.getRegistrySuperType(), (Consumer<RegistryEvent.Register>) event ->
-											RegistryAdapter.register(event.getRegistry(), data.getOwnerClass(), mc.getModId(), data.getProperty("prefix").map(Objects::toString).orElse("")));
-								});
-							} catch(IllegalAccessException e)
-							{
-								throw new RuntimeException(e);
-							}
-						});
+				data.getOwnerMod().ifPresent(mc -> mc.getEventBus().register(new RegistrationKernel(data, mc)));
 		});
 		
 		// Register all setups

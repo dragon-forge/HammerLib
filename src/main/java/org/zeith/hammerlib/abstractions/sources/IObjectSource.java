@@ -10,7 +10,7 @@ import org.zeith.hammerlib.core.RegistriesHL;
 import org.zeith.hammerlib.util.java.Cast;
 
 import javax.annotation.*;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Supplier;
 
 public interface IObjectSource<T>
@@ -42,7 +42,7 @@ public interface IObjectSource<T>
 	{
 		var tag = new CompoundNBT();
 		tag.put("Src", src.writeSource());
-		tag.putString("Type", src.getType().getRegistryKey().toString());
+		tag.putString("Type", Objects.toString(src.getType().getRegistryKey()));
 		return tag;
 	}
 	

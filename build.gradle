@@ -166,15 +166,6 @@ curseforge {
         mainArtifact(jar) {
             displayName = "[${config.mc_version}] ${config.mod_name} - ${config.mod_version}"
         }
-        addArtifact(deobfJar) {
-            displayName = "[${config.mc_version}] ${config.mod_name} (Deobfuscated) - ${config.mod_version}"
-        }
-        addArtifact(srcJar) {
-            displayName = "[${config.mc_version}] ${config.mod_name} (Sources) - ${config.mod_version}"
-        }
-        relations {
-            requiredDependency 'Hammer-Lib'
-        }
     }
 }
 

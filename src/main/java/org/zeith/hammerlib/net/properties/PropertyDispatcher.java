@@ -1,12 +1,13 @@
 package org.zeith.hammerlib.net.properties;
 
 import com.google.common.collect.*;
-import io.netty.buffer.*;
+import lombok.var;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.world.World;
 import org.zeith.hammerlib.abstractions.sources.IObjectSource;
 import org.zeith.hammerlib.net.Network;
 import org.zeith.hammerlib.net.packets.*;
+import org.zeith.hammerlib.util.mcf.ByteBufTransposer;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -80,8 +81,8 @@ public class PropertyDispatcher
 	@Nullable
 	public SendPropertiesPacket detectAndGenerateChanges(boolean cleanse)
 	{
-		ByteBuf bb = Unpooled.buffer();
-		PacketBuffer buf = new PacketBuffer(bb);
+		ByteBufTransposer.Builder transposer = ByteBufTransposer.begin();
+		var buf = transposer.buffer();
 		if(!dirty.isEmpty())
 		{
 			dirty.forEach((id, prop) ->
@@ -97,15 +98,10 @@ public class PropertyDispatcher
 			if(cleanse)
 				dirty.clear();
 		}
-		int size = bb.writerIndex();
-		if(size > 0)
-		{
-			buf.writeUtf("!");
-			bb.readerIndex(0);
-			byte[] data = new byte[size];
-			bb.readBytes(data);
+		buf.writeUtf("!");
+		byte[] data = transposer.transpose();
+		if(data.length > 0)
 			return new SendPropertiesPacket(source.get(), data);
-		}
 		return null;
 	}
 	
@@ -114,18 +110,14 @@ public class PropertyDispatcher
 	{
 		if(properties.isEmpty()) return null;
 		
-		ByteBuf bb = Unpooled.buffer();
-		PacketBuffer buf = new PacketBuffer(bb);
+		ByteBufTransposer.Builder transposer = ByteBufTransposer.begin();
+		var buf = transposer.buffer();
 		properties.forEach((id, prop) ->
 		{
 			buf.writeUtf(id);
 			prop.write(buf);
 		});
 		buf.writeUtf("!");
-		int size = bb.writerIndex();
-		bb.readerIndex(0);
-		byte[] data = new byte[size];
-		bb.readBytes(data);
-		return new SendPropertiesPacket(source.get(), data);
+		return new SendPropertiesPacket(source.get(), transposer.transpose());
 	}
 }

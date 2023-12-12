@@ -19,6 +19,7 @@ public class RegistriesHL
 	public static void newRegistries(RegistryEvent.NewRegistry e)
 	{
 		OBJECT_SOURCES = Cast.constant(new RegistryBuilder<IObjectSourceType>()
+				.setType(IObjectSourceType.class)
 				.setName(HLConstants.id("obj_sources"))
 				.disableSaving()
 				.disableSaving()
