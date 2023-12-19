@@ -251,7 +251,6 @@ curseforge {
         changelog = ""
         releaseType = config.release_type as String
         addGameVersion config.mc_version as String
-        addGameVersion "Forge"
         addGameVersion "NeoForge"
         mainArtifact(jar) {
             displayName = "[${config.mc_version}] ${config.mod_name} - ${config.mod_version}"
@@ -269,8 +268,18 @@ task signJar(type: PotentiallySignJar, dependsOn: jar) {
     storePass = System.env.MC_KS_PASS
     keyPass = System.env.MC_KS_PASS
     input = jar.archiveFile
-    output = jar.archiveFile
 }
+
+task placeSignedJar {
+    doLast {
+        def resF = signJar.output.get().asFile
+        def af = jar.archiveFile.get().asFile
+        af.delete()
+        resF.renameTo(af)
+    }
+}
+
+signJar.finalizedBy('placeSignedJar')
 
 //def reobfFile = jar.archiveFile.get().asFile
 //def reobfArtifact = artifacts.add('default', reobfFile) {
