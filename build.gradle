@@ -120,7 +120,7 @@ dependencies {
             def modartifact = file.name.substring(0, splitPos)
             def modversion = file.name.substring(splitPos + 1, file.name.length() - 4)
             dependencies {
-                implementation (project.dependencies.create("_all:$modartifact:$modversion") {
+                implementation(project.dependencies.create("_all:$modartifact:$modversion") {
                     transitive = false
                 })
             }
@@ -134,7 +134,7 @@ dependencies {
             def modartifact = file.name.substring(0, splitPos)
             def modversion = file.name.substring(splitPos + 1, file.name.length() - 4)
             dependencies {
-                compileOnly (project.dependencies.create("_classpath:$modartifact:$modversion") {
+                compileOnly(project.dependencies.create("_classpath:$modartifact:$modversion") {
                     transitive = false
                 })
             }
@@ -148,7 +148,7 @@ dependencies {
             def modartifact = file.name.substring(0, splitPos)
             def modversion = file.name.substring(splitPos + 1, file.name.length() - 4)
             dependencies {
-                runtimeOnly (project.dependencies.create("_runtime:$modartifact:$modversion") {
+                runtimeOnly(project.dependencies.create("_runtime:$modartifact:$modversion") {
                     transitive = false
                 })
             }
@@ -177,11 +177,11 @@ dependencies {
 def resourceTargets = ['META-INF/mods.toml', 'pack.mcmeta']
 def replaceProperties = [
         minecraft_version: config.mc_version, minecraft_version_range: config.mc_range,
-        forge_version: "${config.mc_version}-${config.forge_version}", forge_version_range: config.forge_range,
-        fmljava_range: config.fmljava_range,
-        mod_id: config.mod_id, mod_name: config.mod_name, mod_license: config.mod_license, mod_version: config.mod_version,
-        issue_tracker: config.issue_tracker, modrinth_project: config.modrinth_project,
-        mod_authors: config.mod_authors, mod_description: config.mod_description
+        forge_version    : "${config.mc_version}-${config.forge_version}", forge_version_range: config.forge_range,
+        fmljava_range    : config.fmljava_range,
+        mod_id           : config.mod_id, mod_name: config.mod_name, mod_license: config.mod_license, mod_version: config.mod_version,
+        issue_tracker    : config.issue_tracker, modrinth_project: config.modrinth_project,
+        mod_authors      : config.mod_authors, mod_description: config.mod_description
 ]
 tasks.withType(ProcessResources).configureEach {
     inputs.properties replaceProperties
@@ -259,6 +259,7 @@ curseforge {
 }
 
 import net.neoforged.gradle.common.tasks.PotentiallySignJar;
+
 task signJar(type: PotentiallySignJar, dependsOn: jar) {
     onlyIf {
         System.env.MC_KS_PASS != null
@@ -310,15 +311,8 @@ publishing {
     publications {
         register('mavenJava', MavenPublication) {
             from components.java
+            it.artifactId = config.archive_name + "-" + config.mc_version
         }
-//        mavenJava(MavenPublication) {
-//            groupId = config.maven_group
-//            artifactId = config.archive_name + "-" + config.mc_version
-//
-//            artifact reobfArtifact
-//            artifact srcJar
-//            artifact deobfJar
-//        }
     }
     repositories {
         maven {
@@ -329,13 +323,11 @@ publishing {
 
 // This piece of garbage will ensure that the build number is updated after build is executed.
 tasks.build.doLast {
-    if(!hasConfig("build_candidate") || !Boolean.parseBoolean(config.build_candidate))
-    {
+    if (!hasConfig("build_candidate") || !Boolean.parseBoolean(config.build_candidate)) {
         def buildTxt = configFile.toPath();
         List<String> lines = Files.readAllLines buildTxt;
         lines.replaceAll { String ln ->
-            if(ln.startsWith("mod_version"))
-            {
+            if (ln.startsWith("mod_version")) {
                 def version = ln.split("=")[1];
                 def dot = version.lastIndexOf('.') + 1;
                 def newVersion = version.substring(0, dot);
