@@ -2,7 +2,7 @@ package org.zeith.hammerlib.api.io;
 
 import com.google.common.collect.*;
 import net.minecraft.nbt.*;
-import net.minecraftforge.common.util.INBTSerializable;
+import net.neoforged.neoforge.common.util.INBTSerializable;
 import org.apache.logging.log4j.*;
 import org.objectweb.asm.Type;
 import org.zeith.hammerlib.api.io.serializers.*;

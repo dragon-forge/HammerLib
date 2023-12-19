@@ -2,8 +2,8 @@ package org.zeith.hammerlib.api.energy;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.common.capabilities.Capabilities;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -14,11 +14,11 @@ public class ForgeEnergyHelper
 		AtomicInteger sucked = new AtomicInteger();
 		if(into != null && into.hasLevel())
 			for(Direction dir : Direction.values())
-				into.getCapability(ForgeCapabilities.ENERGY, dir).filter(IEnergyStorage::canReceive).ifPresent(acceptor ->
+				into.getCapability(Capabilities.ENERGY, dir).filter(IEnergyStorage::canReceive).ifPresent(acceptor ->
 				{
 					BlockEntity remote = into.getLevel().getBlockEntity(into.getBlockPos().relative(dir));
 					if(remote != null)
-						remote.getCapability(ForgeCapabilities.ENERGY, dir.getOpposite()).filter(IEnergyStorage::canExtract).ifPresent(extractor ->
+						remote.getCapability(Capabilities.ENERGY, dir.getOpposite()).filter(IEnergyStorage::canExtract).ifPresent(extractor ->
 						{
 							int e = Math.min(extractor.getEnergyStored(), lim - sucked.get());
 							if(e <= 0) return;
@@ -33,11 +33,11 @@ public class ForgeEnergyHelper
 	{
 		if(into != null && into.hasLevel())
 			for(Direction dir : Direction.values())
-				into.getCapability(ForgeCapabilities.ENERGY, dir).filter(IEnergyStorage::canReceive).ifPresent(acceptor ->
+				into.getCapability(Capabilities.ENERGY, dir).filter(IEnergyStorage::canReceive).ifPresent(acceptor ->
 				{
 					BlockEntity remote = into.getLevel().getBlockEntity(into.getBlockPos().relative(dir));
 					if(remote != null)
-						remote.getCapability(ForgeCapabilities.ENERGY, dir.getOpposite()).filter(IEnergyStorage::canExtract).ifPresent(extractor ->
+						remote.getCapability(Capabilities.ENERGY, dir.getOpposite()).filter(IEnergyStorage::canExtract).ifPresent(extractor ->
 						{
 							int e = Math.min(extractor.getEnergyStored(), lim);
 							e = acceptor.receiveEnergy(e, true);
@@ -51,11 +51,11 @@ public class ForgeEnergyHelper
 		AtomicInteger sucked = new AtomicInteger();
 		if(into != null && into.hasLevel())
 			for(Direction dir : Direction.values())
-				into.getCapability(ForgeCapabilities.ENERGY, dir).filter(IEnergyStorage::canExtract).ifPresent(extractor ->
+				into.getCapability(Capabilities.ENERGY, dir).filter(IEnergyStorage::canExtract).ifPresent(extractor ->
 				{
 					BlockEntity remote = into.getLevel().getBlockEntity(into.getBlockPos().relative(dir));
 					if(remote != null)
-						remote.getCapability(ForgeCapabilities.ENERGY, dir.getOpposite()).filter(IEnergyStorage::canReceive).ifPresent(acceptor ->
+						remote.getCapability(Capabilities.ENERGY, dir.getOpposite()).filter(IEnergyStorage::canReceive).ifPresent(acceptor ->
 						{
 							int e = Math.min(extractor.getEnergyStored(), lim - sucked.get());
 							if(e <= 0) return;
@@ -70,11 +70,11 @@ public class ForgeEnergyHelper
 	{
 		if(into != null && into.hasLevel())
 			for(Direction dir : Direction.values())
-				into.getCapability(ForgeCapabilities.ENERGY, dir).filter(IEnergyStorage::canExtract).ifPresent(extractor ->
+				into.getCapability(Capabilities.ENERGY, dir).filter(IEnergyStorage::canExtract).ifPresent(extractor ->
 				{
 					BlockEntity remote = into.getLevel().getBlockEntity(into.getBlockPos().relative(dir));
 					if(remote != null)
-						remote.getCapability(ForgeCapabilities.ENERGY, dir.getOpposite()).filter(IEnergyStorage::canReceive).ifPresent(acceptor ->
+						remote.getCapability(Capabilities.ENERGY, dir.getOpposite()).filter(IEnergyStorage::canReceive).ifPresent(acceptor ->
 						{
 							int e = Math.min(extractor.getEnergyStored(), lim);
 							e = acceptor.receiveEnergy(e, true);

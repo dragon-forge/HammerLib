@@ -2,7 +2,7 @@ package org.zeith.hammerlib.util.charging;
 
 import net.minecraft.world.entity.player.*;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import org.objectweb.asm.Type;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.util.java.*;

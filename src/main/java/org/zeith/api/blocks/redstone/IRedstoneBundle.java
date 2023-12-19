@@ -1,6 +1,6 @@
 package org.zeith.api.blocks.redstone;
 
-import net.minecraftforge.common.capabilities.*;
+import net.neoforged.neoforge.common.capabilities.*;
 import org.jetbrains.annotations.Range;
 
 /**

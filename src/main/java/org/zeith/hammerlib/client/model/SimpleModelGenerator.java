@@ -2,12 +2,11 @@ package org.zeith.hammerlib.client.model;
 
 import com.google.gson.*;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.event.ModelEvent;
-import net.minecraftforge.client.model.geometry.IGeometryLoader;
-import net.minecraftforge.client.model.geometry.IUnbakedGeometry;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.javafmlmod.FMLModContainer;
 import net.minecraftforge.fml.unsafe.UnsafeHacks;
+import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.fml.javafmlmod.FMLModContainer;
+import net.neoforged.neoforge.client.event.ModelEvent;
+import net.neoforged.neoforge.client.model.geometry.IGeometryLoader;
 import org.jetbrains.annotations.ApiStatus;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.annotations.OnlyIf;
@@ -17,10 +16,9 @@ import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.mcf.ScanDataHelper;
 import org.zeith.hammerlib.util.shaded.json.JSONObject;
 
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
+import java.util.function.*;
 
-public class SimpleModelGenerator<T extends IUnbakedGeometry<T>>
+public class SimpleModelGenerator<T extends org.zeith.hammerlib.client.model.IUnbakedGeometry<T>>
 		implements IGeometryLoader<T>
 {
 	private final BiFunction<JsonObject, JsonDeserializationContext, T> factory;
@@ -43,12 +41,12 @@ public class SimpleModelGenerator<T extends IUnbakedGeometry<T>>
 		ScanDataHelper.lookupAnnotatedObjects(LoadUnbakedGeometry.class).forEach(data ->
 		{
 			var cTmp = data.getOwnerClass();
-			if(IUnbakedGeometry.class.isAssignableFrom(cTmp))
+			if(org.zeith.hammerlib.client.model.IUnbakedGeometry.class.isAssignableFrom(cTmp))
 			{
-				var c = cTmp.asSubclass(IUnbakedGeometry.class);
+				var c = cTmp.asSubclass(org.zeith.hammerlib.client.model.IUnbakedGeometry.class);
 				var path = data.getProperty("path").map(String.class::cast).orElseThrow();
 				
-				BiFunction<JsonObject, JsonDeserializationContext, IUnbakedGeometry> factory = (json, context) -> Cast.cast(UnsafeHacks.newInstance(c));
+				BiFunction<JsonObject, JsonDeserializationContext, org.zeith.hammerlib.client.model.IUnbakedGeometry> factory = (json, context) -> Cast.cast(UnsafeHacks.newInstance(c));
 				
 				var loaderId = new ResourceLocation(data.getOwnerMod().map(FMLModContainer::getModId).orElse(HLConstants.MOD_ID), path);
 				

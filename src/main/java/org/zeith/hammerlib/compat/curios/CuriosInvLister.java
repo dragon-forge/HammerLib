@@ -1,7 +1,7 @@
 package org.zeith.hammerlib.compat.curios;
 
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import org.zeith.hammerlib.util.charging.IPlayerInventoryLister;
 import top.theillusivec4.curios.api.CuriosApi;
 

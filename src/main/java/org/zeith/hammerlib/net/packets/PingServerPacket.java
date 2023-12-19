@@ -1,10 +1,7 @@
 package org.zeith.hammerlib.net.packets;
 
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import org.zeith.hammerlib.net.IPacket;
-import org.zeith.hammerlib.net.PacketContext;
+import org.zeith.hammerlib.net.*;
 
 public class PingServerPacket
 		implements IPacket
@@ -37,7 +34,6 @@ public class PingServerPacket
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	public void clientExecute(PacketContext ctx)
 	{
 		lastPingTime = (System.currentTimeMillis() - time) / 2L;

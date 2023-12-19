@@ -3,22 +3,19 @@ package org.zeith.hammerlib.core.adapter;
 import com.google.common.base.Suppliers;
 import net.minecraft.Util;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.ForgeRegistries;
-import org.zeith.hammerlib.api.items.CreativeTab;
-import org.zeith.hammerlib.api.items.ITabItem;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import org.zeith.hammerlib.api.items.*;
 import org.zeith.hammerlib.util.java.Cast;
-import org.zeith.hammerlib.util.java.tuples.Tuple2;
-import org.zeith.hammerlib.util.java.tuples.Tuples;
+import org.zeith.hammerlib.util.java.tuples.*;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.function.*;
 import java.util.stream.Collectors;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -29,8 +26,7 @@ public class CreativeTabAdapter
 	private static final List<CreativeTab> CUSTOM_TABS = new ArrayList<>();
 	private static final Map<CreativeModeTab, CreativeTab> REGISTERED = new ConcurrentHashMap<>();
 	private static final Supplier<Set<ITabItem>> CUSTOM_TAB_ITEMS = Suppliers.memoize(() ->
-			ForgeRegistries.ITEMS
-					.getValues()
+			BuiltInRegistries.ITEM
 					.stream()
 					.filter(ITabItem.class::isInstance)
 					.map(Cast.convertTo(ITabItem.class))

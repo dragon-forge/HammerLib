@@ -1,7 +1,7 @@
 package org.zeith.hammerlib.annotations.client;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.DistExecutor;
 import org.jetbrains.annotations.ApiStatus;
 import org.objectweb.asm.Type;
 import org.zeith.hammerlib.HammerLib;

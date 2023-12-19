@@ -1,11 +1,12 @@
 package org.zeith.api.registry;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
+import com.google.common.collect.*;
+import com.mojang.serialization.*;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleType;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.*;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.stats.StatType;
 import net.minecraft.world.effect.MobEffect;
@@ -16,15 +17,12 @@ import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.entity.decoration.PaintingVariant;
 import net.minecraft.world.entity.npc.VillagerProfession;
-import net.minecraft.world.entity.schedule.Activity;
-import net.minecraft.world.entity.schedule.Schedule;
+import net.minecraft.world.entity.schedule.*;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.alchemy.Potion;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.chunk.ChunkStatus;
@@ -34,13 +32,12 @@ import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacerTy
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProviderType;
 import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecoratorType;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraftforge.fluids.FluidType;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.IForgeRegistry;
+import net.neoforged.neoforge.fluids.FluidType;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.zeith.hammerlib.util.java.Cast;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Class for mapping registry types to their corresponding Forge registry and vice versa.
@@ -49,53 +46,53 @@ import java.util.Set;
  */
 public class RegistryMapping
 {
-	private static final BiMap<Class<?>, IForgeRegistry<?>> REG_BY_TYPE = HashBiMap.create();
+	private static final BiMap<Class<?>, Registry<?>> REG_BY_TYPE = HashBiMap.create();
 	private static final BiMap<ResourceKey<?>, Class<?>> TYPE_BY_REG = HashBiMap.create();
 	private static final Set<ResourceKey<?>> NON_INTRUSIVE_REGISTRIES = new HashSet<>();
 	
 	static
 	{
-		report(Block.class, ForgeRegistries.BLOCKS);
-		report(Fluid.class, ForgeRegistries.FLUIDS);
-		report(Item.class, ForgeRegistries.ITEMS);
-		report(MobEffect.class, ForgeRegistries.MOB_EFFECTS);
-		report(SoundEvent.class, ForgeRegistries.SOUND_EVENTS);
-		report(Potion.class, ForgeRegistries.POTIONS);
-		report(Enchantment.class, ForgeRegistries.ENCHANTMENTS);
-		report(PaintingVariant.class, ForgeRegistries.PAINTING_VARIANTS);
-		report(Attribute.class, ForgeRegistries.ATTRIBUTES);
-		report(VillagerProfession.class, ForgeRegistries.VILLAGER_PROFESSIONS);
-		report(PoiType.class, ForgeRegistries.POI_TYPES);
-		report(Schedule.class, ForgeRegistries.SCHEDULES);
-		report(Activity.class, ForgeRegistries.ACTIVITIES);
-		report(ChunkStatus.class, ForgeRegistries.CHUNK_STATUS);
-		report(Biome.class, ForgeRegistries.BIOMES);
+		report(Block.class, BuiltInRegistries.BLOCK);
+		report(Fluid.class, BuiltInRegistries.FLUID);
+		report(Item.class, BuiltInRegistries.ITEM);
+		report(MobEffect.class, BuiltInRegistries.MOB_EFFECT);
+		report(SoundEvent.class, BuiltInRegistries.SOUND_EVENT);
+		report(Potion.class, BuiltInRegistries.POTION);
+		report(Enchantment.class, BuiltInRegistries.ENCHANTMENT);
+		report(PaintingVariant.class, BuiltInRegistries.PAINTING_VARIANT);
+		report(Attribute.class, BuiltInRegistries.ATTRIBUTE);
+		report(VillagerProfession.class, BuiltInRegistries.VILLAGER_PROFESSION);
+		report(PoiType.class, BuiltInRegistries.POINT_OF_INTEREST_TYPE);
+		report(Schedule.class, BuiltInRegistries.SCHEDULE);
+		report(Activity.class, BuiltInRegistries.ACTIVITY);
+		report(ChunkStatus.class, BuiltInRegistries.CHUNK_STATUS);
+//		report(Biome.class, BuiltInRegistries.BIOME);
 		
 		// Forge is dumb, yes.
-		TYPE_BY_REG.put(ForgeRegistries.Keys.FLUID_TYPES, FluidType.class);
+		report(FluidType.class, NeoForgeRegistries.FLUID_TYPES);
 		
 		// Generics.
-		reportRaw(EntityType.class, ForgeRegistries.ENTITY_TYPES);
-		reportRaw(BlockEntityType.class, ForgeRegistries.BLOCK_ENTITY_TYPES);
-		reportRaw(ParticleType.class, ForgeRegistries.PARTICLE_TYPES);
-		reportRaw(MenuType.class, ForgeRegistries.MENU_TYPES);
-		reportRaw(RecipeType.class, ForgeRegistries.RECIPE_TYPES);
-		reportRaw(RecipeSerializer.class, ForgeRegistries.RECIPE_SERIALIZERS);
-		reportRaw(StatType.class, ForgeRegistries.STAT_TYPES);
-		reportRaw(MemoryModuleType.class, ForgeRegistries.MEMORY_MODULE_TYPES);
-		reportRaw(SensorType.class, ForgeRegistries.SENSOR_TYPES);
-		reportRaw(WorldCarver.class, ForgeRegistries.WORLD_CARVERS);
-		reportRaw(Feature.class, ForgeRegistries.FEATURES);
-		reportRaw(BlockStateProviderType.class, ForgeRegistries.BLOCK_STATE_PROVIDER_TYPES);
-		reportRaw(FoliagePlacerType.class, ForgeRegistries.FOLIAGE_PLACER_TYPES);
-		reportRaw(TreeDecoratorType.class, ForgeRegistries.TREE_DECORATOR_TYPES);
-		reportRaw(ArgumentTypeInfo.class, ForgeRegistries.COMMAND_ARGUMENT_TYPES);
+		reportRaw(EntityType.class, BuiltInRegistries.ENTITY_TYPE);
+		reportRaw(BlockEntityType.class, BuiltInRegistries.BLOCK_ENTITY_TYPE);
+		reportRaw(ParticleType.class, BuiltInRegistries.PARTICLE_TYPE);
+		reportRaw(MenuType.class, BuiltInRegistries.MENU);
+		reportRaw(RecipeType.class, BuiltInRegistries.RECIPE_TYPE);
+		reportRaw(RecipeSerializer.class, BuiltInRegistries.RECIPE_SERIALIZER);
+		reportRaw(StatType.class, BuiltInRegistries.STAT_TYPE);
+		reportRaw(MemoryModuleType.class, BuiltInRegistries.MEMORY_MODULE_TYPE);
+		reportRaw(SensorType.class, BuiltInRegistries.SENSOR_TYPE);
+		reportRaw(WorldCarver.class, BuiltInRegistries.CARVER);
+		reportRaw(Feature.class, BuiltInRegistries.FEATURE);
+		reportRaw(BlockStateProviderType.class, BuiltInRegistries.BLOCKSTATE_PROVIDER_TYPE);
+		reportRaw(FoliagePlacerType.class, BuiltInRegistries.FOLIAGE_PLACER_TYPE);
+		reportRaw(TreeDecoratorType.class, BuiltInRegistries.TREE_DECORATOR_TYPE);
+		reportRaw(ArgumentTypeInfo.class, BuiltInRegistries.COMMAND_ARGUMENT_TYPE);
 	}
 	
 	/**
 	 * Allows marking any registry as non-intrusive, allowing @{@link org.zeith.hammerlib.annotations.OnlyIf} to be applicable on constant fields of a registry.
 	 */
-	public static synchronized <T> void markRegistryAsNonIntrusive(ResourceKey<Registry<T>> registryKey)
+	public static synchronized <T> void markRegistryAsNonIntrusive(ResourceKey<? extends Registry<T>> registryKey)
 	{
 		NON_INTRUSIVE_REGISTRIES.add(registryKey);
 	}
@@ -110,41 +107,24 @@ public class RegistryMapping
 	 * @param <T>
 	 * 		type of registry
 	 */
-	public static synchronized <T> void report(Class<T> base, IForgeRegistry<T> registry)
+	public static synchronized <T> void report(Class<T> base, Registry<T> registry)
 	{
 		REG_BY_TYPE.put(base, registry);
-		TYPE_BY_REG.put(registry.getRegistryKey(), base);
+		TYPE_BY_REG.put(registry.key(), base);
 	}
 	
 	
-	public static synchronized <T> void report(Class<T> base, IForgeRegistry<T> registry, boolean intrusive)
+	public static synchronized <T> void report(Class<T> base, Registry<T> registry, boolean intrusive)
 	{
 		REG_BY_TYPE.put(base, registry);
-		TYPE_BY_REG.put(registry.getRegistryKey(), base);
-		if(!intrusive) markRegistryAsNonIntrusive(registry.getRegistryKey());
+		TYPE_BY_REG.put(registry.key(), base);
+		if(!intrusive) markRegistryAsNonIntrusive(registry.key());
 	}
 	
-	public static synchronized void reportRaw(Class base, IForgeRegistry registry)
+	public static synchronized void reportRaw(Class base, Registry registry)
 	{
 		REG_BY_TYPE.put(base, registry);
-		TYPE_BY_REG.put(registry.getRegistryKey(), base);
-	}
-	
-	/**
-	 * Returns the registry type for the provided Forge registry.
-	 *
-	 * @param registry
-	 * 		Forge registry to get the registry type for
-	 * @param <T>
-	 * 		type of registry
-	 *
-	 * @return registry type for the provided Forge registry
-	 */
-	public static <T> Class<T> getSuperType(IForgeRegistry<T> registry)
-	{
-		if(registry == null)
-			return null;
-		return getSuperType(registry.getRegistryKey());
+		TYPE_BY_REG.put(registry.key(), base);
 	}
 	
 	/**
@@ -171,7 +151,7 @@ public class RegistryMapping
 		return Cast.cast(TYPE_BY_REG.get(registry));
 	}
 	
-	public static <T> IForgeRegistry<T> getRegistryByType(Class<T> registry)
+	public static <T> Registry<T> getRegistryByType(Class<T> registry)
 	{
 		if(registry == null)
 			return null;
@@ -189,5 +169,34 @@ public class RegistryMapping
 	public static boolean isNonIntrusive(ResourceKey<? extends Registry<?>> registry)
 	{
 		return registry != null && NON_INTRUSIVE_REGISTRIES.contains(registry);
+	}
+	
+	private static final Map<ResourceKey<? extends Registry<?>>, Codec<?>> REGISTRY_CODECS = new ConcurrentHashMap<>();
+	
+	public static <T> Codec<T> registryCodec(ResourceKey<? extends Registry<T>> key)
+	{
+		return Cast.cast(REGISTRY_CODECS.computeIfAbsent(key, regKey -> createRegistryCodec(key)));
+	}
+	
+	private static <T> Codec<T> createRegistryCodec(ResourceKey<? extends Registry<T>> key)
+	{
+		return ResourceLocation.CODEC
+				.flatXmap(
+						id ->
+						{
+							Registry<T> registry = BuiltInRegistries.REGISTRY.get((ResourceKey) key);
+							return Optional.ofNullable(registry.get(id))
+									.map(DataResult::success)
+									.orElseGet(() -> DataResult.error(() -> "Unknown registry key in " + key + ": " + id));
+						},
+						obj ->
+						{
+							Registry<T> registry = BuiltInRegistries.REGISTRY.get((ResourceKey) key);
+							return registry.getResourceKey(obj)
+									.map(ResourceKey::location)
+									.map(DataResult::success)
+									.orElseGet(() -> DataResult.error(() -> "Unknown registry element in " + key + ":" + obj));
+						}
+				);
 	}
 }

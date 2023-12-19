@@ -3,10 +3,10 @@ package org.zeith.hammerlib.event.listeners;
 import net.minecraft.core.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.*;
-import net.minecraftforge.common.crafting.conditions.ICondition;
-import net.minecraftforge.event.TagsUpdatedEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.common.conditions.ICondition;
+import net.neoforged.neoforge.event.TagsUpdatedEvent;
 
 import java.util.*;
 import java.util.function.UnaryOperator;

@@ -1,10 +1,8 @@
 package org.zeith.hammerlib.util.configured.data;
 
-import org.zeith.hammerlib.util.configured.struct.RangeDouble;
-import org.zeith.hammerlib.util.configured.struct.RangeFloat;
+import org.zeith.hammerlib.util.configured.struct.*;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
+import java.math.*;
 import java.util.function.Predicate;
 
 public class DecimalValueRange

@@ -4,10 +4,9 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class TooltipUtils
 {

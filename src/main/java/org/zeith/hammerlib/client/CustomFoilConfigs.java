@@ -1,15 +1,15 @@
 package org.zeith.hammerlib.client;
 
 import net.minecraft.*;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.InterModComms;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.*;
-import net.minecraftforge.fml.loading.FMLPaths;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.InterModComms;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.event.lifecycle.*;
+import net.neoforged.fml.loading.FMLPaths;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.api.items.IColoredFoilItem;
 import org.zeith.hammerlib.core.init.ItemsHL;
@@ -118,10 +118,10 @@ public class CustomFoilConfigs
 				
 				$.put("constant_colors",
 						new JSONObject()
-								.put(Objects.toString(ForgeRegistries.ITEMS.getKey(Items.NETHER_STAR)),
+								.put(Objects.toString(BuiltInRegistries.ITEM.getKey(Items.NETHER_STAR)),
 										0xFF185D | IColoredFoilItem.FULL_ALPHA
 								)
-								.put(Objects.toString(ForgeRegistries.ITEMS.getKey(Items.ENCHANTED_GOLDEN_APPLE)),
+								.put(Objects.toString(BuiltInRegistries.ITEM.getKey(Items.ENCHANTED_GOLDEN_APPLE)),
 										0xFDFF96 | IColoredFoilItem.FULL_ALPHA
 								)
 				);
@@ -150,7 +150,7 @@ public class CustomFoilConfigs
 					continue;
 				}
 				
-				var item = ForgeRegistries.ITEMS.getValue(loc);
+				var item = BuiltInRegistries.ITEM.get(loc);
 				if(item == null || item == Items.AIR)
 				{
 					HammerLib.LOG.info("foil_colors.json/constant_colors: Unable to find item " + loc + ". Skipping.");

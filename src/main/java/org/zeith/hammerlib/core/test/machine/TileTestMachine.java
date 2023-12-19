@@ -1,7 +1,6 @@
 package org.zeith.hammerlib.core.test.machine;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.core.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -9,32 +8,31 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.zeith.api.wrench.IWrenchable;
-import org.zeith.hammerlib.annotations.RegistryName;
-import org.zeith.hammerlib.annotations.SimplyRegister;
+import org.zeith.hammerlib.annotations.*;
 import org.zeith.hammerlib.annotations.client.TileRenderer;
-import org.zeith.hammerlib.api.crafting.ICraftingExecutor;
 import org.zeith.hammerlib.api.forge.BlockAPI;
 import org.zeith.hammerlib.api.inv.SimpleInventory;
 import org.zeith.hammerlib.api.io.NBTSerializable;
 import org.zeith.hammerlib.api.tiles.IContainerTile;
 import org.zeith.hammerlib.core.RecipeHelper;
-import org.zeith.hammerlib.net.properties.PropertyInt;
-import org.zeith.hammerlib.net.properties.PropertyResourceLocation;
+import org.zeith.hammerlib.net.properties.*;
 import org.zeith.hammerlib.tiles.TileSyncableTickable;
-import org.zeith.hammerlib.tiles.tooltip.EnumNumberFormat;
-import org.zeith.hammerlib.tiles.tooltip.ProgressBar;
-import org.zeith.hammerlib.tiles.tooltip.own.ITooltip;
-import org.zeith.hammerlib.tiles.tooltip.own.ITooltipProvider;
+import org.zeith.hammerlib.tiles.tooltip.*;
+import org.zeith.hammerlib.tiles.tooltip.own.*;
 import org.zeith.hammerlib.util.java.DirectStorage;
+
+import java.util.Optional;
+
 
 @SimplyRegister
 public class TileTestMachine
 		extends TileSyncableTickable
-		implements IContainerTile, ICraftingExecutor, IWrenchable, ITooltipProvider
+		implements IContainerTile, IWrenchable, ITooltipProvider
 {
 	@TileRenderer(TESRTestMachine.class)
 	@RegistryName("test_machine")
@@ -107,13 +105,14 @@ public class TileTestMachine
 		
 		if(r == null && atTickRate(10))
 		{
-			RecipeTestMachine recipe = RecipeHelper.getRecipes(level, RecipeTestMachine.TYPE).filter(this::isValidRecipe).findFirst().orElse(null);
+			var recipe = RecipeHelper.getRecipeHolders(level, RecipeTestMachine.TYPE).filter(this::isValidRecipe).findFirst().orElse(null);
 			if(recipe != null)
 			{
-				if(recipe.time != _maxProgress)
+				var rec = recipe.value();
+				if(rec.time != _maxProgress)
 					progress.setInt(0);
-				maxProgress.setInt(recipe.time);
-				activeRecipeId.set(recipe.getId());
+				maxProgress.setInt(rec.time);
+				activeRecipeId.set(recipe.id());
 				setEnabledState(true);
 			}
 		}
@@ -137,8 +136,10 @@ public class TileTestMachine
 	
 	public RecipeTestMachine getActiveRecipe()
 	{
-		return RecipeHelper.getRecipeMap(level, RecipeTestMachine.TYPE)
-				.get(_activeRecipeId);
+		return Optional.ofNullable(RecipeHelper.getRecipeMap(level, RecipeTestMachine.TYPE)
+						.get(_activeRecipeId))
+				.map(RecipeHolder::value)
+				.orElse(null);
 	}
 	
 	private boolean output(ItemStack stack)
@@ -153,12 +154,17 @@ public class TileTestMachine
 		return false;
 	}
 	
+	private boolean isValidRecipe(RecipeHolder<RecipeTestMachine> recipe)
+	{
+		return recipe != null && isValidRecipe(recipe.value());
+	}
+	
 	private boolean isValidRecipe(RecipeTestMachine recipe)
 	{
 		return recipe != null
-				&& recipe.inputA.test(inventory.getItem(0))
-				&& recipe.inputB.test(inventory.getItem(1))
-				&& canStore(recipe.getRecipeOutput(this));
+			   && recipe.inputA.test(inventory.getItem(0))
+			   && recipe.inputB.test(inventory.getItem(1))
+			   && canStore(recipe.getRecipeOutput(this));
 	}
 	
 	private boolean canStore(ItemStack result)

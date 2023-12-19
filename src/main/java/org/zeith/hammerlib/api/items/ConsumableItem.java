@@ -2,12 +2,11 @@ package org.zeith.hammerlib.api.items;
 
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.zeith.hammerlib.core.RecipeHelper;
 
-import java.util.Arrays;
+import java.util.List;
 
 public class ConsumableItem
 {
@@ -38,7 +37,7 @@ public class ConsumableItem
 	public ConsumableItem(int amount, Ingredient... ing)
 	{
 		this.amount = amount;
-		this.ingr = Ingredient.merge(Arrays.asList(ing));
+		this.ingr = RecipeHelper.merge(List.of(ing));
 	}
 
 	public boolean canConsume(Container inv)

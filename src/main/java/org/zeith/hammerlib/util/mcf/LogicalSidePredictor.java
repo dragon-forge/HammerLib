@@ -1,7 +1,7 @@
 package org.zeith.hammerlib.util.mcf;
 
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.util.thread.SidedThreadGroups;
+import net.neoforged.fml.LogicalSide;
+import net.neoforged.fml.util.thread.SidedThreadGroups;
 
 public class LogicalSidePredictor
 {

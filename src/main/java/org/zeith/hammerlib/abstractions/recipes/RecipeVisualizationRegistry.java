@@ -1,22 +1,19 @@
 package org.zeith.hammerlib.abstractions.recipes;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.world.item.crafting.*;
+import net.neoforged.bus.api.Event;
+import net.neoforged.neoforge.fluids.FluidStack;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.java.consumers.Consumer2;
-import org.zeith.hammerlib.util.java.tuples.Tuple2;
-import org.zeith.hammerlib.util.java.tuples.Tuples;
+import org.zeith.hammerlib.util.java.tuples.*;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public class RecipeVisualizationRegistry
@@ -49,7 +46,7 @@ public class RecipeVisualizationRegistry
 	{
 		VIS_REGISTRY.clear();
 		HammerLib.EVENT_BUS.post(new RegisterRecipeVisualizationEvent(this));
-		for(RecipeType<?> type : ForgeRegistries.RECIPE_TYPES.getValues())
+		for(RecipeType<?> type : BuiltInRegistries.RECIPE_TYPE)
 		{
 			if(type instanceof IVisualizedRecipeType<?> visual)
 			{

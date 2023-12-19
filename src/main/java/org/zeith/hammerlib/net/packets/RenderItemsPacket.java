@@ -3,11 +3,9 @@ package org.zeith.hammerlib.net.packets;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.*;
 import org.zeith.hammerlib.client.render.item.Stack2ImageRenderer;
-import org.zeith.hammerlib.net.IPacket;
-import org.zeith.hammerlib.net.PacketContext;
+import org.zeith.hammerlib.net.*;
 
 public class RenderItemsPacket
 		implements IPacket

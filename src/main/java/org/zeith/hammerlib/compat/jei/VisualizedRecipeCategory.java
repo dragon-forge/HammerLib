@@ -123,6 +123,6 @@ public class VisualizedRecipeCategory<T extends IVisualizedRecipe<?>>
 	@Override
 	public @Nullable ResourceLocation getRegistryName(T recipe)
 	{
-		return recipe.getRecipe().getId();
+		return recipe.getRecipe().id();
 	}
 }

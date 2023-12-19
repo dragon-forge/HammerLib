@@ -1,11 +1,9 @@
 package org.zeith.hammerlib.util.mcf;
 
-import it.unimi.dsi.fastutil.longs.LongArrayList;
-import it.unimi.dsi.fastutil.longs.LongList;
+import it.unimi.dsi.fastutil.longs.*;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.LongTag;
-import net.minecraftforge.common.util.INBTSerializable;
+import net.minecraft.nbt.*;
+import net.neoforged.neoforge.common.util.INBTSerializable;
 
 import java.util.AbstractList;
 import java.util.function.LongConsumer;

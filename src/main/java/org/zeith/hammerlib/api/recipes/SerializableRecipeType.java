@@ -2,18 +2,16 @@ package org.zeith.hammerlib.api.recipes;
 
 import com.google.gson.*;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.*;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegisterEvent;
+import net.neoforged.neoforge.registries.RegisterEvent;
 import org.jetbrains.annotations.Nullable;
-import org.zeith.hammerlib.abstractions.recipes.IRecipeVisualizer;
-import org.zeith.hammerlib.abstractions.recipes.IVisualizedRecipeType;
+import org.zeith.hammerlib.abstractions.recipes.*;
 import org.zeith.hammerlib.api.fml.ICustomRegistrar;
 import org.zeith.hammerlib.util.java.Cast;
 
@@ -35,30 +33,15 @@ public abstract class SerializableRecipeType<T extends Recipe<?>>
 	public static final String DEFAULT_GROUP_KEY = "group";
 	
 	/**
-	 * Deserializes a recipe from a JSON object.
-	 *
-	 * @param recipeLoc
-	 * 		the location of the recipe
-	 * @param recipeJson
-	 * 		the JSON object containing the recipe data
-	 *
-	 * @return the deserialized recipe
-	 */
-	@Override
-	public abstract T fromJson(ResourceLocation recipeLoc, JsonObject recipeJson);
-	
-	/**
 	 * Deserializes a recipe from a network buffer.
 	 *
-	 * @param recipeLoc
-	 * 		the location of the recipe
 	 * @param buf
 	 * 		the network buffer containing the recipe data
 	 *
 	 * @return the deserialized recipe, or null if deserialization failed
 	 */
 	@Override
-	public abstract @Nullable T fromNetwork(ResourceLocation recipeLoc, FriendlyByteBuf buf);
+	public abstract @Nullable T fromNetwork(FriendlyByteBuf buf);
 	
 	/**
 	 * Serializes a recipe to a network buffer.
@@ -82,8 +65,8 @@ public abstract class SerializableRecipeType<T extends Recipe<?>>
 	@Override
 	public void performRegister(RegisterEvent event, ResourceLocation id)
 	{
-		event.register(ForgeRegistries.Keys.RECIPE_TYPES, id, Cast.constant(this));
-		event.register(ForgeRegistries.Keys.RECIPE_SERIALIZERS, id, Cast.constant(this));
+		event.register(Registries.RECIPE_TYPE, id, Cast.constant(this));
+		event.register(Registries.RECIPE_SERIALIZER, id, Cast.constant(this));
 	}
 	
 	@Override
@@ -99,7 +82,7 @@ public abstract class SerializableRecipeType<T extends Recipe<?>>
 	@Override
 	public String toString()
 	{
-		return getClass().getSimpleName() + "{recipeTypeId=" + ForgeRegistries.RECIPE_TYPES.getKey(this) + ",recipeSerializerId=" + ForgeRegistries.RECIPE_SERIALIZERS.getKey(this) + "}";
+		return getClass().getSimpleName() + "{recipeTypeId=" + BuiltInRegistries.RECIPE_TYPE.getKey(this) + ",recipeSerializerId=" + BuiltInRegistries.RECIPE_SERIALIZER.getKey(this) + "}";
 	}
 	
 	public ItemStack getToastSymbol(Recipe<?> recipe)
@@ -109,13 +92,13 @@ public abstract class SerializableRecipeType<T extends Recipe<?>>
 	
 	public static Ingredient ingredientFromJson(JsonElement obj)
 	{
-		return Ingredient.fromJson(obj);
+		return Ingredient.fromJson(obj, true);
 	}
 	
 	public static NonNullList<Ingredient> ingredientsFromArray(JsonArray array)
 	{
 		NonNullList<Ingredient> nonnulllist = NonNullList.create();
-		for(int i = 0; i < array.size(); ++i) nonnulllist.add(Ingredient.fromJson(array.get(i)));
+		for(int i = 0; i < array.size(); ++i) nonnulllist.add(ingredientFromJson(array.get(i)));
 		return nonnulllist;
 	}
 	
@@ -124,16 +107,6 @@ public abstract class SerializableRecipeType<T extends Recipe<?>>
 		NonNullList<IngredientWithCount> nonnulllist = NonNullList.create();
 		for(int i = 0; i < array.size(); ++i) nonnulllist.add(IngredientWithCount.fromJson(array.get(i)));
 		return nonnulllist;
-	}
-	
-	public static ItemStack itemStackFromJson(JsonObject obj)
-	{
-		return net.minecraftforge.common.crafting.CraftingHelper.getItemStack(obj, true, true);
-	}
-	
-	public static ItemStack itemStackOrEmptyFromJson(JsonObject obj)
-	{
-		return net.minecraftforge.common.crafting.CraftingHelper.getItemStack(obj, true, false);
 	}
 	
 	public static Item itemFromJson(JsonObject obj)

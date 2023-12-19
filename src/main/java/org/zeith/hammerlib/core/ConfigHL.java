@@ -1,6 +1,6 @@
 package org.zeith.hammerlib.core;
 
-import net.minecraftforge.api.distmarker.Dist;
+import net.neoforged.api.distmarker.Dist;
 import org.zeith.hammerlib.api.config.*;
 import org.zeith.hammerlib.client.CustomFoilConfigs;
 import org.zeith.hammerlib.util.configured.types.ConfigCategory;

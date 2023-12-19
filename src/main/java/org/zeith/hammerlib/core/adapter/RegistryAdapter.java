@@ -6,10 +6,10 @@ import net.minecraft.resources.*;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.event.lifecycle.*;
-import net.minecraftforge.fml.loading.FMLEnvironment;
-import net.minecraftforge.registries.*;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.event.lifecycle.*;
+import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.registries.RegisterEvent;
 import org.apache.logging.log4j.LogManager;
 import org.zeith.api.registry.RegistryMapping;
 import org.zeith.hammerlib.HammerLib;
@@ -27,34 +27,14 @@ import java.util.function.BiConsumer;
 
 public class RegistryAdapter
 {
-	public static <T> Optional<BiConsumer<ResourceLocation, T>> createRegisterer(RegisterEvent event, ResourceKey<Registry<T>> registryType, String prefix)
+	public static <T> Optional<BiConsumer<ResourceLocation, T>> createRegisterer(RegisterEvent event, ResourceKey<? extends Registry<T>> registryType, String prefix)
 	{
-		if(event.getRegistryKey().equals(registryType))
-		{
-			Registry<T> reg = event.getVanillaRegistry();
-			IForgeRegistry<T> freg = event.getForgeRegistry();
-			
-			if(prefix == null) prefix = "";
-			
-			if(freg != null)
-				return Optional.of(createRegisterer(freg, prefix));
-			else if(reg != null)
-				return Optional.of(createRegisterer(reg, prefix));
-		}
+		Registry<T> reg = event.getRegistry(registryType);
+		if(prefix == null) prefix = "";
+		if(reg != null)
+			return Optional.of(createRegisterer(reg, prefix));
 		
 		return Optional.empty();
-	}
-	
-	public static <T> BiConsumer<ResourceLocation, T> createRegisterer(IForgeRegistry<T> registry, String prefix)
-	{
-		return (name, entry) ->
-		{
-			name = new ResourceLocation(name.getNamespace(), prefix + name.getPath());
-			IRegisterListener l = Cast.cast(entry, IRegisterListener.class);
-			if(l != null) l.onPreRegistered(name);
-			registry.register(name, entry);
-			if(l != null) l.onPostRegistered(name);
-		};
 	}
 	
 	public static <T> BiConsumer<ResourceLocation, T> createRegisterer(Registry<T> registry, String prefix)
@@ -73,16 +53,14 @@ public class RegistryAdapter
 	
 	public static int register(RegisterEvent event, Class<?> source, String modid, String prefix)
 	{
-		IForgeRegistry<?> reg = event.getForgeRegistry();
-		if(reg == null)
-			reg = RegistryMapping.getRegistryByType(RegistryMapping.getSuperType(event.getRegistryKey()));
+		var reg = event.getRegistry();
 		return RegistryAdapter.register(event, reg, source, modid, prefix);
 	}
 	
 	/**
 	 * Registers all static fields (from source) with the matching registry type, and methods that accept Consumer<T>
 	 */
-	public static <T> int register(RegisterEvent event, IForgeRegistry<T> registry, Class<?> source, String modid, String prefix)
+	public static <T> int register(RegisterEvent event, Registry<T> registry, Class<?> source, String modid, String prefix)
 	{
 		var superType = RegistryMapping.getSuperType(registry);
 		var regKey = event.getRegistryKey();
@@ -116,7 +94,7 @@ public class RegistryAdapter
 		boolean tileRegistryOnClient = BlockEntityType.class.equals(superType) && FMLEnvironment.dist == Dist.CLIENT;
 		boolean particleRegistryOnClient = ParticleType.class.equals(superType) && FMLEnvironment.dist == Dist.CLIENT;
 		
-		int prevSize = registry != null ? registry.getValues().size() : 0;
+		int prevSize = registry != null ? registry.size() : 0;
 		
 		// ICustomRegistrar hook!
 		Arrays
@@ -151,7 +129,7 @@ public class RegistryAdapter
 				});
 		
 		if(superType == null)
-			return registry == null ? 0 : registry.getValues().size() - prevSize;
+			return registry == null ? 0 : registry.size() - prevSize;
 		
 		Arrays
 				.stream(source.getDeclaredMethods())
@@ -239,7 +217,7 @@ public class RegistryAdapter
 						}
 				});
 		
-		return registry.getValues().size() - prevSize;
+		return registry.size() - prevSize;
 	}
 	
 	public static void setup(FMLCommonSetupEvent event, Class<?> source, String memberName)

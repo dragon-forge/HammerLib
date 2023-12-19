@@ -1,7 +1,7 @@
 package org.zeith.hammerlib.compat.base.sided;
 
 import com.google.common.base.Suppliers;
-import net.minecraftforge.fml.DistExecutor;
+import net.neoforged.fml.DistExecutor;
 import org.zeith.hammerlib.util.java.Cast;
 
 import java.util.function.Supplier;

@@ -1,7 +1,7 @@
 package org.zeith.hammerlib.util;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.fml.loading.FMLLoader;
+import net.neoforged.fml.loading.FMLLoader;
 import org.zeith.hammerlib.proxy.HLConstants;
 import org.zeith.hammerlib.util.java.net.HttpRequest;
 import org.zeith.hammerlib.util.mcf.ModHelper;
@@ -9,8 +9,7 @@ import org.zeith.hammerlib.util.shaded.json.JSONTokener;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
+import java.util.function.*;
 
 public class ZeithLinkRepository
 {

@@ -3,11 +3,10 @@ package org.zeith.hammerlib.event.listeners;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.event.TickEvent.*;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.LogicalSide;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.event.TickEvent;
 import org.zeith.hammerlib.api.tiles.ISyncableTile;
 import org.zeith.hammerlib.net.Network;
 import org.zeith.hammerlib.net.packets.SyncTileEntityPacket;
@@ -16,7 +15,7 @@ import org.zeith.hammerlib.util.mcf.LogicalSidePredictor;
 
 import java.util.*;
 
-@EventBusSubscriber(bus = Bus.FORGE)
+@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ServerListener
 {
 	public static final List<BlockEntity> NEED_SYNC = new ArrayList<>();
@@ -24,10 +23,10 @@ public class ServerListener
 	public static final List<IBasePropertyHolder> NEED_PROP_SYNC_GENERIC = new ArrayList<>();
 	
 	@SubscribeEvent
-	public static void serverTick(ServerTickEvent e)
+	public static void serverTick(TickEvent.ServerTickEvent e)
 	{
 		// After we're done with ticking tiles...
-		if(e.phase == Phase.END)
+		if(e.phase == TickEvent.Phase.END)
 		{
 			Set<BlockPos> processed = new HashSet<>();
 			

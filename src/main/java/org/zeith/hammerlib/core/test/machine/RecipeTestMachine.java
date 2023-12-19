@@ -1,21 +1,18 @@
 package org.zeith.hammerlib.core.test.machine;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import lombok.Getter;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.*;
 import org.jetbrains.annotations.Nullable;
-import org.zeith.hammerlib.abstractions.recipes.IRecipeVisualizer;
-import org.zeith.hammerlib.abstractions.recipes.IVisualizedRecipe;
-import org.zeith.hammerlib.abstractions.recipes.layout.ISlotBuilder;
-import org.zeith.hammerlib.abstractions.recipes.layout.IVisualizerBuilder;
-import org.zeith.hammerlib.annotations.RegistryName;
-import org.zeith.hammerlib.annotations.SimplyRegister;
+import org.zeith.hammerlib.abstractions.recipes.*;
+import org.zeith.hammerlib.abstractions.recipes.layout.*;
+import org.zeith.hammerlib.annotations.*;
 import org.zeith.hammerlib.api.recipes.*;
 import org.zeith.hammerlib.client.render.IGuiDrawable;
 import org.zeith.hammerlib.core.adapter.recipe.RecipeBuilder;
@@ -33,13 +30,14 @@ public class RecipeTestMachine
 	
 	public final IngredientWithCount inputA, inputB;
 	public final ItemStack output;
+	@Getter
 	public final int time;
 	
-	public RecipeTestMachine(ResourceLocation id, String group,
+	public RecipeTestMachine(String group,
 							 int time, ItemStack output,
 							 IngredientWithCount inputA, IngredientWithCount inputB)
 	{
-		super(id, group);
+		super(group);
 		this.vanillaResult = output;
 		if(!inputA.isEmpty()) this.vanillaIngredients.addAll(inputA.applyCount());
 		if(!inputB.isEmpty()) this.vanillaIngredients.addAll(inputB.applyCount());
@@ -60,24 +58,23 @@ public class RecipeTestMachine
 		return output.copy();
 	}
 	
-	public int getTime()
-	{
-		return time;
-	}
-	
 	public static class TestMachineRecipeType
 			extends SerializableRecipeType<RecipeTestMachine>
 	{
+		private static final Codec<RecipeTestMachine> CODEC = RecordCodecBuilder.create(
+				inst -> inst.group(
+						ExtraCodecs.strictOptionalField(Codec.STRING, "group", "").forGetter(RecipeTestMachine::getGroup),
+						ExtraCodecs.strictOptionalField(Codec.INT, "time", 200).forGetter(RecipeTestMachine::getTime),
+						CraftingRecipeCodecs.ITEMSTACK_OBJECT_CODEC.fieldOf("result").forGetter(o -> o.output),
+						IngredientWithCount.CODEC.fieldOf("a").forGetter(o -> o.inputA),
+						IngredientWithCount.CODEC.fieldOf("b").forGetter(o -> o.inputB)
+				).apply(inst, RecipeTestMachine::new)
+		);
+		
 		@Override
-		public RecipeTestMachine fromJson(ResourceLocation recipeLoc, JsonObject recipeJson)
+		public Codec<RecipeTestMachine> codec()
 		{
-			var inputs = ingredientsWithCountFromArray(recipeJson.getAsJsonArray(DEFAULT_INGREDIENTS_KEY));
-			return new RecipeTestMachine(recipeLoc, GsonHelper.getAsString(recipeJson, DEFAULT_GROUP_KEY, ""),
-					GsonHelper.getAsInt(recipeJson, "time"),
-					itemStackFromJson(recipeJson.getAsJsonObject(DEFAULT_OUTPUT_KEY)),
-					inputs.get(0),
-					inputs.size() > 1 ? inputs.get(1) : IngredientWithCount.EMPTY
-			);
+			return CODEC;
 		}
 		
 		@Override
@@ -91,14 +88,14 @@ public class RecipeTestMachine
 		}
 		
 		@Override
-		public @Nullable RecipeTestMachine fromNetwork(ResourceLocation recipeLoc, FriendlyByteBuf buf)
+		public @Nullable RecipeTestMachine fromNetwork(FriendlyByteBuf buf)
 		{
 			var ingrA = IngredientWithCount.fromNetwork(buf);
 			var ingrB = IngredientWithCount.fromNetwork(buf);
 			int time = buf.readVarInt();
 			var res = buf.readItem();
 			var group = buf.readUtf();
-			return new RecipeTestMachine(recipeLoc, group, time, res, ingrA, ingrB);
+			return new RecipeTestMachine(group, time, res, ingrA, ingrB);
 		}
 		
 		@Override
@@ -111,7 +108,8 @@ public class RecipeTestMachine
 							.icon(IGuiDrawable.ofItem(new ItemStack(BlockTestMachine.TEST_MACHINE)))
 							.catalyst(new ItemStack(BlockTestMachine.TEST_MACHINE))
 							.build(),
-					VisualizedTestMachine::new));
+					VisualizedTestMachine::new
+			));
 		}
 	}
 	
@@ -163,7 +161,8 @@ public class RecipeTestMachine
 		}
 		
 		@Override
-		protected void validate() throws IllegalStateException
+		protected void validate()
+				throws IllegalStateException
 		{
 			if(inputA == null)
 				throw new IllegalStateException(getClass().getSimpleName() + " does not have a defined input A!");
@@ -174,12 +173,13 @@ public class RecipeTestMachine
 		}
 		
 		@Override
-		public void register() throws IllegalStateException
+		public void register()
+				throws IllegalStateException
 		{
 			validate();
 			
 			var id = getIdentifier();
-			event.register(id, new RecipeTestMachine(id, group, time, result, inputA, inputB));
+			event.register(id, new RecipeTestMachine(group, time, result, inputA, inputB));
 		}
 	}
 	
@@ -187,15 +187,15 @@ public class RecipeTestMachine
 	public static class VisualizedTestMachine
 			implements IVisualizedRecipe<RecipeTestMachine>
 	{
-		final RecipeTestMachine recipe;
+		final RecipeHolder<RecipeTestMachine> recipe;
 		
-		public VisualizedTestMachine(RecipeTestMachine recipe)
+		public VisualizedTestMachine(RecipeHolder<RecipeTestMachine> recipe)
 		{
 			this.recipe = recipe;
 		}
 		
 		@Override
-		public RecipeTestMachine getRecipe()
+		public RecipeHolder<RecipeTestMachine> getRecipe()
 		{
 			return recipe;
 		}
@@ -203,6 +203,8 @@ public class RecipeTestMachine
 		@Override
 		public void setupLayout(IVisualizerBuilder builder)
 		{
+			var recipe = this.recipe.value();
+			
 			builder.addSlot(ISlotBuilder.SlotRole.INPUT, 0, 0)
 					.addItemStacks(Stream.of(recipe.inputA.input().getItems()).peek(s -> s.setCount(recipe.inputA.count())).toList())
 					.build();

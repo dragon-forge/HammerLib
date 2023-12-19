@@ -1,43 +1,38 @@
 package org.zeith.hammerlib.net;
 
+import lombok.*;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.world.level.Level;
+import net.neoforged.fml.LogicalSide;
+import net.neoforged.neoforge.common.util.LogicalSidedProvider;
+import net.neoforged.neoforge.network.NetworkEvent;
 
+@Getter
 public class PacketContext
 {
 	private final ServerPlayer sender;
 	private final LogicalSide side;
-	private IPacket reply;
-
+	private @Setter IPacket reply;
+	
 	public PacketContext(NetworkEvent.Context ctx)
 	{
 		this.side = ctx.getDirection().getReceptionSide();
 		this.sender = ctx.getSender();
 	}
-
+	
 	public boolean hasSender()
 	{
 		return sender != null;
 	}
-
-	public ServerPlayer getSender()
-	{
-		return sender;
-	}
-
-	public LogicalSide getSide()
-	{
-		return side;
-	}
-
+	
 	public void withReply(IPacket reply)
 	{
-		this.reply = reply;
+		setReply(reply);
 	}
-
-	public IPacket getReply()
+	
+	public Level getLevel()
 	{
-		return reply;
+		if(sender != null) return sender.level();
+		return LogicalSidedProvider.CLIENTWORLD.get(side).orElse(null);
 	}
 }

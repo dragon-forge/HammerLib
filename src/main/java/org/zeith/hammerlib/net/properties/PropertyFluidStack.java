@@ -1,7 +1,7 @@
 package org.zeith.hammerlib.net.properties;
 
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 import org.zeith.hammerlib.util.java.DirectStorage;
 
 public class PropertyFluidStack

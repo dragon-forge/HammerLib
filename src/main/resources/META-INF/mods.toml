@@ -8,13 +8,19 @@ version = "${mod_version}"
 displayName = "${mod_name}"
 updateJSONURL = "https://api.modrinth.com/updates/${modrinth_project}/forge_updates.json"
 displayURL = "https://modrinth.com/mod/PlkSuVtM"
-logoFile = "assets/${mod_id}/logo.png"
+logoFile = "logo.png"
 authors = "${mod_authors}"
 
 description='''${mod_description}'''
 
+[[mixins]]
+config = "mixins.${mod_id}.json"
+
+[[accessTransformers]]
+file="META-INF/accesstransformer.cfg"
+
 [[dependencies.${mod_id}]]
-modId = "forge"
+modId = "neoforge"
 mandatory = true
 versionRange = "${forge_version_range}"
 ordering = "NONE" # NONE/BEFORE/AFTER

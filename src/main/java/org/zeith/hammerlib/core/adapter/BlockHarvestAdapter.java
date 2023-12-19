@@ -1,7 +1,6 @@
 package org.zeith.hammerlib.core.adapter;
 
-import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.TagKey;
+import net.minecraft.tags.*;
 import net.minecraft.world.item.Tier;
 import net.minecraft.world.level.block.Block;
 

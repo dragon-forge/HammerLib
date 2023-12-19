@@ -1,7 +1,7 @@
 package org.zeith.hammerlib.client.render;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraftforge.client.model.pipeline.VertexConsumerWrapper;
+import net.neoforged.neoforge.client.model.pipeline.VertexConsumerWrapper;
 import org.zeith.hammerlib.util.colors.ColorHelper;
 import org.zeith.hammerlib.util.java.functions.*;
 

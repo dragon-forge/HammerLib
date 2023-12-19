@@ -1,6 +1,6 @@
 package org.zeith.hammerlib.event;
 
-import net.minecraftforge.eventbus.api.Event;
+import net.neoforged.bus.api.Event;
 import org.zeith.hammerlib.api.LanguageHelper.LangMap;
 
 /**

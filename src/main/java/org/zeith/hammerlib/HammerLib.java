@@ -3,26 +3,20 @@ package org.zeith.hammerlib;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.eventbus.api.*;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.*;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.javafmlmod.FMLModContainer;
-import net.minecraftforge.fml.loading.FMLEnvironment;
-import net.minecraftforge.fml.loading.moddiscovery.ModAnnotation;
 import net.minecraftforge.fml.unsafe.UnsafeHacks;
-import net.minecraftforge.registries.RegisterEvent;
-import net.minecraftforge.registries.RegistryManager;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.zeith.api.registry.RegistryMapping;
+import net.neoforged.api.distmarker.*;
+import net.neoforged.bus.api.*;
+import net.neoforged.fml.*;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.event.lifecycle.*;
+import net.neoforged.fml.javafmlmod.*;
+import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.fml.loading.moddiscovery.ModAnnotation;
+import net.neoforged.neoforge.client.event.RegisterGuiOverlaysEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.registries.RegisterEvent;
+import org.apache.logging.log4j.*;
 import org.zeith.hammerlib.annotations.*;
 import org.zeith.hammerlib.annotations.client.ClientSetup;
 import org.zeith.hammerlib.api.IRecipeProvider;
@@ -35,11 +29,9 @@ import org.zeith.hammerlib.core.adapter.*;
 import org.zeith.hammerlib.core.command.CommandHammerLib;
 import org.zeith.hammerlib.core.init.TagsHL;
 import org.zeith.hammerlib.event.fml.FMLFingerprintCheckEvent;
-import org.zeith.hammerlib.mixins.RegistryManagerAccessor;
 import org.zeith.hammerlib.proxy.*;
 import org.zeith.hammerlib.tiles.tooltip.own.impl.TooltipRenderEngine;
-import org.zeith.hammerlib.util.CommonMessages;
-import org.zeith.hammerlib.util.ZeithLinkRepository;
+import org.zeith.hammerlib.util.*;
 import org.zeith.hammerlib.util.charging.ItemChargeHelper;
 import org.zeith.hammerlib.util.java.ReflectionUtil;
 import org.zeith.hammerlib.util.mcf.ScanDataHelper;
@@ -47,8 +39,7 @@ import org.zeith.hammerlib.util.mcf.ScanDataHelper;
 import java.lang.annotation.ElementType;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.stream.*;
 
 @Mod(HLConstants.MOD_ID)
 public class HammerLib
@@ -62,12 +53,13 @@ public class HammerLib
 	public HammerLib()
 	{
 		CommonMessages.printMessageOnIllegalRedistribution(HammerLib.class,
-				LOG, "HammerLib", "https://www.curseforge.com/minecraft/mc-mods/hammer-lib");
+				LOG, "HammerLib", "https://www.curseforge.com/minecraft/mc-mods/hammer-lib"
+		);
 		
 		FMLJavaModLoadingContext.get().getModEventBus().register(this);
 		PROXY.construct(FMLJavaModLoadingContext.get().getModEventBus());
-		MinecraftForge.EVENT_BUS.register(PROXY);
-		MinecraftForge.EVENT_BUS.addListener(this::registerCommands);
+		NeoForge.EVENT_BUS.register(PROXY);
+		NeoForge.EVENT_BUS.addListener(this::registerCommands);
 		
 		LanguageAdapter.registerMod(HLConstants.MOD_ID);
 		
@@ -121,31 +113,20 @@ public class HammerLib
 				}));
 		});
 		
-		if(RegistryManager.ACTIVE instanceof RegistryManagerAccessor activeRegistries)
+		// Register all content providers
+		ScanDataHelper.lookupAnnotatedObjects(SimplyRegister.class).forEach(data ->
 		{
-			for(var registry : activeRegistries.getRegistries().values())
-			{
-				var superType = RegistryMapping.getSuperType(registry);
-				if(superType == null)
-					LOG.error("Found registry without defined super type: " + registry.getRegistryKey());
-			}
-			
-			// Register all content providers
-			ScanDataHelper.lookupAnnotatedObjects(SimplyRegister.class).forEach(data ->
-			{
-				if(data.getTargetType() == ElementType.TYPE)
-					data.getOwnerMod()
-							.ifPresent(mc ->
-							{
-								LOG.info("Hooked " + data.clazz() + " from " + mc.getModId() + " to register it's stuff.");
-								mc.getEventBus()
-										.addListener((Consumer<RegisterEvent>) event ->
-												RegistryAdapter.register(event, data.getOwnerClass(), mc.getModId(), data.getProperty("prefix").map(Objects::toString).orElse(""))
-										);
-							});
-			});
-		} else
-			throw new RuntimeException("Unable to cast RegistryManager to RegistryManagerAccessor. Mixin apply failed?");
+			if(data.getTargetType() == ElementType.TYPE)
+				data.getOwnerMod()
+						.ifPresent(mc ->
+						{
+							LOG.info("Hooked " + data.clazz() + " from " + mc.getModId() + " to register it's stuff.");
+							mc.getEventBus()
+									.addListener((Consumer<RegisterEvent>) event ->
+											RegistryAdapter.register(event, data.getOwnerClass(), mc.getModId(), data.getProperty("prefix").map(Objects::toString).orElse(""))
+									);
+						});
+		});
 		
 		// Prepare configs
 		ConfigAdapter.setup();
@@ -228,7 +209,8 @@ public class HammerLib
 	public void checkFingerprint(FMLFingerprintCheckEvent e)
 	{
 		CommonMessages.printMessageOnFingerprintViolation(e, "97e852e9b3f01b83574e8315f7e77651c6605f2b455919a7319e9869564f013c",
-				LOG, "HammerLib", "https://www.curseforge.com/minecraft/mc-mods/hammer-lib");
+				LOG, "HammerLib", "https://www.curseforge.com/minecraft/mc-mods/hammer-lib"
+		);
 	}
 	
 	@SubscribeEvent
@@ -252,19 +234,11 @@ public class HammerLib
 	
 	public static boolean logHLEvents = String.valueOf(System.getProperty("hammerlib.logevents")).toLowerCase(Locale.ROOT).contains("true");
 	
-	public static boolean postEvent(Event evt)
+	public static <T extends Event> T postEvent(T evt)
 	{
 		ConfigHL cfgs = ConfigHL.INSTANCE.getCurrent();
 		if(logHLEvents || (cfgs != null && cfgs.internal.logHLBusEvents))
 			HammerLib.LOG.info("[HammerLib.postEvent] " + evt);
 		return HammerLib.EVENT_BUS.post(evt);
-	}
-	
-	public static boolean postEvent(Event evt, IEventBusInvokeDispatcher dispatcher)
-	{
-		ConfigHL cfgs = ConfigHL.INSTANCE.getCurrent();
-		if(logHLEvents || (cfgs != null && cfgs.internal.logHLBusEvents))
-			HammerLib.LOG.info("[HammerLib.postEvent] " + evt);
-		return HammerLib.EVENT_BUS.post(evt, dispatcher);
 	}
 }

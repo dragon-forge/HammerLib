@@ -2,15 +2,12 @@ package org.zeith.hammerlib.core.test.machine;
 
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.*;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.*;
 import org.zeith.hammerlib.api.forge.ContainerAPI;
-import org.zeith.hammerlib.api.inv.ComplexProgressHandler;
-import org.zeith.hammerlib.api.inv.IScreenContainer;
+import org.zeith.hammerlib.api.inv.*;
 import org.zeith.hammerlib.client.screen.MenuWithProgressBars;
 
 import java.util.List;

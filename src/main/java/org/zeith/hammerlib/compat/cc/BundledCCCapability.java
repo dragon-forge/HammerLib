@@ -4,10 +4,11 @@ import dan200.computercraft.shared.common.IBundledRedstoneBlock;
 import dan200.computercraft.shared.computer.blocks.AbstractComputerBlockEntity;
 import net.minecraft.Util;
 import net.minecraft.core.Direction;
-import net.minecraftforge.common.capabilities.*;
-import net.minecraftforge.common.util.LazyOptional;
+import net.neoforged.neoforge.common.capabilities.*;
+import net.neoforged.neoforge.common.util.LazyOptional;
 import org.jetbrains.annotations.*;
 import org.zeith.api.blocks.redstone.*;
+
 
 public class BundledCCCapability
 		implements ICapabilityProvider

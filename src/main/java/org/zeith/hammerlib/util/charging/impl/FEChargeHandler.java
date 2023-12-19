@@ -1,7 +1,7 @@
 package org.zeith.hammerlib.util.charging.impl;
 
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.neoforged.neoforge.common.capabilities.Capabilities;
 import org.zeith.hammerlib.util.charging.IChargeHandler;
 import org.zeith.hammerlib.util.charging.fe.FECharge;
 
@@ -20,13 +20,13 @@ public class FEChargeHandler
 	@Override
 	public boolean canCharge(ItemStack stack, FECharge charge)
 	{
-		return stack.getCapability(ForgeCapabilities.ENERGY, null).map(c -> c.receiveEnergy(charge.FE, true) > 0).orElse(false);
+		return stack.getCapability(Capabilities.ENERGY, null).map(c -> c.receiveEnergy(charge.FE, true) > 0).orElse(false);
 	}
 	
 	@Override
 	public FECharge charge(AtomicReference<ItemStack> stack, FECharge charge, ChargeAction action)
 	{
-		return stack.get().getCapability(ForgeCapabilities.ENERGY, null)
+		return stack.get().getCapability(Capabilities.ENERGY, null)
 				.map(cap -> charge.discharge(cap.receiveEnergy(charge.FE, action.simulate())))
 				.orElse(charge);
 	}

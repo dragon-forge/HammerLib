@@ -6,6 +6,7 @@ import org.zeith.hammerlib.util.configured.struct.reflection.TriConsumer;
 import org.zeith.hammerlib.util.configured.io.UnsafeHax;
 import org.zeith.hammerlib.util.configured.types.ConfigArray;
 import org.zeith.hammerlib.util.configured.types.ConfigElement;
+import org.zeith.hammerlib.util.java.Cast;
 
 import java.lang.reflect.Array;
 import java.util.function.Function;
@@ -46,7 +47,7 @@ public class ArrayMapper<A extends ConfigElement<A>, O>
 		return element.getElements()
 				.stream()
 				.map(converter)
-				.toArray(length -> UnsafeHax.cast(Array.newInstance(comType, length)));
+				.toArray(length -> Cast.cast(Array.newInstance(comType, length)));
 	}
 	
 	@Override

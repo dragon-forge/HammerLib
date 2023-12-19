@@ -11,6 +11,7 @@ import org.joml.Matrix4f;
 import org.zeith.hammerlib.api.items.tooltip.TooltipColoredLine;
 import org.zeith.hammerlib.client.utils.RenderUtils;
 
+
 public class ClientTooltipColoredLine
 		implements ClientTooltipComponent
 {

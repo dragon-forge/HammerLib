@@ -1,6 +1,5 @@
 package org.zeith.hammerlib.tiles.tooltip.own.impl;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -8,16 +7,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.*;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.gui.overlay.ForgeGui;
-import net.minecraftforge.client.gui.overlay.IGuiOverlay;
-import org.zeith.hammerlib.tiles.tooltip.EnumTooltipEngine;
-import org.zeith.hammerlib.tiles.tooltip.ITooltipTile;
+import net.neoforged.api.distmarker.*;
+import net.neoforged.neoforge.client.gui.overlay.*;
+import org.zeith.hammerlib.tiles.tooltip.*;
 import org.zeith.hammerlib.tiles.tooltip.own.ITooltipProvider;
 
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 @OnlyIn(Dist.CLIENT)
 public class TooltipRenderEngine
@@ -29,7 +24,7 @@ public class TooltipRenderEngine
 	public GuiTooltip lastTooltip;
 	
 	@Override
-	public void render(ForgeGui gui, GuiGraphics poseStack, float partialTick, int screenWidth, int screenHeight)
+	public void render(ExtendedGui gui, GuiGraphics poseStack, float partialTick, int screenWidth, int screenHeight)
 	{
 		var mc = Minecraft.getInstance();
 		HitResult res = mc.hitResult;

@@ -9,11 +9,11 @@ import mezz.jei.api.registration.*;
 import mezz.jei.api.runtime.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.fluids.FluidStack;
 import org.apache.logging.log4j.*;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.abstractions.recipes.*;
@@ -41,7 +41,7 @@ public class JeiHammerLib
 		
 		// Default JEI values. Mods may register this at any point they see fit.
 		registerType(ItemStack.class, VanillaTypes.ITEM_STACK);
-		registerType(FluidStack.class, ForgeTypes.FLUID_STACK);
+//		FIXME: registerType(FluidStack.class, ForgeTypes.FLUID_STACK);
 	}
 	
 	public static <T> Optional<IIngredientType<T>> findType(Class<T> type)
@@ -83,7 +83,7 @@ public class JeiHammerLib
 	mezz.jei.api.recipe.RecipeType jeiFromMc(Tuple2<RecipeType<?>, IRecipeVisualizer<?, ?>> tup)
 	{
 		var type = tup.a();
-		var typeID = ForgeRegistries.RECIPE_TYPES.getKey(type);
+		var typeID = BuiltInRegistries.RECIPE_TYPE.getKey(type);
 		if(typeID == null) return null;
 		var vis = tup.b();
 		return Cast.cast(MC2JEI.computeIfAbsent(type, vanilla -> new mezz.jei.api.recipe.RecipeType<>(typeID, vis.getVisualizedType())));
@@ -116,7 +116,7 @@ public class JeiHammerLib
 			var jeiRT = jeiFromMc(tup);
 			if(jeiRT == null) return;
 			var type = tup.a();
-			var typeID = ForgeRegistries.RECIPE_TYPES.getKey(type);
+			var typeID = BuiltInRegistries.RECIPE_TYPE.getKey(type);
 			if(typeID == null) return;
 			registerRecipesFor(registration, (RecipeType) type, jeiRT, (IRecipeVisualizer) tup.b());
 		});
@@ -124,7 +124,9 @@ public class JeiHammerLib
 		HammerLib.EVENT_BUS.post(new RecipeVisualizationRegistry.RegisterIngredientInfoEvent(
 				registration::addItemStackInfo,
 				(fluidStacks, components) ->
-						registration.addIngredientInfo(fluidStacks, ForgeTypes.FLUID_STACK, components)
+				{
+//					registration.addIngredientInfo(fluidStacks, ForgeTypes.FLUID_STACK, components)
+				}
 		));
 	}
 	
@@ -199,7 +201,7 @@ public class JeiHammerLib
 				.stream()
 				.map(ScanDataHelper.ModAwareAnnotationData::getOwnerClass)
 				.filter(raw -> AbstractContainerScreen.class.isAssignableFrom(raw) &&
-						IAdvancedGui.class.isAssignableFrom(raw))
+							   IAdvancedGui.class.isAssignableFrom(raw))
 				.forEach(f -> registration.addGuiContainerHandler(f.asSubclass(AbstractContainerScreen.class), Cast.cast(AdvancedGuiToJeiWrapper.get())));
 	}
 	
@@ -228,9 +230,9 @@ public class JeiHammerLib
 				.map(ing -> Cast.cast(ing.getIngredient()));
 	}
 	
-	public static <T extends Recipe<C>, C extends net.minecraft.world.Container> Stream<T> getRecipes(RecipeType<T> type)
+	public static <T extends Recipe<C>, C extends net.minecraft.world.Container> Stream<RecipeHolder<T>> getRecipes(RecipeType<T> type)
 	{
 		var lvl = Minecraft.getInstance().level;
-		return lvl != null ? RecipeHelper.getRecipes(lvl, type) : Stream.of();
+		return lvl != null ? RecipeHelper.getRecipeHolders(lvl, type) : Stream.of();
 	}
 }

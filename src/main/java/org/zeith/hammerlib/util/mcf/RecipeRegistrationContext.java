@@ -1,11 +1,11 @@
 package org.zeith.hammerlib.util.mcf;
 
 import it.unimi.dsi.fastutil.objects.*;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fml.loading.FMLPaths;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.fml.loading.FMLPaths;
+import net.neoforged.neoforge.common.util.LazyOptional;
 import org.apache.logging.log4j.*;
 import org.jetbrains.annotations.NotNull;
 import org.zeith.hammerlib.core.adapter.recipe.RecipeBuilder;
@@ -45,7 +45,7 @@ public class RecipeRegistrationContext
 	public boolean enableRecipe(RecipeType<?> type, ResourceLocation id)
 	{
 		var idKey = id.toString();
-		var rt = ForgeRegistries.RECIPE_TYPES.getKey(type);
+		var rt = BuiltInRegistries.RECIPE_TYPE.getKey(type);
 		var key = rt == null ? "<unknown>" : rt.toString();
 		
 		var unknown = allRecipes.get("<unknown>");

@@ -1,6 +1,6 @@
 package org.zeith.hammerlib.event.client;
 
-import net.minecraftforge.eventbus.api.Event;
+import net.neoforged.bus.api.Event;
 
 public class ClientLoadedInEvent
 		extends Event

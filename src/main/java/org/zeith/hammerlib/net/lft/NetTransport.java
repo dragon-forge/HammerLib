@@ -2,13 +2,11 @@ package org.zeith.hammerlib.net.lft;
 
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.fml.LogicalSide;
-import org.zeith.hammerlib.net.IPacket;
-import org.zeith.hammerlib.net.Network;
+import net.neoforged.fml.LogicalSide;
+import org.zeith.hammerlib.net.*;
 import org.zeith.hammerlib.util.SidedLocal;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class NetTransport
 {

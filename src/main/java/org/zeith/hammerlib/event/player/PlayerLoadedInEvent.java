@@ -1,7 +1,7 @@
 package org.zeith.hammerlib.event.player;
 
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
 public class PlayerLoadedInEvent
 		extends PlayerEvent

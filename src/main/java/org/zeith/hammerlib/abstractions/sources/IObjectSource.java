@@ -48,7 +48,7 @@ public interface IObjectSource<T>
 	static Optional<IObjectSource<?>> readSource(@Nullable CompoundTag tag)
 	{
 		if(tag == null) return Optional.empty();
-		IObjectSourceType type = RegistriesHL.animationSources().getValue(new ResourceLocation(tag.getString("Type")));
+		IObjectSourceType type = RegistriesHL.objectSources().get(new ResourceLocation(tag.getString("Type")));
 		if(type == null) return Optional.empty();
 		return Optional.ofNullable(type.readSource(tag.getCompound("Src")));
 	}

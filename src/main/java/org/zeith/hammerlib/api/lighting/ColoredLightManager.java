@@ -1,24 +1,17 @@
 package org.zeith.hammerlib.api.lighting;
 
 import com.google.common.base.Predicates;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.common.MinecraftForge;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.api.forge.BlockAPI;
-import org.zeith.hammerlib.api.lighting.impl.IGlowingEntity;
-import org.zeith.hammerlib.api.lighting.impl.IGlowingItem;
+import org.zeith.hammerlib.api.lighting.impl.*;
 import org.zeith.hammerlib.util.java.ReflectionUtil;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.BooleanSupplier;
-import java.util.function.Function;
-import java.util.function.IntSupplier;
+import java.util.*;
+import java.util.function.*;
 import java.util.stream.Stream;
 
 public class ColoredLightManager
@@ -149,7 +142,7 @@ public class ColoredLightManager
 				Stream<ColoredLight> entities = Stream.concat(players, ents.stream().map(e ->
 				{
 					ColoredLight l = e instanceof IGlowingEntity ? ((IGlowingEntity) e).produceColoredLight(partialTicks) : null;
-					HandleLightOverrideEvent<Entity> evt = new HandleLightOverrideEvent<>(e, partialTicks, l);
+					HandleLightOverrideEvent evt = new HandleLightOverrideEvent(e, partialTicks, l);
 					HammerLib.postEvent(evt);
 					return evt.getNewLight();
 				}));
@@ -157,7 +150,7 @@ public class ColoredLightManager
 				Stream<ColoredLight> tiles = BlockAPI.getAllLoadedBlockEntities(pl.level()).stream().map(e ->
 				{
 					ColoredLight l = e instanceof IGlowingEntity ? ((IGlowingEntity) e).produceColoredLight(partialTicks) : null;
-					HandleLightOverrideEvent<BlockEntity> evt = new HandleLightOverrideEvent<>(e, partialTicks, l);
+					HandleLightOverrideEvent evt = new HandleLightOverrideEvent(e, partialTicks, l);
 					HammerLib.postEvent(evt);
 					return evt.getNewLight();
 				});

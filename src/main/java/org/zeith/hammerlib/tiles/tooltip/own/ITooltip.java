@@ -1,6 +1,5 @@
 package org.zeith.hammerlib.tiles.tooltip.own;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -9,8 +8,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.*;
 import org.zeith.hammerlib.tiles.tooltip.ProgressBar;
 import org.zeith.hammerlib.tiles.tooltip.own.inf.*;
 

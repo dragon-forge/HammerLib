@@ -1,6 +1,6 @@
 package org.zeith.hammerlib.event;
 
-import net.minecraftforge.eventbus.api.Event;
+import net.neoforged.bus.api.Event;
 
 /**
  * This event is fired on {@link org.zeith.hammerlib.HammerLib#EVENT_BUS}

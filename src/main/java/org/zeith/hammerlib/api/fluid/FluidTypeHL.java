@@ -1,8 +1,8 @@
 package org.zeith.hammerlib.api.fluid;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.minecraftforge.fluids.FluidType;
+import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.neoforged.neoforge.fluids.FluidType;
 import org.zeith.hammerlib.api.fml.IRegisterListener;
 import org.zeith.hammerlib.proxy.HLConstants;
 
@@ -20,7 +20,7 @@ public class FluidTypeHL
 			still = HLConstants.id("block/machine_down"),
 			flow = HLConstants.id("block/machine_down");
 	
-	protected FluidTypeHL(Properties properties)
+	protected FluidTypeHL(FluidType.Properties properties)
 	{
 		super(properties);
 	}

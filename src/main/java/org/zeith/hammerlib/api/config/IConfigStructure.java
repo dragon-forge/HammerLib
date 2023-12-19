@@ -1,13 +1,11 @@
 package org.zeith.hammerlib.api.config;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.minecraft.nbt.*;
 import net.minecraftforge.fml.unsafe.UnsafeHacks;
+import net.neoforged.fml.loading.FMLEnvironment;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.util.configured.ConfiguredLib;
-import org.zeith.hammerlib.util.configured.data.DecimalValueRange;
-import org.zeith.hammerlib.util.configured.data.IntValueRange;
+import org.zeith.hammerlib.util.configured.data.*;
 import org.zeith.hammerlib.util.configured.types.ConfigCategory;
 import org.zeith.hammerlib.util.java.ReflectionUtil;
 import org.zeith.hammerlib.util.shaded.json.JSONObject;

@@ -3,15 +3,12 @@ package org.zeith.hammerlib.api.forge;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.entity.player.*;
+import net.minecraft.world.inventory.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.common.extensions.IForgeMenuType;
-import net.minecraftforge.network.NetworkHooks;
-import org.zeith.hammerlib.annotations.RegistryName;
-import org.zeith.hammerlib.annotations.SimplyRegister;
+import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
+import net.neoforged.neoforge.network.NetworkHooks;
+import org.zeith.hammerlib.annotations.*;
 import org.zeith.hammerlib.api.tiles.IContainerTile;
 import org.zeith.hammerlib.util.java.Cast;
 
@@ -21,7 +18,7 @@ import javax.annotation.Nullable;
 public class ContainerAPI
 {
 	@RegistryName("tile_container")
-	public static final MenuType<AbstractContainerMenu> TILE_CONTAINER = IForgeMenuType.create((windowId, playerInv, extraData) ->
+	public static final MenuType<AbstractContainerMenu> TILE_CONTAINER = IMenuTypeExtension.create((windowId, playerInv, extraData) ->
 	{
 		BlockEntity tile = playerInv.player.level().getBlockEntity(extraData.readBlockPos());
 		return Cast

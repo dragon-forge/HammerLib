@@ -1,47 +1,47 @@
 package org.zeith.hammerlib.util.java;
 
-public class Chars
+@SuppressWarnings("ALL")
+public interface Chars
 {
-	public static final char //
-			DEGREE_SIGN = '\u00b0', //
-			RHO = '\u03c1', //
-			SQRT = '\u221A', //
-			PI = '\u1D28', //
-			PSI = '\u1D2A', //
-			SECTION_SIGN = '\u00A7', //
-			PLUS_MINUS_SIGN = '\u00B1', //
-			MICRO_SIGN = '\u00B5', //
-			MULTIPLICATION_SIGN = '\u00D7', //
-			DIVISION_SIGN = '\u00F7', //
-			BULLET = '\u2022', //
-			INFINITY = '\u221E', //
-			INTERSECTION = '\u2229', //
-			ALMOST_EQUAL_TO = '\u2248', //
-			NOT_EQUAL_TO = '\u2260', //
-			IDENTICAL_TO = '\u2261', //
-			LESS_EQUAL_TO = '\u2264', //
-			GREATER_EQUAL_TO = '\u2265', //
-			BLACK_UP_POINTING_TRIANLE = '\u25B2', //
-			BLACK_RIGHT_POINTING_TRIANGLE = '\u25BA', //
-			BLACK_DOWN_POINTING_TRIANGLE = '\u25BC', //
-			BLACK_LEFT_POINTING_TRIANGLE = '\u25C4', //
-			BLACK_CIRCLE = '\u25CF';
+	//<editor-fold desc="Generic handy unicode characters">
+	char DEGREE_SIGN = '\u00b0';
+	char RHO = '\u03c1';
+	char SQRT = '\u221A';
+	char PI = '\u1D28';
+	char PSI = '\u1D2A';
+	char SECTION_SIGN = '\u00A7';
+	char PLUS_MINUS_SIGN = '\u00B1';
+	char MICRO_SIGN = '\u00B5';
+	char MULTIPLICATION_SIGN = '\u00D7';
+	char DIVISION_SIGN = '\u00F7';
+	char BULLET = '\u2022';
+	char INFINITY = '\u221E';
+	char INTERSECTION = '\u2229';
+	char ALMOST_EQUAL_TO = '\u2248';
+	char NOT_EQUAL_TO = '\u2260';
+	char IDENTICAL_TO = '\u2261';
+	char LESS_EQUAL_TO = '\u2264';
+	char GREATER_EQUAL_TO = '\u2265';
+	char BLACK_UP_POINTING_TRIANLE = '\u25B2';
+	char BLACK_RIGHT_POINTING_TRIANGLE = '\u25BA';
+	char BLACK_DOWN_POINTING_TRIANGLE = '\u25BC';
+	char BLACK_LEFT_POINTING_TRIANGLE = '\u25C4';
+	char BLACK_CIRCLE = '\u25CF';
+	//</editor-fold>
 	
-	/**
-	 * Superscript numbers
-	 */
-	public static final char //
-			SUPERSCRIPT_0 = '\u2070', //
-			SUPERSCRIPT_1 = '\u00b9', //
-			SUPERSCRIPT_2 = '\u00b2', //
-			SUPERSCRIPT_3 = '\u00b3', //
-			SUPERSCRIPT_4 = '\u2074', //
-			SUPERSCRIPT_5 = '\u2075', //
-			SUPERSCRIPT_6 = '\u2076', //
-			SUPERSCRIPT_7 = '\u2077', //
-			SUPERSCRIPT_8 = '\u2078', //
-			SUPERSCRIPT_9 = '\u2079', //
-			SUPERSCRIPT_MINUS = '\u02C9';
+	//<editor-fold desc="Superscript numbers">
+	char SUPERSCRIPT_0 = '\u2070';
+	char SUPERSCRIPT_1 = '\u00b9';
+	char SUPERSCRIPT_2 = '\u00b2';
+	char SUPERSCRIPT_3 = '\u00b3';
+	char SUPERSCRIPT_4 = '\u2074';
+	char SUPERSCRIPT_5 = '\u2075';
+	char SUPERSCRIPT_6 = '\u2076';
+	char SUPERSCRIPT_7 = '\u2077';
+	char SUPERSCRIPT_8 = '\u2078';
+	char SUPERSCRIPT_9 = '\u2079';
+	char SUPERSCRIPT_MINUS = '\u02C9';
+	//</editor-fold>
 	
 	/**
 	 * Superscripts a given number.
@@ -51,7 +51,7 @@ public class Chars
 	 *
 	 * @return superscripted number as string
 	 */
-	public static String superscript(long i)
+	static String superscript(long i)
 	{
 		String v = i + "";
 		StringBuilder s = new StringBuilder();

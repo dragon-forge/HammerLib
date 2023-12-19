@@ -1,14 +1,13 @@
 package org.zeith.hammerlib.util.mcf.fluid;
 
 import com.google.gson.JsonElement;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.*;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.*;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.tags.IReverseTag;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -21,7 +20,7 @@ public record FluidIngredient(CompareMode mode, List<FluidStack> asFluidStack, L
 			instance.group(
 					Codec.STRING.fieldOf("mode").xmap(CompareMode::valueOf, CompareMode::name).forGetter(FluidIngredient::mode),
 					FluidStack.CODEC.listOf().fieldOf("fluids").forGetter(FluidIngredient::asFluidStack),
-					TagKey.codec(ForgeRegistries.Keys.FLUIDS).listOf().fieldOf("tags").forGetter(FluidIngredient::asTags)
+					TagKey.codec(BuiltInRegistries.FLUID.key()).listOf().fieldOf("tags").forGetter(FluidIngredient::asTags)
 			).apply(instance, FluidIngredient::new)
 	);
 	
@@ -104,20 +103,22 @@ public record FluidIngredient(CompareMode mode, List<FluidStack> asFluidStack, L
 			return fluidStack.isEmpty();
 		
 		return switch(mode)
-				{
-					case BOTH -> asFluidStack.stream().anyMatch(fluidStack::isFluidEqual)
-							|| ForgeRegistries.FLUIDS.tags().getReverseTag(fluidStack.getFluid())
-							.stream()
-							.flatMap(IReverseTag::getTagKeys)
-							.anyMatch(asTags::contains);
-					
-					case VALUES -> asFluidStack.stream().anyMatch(fluidStack::isFluidEqual);
-					
-					case TAGS -> ForgeRegistries.FLUIDS.tags().getReverseTag(fluidStack.getFluid())
-							.stream()
-							.flatMap(IReverseTag::getTagKeys)
-							.anyMatch(asTags::contains);
-				};
+		{
+			case BOTH -> asFluidStack.stream().anyMatch(fluidStack::isFluidEqual)
+						 || asTags.stream().map(BuiltInRegistries.FLUID::getOrCreateTag)
+								 .flatMap(HolderSet.ListBacked::stream)
+								 .filter(Holder::isBound)
+								 .map(Holder::value)
+								 .anyMatch(fluidStack.getFluid()::equals);
+			
+			case VALUES -> asFluidStack.stream().anyMatch(fluidStack::isFluidEqual);
+			
+			case TAGS -> asTags.stream().map(BuiltInRegistries.FLUID::getOrCreateTag)
+					.flatMap(HolderSet.ListBacked::stream)
+					.filter(Holder::isBound)
+					.map(Holder::value)
+					.anyMatch(fluidStack.getFluid()::equals);
+		};
 	}
 	
 	public FluidStack[] getValues()
@@ -128,26 +129,22 @@ public record FluidIngredient(CompareMode mode, List<FluidStack> asFluidStack, L
 	public FluidStack[] getValues(int amount)
 	{
 		return switch(mode)
-				{
-					case BOTH -> Stream.concat(
-							Optional.ofNullable(ForgeRegistries.FLUIDS.tags())
-									.stream()
-									.flatMap(manager -> asTags.stream().map(manager::getTag))
-									.flatMap(tag -> tag.stream().map(f -> new FluidStack(f, amount))),
-							asFluidStack.stream()
-									.map(fs -> FluidHelper.withAmount(fs, amount))
-					).toArray(FluidStack[]::new);
-					
-					case TAGS -> Optional.ofNullable(ForgeRegistries.FLUIDS.tags())
-							.stream()
-							.flatMap(manager -> asTags.stream().map(manager::getTag))
-							.flatMap(tag -> tag.stream().map(f -> new FluidStack(f, amount)))
-							.toArray(FluidStack[]::new);
-					
-					case VALUES -> asFluidStack.stream()
+		{
+			case BOTH -> Stream.concat(
+					asTags.stream().map(BuiltInRegistries.FLUID::getOrCreateTag)
+							.flatMap(tag -> tag.stream().map(f -> new FluidStack(f, amount))),
+					asFluidStack.stream()
 							.map(fs -> FluidHelper.withAmount(fs, amount))
-							.toArray(FluidStack[]::new);
-				};
+			).toArray(FluidStack[]::new);
+			
+			case TAGS -> asTags.stream().map(BuiltInRegistries.FLUID::getOrCreateTag)
+					.flatMap(tag -> tag.stream().map(f -> new FluidStack(f, amount)))
+					.toArray(FluidStack[]::new);
+			
+			case VALUES -> asFluidStack.stream()
+					.map(fs -> FluidHelper.withAmount(fs, amount))
+					.toArray(FluidStack[]::new);
+		};
 	}
 	
 	public enum CompareMode

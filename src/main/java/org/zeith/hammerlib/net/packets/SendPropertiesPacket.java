@@ -3,14 +3,11 @@ package org.zeith.hammerlib.net.packets;
 import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.*;
 import org.zeith.hammerlib.abstractions.sources.IObjectSource;
 import org.zeith.hammerlib.net.*;
-import org.zeith.hammerlib.net.properties.*;
-import org.zeith.hammerlib.util.java.Cast;
+import org.zeith.hammerlib.net.properties.IBasePropertyHolder;
 
 @MainThreaded
 public class SendPropertiesPacket
