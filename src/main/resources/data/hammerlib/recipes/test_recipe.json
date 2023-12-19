@@ -1,16 +1,21 @@
 {
   "type": "hammerlib:test_machine",
-  "ingredients": [
-    {
+  "a": {
+    "input": {
       "item": "minecraft:diamond"
     },
-    {
+    "count": 1
+  },
+  "b": {
+    "input": {
       "item": "minecraft:gold_ingot"
-    }
-  ],
+    },
+    "count": 1
+  },
   "time": 300,
   "result": {
-    "item": "minecraft:emerald"
+    "item": "minecraft:emerald",
+    "count": 1
   },
   "conditions": [
     {

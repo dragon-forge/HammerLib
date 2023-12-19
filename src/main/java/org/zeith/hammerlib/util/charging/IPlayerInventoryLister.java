@@ -1,13 +1,9 @@
 package org.zeith.hammerlib.util.charging;
 
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import java.util.List;
+import java.lang.annotation.*;
 import java.util.function.Consumer;
 
 public interface IPlayerInventoryLister

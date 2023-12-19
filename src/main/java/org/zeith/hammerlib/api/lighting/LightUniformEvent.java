@@ -1,6 +1,6 @@
 package org.zeith.hammerlib.api.lighting;
 
-import net.minecraftforge.eventbus.api.Event;
+import net.neoforged.bus.api.Event;
 
 import java.util.List;
 

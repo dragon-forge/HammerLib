@@ -1,8 +1,7 @@
 package org.zeith.hammerlib.tiles.tooltip.own.inf;
 
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.*;
 import org.zeith.hammerlib.tiles.tooltip.own.IRenderableInfo;
 
 public record TooltipInfoSpacing(float width, float height)

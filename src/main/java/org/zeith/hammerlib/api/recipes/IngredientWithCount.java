@@ -1,6 +1,8 @@
 package org.zeith.hammerlib.api.recipes;
 
 import com.google.gson.JsonElement;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.GsonHelper;
@@ -9,6 +11,13 @@ import net.minecraft.world.item.crafting.Ingredient;
 
 public record IngredientWithCount(Ingredient input, int count)
 {
+	public static final Codec<IngredientWithCount> CODEC = RecordCodecBuilder.create(inst ->
+			inst.group(
+					Ingredient.CODEC.fieldOf("input").forGetter(IngredientWithCount::input),
+					Codec.INT.fieldOf("count").forGetter(IngredientWithCount::count)
+			).apply(inst, IngredientWithCount::new)
+	);
+	
 	public static final IngredientWithCount EMPTY = new IngredientWithCount(Ingredient.EMPTY, 0);
 	
 	public void toNetwork(FriendlyByteBuf buf)
@@ -29,7 +38,7 @@ public record IngredientWithCount(Ingredient input, int count)
 	
 	public static IngredientWithCount fromJson(JsonElement obj)
 	{
-		var input = Ingredient.fromJson(obj);
+		var input = Ingredient.fromJson(obj, true);
 		var count = GsonHelper.getAsInt(obj.getAsJsonObject(), "count", 1);
 		return new IngredientWithCount(input, count);
 	}

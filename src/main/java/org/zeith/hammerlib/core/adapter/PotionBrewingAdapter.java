@@ -1,8 +1,7 @@
 package org.zeith.hammerlib.core.adapter;
 
-import net.minecraft.world.item.*;
-import net.minecraft.world.item.alchemy.Potion;
-import net.minecraft.world.item.alchemy.PotionBrewing;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.alchemy.*;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.zeith.hammerlib.mixins.PotionBrewingAccessor;
 
@@ -21,8 +20,9 @@ public class PotionBrewingAdapter
 	 */
 	public static void addContainerMix(Item input, Item catalyst, Item output)
 	{
-		PotionBrewingAccessor.getContainerMixes()
-							 .add(new PotionBrewing.Mix<>(net.minecraftforge.registries.ForgeRegistries.ITEMS, input, Ingredient.of(catalyst), output));
+		PotionBrewingAccessor
+				.getContainerMixes()
+				.add(new PotionBrewing.Mix<>(input, Ingredient.of(catalyst), output));
 	}
 	
 	/**

@@ -3,13 +3,14 @@ package org.zeith.hammerlib.core.init;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraftforge.common.Tags;
+import net.neoforged.neoforge.common.Tags;
 import org.zeith.hammerlib.annotations.*;
 import org.zeith.hammerlib.api.IRecipeProvider;
 import org.zeith.hammerlib.core.recipes.*;
 import org.zeith.hammerlib.core.test.HammerLibRecipeExtension;
 import org.zeith.hammerlib.event.recipe.RegisterRecipesEvent;
 import org.zeith.hammerlib.util.java.Cast;
+
 
 @ProvideRecipes
 @SimplyRegister

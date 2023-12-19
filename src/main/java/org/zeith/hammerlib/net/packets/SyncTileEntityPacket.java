@@ -5,10 +5,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.util.LogicalSidedProvider;
-import net.minecraftforge.fml.LogicalSide;
+import net.neoforged.api.distmarker.*;
+import net.neoforged.fml.LogicalSide;
+import net.neoforged.neoforge.common.util.LogicalSidedProvider;
 import org.zeith.hammerlib.net.*;
 
 @MainThreaded
@@ -50,7 +49,7 @@ public class SyncTileEntityPacket
 	@OnlyIn(Dist.CLIENT)
 	public void clientExecute(PacketContext ctx)
 	{
-		Level world = LogicalSidedProvider.CLIENTWORLD.get(LogicalSide.CLIENT).orElse(null);
+		Level world = ctx.getLevel();
 		if(world == null) return;
 		
 		BlockEntity tile = world.getBlockEntity(pos);

@@ -4,9 +4,9 @@ import com.lowdragmc.shimmer.client.light.*;
 import com.lowdragmc.shimmer.event.ShimmerReloadEvent;
 import com.lowdragmc.shimmer.forge.event.ForgeShimmerReloadEvent;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.api.lighting.ColoredLight;
 import org.zeith.hammerlib.api.lighting.impl.*;
@@ -46,7 +46,7 @@ public class ShimmerCompat
 	public ShimmerCompat()
 	{
 		var modBus = FMLJavaModLoadingContext.get().getModEventBus();
-		modBus.addListener(this::reloadShimmer);
+//		FIXME: modBus.addListener(this::reloadShimmer);
 		HammerLib.LOG.info("Enabling Shimmer compatibility module.");
 	}
 	
@@ -54,7 +54,7 @@ public class ShimmerCompat
 	{
 		if(BLOCKS != null) return BLOCKS;
 		BLOCKS = new HashSet<>();
-		for(var block : ForgeRegistries.BLOCKS)
+		for(var block : BuiltInRegistries.BLOCK)
 			if(block instanceof IGlowingBlock i)
 				BLOCKS.add(i);
 		return BLOCKS = Set.copyOf(BLOCKS);
@@ -64,7 +64,7 @@ public class ShimmerCompat
 	{
 		if(ITEMS != null) return ITEMS;
 		ITEMS = new HashSet<>();
-		for(var item : ForgeRegistries.ITEMS)
+		for(var item : BuiltInRegistries.ITEM)
 			if(item instanceof IGlowingItem i)
 				ITEMS.add(i);
 		return ITEMS = Set.copyOf(ITEMS);

@@ -1,8 +1,7 @@
 package org.zeith.hammerlib.api.io.serializers;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraftforge.fluids.FluidStack;
+import net.minecraft.nbt.*;
+import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
 import org.zeith.hammerlib.api.io.NBTSerializer;
 

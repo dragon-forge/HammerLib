@@ -1,8 +1,7 @@
 package org.zeith.hammerlib.net;
 
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.*;
 import org.zeith.hammerlib.util.java.Threading;
 
 public interface IPacket

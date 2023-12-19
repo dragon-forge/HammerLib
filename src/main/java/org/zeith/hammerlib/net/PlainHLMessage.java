@@ -1,7 +1,7 @@
 package org.zeith.hammerlib.net;
 
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.NetworkEvent;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
@@ -43,9 +43,8 @@ public class PlainHLMessage
 		return packet;
 	}
 
-	public void handle(Supplier<NetworkEvent.Context> context)
+	public void handle(NetworkEvent.Context ctx)
 	{
-		NetworkEvent.Context ctx = context.get();
 		PacketContext pctx = new PacketContext(ctx);
 		if(packet != null)
 		{

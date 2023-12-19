@@ -2,14 +2,13 @@ package org.zeith.hammerlib.core.adapter;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.StringUtil;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.javafmlmod.FMLModContainer;
-import net.minecraftforge.fml.loading.FMLPaths;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.LogicalSide;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.javafmlmod.FMLModContainer;
+import net.neoforged.fml.loading.FMLPaths;
 import org.zeith.hammerlib.HammerLib;
-import org.zeith.hammerlib.annotations.OnlyIf;
-import org.zeith.hammerlib.annotations.SetupConfigs;
+import org.zeith.hammerlib.annotations.*;
 import org.zeith.hammerlib.api.config.*;
 import org.zeith.hammerlib.event.player.PlayerLoadedInEvent;
 import org.zeith.hammerlib.net.lft.NetTransport;
@@ -21,10 +20,8 @@ import org.zeith.hammerlib.util.mcf.ScanDataHelper;
 
 import java.io.IOException;
 import java.lang.annotation.ElementType;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.lang.reflect.*;
+import java.nio.file.*;
 import java.util.*;
 import java.util.function.Consumer;
 

@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.core.RecipeHelper;
-import org.zeith.hammerlib.mixins.RecipeManagerAccessor;
+import org.zeith.hammerlib.mixins.ContextAwareReloadListenerAccessor;
 
 import java.util.Map;
 
@@ -22,7 +22,7 @@ public class RecipeEventJSMixin
 	)
 	public void modify_HammerLib(RecipeManager mgr, Map<ResourceLocation, JsonElement> datapackRecipeMap, CallbackInfo ci)
 	{
-		RecipeHelper.injectRecipes(mgr, ((RecipeManagerAccessor) mgr).getContext());
+		RecipeHelper.injectRecipes(mgr, ((ContextAwareReloadListenerAccessor) mgr).getConditionContext());
 		HammerLib.LOG.info("Performed HammerLib recipe injection into KubeJS recipe system.");
 	}
 }

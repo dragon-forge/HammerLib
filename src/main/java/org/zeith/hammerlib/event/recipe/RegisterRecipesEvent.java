@@ -1,12 +1,15 @@
 package org.zeith.hammerlib.event.recipe;
 
 import com.google.common.collect.*;
+import lombok.Getter;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.*;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.fml.event.IModBusEvent;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.bus.api.Event;
+import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.fml.event.IModBusEvent;
+import net.neoforged.neoforge.common.conditions.ICondition;
 import org.jetbrains.annotations.*;
 import org.zeith.hammerlib.api.recipes.RecipeBuilderExtension;
 import org.zeith.hammerlib.core.adapter.recipe.*;
@@ -25,25 +28,20 @@ public class RegisterRecipesEvent
 		extends Event
 		implements IRecipeRegistrationEvent<Recipe<?>>, IModBusEvent
 {
-	private final List<Recipe<?>> recipes = Lists.newArrayList();
+	protected final @Getter ICondition.IContext context;
+	private final List<RecipeHolder<?>> recipes = Lists.newArrayList();
 	private final Set<ResourceLocation> removeRecipes = Sets.newHashSet();
 	private final Predicate<ResourceLocation> idInUse;
-	
-	protected String contextModId;
 	
 	private final Map<String, RecipeRegistrationContext> contextMap = Maps.newHashMap();
 	
 	private final Map<Class<?>, RecipeBuilderExtension> extensions;
 	
-	public RegisterRecipesEvent(Predicate<ResourceLocation> idInUse)
+	public RegisterRecipesEvent(ICondition.IContext context, Predicate<ResourceLocation> idInUse)
 	{
+		this.context = context;
 		this.idInUse = idInUse;
 		this.extensions = RecipeBuilderExtension.attach(this);
-	}
-	
-	public void setContextModId(String contextModId)
-	{
-		this.contextModId = contextModId;
 	}
 	
 	/**
@@ -65,7 +63,7 @@ public class RegisterRecipesEvent
 		return Cast.cast(extensions.get(type), type);
 	}
 	
-	public void add(Recipe<?> recipe)
+	public void add(RecipeHolder<?> recipe)
 	{
 		// Not sure if it's a good idea, but sure, let's do it.
 		if(recipe == null || !enableRecipe(recipe)) return;
@@ -80,9 +78,9 @@ public class RegisterRecipesEvent
 	 *
 	 * @return {@code true} if the recipe is enabled via configs and was successfully registered, {@code false} otherwise
 	 */
-	public boolean register(Recipe<?> recipe)
+	public boolean register(RecipeHolder<?> recipe)
 	{
-		if(recipe != null && enableRecipe(recipe.getType(), recipe.getId()))
+		if(recipe != null && enableRecipe(recipe.value().getType(), recipe.id()))
 		{
 			recipes.add(recipe);
 			return true;
@@ -139,12 +137,12 @@ public class RegisterRecipesEvent
 	
 	public boolean isRecipeIdTaken(ResourceLocation id)
 	{
-		return idInUse.test(id) || recipes.stream().map(Recipe::getId).anyMatch(id::equals);
+		return idInUse.test(id) || recipes.stream().map(RecipeHolder::id).anyMatch(id::equals);
 	}
 	
 	protected ResourceLocation transformRecipeIdToContext(ResourceLocation loc)
 	{
-		if(contextModId == null) return loc;
+		var contextModId = ModLoadingContext.get().getActiveNamespace();
 		if(loc.getNamespace().equals(contextModId))
 			return loc;
 		return new ResourceLocation(contextModId, loc.getNamespace() + "/" + loc.getPath());
@@ -155,7 +153,7 @@ public class RegisterRecipesEvent
 	{
 		if(item == null || item == Items.AIR) return null;
 		
-		ResourceLocation rl = transformRecipeIdToContext(ForgeRegistries.ITEMS.getKey(item));
+		ResourceLocation rl = transformRecipeIdToContext(BuiltInRegistries.ITEM.getKey(item));
 		
 		if(!isRecipeIdTaken(rl)) return rl;
 		
@@ -171,10 +169,10 @@ public class RegisterRecipesEvent
 	@Override
 	public void register(ResourceLocation id, Recipe<?> entry)
 	{
-		add(entry);
+		add(new RecipeHolder<>(id, entry));
 	}
 	
-	public Stream<Recipe<?>> getRecipes()
+	public Stream<RecipeHolder<?>> getRecipes()
 	{
 		return recipes.stream();
 	}
@@ -185,9 +183,9 @@ public class RegisterRecipesEvent
 		return getContext(recipeId.getNamespace()).enableRecipe(type, recipeId);
 	}
 	
-	public boolean enableRecipe(Recipe<?> recipe)
+	public boolean enableRecipe(RecipeHolder<?> recipe)
 	{
-		return enableRecipe(recipe.getType(), recipe.getId());
+		return enableRecipe(recipe.value().getType(), recipe.id());
 	}
 	
 	public RecipeRegistrationContext getContext(String modid)

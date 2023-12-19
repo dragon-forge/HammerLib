@@ -1,6 +1,6 @@
 package org.zeith.hammerlib.tiles.tooltip;
 
-import net.minecraftforge.fml.ModList;
+import net.neoforged.fml.ModList;
 
 public enum EnumTooltipEngine
 {

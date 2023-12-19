@@ -3,7 +3,7 @@ package org.zeith.hammerlib.api.fluid;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
 import net.minecraft.client.renderer.*;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.*;
@@ -11,10 +11,10 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.*;
 import net.minecraft.world.level.material.*;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fluids.*;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.registries.*;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.DistExecutor;
+import net.neoforged.neoforge.fluids.*;
+import net.neoforged.neoforge.registries.*;
 import org.jetbrains.annotations.Nullable;
 import org.zeith.hammerlib.api.fml.*;
 import org.zeith.hammerlib.api.items.CreativeTab;
@@ -23,7 +23,6 @@ import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.mcf.fluid.*;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.*;
 
 public class FluidFactory
@@ -31,9 +30,9 @@ public class FluidFactory
 {
 	public final FluidType type;
 	public final Supplier<Item> bucket;
-	public final ForgeFlowingFluid.Properties fluidProps;
-	public final Supplier<ForgeFlowingFluid.Source> source;
-	public final Supplier<ForgeFlowingFluid.Flowing> flowing;
+	public final BaseFlowingFluid.Properties fluidProps;
+	public final Supplier<BaseFlowingFluid.Source> source;
+	public final Supplier<BaseFlowingFluid.Flowing> flowing;
 	public final Supplier<LiquidBlock> block;
 	protected Supplier<Supplier<RenderType>> renderType = () -> RenderType::solid;
 	protected final List<TagKey<Fluid>> fluidTags = Lists.newArrayList();
@@ -42,10 +41,10 @@ public class FluidFactory
 	public FluidFactory(
 			Supplier<FluidType> typeGenerator,
 			Function<Supplier<FlowingFluid>, Item> bucket,
-			UnaryOperator<ForgeFlowingFluid.Properties> propertyModifier,
+			UnaryOperator<BaseFlowingFluid.Properties> propertyModifier,
 			Function<Supplier<? extends FlowingFluid>, LiquidBlock> block,
-			Function<ForgeFlowingFluid.Properties, ForgeFlowingFluid.Source> sourceGen,
-			Function<ForgeFlowingFluid.Properties, ForgeFlowingFluid.Flowing> flowingGen
+			Function<BaseFlowingFluid.Properties, BaseFlowingFluid.Source> sourceGen,
+			Function<BaseFlowingFluid.Properties, BaseFlowingFluid.Flowing> flowingGen
 	)
 	{
 		this.type = typeGenerator.get();
@@ -59,7 +58,7 @@ public class FluidFactory
 			return item;
 		}) : null;
 		
-		var fp = new ForgeFlowingFluid.Properties(this::getType, this::getSource, this::getFlowing);
+		var fp = new BaseFlowingFluid.Properties(this::getType, this::getSource, this::getFlowing);
 		
 		if(this.block != null) fp = fp.block(this::getBlock);
 		if(this.bucket != null) fp = fp.bucket(this::getBucket);
@@ -108,7 +107,7 @@ public class FluidFactory
 		return type;
 	}
 	
-	public ForgeFlowingFluid.Source getSource()
+	public BaseFlowingFluid.Source getSource()
 	{
 		return source.get();
 	}
@@ -118,7 +117,7 @@ public class FluidFactory
 		return source.get().getSource(false).createLegacyBlock();
 	}
 	
-	public ForgeFlowingFluid.Flowing getFlowing()
+	public BaseFlowingFluid.Flowing getFlowing()
 	{
 		return flowing.get();
 	}
@@ -213,20 +212,20 @@ public class FluidFactory
 	{
 		var key = e.getRegistryKey();
 		
-		if(ForgeRegistries.Keys.FLUID_TYPES.equals(key))
+		if(NeoForgeRegistries.Keys.FLUID_TYPES.equals(key))
 		{
 			if(type instanceof IRegisterListener rl) rl.onPreRegistered(fluidId);
-			e.register(ForgeRegistries.Keys.FLUID_TYPES, fluidId, Cast.constant(type));
+			e.register(NeoForgeRegistries.Keys.FLUID_TYPES, fluidId, Cast.constant(type));
 			if(type instanceof IRegisterListener rl) rl.onPostRegistered(fluidId);
 		}
 		
-		if(ForgeRegistries.Keys.FLUIDS.equals(key))
+		if(Registries.FLUID.equals(key))
 		{
 			if(getSource() instanceof IRegisterListener rl) rl.onPreRegistered(fluidId);
 			if(getFlowing() instanceof IRegisterListener rl) rl.onPreRegistered(subId(fluidId, "flow"));
 			
-			e.register(ForgeRegistries.Keys.FLUIDS, fluidId, source::get);
-			e.register(ForgeRegistries.Keys.FLUIDS, subId(fluidId, "flow"), flowing::get);
+			e.register(Registries.FLUID, fluidId, source::get);
+			e.register(Registries.FLUID, subId(fluidId, "flow"), flowing::get);
 			
 			if(getSource() instanceof IRegisterListener rl) rl.onPostRegistered(fluidId);
 			if(getFlowing() instanceof IRegisterListener rl) rl.onPostRegistered(subId(fluidId, "flow"));
@@ -235,17 +234,17 @@ public class FluidFactory
 			DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ItemBlockRenderTypes.setRenderLayer(getFlowing(), Cast.get2(renderType)));
 		}
 		
-		if(block != null && ForgeRegistries.Keys.BLOCKS.equals(key))
+		if(block != null && Registries.BLOCK.equals(key))
 		{
 			if(getBlock() instanceof IRegisterListener rl) rl.onPreRegistered(subId(fluidId, "bucket"));
-			e.register(ForgeRegistries.Keys.BLOCKS, fluidId, block::get);
+			e.register(Registries.BLOCK, fluidId, block::get);
 			if(getBlock() instanceof IRegisterListener rl) rl.onPostRegistered(subId(fluidId, "bucket"));
 		}
 		
-		if(bucket != null && ForgeRegistries.Keys.ITEMS.equals(key))
+		if(bucket != null && Registries.ITEM.equals(key))
 		{
 			if(getBucket() instanceof IRegisterListener rl) rl.onPreRegistered(subId(fluidId, "bucket"));
-			e.register(ForgeRegistries.Keys.ITEMS, subId(fluidId, "bucket"), bucket);
+			e.register(Registries.ITEM, subId(fluidId, "bucket"), bucket);
 			if(getBucket() instanceof IRegisterListener rl) rl.onPostRegistered(subId(fluidId, "bucket"));
 		}
 		
@@ -274,12 +273,12 @@ public class FluidFactory
 		protected final Supplier<FluidType> typeGenerator;
 		protected final List<TagKey<Fluid>> fluidTags = Lists.newArrayList();
 		protected final List<CreativeTab> tabs = Lists.newArrayList();
-		protected UnaryOperator<ForgeFlowingFluid.Properties> propertyModifier = UnaryOperator.identity();
+		protected UnaryOperator<BaseFlowingFluid.Properties> propertyModifier = UnaryOperator.identity();
 		protected Function<Supplier<FlowingFluid>, Item> bucket;
 		protected Function<Supplier<? extends FlowingFluid>, LiquidBlock> block;
 		
-		protected Function<ForgeFlowingFluid.Properties, ForgeFlowingFluid.Source> sourceGen = ForgeFlowingFluid.Source::new;
-		protected Function<ForgeFlowingFluid.Properties, ForgeFlowingFluid.Flowing> flowingGen = ForgeFlowingFluid.Flowing::new;
+		protected Function<BaseFlowingFluid.Properties, BaseFlowingFluid.Source> sourceGen = BaseFlowingFluid.Source::new;
+		protected Function<BaseFlowingFluid.Properties, BaseFlowingFluid.Flowing> flowingGen = BaseFlowingFluid.Flowing::new;
 		
 		protected Supplier<Supplier<RenderType>> renderType = () -> RenderType::solid;
 		
@@ -311,7 +310,7 @@ public class FluidFactory
 			));
 		}
 		
-		public Builder propertyModifier(UnaryOperator<ForgeFlowingFluid.Properties> propertyModifier)
+		public Builder propertyModifier(UnaryOperator<BaseFlowingFluid.Properties> propertyModifier)
 		{
 			var pm = this.propertyModifier;
 			this.propertyModifier = v -> propertyModifier.apply(pm.apply(v));
@@ -330,13 +329,13 @@ public class FluidFactory
 			return this;
 		}
 		
-		public Builder withSource(Function<ForgeFlowingFluid.Properties, ForgeFlowingFluid.Source> sourceGen)
+		public Builder withSource(Function<BaseFlowingFluid.Properties, BaseFlowingFluid.Source> sourceGen)
 		{
 			this.sourceGen = sourceGen;
 			return this;
 		}
 		
-		public Builder withFlowing(Function<ForgeFlowingFluid.Properties, ForgeFlowingFluid.Flowing> flowingGen)
+		public Builder withFlowing(Function<BaseFlowingFluid.Properties, BaseFlowingFluid.Flowing> flowingGen)
 		{
 			this.flowingGen = flowingGen;
 			return this;

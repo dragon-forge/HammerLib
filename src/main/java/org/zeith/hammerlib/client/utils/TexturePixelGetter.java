@@ -3,23 +3,20 @@ package org.zeith.hammerlib.client.utils;
 import com.mojang.blaze3d.platform.NativeImage;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.*;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.client.event.TextureStitchEvent;
-import net.minecraftforge.client.model.data.ModelData;
+import net.neoforged.neoforge.client.event.TextureAtlasStitchedEvent;
+import net.neoforged.neoforge.client.model.data.ModelData;
 import org.zeith.hammerlib.client.render.item.Stack2ImageRenderer;
 import org.zeith.hammerlib.util.colors.ColorHelper;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.*;
 
 public class TexturePixelGetter
 {
@@ -28,7 +25,7 @@ public class TexturePixelGetter
 	private static final Map<String, CompletableFuture<int[]>> cachedRenderedColors = new HashMap<>();
 	private static final Map<String, Long> cachedRenderedColorsCompletionTimes = new ConcurrentHashMap<>();
 	
-	public static void reloadTexture(TextureStitchEvent e)
+	public static void reloadTexture(TextureAtlasStitchedEvent e)
 	{
 		cachedRenderedColorsCompletionTimes.clear();
 		cachedRenderedColors.clear();

@@ -1,11 +1,10 @@
 package org.zeith.hammerlib.compat.base;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.fml.ModList;
+import net.neoforged.fml.ModList;
 import org.objectweb.asm.Type;
 import org.zeith.hammerlib.core.adapter.OnlyIfAdapter;
-import org.zeith.hammerlib.util.java.Cast;
-import org.zeith.hammerlib.util.java.ReflectionUtil;
+import org.zeith.hammerlib.util.java.*;
 import org.zeith.hammerlib.util.mcf.ScanDataHelper;
 
 import java.util.*;

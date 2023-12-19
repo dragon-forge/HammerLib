@@ -5,6 +5,7 @@ import org.zeith.hammerlib.abstractions.sources.IObjectSource;
 import org.zeith.hammerlib.net.*;
 import org.zeith.hammerlib.net.properties.IBasePropertyHolder;
 
+
 public class RequestPropertiesPacket
 		implements IPacket
 {

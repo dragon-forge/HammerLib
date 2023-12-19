@@ -1,6 +1,6 @@
 package org.zeith.hammerlib.util.mcf.fluid;
 
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 public class FluidHelper
 {

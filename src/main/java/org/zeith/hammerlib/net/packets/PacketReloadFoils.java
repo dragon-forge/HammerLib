@@ -2,9 +2,10 @@ package org.zeith.hammerlib.net.packets;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.*;
+import net.neoforged.api.distmarker.*;
 import org.zeith.hammerlib.client.CustomFoilConfigs;
 import org.zeith.hammerlib.net.*;
+
 
 @MainThreaded
 public class PacketReloadFoils

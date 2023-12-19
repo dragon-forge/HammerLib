@@ -1,6 +1,6 @@
 package org.zeith.hammerlib.api.config;
 
-import net.minecraftforge.fml.LogicalSide;
+import net.neoforged.fml.LogicalSide;
 import org.zeith.hammerlib.util.SidedLocal;
 
 public class ConfigHolder<T extends IConfigRoot>

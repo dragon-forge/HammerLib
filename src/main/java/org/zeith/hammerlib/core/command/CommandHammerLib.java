@@ -4,7 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.minecraft.commands.*;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.server.command.ModIdArgument;
+import net.neoforged.neoforge.server.command.ModIdArgument;
 import org.zeith.hammerlib.net.Network;
 import org.zeith.hammerlib.net.packets.*;
 

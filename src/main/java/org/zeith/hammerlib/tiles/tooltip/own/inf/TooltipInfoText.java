@@ -1,12 +1,9 @@
 package org.zeith.hammerlib.tiles.tooltip.own.inf;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.client.gui.*;
+import net.minecraft.network.chat.*;
+import net.neoforged.api.distmarker.*;
 import org.zeith.hammerlib.tiles.tooltip.own.IRenderableInfo;
 
 public class TooltipInfoText

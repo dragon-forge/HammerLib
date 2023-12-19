@@ -3,10 +3,9 @@ package org.zeith.hammerlib.util.mcf;
 import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.Util;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.javafmlmod.FMLModContainer;
-import net.minecraftforge.forgespi.language.*;
-import net.minecraftforge.forgespi.language.ModFileScanData.AnnotationData;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.javafmlmod.FMLModContainer;
+import net.neoforged.neoforgespi.language.*;
 import org.objectweb.asm.Type;
 import org.zeith.hammerlib.util.java.*;
 import org.zeith.hammerlib.util.java.functions.Function3;
@@ -71,7 +70,7 @@ public class ScanDataHelper
 	}
 	
 	/**
-	 * Create a predicate for matching {@link AnnotationData} with passed
+	 * Create a predicate for matching {@link ModFileScanData.AnnotationData} with passed
 	 * key-values! <br>
 	 * Example: properties("modid", "hammerlib", "value", 35)
 	 */
@@ -98,7 +97,7 @@ public class ScanDataHelper
 	}
 	
 	public static class ScanProperties
-			implements Predicate<AnnotationData>
+			implements Predicate<ModFileScanData.AnnotationData>
 	{
 		private final Map<String, Object> entries;
 		
@@ -132,7 +131,7 @@ public class ScanDataHelper
 		}
 		
 		@Override
-		public boolean test(AnnotationData t)
+		public boolean test(ModFileScanData.AnnotationData t)
 		{
 			return matches(t.annotationData());
 		}
@@ -143,9 +142,9 @@ public class ScanDataHelper
 		private final ModFileScanData modFile;
 		private Fetcher<Optional<FMLModContainer>> ownerMod;
 		
-		public final AnnotationData parent;
+		public final ModFileScanData.AnnotationData parent;
 		
-		public ModAwareAnnotationData(AnnotationData parent, ModFileScanData modFile)
+		public ModAwareAnnotationData(ModFileScanData.AnnotationData parent, ModFileScanData modFile)
 		{
 			this.parent = parent;
 			this.modFile = modFile;

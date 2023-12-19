@@ -1,10 +1,9 @@
 package org.zeith.hammerlib.util;
 
-import net.minecraftforge.fml.LogicalSide;
+import net.neoforged.fml.LogicalSide;
 import org.zeith.hammerlib.util.mcf.LogicalSidePredictor;
 
-import java.util.EnumMap;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.*;
 import java.util.stream.Stream;
 

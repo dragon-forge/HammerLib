@@ -1,9 +1,8 @@
 package org.zeith.hammerlib.compat.ic2;
 
+import net.minecraft.core.registries.*;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.world.item.*;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.compat.base.BaseCompat;
 import org.zeith.hammerlib.compat.base._hl.BaseHLCompat;
@@ -26,9 +25,9 @@ public class IC2HLCompat
 	
 	private void addWrenches(BuildTagsEvent e)
 	{
-		if(e.reg.getRegistryKey().equals(ForgeRegistries.Keys.ITEMS))
+		if(e.is(Registries.ITEM))
 		{
-			Function<ResourceLocation, Item> its = ForgeRegistries.ITEMS::getValue;
+			Function<ResourceLocation, Item> its = BuiltInRegistries.ITEM::get;
 			
 			var wrench = its.apply(new ResourceLocation("ic2", "wrench"));
 			if(!new ItemStack(wrench).isEmpty())

@@ -1,32 +1,47 @@
 package org.zeith.hammerlib.core;
 
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.*;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.registries.*;
 import org.zeith.api.registry.RegistryMapping;
-import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.abstractions.sources.IObjectSourceType;
+import org.zeith.hammerlib.core.recipes.replacers.IRemainingItemReplacer;
+import org.zeith.hammerlib.proxy.HLConstants;
 
-import java.util.function.Supplier;
+import static net.minecraft.resources.ResourceKey.createRegistryKey;
+import static org.zeith.hammerlib.proxy.HLConstants.id;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class RegistriesHL
 {
-	private static Supplier<IForgeRegistry<IObjectSourceType>> OBJECT_SOURCES;
+	private static Registry<IObjectSourceType> OBJECT_SOURCE;
+	private static Registry<IRemainingItemReplacer> REMAINING_REPLACER;
 	
 	@SubscribeEvent
 	public static void newRegistries(NewRegistryEvent e)
 	{
-		OBJECT_SOURCES = e.create(new RegistryBuilder<IObjectSourceType>()
-						.setName(HammerLib.id("obj_sources"))
-						.disableSaving()
-						.disableSaving(),
-				reg -> RegistryMapping.report(IObjectSourceType.class, reg, false)
-		);
+		OBJECT_SOURCE = e.create(new RegistryBuilder<>(Keys.OBJECT_SOURCE).sync(false));
+		RegistryMapping.report(IObjectSourceType.class, OBJECT_SOURCE, false);
+		
+		REMAINING_REPLACER = e.create(new RegistryBuilder<>(Keys.REMAINING_ITEM_REPLACER).sync(false).defaultKey(HLConstants.id("none")));
+		RegistryMapping.report(IRemainingItemReplacer.class, REMAINING_REPLACER, false);
 	}
 	
-	public static IForgeRegistry<IObjectSourceType> animationSources()
+	public static Registry<IObjectSourceType> objectSources()
 	{
-		return OBJECT_SOURCES.get();
+		return OBJECT_SOURCE;
+	}
+	
+	public static Registry<IRemainingItemReplacer> remainingReplacer()
+	{
+		return REMAINING_REPLACER;
+	}
+	
+	public interface Keys
+	{
+		ResourceKey<? extends Registry<IRemainingItemReplacer>> REMAINING_ITEM_REPLACER = createRegistryKey(id("recipe_replacer"));
+		ResourceKey<? extends Registry<IObjectSourceType>> OBJECT_SOURCE = createRegistryKey(id("obj_sources"));
 	}
 }

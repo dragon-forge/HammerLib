@@ -4,6 +4,7 @@ import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.*;
 import org.zeith.hammerlib.annotations.*;
 
+
 @SimplyRegister
 public class WaterBottleReplacer
 		implements IRemainingItemReplacer

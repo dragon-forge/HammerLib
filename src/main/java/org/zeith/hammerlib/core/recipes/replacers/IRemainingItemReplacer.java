@@ -1,7 +1,11 @@
 package org.zeith.hammerlib.core.recipes.replacers;
 
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
+import org.zeith.hammerlib.core.RegistriesHL;
+
+import java.util.*;
 
 /**
  * An interface for replacing items in a crafting container.
@@ -30,4 +34,24 @@ public interface IRemainingItemReplacer
 	 * @return the remaining item stack, or prevItem if no modification should take place.
 	 */
 	ItemStack replace(CraftingContainer container, int slot, ItemStack prevItem);
+	
+	static void toNetwork(List<IRemainingItemReplacer> lst, FriendlyByteBuf buf)
+	{
+		var replacers = lst.stream().map(RegistriesHL.remainingReplacer()::getKey).filter(Objects::nonNull).toList();
+		buf.writeShort(replacers.size());
+		for(var r : replacers) buf.writeResourceLocation(r);
+	}
+	
+	static List<IRemainingItemReplacer> fromNetwork(FriendlyByteBuf buf)
+	{
+		var g = RegistriesHL.remainingReplacer();
+		List<IRemainingItemReplacer> lst = new ArrayList<>();
+		short size = buf.readShort();
+		for(int i = 0; i < size; i++)
+		{
+			var r = g.get(buf.readResourceLocation());
+			if(r != null) lst.add(r);
+		}
+		return lst;
+	}
 }

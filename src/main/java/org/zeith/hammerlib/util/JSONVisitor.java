@@ -1,10 +1,8 @@
 package org.zeith.hammerlib.util;
 
-import org.zeith.hammerlib.util.shaded.json.JSONArray;
-import org.zeith.hammerlib.util.shaded.json.JSONObject;
+import org.zeith.hammerlib.util.shaded.json.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 

@@ -1,7 +1,7 @@
 package org.zeith.hammerlib.api.fml;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.RegisterEvent;
+import net.neoforged.neoforge.registries.RegisterEvent;
 
 /**
  * This interface gets invoked when an instance implementing of it is placed in a class of @{@link org.zeith.hammerlib.annotations.SimplyRegister} and the @{@link org.zeith.hammerlib.annotations.RegistryName} for the field.

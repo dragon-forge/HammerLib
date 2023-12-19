@@ -1,8 +1,8 @@
 package org.zeith.hammerlib.util.charging.impl;
 
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.common.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import org.zeith.hammerlib.util.charging.IChargeHandler;
 import org.zeith.hammerlib.util.charging.fluid.FluidCharge;
 
@@ -21,7 +21,7 @@ public class FluidChargeHandler
 	@Override
 	public boolean canCharge(ItemStack stack, FluidCharge charge)
 	{
-		return stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM, null)
+		return stack.getCapability(Capabilities.FLUID_HANDLER_ITEM, null)
 				.map(cap -> cap.fill(charge.fluid.copy(), IFluidHandler.FluidAction.SIMULATE) > 0)
 				.orElse(false);
 	}
@@ -29,7 +29,7 @@ public class FluidChargeHandler
 	@Override
 	public FluidCharge charge(AtomicReference<ItemStack> stack, FluidCharge charge, ChargeAction action)
 	{
-		return stack.get().getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM, null)
+		return stack.get().getCapability(Capabilities.FLUID_HANDLER_ITEM, null)
 				.map(cap ->
 				{
 					var c = charge.discharge(cap.fill(charge.fluid.copy(), action.asFluidAction()));

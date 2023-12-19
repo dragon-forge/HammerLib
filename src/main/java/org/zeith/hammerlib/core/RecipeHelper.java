@@ -1,44 +1,45 @@
 package org.zeith.hammerlib.core;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.*;
-import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.common.crafting.conditions.ICondition;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.javafmlmod.FMLModContainer;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.world.level.*;
+import net.neoforged.fml.*;
+import net.neoforged.neoforge.common.conditions.ICondition;
 import org.zeith.api.level.ISpoofedRecipeManager;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.api.items.IIngredientProvider;
 import org.zeith.hammerlib.core.adapter.OreDictionaryAdapter;
 import org.zeith.hammerlib.event.ParseIngredientEvent;
 import org.zeith.hammerlib.event.recipe.RegisterRecipesEvent;
+import org.zeith.hammerlib.mixins.IngredientAccessor;
 import org.zeith.hammerlib.proxy.HLConstants;
 import org.zeith.hammerlib.util.java.Cast;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.stream.*;
 
 public class RecipeHelper
 {
-	public static void registerCustomRecipes(Predicate<ResourceLocation> idInUse, Consumer<Recipe<?>> addRecipe, Consumer<Set<ResourceLocation>> removeRecipes, Map<ResourceLocation, List<ResourceLocation>> spoofedRecipes, boolean silent, ICondition.IContext context)
+	public static final String NEOFORGE_MOD_ID_FOR_TAGS = "forge";
+	
+	public static void registerCustomRecipes(Predicate<ResourceLocation> idInUse, Consumer<RecipeHolder<?>> addRecipe, Consumer<Set<ResourceLocation>> removeRecipes, boolean silent, ICondition.IContext context)
 	{
-		RegisterRecipesEvent rre = new RegisterRecipesEvent(idInUse);
+		RegisterRecipesEvent rre = new RegisterRecipesEvent(context, idInUse);
 		ModList.get().forEachModInOrder(mc ->
 		{
-			if(!(mc instanceof FMLModContainer fmc)) return;
-			rre.setContextModId(mc.getModId());
-			fmc.getEventBus().post(rre);
+			var bus = mc.getEventBus();
+			if(bus == null) return;
+			ModLoadingContext.get().setActiveContainer(mc);
+			bus.post(rre);
 		});
-		rre.setContextModId(null);
+		ModLoadingContext.get().setActiveContainer(null);
 		rre.cleanup();
 		
 		if(!silent)
@@ -66,37 +67,42 @@ public class RecipeHelper
 		Internal.mutableManager(mgr);
 		var spoofed = ((ISpoofedRecipeManager) mgr).getSpoofedRecipes();
 		
-		List<Recipe<?>> recipeList = new ArrayList<>();
+		List<RecipeHolder<?>> recipeList = new ArrayList<>();
 		Set<ResourceLocation> removed = new HashSet<>();
 		registerCustomRecipes(id -> mgr.byKey(id)
-				.isPresent(), recipeList::add, removed::addAll, spoofed, false, context);
+				.isPresent(), recipeList::add, removed::addAll, false, context);
 		Internal.addRecipes(mgr, recipeList);
 		Internal.removeRecipes(mgr, removed::stream);
 	}
 	
 	public static void injectRecipesCustom(Map<ResourceLocation, Recipe<?>> handler, Set<ResourceLocation> removed, Map<ResourceLocation, List<ResourceLocation>> spoofedRecipes, ICondition.IContext ctx)
 	{
-		registerCustomRecipes(handler::containsKey, r -> handler.put(r.getId(), r), removed::addAll, spoofedRecipes, false, ctx);
+		registerCustomRecipes(handler::containsKey, r -> handler.put(r.id(), r.value()), removed::addAll, false, ctx);
 	}
 	
-	public static <C extends Container, T extends Recipe<C>> Map<ResourceLocation, T> getRecipeMap(Level level, RecipeType<T> type)
+	public static <C extends Container, T extends Recipe<C>> Map<ResourceLocation, RecipeHolder<T>> getRecipeMap(Level level, RecipeType<T> type)
 	{
 		return level.getRecipeManager().byType(type);
 	}
 	
-	public static <C extends Container, T extends Recipe<C>> Stream<T> getRecipes(Level level, RecipeType<T> type)
+	public static <C extends Container, T extends Recipe<C>> Stream<RecipeHolder<T>> getRecipeHolders(Level level, RecipeType<T> type)
 	{
 		return getRecipeMap(level, type).values().stream();
 	}
 	
+	public static <C extends Container, T extends Recipe<C>> Stream<T> getRecipes(Level level, RecipeType<T> type)
+	{
+		return getRecipeHolders(level, type).map(RecipeHolder::value);
+	}
+	
 	private static class Internal
 	{
-		private static void addRecipes(RecipeManager mgr, List<Recipe<?>> recipes)
+		private static void addRecipes(RecipeManager mgr, List<RecipeHolder<?>> recipes)
 		{
 			recipes.forEach(r ->
 			{
-				Map<ResourceLocation, Recipe<?>> map = mgr.recipes.computeIfAbsent(r.getType(), t -> new HashMap<>());
-				map.putIfAbsent(r.getId(), r);
+				Map<ResourceLocation, RecipeHolder<?>> map = mgr.recipes.computeIfAbsent(r.value().getType(), t -> new HashMap<>());
+				map.putIfAbsent(r.id(), r);
 				mgr.byName.putAll(map);
 			});
 			HammerLib.LOG.info("Registered {} additional recipes.", recipes.size());
@@ -108,7 +114,7 @@ public class RecipeHelper
 			{
 				mgr.byKey(id).ifPresent(recipe ->
 				{
-					var rmap = mgr.recipes.get(recipe.getType());
+					var rmap = mgr.recipes.get(recipe.value().getType());
 					if(rmap != null) rmap.remove(id);
 					mgr.byName.remove(id);
 				});
@@ -129,73 +135,99 @@ public class RecipeHelper
 		if(ingr.isEmpty()) return ItemStack.EMPTY;
 		var items = ingr.getItems();
 		return items[(int) ((System.currentTimeMillis() % (items.length * displayDurationMS)) / displayDurationMS) %
-				items.length];
+					 items.length];
 	}
 	
-	public static Ingredient composeIngredient(Object... comps)
+	public static Ingredient merge(List<Ingredient> comps)
 	{
-		return Ingredient.merge(
-				Arrays.stream(comps)
-						.map(RecipeHelper::fromComponent)
-						.filter(i -> !i.isEmpty())
-						.toList()
+		return merge(comps.stream());
+	}
+	
+	public static Ingredient merge(Stream<Ingredient> comps)
+	{
+		return IngredientAccessor.createIngredient(
+				comps.filter(Objects::nonNull)
+						.map(Ingredient::getValues)
+						.flatMap(Arrays::stream)
 		);
 	}
+
+//	public static Ingredient composeIngredient(Object... comps)
+//	{
+//		return IngredientAccessor.createIngredient(
+//				Arrays.stream(comps)
+//						.map(RecipeHelper::fromComponent)
+//						.filter(Objects::nonNull)
+//						.map(Ingredient::getValues)
+//						.flatMap(Arrays::stream)
+//		);
+//	}
 	
 	public static Ingredient fromComponent(Object comp)
 	{
-		Ingredient ingr = Ingredient.EMPTY;
-		if(comp instanceof Supplier<?> su)
-			comp = su.get();
-		if(comp instanceof ItemLike)
-			ingr = Ingredient.of((ItemLike) comp);
-		else if(comp instanceof IIngredientProvider)
-			ingr = ((IIngredientProvider) comp).asIngredient();
-		else if(comp instanceof ItemStack)
-			ingr = Ingredient.of(((ItemStack) comp).copy());
-		else if(comp instanceof TagKey<?>)
+		if(comp == null) return Ingredient.EMPTY;
+		
+		if(comp instanceof Ingredient i) return i;
+		if(comp instanceof Supplier<?> su) return fromComponent(su.get());
+		if(comp instanceof ItemLike il) return Ingredient.of(il);
+		if(comp instanceof IIngredientProvider ip) return ip.asIngredient();
+		if(comp instanceof ItemStack is) return Ingredient.of(is.copy());
+		if(comp instanceof TagKey<?>) return fromTag((TagKey<Item>) comp);
+		
+		if(comp instanceof ItemStack[] items)
 		{
-			ingr = fromTag((TagKey<Item>) comp);
-		} else if(comp instanceof String || comp instanceof ResourceLocation)
+			items = items.clone();
+			for(int l = 0; l < items.length; ++l)
+				items[l] = items[l].copy();
+			return Ingredient.of(items);
+		}
+		
+		if(comp instanceof String || comp instanceof ResourceLocation)
 		{
 			String st = comp.toString();
-			ingr = Ingredient.merge(OreDictionaryAdapter.get(st).stream().map(obj ->
+			return merge(OreDictionaryAdapter.get(st).stream().map(obj ->
 			{
 				if(obj != null)
 				{
 					ResourceLocation odConv = Cast.cast(obj, ResourceLocation.class);
+					
 					ResourceLocation tag;
 					if(odConv != null) tag = odConv;
-					else tag = new ResourceLocation(st.contains(":") ? st : ("forge:" + st));
+					else tag = new ResourceLocation(st.contains(":") ? st : (NEOFORGE_MOD_ID_FOR_TAGS + ":" + st));
+					
 					return fromTag(getItemTag(tag));
 				}
-				return fromComponent(obj);
-			}).filter(Objects::nonNull).collect(Collectors.toList()));
-		} else if(comp instanceof ItemStack[])
-		{
-			ItemStack[] items = ((ItemStack[]) comp).clone();
-			for(int l = 0; l < items.length; ++l)
-				items[l] = items[l].copy();
-			ingr = Ingredient.of(items);
-		} else if(comp instanceof Ingredient)
-			ingr = (Ingredient) comp;
-		else if(comp != null)
-		{
-			ParseIngredientEvent<?> event = new ParseIngredientEvent<>(comp);
-			HammerLib.postEvent(event);
-			if(event.hasIngredient())
-				ingr = event.getIngredient();
+				return Ingredient.EMPTY;
+			}));
 		}
-		return ingr;
+		
+		ParseIngredientEvent event = new ParseIngredientEvent(comp);
+		HammerLib.postEvent(event);
+		if(event.hasIngredient()) return event.getIngredient();
+		
+		if(comp.getClass().isArray())
+		{
+			var len = Array.getLength(comp);
+			return merge(IntStream.range(0, len)
+					.mapToObj(i -> fromComponent(Array.get(comp, i)))
+			);
+		} else if(comp instanceof Collection<?> col)
+		{
+			return merge(col.stream()
+					.map(RecipeHelper::fromComponent)
+			);
+		}
+		
+		return Ingredient.EMPTY;
 	}
 	
 	public static TagKey<Item> getItemTag(ResourceLocation path)
 	{
-		return TagKey.create(ForgeRegistries.Keys.ITEMS, path);
+		return TagKey.create(BuiltInRegistries.ITEM.key(), path);
 	}
 	
 	public static Ingredient fromTag(TagKey<Item> tag)
 	{
-		return Ingredient.fromValues(Stream.of(new Ingredient.TagValue(tag)));
+		return IngredientAccessor.createIngredient(Stream.of(new Ingredient.TagValue(tag)));
 	}
 }

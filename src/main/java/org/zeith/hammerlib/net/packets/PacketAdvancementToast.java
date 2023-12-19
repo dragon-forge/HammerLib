@@ -1,12 +1,10 @@
 package org.zeith.hammerlib.net.packets;
 
-import net.minecraft.advancements.Advancement;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.toasts.AdvancementToast;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.*;
 import org.zeith.hammerlib.net.*;
 
 @MainThreaded
@@ -45,7 +43,7 @@ public class PacketAdvancementToast
 		var connection = mc.getConnection();
 		if(connection == null) return;
 		
-		Advancement adv = connection.getAdvancements().getAdvancements().get(advancement);
+		var adv = connection.getAdvancements().get(advancement);
 		if(adv == null) return;
 		
 		mc.getToasts().addToast(new AdvancementToast(adv));

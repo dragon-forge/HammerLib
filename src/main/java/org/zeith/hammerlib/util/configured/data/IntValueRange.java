@@ -1,7 +1,6 @@
 package org.zeith.hammerlib.util.configured.data;
 
-import org.zeith.hammerlib.util.configured.struct.RangeInt;
-import org.zeith.hammerlib.util.configured.struct.RangeLong;
+import org.zeith.hammerlib.util.configured.struct.*;
 
 import java.math.BigInteger;
 import java.util.function.Predicate;

@@ -14,15 +14,13 @@ import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.*;
-import net.minecraftforge.client.event.*;
-import net.minecraftforge.client.settings.KeyConflictContext;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.TickEvent.ClientTickEvent;
-import net.minecraftforge.eventbus.api.*;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.event.lifecycle.*;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.bus.api.*;
+import net.neoforged.fml.LogicalSide;
+import net.neoforged.fml.event.lifecycle.*;
+import net.neoforged.neoforge.client.event.*;
+import net.neoforged.neoforge.client.settings.KeyConflictContext;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.TickEvent;
 import org.objectweb.asm.Type;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.api.forge.ContainerAPI;
@@ -59,7 +57,7 @@ public class HLClientProxy
 	
 	public HLClientProxy()
 	{
-		MinecraftForge.EVENT_BUS.addListener(this::clientTick);
+		NeoForge.EVENT_BUS.addListener(this::clientTick);
 	}
 	
 	@Override
@@ -79,7 +77,7 @@ public class HLClientProxy
 		modBus.addListener(this::loadComplete);
 		modBus.addListener(TexturePixelGetter::reloadTexture);
 		SimpleModelGenerator.setup();
-		
+
 //		MinecraftForge.EVENT_BUS.addListener(this::alterTooltip);
 	}
 	
@@ -136,7 +134,7 @@ public class HLClientProxy
 			ColoredLight l = null;
 			IGlowingEntity ent = Cast.cast(partialTicks, IGlowingEntity.class);
 			if(ent != null) l = ent.produceColoredLight(partialTicks);
-			HandleLightOverrideEvent<Particle> evt = new HandleLightOverrideEvent<>(particle, partialTicks, l);
+			HandleLightOverrideEvent evt = new HandleLightOverrideEvent(particle, partialTicks, l);
 			HammerLib.postEvent(evt);
 			return evt.getNewLight();
 		}).filter(Objects::nonNull);
@@ -150,7 +148,7 @@ public class HLClientProxy
 			ReflectionUtil.<BlockEntityType<?>>getStaticFinalField(ReflectionUtil.fetchClass(owner), member)
 					.ifPresent(type ->
 					{
-						ResourceLocation name = ForgeRegistries.BLOCK_ENTITY_TYPES.getKey(type);
+						ResourceLocation name = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(type);
 						
 						if(name == null)
 						{
@@ -190,7 +188,7 @@ public class HLClientProxy
 										BlockEntityRenderer<?> r = (BlockEntityRenderer<?>) ctr.newInstance();
 										theTesr = c -> r;
 									} else if(ctr.getParameterCount() == 1 &&
-											ctr.getParameterTypes()[0] == BlockEntityRendererProvider.Context.class)
+											  ctr.getParameterTypes()[0] == BlockEntityRendererProvider.Context.class)
 									{
 										theTesr = ctx ->
 										{
@@ -201,7 +199,7 @@ public class HLClientProxy
 											{
 												throw new ReportedException(new CrashReport(
 														"Unable to create BlockEntityRenderer(no-args) for BlockEntityType " +
-																name, err));
+														name, err));
 											}
 										};
 									}
@@ -209,7 +207,7 @@ public class HLClientProxy
 								{
 									throw new ReportedException(new CrashReport(
 											"Unable to create BlockEntityRenderer(no-args) for BlockEntityType " +
-													name, err));
+											name, err));
 								}
 							}
 						}
@@ -258,7 +256,7 @@ public class HLClientProxy
 							{
 								throw new ReportedException(new CrashReport(
 										"Unable to create ParticleProvider.Sprite(no-args) for ParticleType " +
-												name, ex));
+										name, ex));
 							}
 						}
 						
@@ -275,7 +273,7 @@ public class HLClientProxy
 							{
 								throw new ReportedException(new CrashReport(
 										"Unable to create ParticleProvider.Sprite(no-args) for ParticleType " +
-												name, ex));
+										name, ex));
 							}
 						}
 						
@@ -308,7 +306,7 @@ public class HLClientProxy
 										{
 											throw new ReportedException(new CrashReport(
 													"Unable to create ParticleProvider(no-args) for ParticleType " +
-															name, ex));
+													name, ex));
 										}
 									});
 									return;
@@ -327,12 +325,12 @@ public class HLClientProxy
 		if(!renderedWorld)
 		{
 			Network.sendToServer(new PacketPlayerReady());
-			MinecraftForge.EVENT_BUS.post(new ClientLoadedInEvent());
+			NeoForge.EVENT_BUS.post(new ClientLoadedInEvent());
 			renderedWorld = true;
 		}
 	}
 	
-	private void clientTick(ClientTickEvent e)
+	private void clientTick(TickEvent.ClientTickEvent e)
 	{
 		var mc = Minecraft.getInstance();
 		
@@ -374,12 +372,9 @@ public class HLClientProxy
 	@SubscribeEvent
 	public void addF3Info(CustomizeGuiOverlayEvent.DebugText f3)
 	{
-		if(Minecraft.getInstance().options.renderDebug)
-		{
-			List<String> tip = f3.getLeft();
-			tip.add(ChatFormatting.GOLD + "[HammerLib]" + ChatFormatting.RESET + " Ping: ~" +
-					PingServerPacket.lastPingTime + " ms.");
-		}
+		List<String> tip = f3.getLeft();
+		tip.add(ChatFormatting.GOLD + "[HammerLib]" + ChatFormatting.RESET + " Ping: ~" +
+				PingServerPacket.lastPingTime + " ms.");
 	}
 	
 	@Override

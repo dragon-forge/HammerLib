@@ -1,22 +1,17 @@
 package org.zeith.hammerlib.core.adapter;
 
-import net.minecraftforge.fml.ModContainer;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.forgespi.language.IModFileInfo;
-import net.minecraftforge.forgespi.language.IModInfo;
-import net.minecraftforge.forgespi.locating.IModFile;
+import net.neoforged.fml.*;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforgespi.language.*;
+import net.neoforged.neoforgespi.locating.IModFile;
 import org.zeith.hammerlib.util.java.io.win32.ZoneIdentifier;
 import org.zeith.hammerlib.util.java.net.HttpRequest;
-import org.zeith.hammerlib.util.shaded.json.JSONObject;
-import org.zeith.hammerlib.util.shaded.json.JSONTokener;
+import org.zeith.hammerlib.util.shaded.json.*;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
 

@@ -1,17 +1,12 @@
 package org.zeith.hammerlib.mixins;
 
-import com.google.gson.JsonElement;
+import com.google.gson.Gson;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraftforge.common.crafting.conditions.ICondition;
+import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import net.minecraft.world.item.crafting.*;
 import org.spongepowered.asm.mixin.*;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.*;
+import org.spongepowered.asm.mixin.injection.callback.*;
 import org.zeith.api.level.ISpoofedRecipeManager;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.core.RecipeHelper;
@@ -24,33 +19,36 @@ import java.util.*;
 @Implements({
 		@Interface(iface = ISpoofedRecipeManager.class, prefix = "isrm$")
 })
-public class RecipeManagerMixin
+public abstract class RecipeManagerMixin
+		extends SimpleJsonResourceReloadListener
 {
-	@Shadow(remap = false)
-	@Final
-	private ICondition.IContext context;
-	
 	@Shadow
 	public Map<ResourceLocation, Recipe<?>> byName;
 	
-	private Map<ResourceLocation, List<ResourceLocation>> hammerLibSpoofByName = SpoofRecipesEvent.gather();
+	@Unique
+	private final Map<ResourceLocation, List<ResourceLocation>> hl$SpoofByName = SpoofRecipesEvent.gather();
+	
+	public RecipeManagerMixin(Gson p_10768_, String p_10769_)
+	{
+		super(p_10768_, p_10769_);
+	}
 	
 	@Inject(
 			method = "byKey",
 			at = @At("HEAD"),
 			cancellable = true
 	)
-	private void replaceRecipeId(ResourceLocation id, CallbackInfoReturnable<Optional<? extends Recipe<?>>> cir)
+	private void HammerLib_replaceRecipeId(ResourceLocation id, CallbackInfoReturnable<Optional<? extends Recipe<?>>> cir)
 	{
-		if(hammerLibSpoofByName.containsKey(id))
+		if(hl$SpoofByName.containsKey(id))
 		{
-			var recipe = findFirstRecipe_HL(hammerLibSpoofByName.getOrDefault(id, List.of(id)));
+			var recipe = HammerLib_findFirstRecipe(hl$SpoofByName.getOrDefault(id, List.of(id)));
 			if(recipe.isPresent()) cir.setReturnValue(recipe);
-			else HammerLib.LOG.error("Failed to locate recipe with mapping " + id + "=" + hammerLibSpoofByName.get(id));
+			else HammerLib.LOG.error("Failed to locate recipe with mapping " + id + "=" + hl$SpoofByName.get(id));
 		}
 	}
 	
-	private Optional<? extends Recipe<?>> findFirstRecipe_HL(Collection<ResourceLocation> rl)
+	private Optional<? extends Recipe<?>> HammerLib_findFirstRecipe(Collection<ResourceLocation> rl)
 	{
 		return rl.stream()
 				.map(byName::get)
@@ -59,20 +57,17 @@ public class RecipeManagerMixin
 	}
 	
 	@Inject(
-			method = "apply*",
+			method = "apply(Ljava/util/Map;Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)V",
 			at = @At("TAIL")
 	)
-	public void reloadRecipes_HammerLib(Map<ResourceLocation, JsonElement> recipes,
-										ResourceManager manager,
-										ProfilerFiller profiler,
-										CallbackInfo ci)
+	public void HammerLib_reloadRecipes(CallbackInfo ci)
 	{
 		RecipeManager mgr = Cast.cast(this);
-		RecipeHelper.injectRecipes(mgr, context);
+		RecipeHelper.injectRecipes(mgr, conditionContext);
 	}
 	
 	public Map<ResourceLocation, List<ResourceLocation>> isrm$getSpoofedRecipes()
 	{
-		return hammerLibSpoofByName;
+		return hl$SpoofByName;
 	}
 }

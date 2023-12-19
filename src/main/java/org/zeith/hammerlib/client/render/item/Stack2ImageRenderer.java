@@ -4,34 +4,29 @@ import com.mojang.blaze3d.pipeline.MainTarget;
 import com.mojang.blaze3d.platform.*;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
+import net.minecraft.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.*;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.common.CreativeModeTabRegistry;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.*;
+import net.neoforged.fml.LogicalSide;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.common.CreativeModeTabRegistry;
+import net.neoforged.neoforge.event.TickEvent;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.compat.jei.IJeiPluginHL;
 import org.zeith.hammerlib.core.ConfigHL;
-import org.zeith.hammerlib.proxy.HLClientProxy;
-import org.zeith.hammerlib.proxy.HLConstants;
+import org.zeith.hammerlib.proxy.*;
 import org.zeith.hammerlib.util.java.Cast;
 
 import javax.imageio.ImageIO;
@@ -122,7 +117,7 @@ public class Stack2ImageRenderer
 	public static void renderItem(Component type, ItemStack stack, int size)
 	{
 		SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy-hh.mm.ss");
-		ResourceLocation rl = ForgeRegistries.ITEMS.getKey(stack.getItem());
+		ResourceLocation rl = BuiltInRegistries.ITEM.getKey(stack.getItem());
 		var faild = new File(HLConstants.MOD_ID, "renderers" + File.separator + rl.getNamespace());
 		var fl = new File(faild, (rl.getPath() + "-" + sdf.format(Date.from(Instant.now())) + ".png").replaceAll("[^a-zA-Z0-9\\.\\-]", "_"));
 		queueRenderer(type, stack, size, fl);
@@ -140,7 +135,7 @@ public class Stack2ImageRenderer
 				.distinct()
 				.forEach(s ->
 				{
-					ResourceLocation rl = ForgeRegistries.ITEMS.getKey(s.item());
+					ResourceLocation rl = BuiltInRegistries.ITEM.getKey(s.item());
 					var fl = new File(faild, rl.getNamespace() + File.separator + (rl.getPath() + ".png").replaceAll("[^a-zA-Z0-9\\.\\-]", "_"));
 					queueRenderer(Component.literal("Everything"), s.stack(), size, fl);
 				});
@@ -154,12 +149,12 @@ public class Stack2ImageRenderer
 		CreativeModeTabRegistry.getSortedCreativeModeTabs()
 				.stream()
 				.flatMap(tab -> tab.getDisplayItems().stream())
-				.filter(item -> ForgeRegistries.ITEMS.getKey(item.getItem()).getNamespace().equals(modid))
+				.filter(item -> BuiltInRegistries.ITEM.getKey(item.getItem()).getNamespace().equals(modid))
 				.map(stack -> new ItemWithData(stack.getItem(), stack.getTag()))
 				.distinct()
 				.forEach(s ->
 				{
-					ResourceLocation rl = ForgeRegistries.ITEMS.getKey(s.item());
+					ResourceLocation rl = BuiltInRegistries.ITEM.getKey(s.item());
 					var fl = new File(faild, (rl.getPath() + ".png").replaceAll("[^a-zA-Z0-9\\.\\-]", "_"));
 					queueRenderer(Component.literal("Mod " + modid), s.stack(), size, fl);
 				});

@@ -1,6 +1,6 @@
 package org.zeith.hammerlib.util.charging.fluid;
 
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 import org.zeith.hammerlib.util.charging.AbstractCharge;
 
 public class FluidCharge

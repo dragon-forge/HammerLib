@@ -5,13 +5,13 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.server.ServerStoppingEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.TickEvent;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.objectweb.asm.Type;
 import org.zeith.hammerlib.api.LanguageHelper.LangMap;
 import org.zeith.hammerlib.api.lighting.ColoredLight;
@@ -26,8 +26,8 @@ public class HLCommonProxy
 	
 	public HLCommonProxy()
 	{
-		MinecraftForge.EVENT_BUS.addListener(this::serverTick);
-		MinecraftForge.EVENT_BUS.addListener(this::serverStopping);
+		NeoForge.EVENT_BUS.addListener(this::serverTick);
+		NeoForge.EVENT_BUS.addListener(this::serverStopping);
 	}
 	
 	public void queueTask(Level level, int delay, Runnable task)

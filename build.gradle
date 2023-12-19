@@ -1,29 +1,18 @@
 buildscript {
-    repositories {
-        maven { url "https://plugins.gradle.org/m2/" }
-        jcenter()
-        mavenCentral()
-        maven {
-            name = 'sponge'
-            url = 'https://repo.spongepowered.org/maven'
-        }
-    }
     dependencies {
         classpath "gradle.plugin.com.matthewprenger:CurseGradle:1.4.+"
-        classpath 'org.spongepowered:mixingradle:0.7.+'
     }
 }
 
 plugins {
+    id 'java-library'
     id "com.modrinth.minotaur" version "2.+"
-    id 'net.neoforged.gradle' version '[6.0.13, 6.2)'
-    id 'org.parchmentmc.librarian.forgegradle' version '1.+'
+    id 'net.neoforged.gradle.userdev' version '7.0.71'
 }
 
 apply plugin: 'idea'
 apply plugin: 'maven-publish'
 apply plugin: "com.matthewprenger.cursegradle"
-apply plugin: 'org.spongepowered.mixin'
 
 ext.configFile = file("build.txt")
 configFile.withReader {
@@ -37,48 +26,39 @@ configFile.withReader {
 
 version = config.mod_version
 group = config.maven_group
-archivesBaseName = "${config.archive_name}-${config.mc_version}"
 
-mixin {
-    add sourceSets.main, "mixins.${config.mod_id}.refmap.json"
-    config "mixins.${config.mod_id}.json"
-
-    debug.verbose = true
-    debug.export = true
+base {
+    archivesName = "${config.archive_name}-${config.mc_version}"
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 
 minecraft {
-    mappings channel: 'parchment', version: "1.20.1-2023.09.03-${config.mc_version}"
-    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
-    copyIdeResources = true
-    runs {
-        client {
-            workingDirectory project.file('run/client')
-            property 'forge.logging.console.level', 'debug'
-            property 'forge.enabledGameTestNamespaces', config.mod_id
-            setArgs(Arrays.asList("--mixin mixins.${config.mod_id}.json --username ${config.mc_user.split(',')[0]} --uuid ${config.mc_user.split(',')[1]}".split(' ')))
+    accessTransformers {
+        file('src/main/resources/META-INF/accesstransformer.cfg')
+    }
+}
 
-            mods {
-                "${config.mod_id}" {
-                    source sourceSets.main
-                }
-            }
-        }
+runs {
+    configureEach {
+        systemProperty 'forge.logging.console.level', 'debug'
+        systemProperty 'forge.enabledGameTestNamespaces', config.mod_id
 
-        server {
-            workingDirectory project.file('run/server')
-            property 'forge.logging.console.level', 'debug'
-            setArgs(Arrays.asList("--mixin mixins.${config.mod_id}.json".split(' ')))
-            property 'forge.enabledGameTestNamespaces', config.mod_id
-            mods {
-                "${config.mod_id}" {
-                    source sourceSets.main
-                }
-            }
-        }
+        programArguments(Arrays.asList("--mixin mixins.${config.mod_id}.json --username ${config.mc_user.split(',')[0]} --uuid ${config.mc_user.split(',')[1]}".split(' ')))
+
+        modSource project.sourceSets.main
+    }
+
+    client {
+        workingDirectory project.file('run/client')
+        systemProperty 'forge.enabledGameTestNamespaces', config.mod_id
+    }
+
+    server {
+        workingDirectory project.file('run/server')
+        systemProperty 'forge.enabledGameTestNamespaces', config.mod_id
+        programArgument '--nogui'
     }
 }
 
@@ -111,23 +91,24 @@ repositories {
     }
 }
 
-import net.minecraftforge.gradle.common.tasks.SignJar
-
 import java.nio.file.Files
 import java.nio.file.StandardOpenOption
 
 dependencies {
-    minecraft "net.neoforged:forge:${config.mc_version}-${config.forge_version}"
+    implementation "net.neoforged:neoforge:${config.forge_version}"
+
+    ////// UTILITY STUFF //////
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+    ///////////////////////////
 
     if (hasConfig("jei_version") && !config.jei_version.isEmpty()) {
-        compileOnly fg.deobf("mezz.jei:jei-${config.mc_version}-common-api:${config.jei_version}")
-        compileOnly fg.deobf("mezz.jei:jei-${config.mc_version}-forge-api:${config.jei_version}")
-        runtimeOnly fg.deobf("mezz.jei:jei-${config.mc_version}-forge:${config.jei_version}")
+        compileOnly "mezz.jei:jei-${config.mc_version}-common-api:${config.jei_version}"
+        compileOnly "mezz.jei:jei-${config.mc_version}-forge-api:${config.jei_version}"
+        // runtimeOnly "mezz.jei:jei-${config.mc_version}-forge:${config.jei_version}"
     }
 
-    annotationProcessor "org.spongepowered:mixin:0.8.5:processor"
-
-    compileOnly fg.deobf("com.lowdragmc.shimmer:Shimmer-forge:1.20-${config.shimmer_version}")
+    compileOnly "com.lowdragmc.shimmer:Shimmer-forge:1.20-${config.shimmer_version}"
 
     def libraries = new File(file("libraries"), "${config.mc_version}")
     if (!libraries.isDirectory()) libraries.mkdirs()
@@ -139,7 +120,7 @@ dependencies {
             def modartifact = file.name.substring(0, splitPos)
             def modversion = file.name.substring(splitPos + 1, file.name.length() - 4)
             dependencies {
-                implementation fg.deobf(project.dependencies.create("_all:$modartifact:$modversion") {
+                implementation (project.dependencies.create("_all:$modartifact:$modversion") {
                     transitive = false
                 })
             }
@@ -153,7 +134,7 @@ dependencies {
             def modartifact = file.name.substring(0, splitPos)
             def modversion = file.name.substring(splitPos + 1, file.name.length() - 4)
             dependencies {
-                compileOnly fg.deobf(project.dependencies.create("_classpath:$modartifact:$modversion") {
+                compileOnly (project.dependencies.create("_classpath:$modartifact:$modversion") {
                     transitive = false
                 })
             }
@@ -167,7 +148,7 @@ dependencies {
             def modartifact = file.name.substring(0, splitPos)
             def modversion = file.name.substring(splitPos + 1, file.name.length() - 4)
             dependencies {
-                runtimeOnly fg.deobf(project.dependencies.create("_runtime:$modartifact:$modversion") {
+                runtimeOnly (project.dependencies.create("_runtime:$modartifact:$modversion") {
                     transitive = false
                 })
             }
@@ -202,12 +183,12 @@ def replaceProperties = [
         issue_tracker: config.issue_tracker, modrinth_project: config.modrinth_project,
         mod_authors: config.mod_authors, mod_description: config.mod_description
 ]
-processResources {
+tasks.withType(ProcessResources).configureEach {
     inputs.properties replaceProperties
     replaceProperties.put 'project', project
 
     filesMatching(resourceTargets) {
-        expand replaceProperties
+        expand replaceProperties + [project: project]
     }
 }
 
@@ -278,7 +259,8 @@ curseforge {
     }
 }
 
-task signJar(type: SignJar, dependsOn: jar) {
+import net.neoforged.gradle.common.tasks.PotentiallySignJar;
+task signJar(type: PotentiallySignJar, dependsOn: jar) {
     onlyIf {
         System.env.MC_KS_PASS != null
     }
@@ -286,18 +268,18 @@ task signJar(type: SignJar, dependsOn: jar) {
     alias = System.env.MC_KS_ALIAS
     storePass = System.env.MC_KS_PASS
     keyPass = System.env.MC_KS_PASS
-    inputFile = jar.archiveFile
-    outputFile = jar.archiveFile
+    input = jar.archiveFile
+    output = jar.archiveFile
 }
 
-def reobfFile = jar.archiveFile.get().asFile
-def reobfArtifact = artifacts.add('default', reobfFile) {
-    type 'jar'
-    builtBy 'signJar'
-}
+//def reobfFile = jar.archiveFile.get().asFile
+//def reobfArtifact = artifacts.add('default', reobfFile) {
+//    type 'jar'
+//    builtBy 'signJar'
+//}
 
-jar.finalizedBy('reobfJar')
-publish.dependsOn('reobfJar')
+jar.finalizedBy('signJar')
+publish.dependsOn('signJar')
 
 build.dependsOn signJar
 
@@ -317,14 +299,17 @@ afterEvaluate {
 
 publishing {
     publications {
-        mavenJava(MavenPublication) {
-            groupId = config.maven_group
-            artifactId = config.archive_name + "-" + config.mc_version
-
-            artifact reobfArtifact
-            artifact srcJar
-            artifact deobfJar
+        register('mavenJava', MavenPublication) {
+            from components.java
         }
+//        mavenJava(MavenPublication) {
+//            groupId = config.maven_group
+//            artifactId = config.archive_name + "-" + config.mc_version
+//
+//            artifact reobfArtifact
+//            artifact srcJar
+//            artifact deobfJar
+//        }
     }
     repositories {
         maven {

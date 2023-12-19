@@ -1,12 +1,9 @@
 package org.zeith.hammerlib.util.charging;
 
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 public interface IChargeHandler<T extends AbstractCharge>

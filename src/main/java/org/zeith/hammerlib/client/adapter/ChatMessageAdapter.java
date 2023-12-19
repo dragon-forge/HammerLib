@@ -2,13 +2,12 @@ package org.zeith.hammerlib.client.adapter;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.fml.DistExecutor;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.DistExecutor;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.TickEvent;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class ChatMessageAdapter
@@ -35,7 +34,7 @@ public class ChatMessageAdapter
 					}
 				}
 			};
-			MinecraftForge.EVENT_BUS.addListener(listener);
+			NeoForge.EVENT_BUS.addListener(listener);
 		});
 	}
 }

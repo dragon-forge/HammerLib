@@ -1,9 +1,9 @@
 package org.zeith.hammerlib.event.recipe;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.fml.ModLoader;
-import net.minecraftforge.fml.event.IModBusEvent;
+import net.neoforged.bus.api.Event;
+import net.neoforged.fml.ModLoader;
+import net.neoforged.fml.event.IModBusEvent;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

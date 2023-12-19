@@ -2,7 +2,6 @@ package org.zeith.hammerlib.client.model.builtin;
 
 import com.google.common.collect.Lists;
 import com.google.gson.*;
-import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.ints.*;
 import net.minecraft.Util;
 import net.minecraft.client.renderer.RenderType;
@@ -15,9 +14,9 @@ import net.minecraft.util.*;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.*;
-import net.minecraftforge.client.model.data.ModelData;
-import net.minecraftforge.client.model.geometry.*;
+import net.neoforged.neoforge.client.*;
+import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.client.model.geometry.*;
 import org.jetbrains.annotations.*;
 import org.zeith.hammerlib.client.model.IUnbakedGeometry;
 import org.zeith.hammerlib.client.model.*;
@@ -152,12 +151,6 @@ public class MultiLayerModel
 			e.printStackTrace();
 			return null;
 		}
-	}
-	
-	@Override
-	public Collection<Material> getMaterials(IGeometryBakingContext context, Function<ResourceLocation, UnbakedModel> modelGetter, Set<Pair<String, String>> missingTextureErrors)
-	{
-		return List.of();
 	}
 	
 	protected List<BlockElement> getElements(JsonDeserializationContext ctx, JsonObject root)

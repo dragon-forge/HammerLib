@@ -3,9 +3,8 @@ package org.zeith.hammerlib.abstractions.recipes;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraft.world.item.crafting.*;
+import net.neoforged.api.distmarker.*;
 import org.zeith.hammerlib.abstractions.recipes.layout.IVisualizerBuilder;
 
 import java.util.List;
@@ -13,7 +12,7 @@ import java.util.List;
 @OnlyIn(Dist.CLIENT)
 public interface IVisualizedRecipe<T extends Recipe<?>>
 {
-	T getRecipe();
+	RecipeHolder<T> getRecipe();
 	
 	void setupLayout(IVisualizerBuilder builder);
 	

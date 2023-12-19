@@ -30,7 +30,7 @@ public abstract class ScreenWTFMojang<T extends AbstractContainerMenu>
 	@Override
 	public void render(GuiGraphics pose, int mouseX, int mouseY, float partialTime)
 	{
-		this.renderBackground(pose);
+		this.renderBackground(pose, mouseX, mouseY, partialTime);
 		super.render(pose, mouseX, mouseY, partialTime);
 		this.renderTooltip(pose, mouseX, mouseY);
 	}

@@ -16,6 +16,6 @@ public class SmokingRecipeBuilder
 	@Override
 	protected Recipe<?> generateRecipe()
 	{
-		return new SmokingRecipe(getIdentifier(), group, category, input, result, xp, cookTime);
+		return new SmokingRecipe( group, category, input, result, xp, cookTime);
 	}
 }

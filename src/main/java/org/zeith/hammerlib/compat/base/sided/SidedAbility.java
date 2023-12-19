@@ -1,7 +1,6 @@
 package org.zeith.hammerlib.compat.base.sided;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.*;
 import org.zeith.hammerlib.compat.base.Ability;
 
 import java.util.Objects;

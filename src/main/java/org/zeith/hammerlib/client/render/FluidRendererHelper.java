@@ -7,13 +7,13 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
-import org.zeith.hammerlib.client.utils.FXUtils;
-import org.zeith.hammerlib.client.utils.FluidTextureType;
+import org.zeith.hammerlib.client.utils.*;
 import org.zeith.hammerlib.util.colors.ColorHelper;
+
 
 public class FluidRendererHelper
 {
@@ -72,7 +72,7 @@ public class FluidRendererHelper
 	
 	public static TextureAtlasSprite getBaseFluidTexture(@NotNull Fluid fluid, @NotNull FluidTextureType type)
 	{
-		IClientFluidTypeExtensions properties = IClientFluidTypeExtensions.of(fluid);
+		var properties = IClientFluidTypeExtensions.of(fluid);
 		ResourceLocation spriteLocation;
 		if(type == FluidTextureType.STILL)
 		{

@@ -2,9 +2,9 @@ package org.zeith.hammerlib.core.adapter.recipe;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.*;
-import org.zeith.hammerlib.core.RecipeHelper;
+import org.zeith.hammerlib.core.*;
 import org.zeith.hammerlib.core.recipes.HLShapedRecipe;
-import org.zeith.hammerlib.core.recipes.replacers.*;
+import org.zeith.hammerlib.core.recipes.replacers.IRemainingItemReplacer;
 import org.zeith.hammerlib.util.mcf.itf.IRecipeRegistrationEvent;
 
 import java.util.*;
@@ -25,7 +25,7 @@ public class ShapedRecipeBuilder
 	
 	public ShapedRecipeBuilder replacers(IRemainingItemReplacer... replacers)
 	{
-		Stream.of(replacers).map(RemainingReplacerRegistrar::key).filter(Objects::nonNull).forEach(this.replacers::add);
+		Stream.of(replacers).map(RegistriesHL.remainingReplacer()::getKey).filter(Objects::nonNull).forEach(this.replacers::add);
 		return this;
 	}
 	
@@ -70,7 +70,7 @@ public class ShapedRecipeBuilder
 		if(!event.enableRecipe(RecipeType.CRAFTING, getIdentifier())) return;
 		
 		var id = getIdentifier();
-		var rec = new HLShapedRecipe(id, group, category, shape.width, shape.height, shape.createIngredientMap(dictionary), result);
+		var rec = new HLShapedRecipe(group, category, shape.width, shape.height, shape.createIngredientMap(dictionary), result);
 		rec.addReplacers(replacers);
 		event.register(id, rec);
 	}

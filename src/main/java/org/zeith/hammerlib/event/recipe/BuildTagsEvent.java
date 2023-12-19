@@ -1,25 +1,21 @@
 package org.zeith.hammerlib.event.recipe;
 
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagEntry;
-import net.minecraft.tags.TagKey;
-import net.minecraft.tags.TagLoader;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.registries.ForgeRegistry;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.*;
+import net.minecraft.tags.*;
+import net.minecraft.world.item.Item;
+import net.neoforged.bus.api.Event;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class BuildTagsEvent
 		extends Event
 {
 	public final String directory;
 	public final Map<ResourceLocation, List<TagLoader.EntryWithSource>> tags;
-	public final ForgeRegistry reg;
+	public final Registry reg;
 	
-	public BuildTagsEvent(ForgeRegistry reg, String directory, Map<ResourceLocation, List<TagLoader.EntryWithSource>> tags)
+	public BuildTagsEvent(Registry reg, String directory, Map<ResourceLocation, List<TagLoader.EntryWithSource>> tags)
 	{
 		this.reg = reg;
 		this.directory = directory;
@@ -54,8 +50,13 @@ public class BuildTagsEvent
 	@Override
 	public String toString()
 	{
-		return "BuildTagsEvent<" + reg.getRegistryKey().location() + ">{" +
-				"directory=" + directory +
-				'}';
+		return "BuildTagsEvent<" + reg.key().location() + ">{" +
+			   "directory=" + directory +
+			   '}';
+	}
+	
+	public boolean is(ResourceKey<? extends Registry<?>> reg)
+	{
+		return this.reg.key().equals(reg);
 	}
 }

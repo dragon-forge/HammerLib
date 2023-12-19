@@ -5,6 +5,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import org.zeith.hammerlib.util.java.DirectStorage;
 
+
 public class PropertyParticleType
 		extends PropertyBase<ParticleOptions>
 {

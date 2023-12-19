@@ -43,7 +43,7 @@ public class TagAdapter
 	})
 	public static void applyTags(BuildTagsEvent evt)
 	{
-		Map<TagKey, Set> tags = getTagsFor(evt.reg.getRegistryKey());
+		Map<TagKey, Set> tags = getTagsFor(evt.reg.key());
 		tags.forEach((tag, values) -> evt.addAllToTag(tag, values));
 	}
 }

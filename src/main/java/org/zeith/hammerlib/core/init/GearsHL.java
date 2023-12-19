@@ -1,17 +1,15 @@
 package org.zeith.hammerlib.core.init;
 
-import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.TagKey;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.tags.*;
 import net.minecraft.world.item.*;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.SmithingTransformRecipe;
-import net.minecraftforge.common.Tags;
-import net.minecraftforge.registries.ForgeRegistries;
-import org.zeith.hammerlib.annotations.RegistryName;
-import org.zeith.hammerlib.annotations.SimplyRegister;
+import net.minecraft.world.item.crafting.*;
+import net.neoforged.neoforge.common.Tags;
+import org.zeith.hammerlib.annotations.*;
 import org.zeith.hammerlib.core.RecipeHelper;
 import org.zeith.hammerlib.core.items.ItemGear;
 import org.zeith.hammerlib.event.recipe.RegisterRecipesEvent;
+
 
 @SimplyRegister(prefix = "gears/")
 public interface GearsHL
@@ -56,8 +54,8 @@ public interface GearsHL
 		
 		if(NETHERITE_GEAR.defaultRecipe())
 		{
-			var id = ForgeRegistries.ITEMS.getKey(NETHERITE_GEAR);
-			e.register(id, new SmithingTransformRecipe(id,
+			var id = BuiltInRegistries.ITEM.getKey(NETHERITE_GEAR);
+			e.register(id, new SmithingTransformRecipe(
 					Ingredient.of(Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE),
 					Ingredient.of(DIAMOND_GEAR),
 					RecipeHelper.fromTag(Tags.Items.INGOTS_NETHERITE),

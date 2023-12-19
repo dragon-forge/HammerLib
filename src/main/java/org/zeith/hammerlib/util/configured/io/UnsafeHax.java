@@ -1,15 +1,18 @@
 package org.zeith.hammerlib.util.configured.io;
 
-import java.util.Arrays;
-import java.util.Objects;
+import net.minecraftforge.fml.unsafe.UnsafeHacks;
+
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class UnsafeHax
 {
-	@SuppressWarnings("unchecked")
-	public static <T> T cast(Object anything)
+	/**
+	 * Creates a new instance without calling constructor < init> method.
+	 */
+	public static <T> T unitializedInstance(Class<T> type)
 	{
-		return (T) anything;
+		return UnsafeHacks.newInstance(type);
 	}
 	
 	public static String toString(Object[] array)

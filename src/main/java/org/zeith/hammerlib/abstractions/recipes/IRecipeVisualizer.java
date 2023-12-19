@@ -2,7 +2,6 @@ package org.zeith.hammerlib.abstractions.recipes;
 
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import org.zeith.hammerlib.client.render.IGuiDrawable;
@@ -18,9 +17,9 @@ public interface IRecipeVisualizer<T extends Recipe<?>, VIS extends IVisualizedR
 	
 	Class<VIS> getVisualizedType();
 	
-	VIS visualize(T recipe);
+	VIS visualize(RecipeHolder<T> recipe);
 	
-	static <T extends Recipe<?>, VIS extends IVisualizedRecipe<T>> IRecipeVisualizer<T, VIS> simple(Class<VIS> baseVisType, VisualizedRecipeGroup group, Function<T, VIS> fun)
+	static <T extends Recipe<?>, VIS extends IVisualizedRecipe<T>> IRecipeVisualizer<T, VIS> simple(Class<VIS> baseVisType, VisualizedRecipeGroup group, Function<RecipeHolder<T>, VIS> fun)
 	{
 		return new IRecipeVisualizer<>()
 		{
@@ -37,7 +36,7 @@ public interface IRecipeVisualizer<T extends Recipe<?>, VIS extends IVisualizedR
 			}
 			
 			@Override
-			public VIS visualize(T recipe)
+			public VIS visualize(RecipeHolder<T> recipe)
 			{
 				return fun.apply(recipe);
 			}

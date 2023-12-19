@@ -1,10 +1,9 @@
 package org.zeith.hammerlib.api.config;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.minecraft.nbt.*;
 import net.minecraftforge.fml.unsafe.UnsafeHacks;
+import net.neoforged.fml.LogicalSide;
+import net.neoforged.fml.loading.FMLEnvironment;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.util.configured.ConfigFile;
 import org.zeith.hammerlib.util.java.ReflectionUtil;

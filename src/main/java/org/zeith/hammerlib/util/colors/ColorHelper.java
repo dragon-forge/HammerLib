@@ -1,8 +1,7 @@
 package org.zeith.hammerlib.util.colors;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.*;
 import org.zeith.hammerlib.util.java.NumberUtils;
 
 public class ColorHelper

@@ -1,6 +1,6 @@
 package org.zeith.hammerlib.util.mcf;
 
-import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -13,7 +13,7 @@ public class AdvancementUtils
 	{
 		if(player instanceof ServerPlayer mp)
 		{
-			var adv = mp.server.getAdvancements().getAdvancement(advancement);
+			var adv = mp.server.getAdvancements().get(advancement);
 			if(adv == null) return false;
 			return mp.getAdvancements().getOrStartProgress(adv).isDone();
 		}
@@ -24,7 +24,7 @@ public class AdvancementUtils
 	{
 		if(player instanceof ServerPlayer mp)
 		{
-			Advancement adv = mp.server.getAdvancements().getAdvancement(advancement);
+			AdvancementHolder adv = mp.server.getAdvancements().get(advancement);
 			if(adv == null) return;
 			
 			var prog = mp.getAdvancements().getOrStartProgress(adv);
