@@ -1,6 +1,5 @@
 package org.zeith.hammerlib.mixins.client;
 
-import com.google.common.base.MoreObjects;
 import com.google.common.collect.Maps;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
@@ -9,7 +8,6 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.*;
 import org.zeith.hammerlib.api.client.IEmissivePlayerInfo;
@@ -34,6 +32,7 @@ public abstract class PlayerInfoMixin
 	
 	private void registerEmissiveTextures()
 	{
+		if(pendingEmissiveTextures) return;
 		synchronized(this)
 		{
 			if(!pendingEmissiveTextures)
@@ -77,11 +76,11 @@ public abstract class PlayerInfoMixin
 		}
 	}
 	
-	@NotNull
+	@Nullable
 	public ResourceLocation IEPI$getEmissiveSkinLocation()
 	{
 		this.registerEmissiveTextures();
-		return MoreObjects.firstNonNull(this.emissiveTextureLocations.get(MinecraftProfileTexture.Type.SKIN), FXUtils.EMPTY_TEXTURE);
+		return this.emissiveTextureLocations.get(MinecraftProfileTexture.Type.SKIN);
 	}
 	
 	@Nullable

@@ -97,6 +97,7 @@ public class PropertyDispatcher
 			if(cleanse)
 				dirty.clear();
 		}
+		buf.writeUtf("!");
 		byte[] data = transposer.transpose();
 		if(data.length > 0)
 			return new SendPropertiesPacket(source.get(), data);

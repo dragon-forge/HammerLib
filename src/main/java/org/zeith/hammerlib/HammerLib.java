@@ -35,7 +35,7 @@ import org.zeith.hammerlib.event.fml.FMLFingerprintCheckEvent;
 import org.zeith.hammerlib.mixins.RegistryManagerAccessor;
 import org.zeith.hammerlib.proxy.*;
 import org.zeith.hammerlib.tiles.tooltip.own.impl.TooltipRenderEngine;
-import org.zeith.hammerlib.util.CommonMessages;
+import org.zeith.hammerlib.util.*;
 import org.zeith.hammerlib.util.charging.ItemChargeHelper;
 import org.zeith.hammerlib.util.mcf.ScanDataHelper;
 
@@ -57,7 +57,8 @@ public class HammerLib
 	public HammerLib()
 	{
 		CommonMessages.printMessageOnIllegalRedistribution(HammerLib.class,
-				LOG, "HammerLib", "https://www.curseforge.com/minecraft/mc-mods/hammer-lib");
+				LOG, "HammerLib", "https://www.curseforge.com/minecraft/mc-mods/hammer-lib"
+		);
 		
 		FMLJavaModLoadingContext.get().getModEventBus().register(this);
 		PROXY.construct(FMLJavaModLoadingContext.get().getModEventBus());
@@ -67,6 +68,7 @@ public class HammerLib
 		LanguageAdapter.registerMod(HLConstants.MOD_ID);
 		
 		TagsHL.init();
+		ZeithLinkRepository.initialize(); // Ask to initialize the link repository offthread somewhere.
 		
 		ItemChargeHelper.setup();
 		
@@ -85,30 +87,19 @@ public class HammerLib
 			}
 		});
 		
-		if(RegistryManager.ACTIVE instanceof RegistryManagerAccessor activeRegistries)
+		// Register all content providers
+		ScanDataHelper.lookupAnnotatedObjects(SimplyRegister.class).forEach(data ->
 		{
-			for(var registry : activeRegistries.getRegistries().values())
-			{
-				var superType = RegistryMapping.getSuperType(registry);
-				if(superType == null)
-					LOG.error("Found registry without defined super type: " + registry.getRegistryKey());
-			}
-			
-			// Register all content providers
-			ScanDataHelper.lookupAnnotatedObjects(SimplyRegister.class).forEach(data ->
-			{
-				if(data.getTargetType() == ElementType.TYPE)
-					data.getOwnerMod()
-							.ifPresent(mc ->
-							{
-								LOG.info("Hooked " + data.clazz() + " from " + mc.getModId() + " to register it's stuff.");
-								mc.getEventBus().addListener((Consumer<RegisterEvent>) event ->
-										RegistryAdapter.register(event, data.getOwnerClass(), mc.getModId(), data.getProperty("prefix").map(Objects::toString).orElse(""))
-								);
-							});
-			});
-		} else
-			throw new RuntimeException("Unable to cast RegistryManager to RegistryManagerAccessor. Mixin apply failed?");
+			if(data.getTargetType() == ElementType.TYPE)
+				data.getOwnerMod()
+						.ifPresent(mc ->
+						{
+							LOG.info("Hooked {} from {} to register it's stuff.", data.clazz(), mc.getModId());
+							mc.getEventBus().addListener((Consumer<RegisterEvent>) event ->
+									RegistryAdapter.register(event, data.getOwnerClass(), mc.getModId(), data.getProperty("prefix").map(Objects::toString).orElse(""))
+							);
+						});
+		});
 		
 		// Prepare configs
 		ConfigAdapter.setup();
@@ -131,7 +122,7 @@ public class HammerLib
 					{
 						if(data.getTargetType() == ElementType.METHOD)
 						{
-							HammerLib.LOG.info("Injecting setup into " + data.clazz().getClassName());
+							HammerLib.LOG.info("Injecting setup into {}.", data.clazz().getClassName());
 							data.getOwnerMod()
 									.map(FMLModContainer::getEventBus)
 									.ifPresent(b -> b.addListener((Consumer<FMLCommonSetupEvent>) event -> RegistryAdapter.setup(event, data.getOwnerClass(), data.getMemberName())));
@@ -141,7 +132,7 @@ public class HammerLib
 					}
 				}
 			} else
-				HammerLib.LOG.warn("What the hell is this? " + data.parent.clazz() + "->" + data.getMemberName());
+				HammerLib.LOG.warn("What the hell is this? {}->{}", data.parent.clazz(), data.getMemberName());
 		});
 		
 		ScanDataHelper.lookupAnnotatedObjects(ClientSetup.class).forEach(data ->
@@ -191,7 +182,8 @@ public class HammerLib
 	public void checkFingerprint(FMLFingerprintCheckEvent e)
 	{
 		CommonMessages.printMessageOnFingerprintViolation(e, "97e852e9b3f01b83574e8315f7e77651c6605f2b455919a7319e9869564f013c",
-				LOG, "HammerLib", "https://www.curseforge.com/minecraft/mc-mods/hammer-lib");
+				LOG, "HammerLib", "https://www.curseforge.com/minecraft/mc-mods/hammer-lib"
+		);
 	}
 	
 	@SubscribeEvent

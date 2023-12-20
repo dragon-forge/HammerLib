@@ -67,17 +67,17 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extend
 					target = "Lnet/minecraft/world/entity/LivingEntity;isSpectator()Z"
 			)
 	)
-	private void render_HL(T p_115308_, float p_115309_, float p_115310_, PoseStack p_115311_, MultiBufferSource src, int p_115313_, CallbackInfo ci)
+	private void render_HL(T e, float p_115309_, float p_115310_, PoseStack pose, MultiBufferSource src, int light, CallbackInfo ci)
 	{
-		var emissive = IEmissivePlayerInfo.get(p_115308_ instanceof AbstractClientPlayer acp ? acp.getPlayerInfo() : null);
+		var emissive = IEmissivePlayerInfo.get(e instanceof AbstractClientPlayer acp ? acp.getPlayerInfo() : null);
 		if(emissive == null) return;
 		
 		var emt = emissive.getEmissiveSkinLocation();
 		if(emt == null) return;
 		
 		Minecraft minecraft = Minecraft.getInstance();
-		boolean flag = this.isBodyVisible(p_115308_);
-		boolean flag1 = !flag && !p_115308_.isInvisibleTo(minecraft.player);
+		boolean flag = this.isBodyVisible(e);
+		boolean flag1 = !flag && !e.isInvisibleTo(minecraft.player);
 		
 		var emissiveRT = HammerLib.HL_COMPAT_LIST.firstAbility(HLAbilities.BLOOM)
 				.map(SidedAbilityBase::client)
@@ -85,8 +85,10 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extend
 				.map(abil -> abil.emissiveTranslucentArmor(emt))
 				.orElseGet(() -> RenderType.entityTranslucentEmissive(emt));
 		
-		VertexConsumer vertexconsumer = src.getBuffer(emissiveRT);
-		int i = getOverlayCoords(p_115308_, this.getWhiteOverlayProgress(p_115308_, p_115310_));
-		this.model.renderToBuffer(p_115311_, vertexconsumer, p_115313_, i, 1.0F, 1.0F, 1.0F, flag1 ? 0.15F : 1.0F);
+		VertexConsumer vc = src.getBuffer(emissiveRT);
+		int i = getOverlayCoords(e, this.getWhiteOverlayProgress(e, p_115310_));
+		pose.pushPose();
+		this.model.renderToBuffer(pose, vc, light, i, 1.0F, 1.0F, 1.0F, flag1 ? 0.15F : 1.0F);
+		pose.popPose();
 	}
 }

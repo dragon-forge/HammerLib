@@ -1,6 +1,6 @@
 modLoader="javafml"
 loaderVersion="[43,)"
-issueTrackerURL="https://gitlab.com/DragonForge/HammerLib/issues"
+issueTrackerURL="https://github.com/Dragon-Forge/HammerLib/issues"
 license="All rights reserved"
 [[mods]]
 modId="hammerlib"
