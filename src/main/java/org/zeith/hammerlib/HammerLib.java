@@ -50,14 +50,14 @@ public class HammerLib
 	
 	public static final CompatList<BaseHLCompat> HL_COMPAT_LIST = CompatList.gather(BaseHLCompat.class);
 	
-	public HammerLib()
+	public HammerLib(IEventBus modEventBus)
 	{
 		CommonMessages.printMessageOnIllegalRedistribution(HammerLib.class,
 				LOG, "HammerLib", "https://www.curseforge.com/minecraft/mc-mods/hammer-lib"
 		);
 		
-		FMLJavaModLoadingContext.get().getModEventBus().register(this);
-		PROXY.construct(FMLJavaModLoadingContext.get().getModEventBus());
+		modEventBus.register(this);
+		PROXY.construct(modEventBus);
 		NeoForge.EVENT_BUS.register(PROXY);
 		NeoForge.EVENT_BUS.addListener(this::registerCommands);
 		
