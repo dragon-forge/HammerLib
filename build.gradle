@@ -103,8 +103,8 @@ dependencies {
     ///////////////////////////
 
     if (hasConfig("jei_version") && !config.jei_version.isEmpty()) {
-        compileOnly "mezz.jei:jei-${config.mc_version}-common-api:${config.jei_version}"
-        compileOnly "mezz.jei:jei-${config.mc_version}-forge-api:${config.jei_version}"
+        compileOnly "mezz.jei:jei-1.20.2-common-api:${config.jei_version}"
+        compileOnly "mezz.jei:jei-1.20.2-forge-api:${config.jei_version}"
         // runtimeOnly "mezz.jei:jei-${config.mc_version}-forge:${config.jei_version}"
     }
 

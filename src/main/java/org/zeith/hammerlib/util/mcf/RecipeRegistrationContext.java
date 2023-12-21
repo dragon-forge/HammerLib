@@ -5,7 +5,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.neoforged.fml.loading.FMLPaths;
-import net.neoforged.neoforge.common.util.LazyOptional;
+import net.neoforged.neoforge.common.util.Lazy;
 import org.apache.logging.log4j.*;
 import org.jetbrains.annotations.NotNull;
 import org.zeith.hammerlib.core.adapter.recipe.RecipeBuilder;
@@ -158,13 +158,12 @@ public class RecipeRegistrationContext
 				var e = entry.getValue();
 				if(e.active.isEmpty()) continue; // skip empty bodies.
 				
-				var active = LazyOptional.of(() -> activeByType.apply(entry.getKey()));
-				var disabled = LazyOptional.of(() -> disabledByType.apply(entry.getKey()));
+				var active = Lazy.of(() -> activeByType.apply(entry.getKey()));
+				var disabled = Lazy.of(() -> disabledByType.apply(entry.getKey()));
 				
 				for(var st : e.active.object2BooleanEntrySet())
 					(e.usedKeys.contains(st.getKey()) ? active : disabled)
-							.resolve().orElse(new JSONObject())
-							.put(st.getKey(), st.getBooleanValue());
+							.get().put(st.getKey(), st.getBooleanValue());
 			}
 			
 			try

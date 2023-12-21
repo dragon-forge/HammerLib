@@ -70,7 +70,7 @@ public class ShapedRecipeBuilder
 		if(!event.enableRecipe(RecipeType.CRAFTING, getIdentifier())) return;
 		
 		var id = getIdentifier();
-		var rec = new HLShapedRecipe(group, category, shape.width, shape.height, shape.createIngredientMap(dictionary), result);
+		var rec = new HLShapedRecipe(group, category, shape.build(dictionary), result);
 		rec.addReplacers(replacers);
 		event.register(id, rec);
 	}

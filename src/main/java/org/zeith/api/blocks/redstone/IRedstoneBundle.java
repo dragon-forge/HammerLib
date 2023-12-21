@@ -1,27 +1,14 @@
 package org.zeith.api.blocks.redstone;
 
-import net.neoforged.neoforge.common.capabilities.*;
 import org.jetbrains.annotations.Range;
 
 /**
  * Capability interface for representing a redstone bundle.
  * Redstone bundles are capable of storing and retrieving redstone strengths for different colors.
  */
-@AutoRegisterCapability
 public interface IRedstoneBundle
 		extends IRedstoneBundleAccessor
 {
-	/**
-	 * Capability instance for IRedstoneBundle.
-	 * Use this to access the redstone bundle capability.
-	 *
-	 * @return The capability instance for IRedstoneBundle.
-	 */
-	static Capability<IRedstoneBundle> REDSTONE_BUNDLE()
-	{
-		return RedstoneBundleCapability.REDSTONE_BUNDLE;
-	}
-	
 	/**
 	 * Checks if the redstone bundle is connected.
 	 *

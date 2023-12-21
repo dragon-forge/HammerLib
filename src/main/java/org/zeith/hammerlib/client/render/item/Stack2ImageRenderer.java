@@ -245,13 +245,13 @@ public class Stack2ImageRenderer
 				elem.finishCallback.accept(img);
 				
 				if(a != null)
-					SystemToast.addOrUpdate(mc.toast, SystemToast.SystemToastIds.NARRATOR_TOGGLE, a.copy().append(Component.literal(": Rendered!").withStyle(ChatFormatting.GREEN)), elem.stack.getDisplayName());
+					SystemToast.addOrUpdate(mc.toast, SystemToast.SystemToastId.NARRATOR_TOGGLE, a.copy().append(Component.literal(": Rendered!").withStyle(ChatFormatting.GREEN)), elem.stack.getDisplayName());
 			} catch(Throwable e)
 			{
 				e.printStackTrace();
 				
 				if(a != null)
-					SystemToast.addOrUpdate(mc.toast, SystemToast.SystemToastIds.NARRATOR_TOGGLE, a.copy().append(Component.literal(": Failed!").withStyle(ChatFormatting.RED)), elem.stack.getDisplayName());
+					SystemToast.addOrUpdate(mc.toast, SystemToast.SystemToastId.NARRATOR_TOGGLE, a.copy().append(Component.literal(": Failed!").withStyle(ChatFormatting.RED)), elem.stack.getDisplayName());
 			}
 			
 			renderTarget.destroyBuffers();

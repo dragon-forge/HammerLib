@@ -27,7 +27,7 @@ public class PropertyItemStack
 	public void write(FriendlyByteBuf buf)
 	{
 		ItemStack value = this.value.get();
-		buf.writeItemStack(value, false);
+		buf.writeItem(value);
 	}
 	
 	@Override

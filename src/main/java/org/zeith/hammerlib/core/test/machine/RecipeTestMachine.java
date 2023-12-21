@@ -65,7 +65,7 @@ public class RecipeTestMachine
 				inst -> inst.group(
 						ExtraCodecs.strictOptionalField(Codec.STRING, "group", "").forGetter(RecipeTestMachine::getGroup),
 						ExtraCodecs.strictOptionalField(Codec.INT, "time", 200).forGetter(RecipeTestMachine::getTime),
-						CraftingRecipeCodecs.ITEMSTACK_OBJECT_CODEC.fieldOf("result").forGetter(o -> o.output),
+						ItemStack.ITEM_WITH_COUNT_CODEC.fieldOf("result").forGetter(o -> o.output),
 						IngredientWithCount.CODEC.fieldOf("a").forGetter(o -> o.inputA),
 						IngredientWithCount.CODEC.fieldOf("b").forGetter(o -> o.inputB)
 				).apply(inst, RecipeTestMachine::new)
@@ -83,7 +83,7 @@ public class RecipeTestMachine
 			recipe.inputA.toNetwork(buf);
 			recipe.inputB.toNetwork(buf);
 			buf.writeVarInt(recipe.time);
-			buf.writeItemStack(recipe.output, false);
+			buf.writeItem(recipe.output);
 			buf.writeUtf(recipe.group);
 		}
 		

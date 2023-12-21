@@ -195,7 +195,7 @@ public class SimpleInventory
 			ItemStack stack = items.get(i);
 			if(!stack.isEmpty())
 			{
-				CompoundTag tag = stack.serializeNBT();
+				CompoundTag tag = stack.save(new CompoundTag());
 				tag.putInt("Slot", i);
 				nbt.add(tag);
 			}

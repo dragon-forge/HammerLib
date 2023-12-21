@@ -1,11 +1,10 @@
 package org.zeith.hammerlib.compat.cc;
 
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.shared.computer.blocks.AbstractComputerBlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.AttachCapabilitiesEvent;
-import org.zeith.hammerlib.HammerLib;
+import dan200.computercraft.shared.ModRegistry;
+import net.neoforged.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import org.zeith.api.blocks.redstone.RedstoneBundleCapability;
 import org.zeith.hammerlib.compat.base.BaseCompat;
 import org.zeith.hammerlib.compat.base._hl.BaseHLCompat;
 
@@ -20,13 +19,22 @@ public class CCCompat
 	public CCCompat()
 	{
 		ComputerCraftAPI.registerBundledRedstoneProvider(new HammerLibCCRedstoneProvider());
-		NeoForge.EVENT_BUS.addGenericListener(BlockEntity.class, this::tileCaps);
+		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::tileCaps);
 	}
 	
-	private void tileCaps(AttachCapabilitiesEvent<BlockEntity> evt)
+	private void tileCaps(RegisterCapabilitiesEvent evt)
 	{
-		var be = evt.getObject();
-		if(be instanceof AbstractComputerBlockEntity sc)
-			evt.addCapability(HammerLib.id("cc_bundle"), new BundledCCCapability(sc));
+		evt.registerBlockEntity(RedstoneBundleCapability.BLOCK,
+				ModRegistry.BlockEntities.COMPUTER_NORMAL.get(),
+				ComputerBundleProvider::new
+		);
+		evt.registerBlockEntity(RedstoneBundleCapability.BLOCK,
+				ModRegistry.BlockEntities.COMPUTER_ADVANCED.get(),
+				ComputerBundleProvider::new
+		);
+		evt.registerBlockEntity(RedstoneBundleCapability.BLOCK,
+				ModRegistry.BlockEntities.COMPUTER_COMMAND.get(),
+				ComputerBundleProvider::new
+		);
 	}
 }
