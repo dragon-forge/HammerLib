@@ -1,7 +1,7 @@
 package org.zeith.hammerlib.core.adapter.recipe;
 
 import net.minecraft.core.NonNullList;
-import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.*;
 
 import java.util.*;
 
@@ -51,5 +51,10 @@ public class RecipeShape
 			if(dictionary.containsKey(c0)) grid.set(l, dictionary.get(c0));
 		}
 		return grid;
+	}
+	
+	public ShapedRecipePattern build(Map<Character, Ingredient> dictionary)
+	{
+		return new ShapedRecipePattern(width, height, createIngredientMap(dictionary), Optional.empty());
 	}
 }

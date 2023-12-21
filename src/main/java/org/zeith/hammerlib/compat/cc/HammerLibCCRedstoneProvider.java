@@ -12,10 +12,9 @@ public class HammerLibCCRedstoneProvider
 	@Override
 	public int getBundledRedstoneOutput(Level level, BlockPos pos, Direction side)
 	{
-		var be = level.getBlockEntity(pos);
-		if(be == null) return 0;
-		var cap = be.getCapability(IRedstoneBundle.REDSTONE_BUNDLE(), side).resolve().orElse(null);
-		if(cap != null) return IRedstoneBundleAccessor.getSerializedBundleSignal(cap);
+		var cap = level.getCapability(RedstoneBundleCapability.BLOCK, pos, side);
+		if(cap != null)
+			return IRedstoneBundleAccessor.getSerializedBundleSignal(cap);
 		return -1;
 	}
 }

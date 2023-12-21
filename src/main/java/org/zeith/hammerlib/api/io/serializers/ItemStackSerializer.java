@@ -14,7 +14,7 @@ public class ItemStackSerializer
 	public void serialize(CompoundTag nbt, String key, @NotNull ItemStack value)
 	{
 		if(!value.isEmpty())
-			nbt.put(key, value.serializeNBT());
+			nbt.put(key, value.save(new CompoundTag()));
 	}
 
 	@Override

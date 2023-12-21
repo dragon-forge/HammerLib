@@ -168,7 +168,6 @@ public class FluidFactory
 	{
 		return !stack.isEmpty() &&
 				FluidUtil.getFluidHandler(stack)
-						.resolve()
 						.map(h ->
 						{
 							int t = h.getTanks();
@@ -187,7 +186,6 @@ public class FluidFactory
 	{
 		return !stack.isEmpty() &&
 				FluidUtil.getFluidHandler(stack)
-						.resolve()
 						.map(h ->
 						{
 							int amt = 0;

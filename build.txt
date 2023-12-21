@@ -1,5 +1,5 @@
 # Mod Info
-mod_version=20.2.2
+mod_version=20.3.0
 build_candidate=false
 
 # Mod dependencies
@@ -20,10 +20,10 @@ maven_group=org.zeith.hammerlib
 shimmer_version=0.1.15
 
 # MC Info
-mc_version=1.20.2
-mc_range=[1.20.2,1.21)
-forge_version=20.2.86
-forge_range=[20.2.86,)
+mc_version=1.20.3
+mc_range=[1.20.3,1.21)
+forge_version=20.3.8-beta
+forge_range=[20.3,)
 fmljava_range=[1.0,)
 mc_user=Zeitheron,63fa4c485b5640809727d5d59663e603
 

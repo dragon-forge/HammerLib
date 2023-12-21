@@ -100,7 +100,7 @@ public class HLShapelessRecipe
 											}
 										}, DataResult::success)
 										.forGetter(ShapelessRecipe::getIngredients),
-								CraftingRecipeCodecs.ITEMSTACK_OBJECT_CODEC.fieldOf("result").forGetter(hlr -> hlr.result),
+								ItemStack.ITEM_WITH_COUNT_CODEC.fieldOf("result").forGetter(hlr -> hlr.result),
 								RegistryMapping.registryCodec(RegistriesHL.Keys.REMAINING_ITEM_REPLACER).listOf().fieldOf("replacers").forGetter(hlr -> hlr.inputModifier)
 						)
 						.apply(inst, HLShapelessRecipe::new)

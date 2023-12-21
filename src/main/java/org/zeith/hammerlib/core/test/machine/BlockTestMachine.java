@@ -1,26 +1,21 @@
 package org.zeith.hammerlib.core.test.machine;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.core.*;
 import net.minecraft.world.*;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Tiers;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.*;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.*;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.BlockHitResult;
-import org.zeith.hammerlib.annotations.RegistryName;
-import org.zeith.hammerlib.annotations.SimplyRegister;
-import org.zeith.hammerlib.api.forge.BlockAPI;
-import org.zeith.hammerlib.api.forge.ContainerAPI;
-import org.zeith.hammerlib.core.adapter.BlockHarvestAdapter;
-import org.zeith.hammerlib.core.adapter.CreativeTabAdapter;
+import org.zeith.hammerlib.annotations.*;
+import org.zeith.hammerlib.api.forge.*;
+import org.zeith.hammerlib.core.adapter.*;
 import org.zeith.hammerlib.proxy.HLConstants;
 import org.zeith.hammerlib.util.java.Cast;
 
@@ -32,16 +27,15 @@ public class BlockTestMachine
 		extends BaseEntityBlock
 {
 	@RegistryName("test_machine")
-	public static final BlockTestMachine TEST_MACHINE = new BlockTestMachine();
+	public static final BlockTestMachine TEST_MACHINE = new BlockTestMachine(Block.Properties
+			.of()
+			.requiresCorrectToolForDrops()
+			.sound(SoundType.METAL)
+			.strength(1.5F));
 	
-	public BlockTestMachine()
+	public BlockTestMachine(Block.Properties properties)
 	{
-		super(Block.Properties
-				.of()
-				.requiresCorrectToolForDrops()
-				.sound(SoundType.METAL)
-				.strength(1.5F)
-		);
+		super(properties);
 		
 		BlockHarvestAdapter.bindTool(BlockHarvestAdapter.MineableType.PICKAXE, Tiers.IRON, this);
 		CreativeTabAdapter.bindTab(this, HLConstants.HL_TAB);
@@ -74,6 +68,14 @@ public class BlockTestMachine
 	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type)
 	{
 		return BlockAPI.ticker(level);
+	}
+	
+	public static final MapCodec<BlockTestMachine> CODEC = simpleCodec(BlockTestMachine::new);
+	
+	@Override
+	protected MapCodec<? extends BaseEntityBlock> codec()
+	{
+		return CODEC;
 	}
 	
 	@Override
@@ -110,7 +112,7 @@ public class BlockTestMachine
 		return defaultBlockState()
 				.setValue(BlockStateProperties.ENABLED, false)
 				.setValue(BlockStateProperties.HORIZONTAL_FACING, ctx.getPlayer() != null
-						? ctx.getPlayer().getDirection().getOpposite()
-						: Direction.NORTH);
+																  ? ctx.getPlayer().getDirection().getOpposite()
+																  : Direction.NORTH);
 	}
 }
