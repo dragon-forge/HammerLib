@@ -54,8 +54,6 @@ public class ResourcePackAdapter
 						},
 						new Pack.Info(
 								Component.translatable("fml.resources.modresources", 1),
-								SharedConstants.getCurrentVersion().getPackVersion(PackType.SERVER_DATA),
-								SharedConstants.getCurrentVersion().getPackVersion(PackType.CLIENT_RESOURCES),
 								PackCompatibility.COMPATIBLE,
 								FeatureFlagSet.of(),
 								List.of(),
