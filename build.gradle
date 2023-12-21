@@ -312,6 +312,7 @@ publishing {
         register('mavenJava', MavenPublication) {
             from components.java
             it.artifactId = config.archive_name + "-" + config.mc_version
+            it.artifact srcJar
         }
     }
     repositories {
