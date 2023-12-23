@@ -5,7 +5,7 @@ import dan200.computercraft.shared.ModRegistry;
 import net.neoforged.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import org.zeith.api.blocks.redstone.RedstoneBundleCapability;
-import org.zeith.hammerlib.compat.base.BaseCompat;
+import org.zeith.hammerlib.compat.base.*;
 import org.zeith.hammerlib.compat.base._hl.BaseHLCompat;
 
 
@@ -16,10 +16,11 @@ import org.zeith.hammerlib.compat.base._hl.BaseHLCompat;
 public class CCCompat
 		extends BaseHLCompat
 {
-	public CCCompat()
+	public CCCompat(CompatContext ctx)
 	{
+		super(ctx);
 		ComputerCraftAPI.registerBundledRedstoneProvider(new HammerLibCCRedstoneProvider());
-		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::tileCaps);
+		ctx.getModBus().addListener(this::tileCaps);
 	}
 	
 	private void tileCaps(RegisterCapabilitiesEvent evt)

@@ -38,7 +38,7 @@ public abstract class PlayerRendererMixin
 		var emt = emissive.getEmissiveSkinLocation();
 		if(emt == null) return;
 		
-		var emissiveRT = HammerLib.HL_COMPAT_LIST.firstAbility(HLAbilities.BLOOM)
+		var emissiveRT = HammerLib.getHLCompats().firstAbility(HLAbilities.BLOOM)
 				.map(SidedAbilityBase::client)
 				.map(Cast::get2)
 				.map(abil -> abil.emissiveTranslucentArmor(emt))

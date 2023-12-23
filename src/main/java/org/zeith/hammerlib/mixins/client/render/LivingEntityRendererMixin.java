@@ -80,7 +80,7 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extend
 		boolean flag = this.isBodyVisible(p_115308_);
 		boolean flag1 = !flag && !p_115308_.isInvisibleTo(minecraft.player);
 		
-		var emissiveRT = HammerLib.HL_COMPAT_LIST.firstAbility(HLAbilities.BLOOM)
+		var emissiveRT = HammerLib.getHLCompats().firstAbility(HLAbilities.BLOOM)
 				.map(SidedAbilityBase::client)
 				.map(Cast::get2)
 				.map(abil -> abil.emissiveTranslucentArmor(emt))

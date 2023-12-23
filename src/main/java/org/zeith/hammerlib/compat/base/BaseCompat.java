@@ -41,6 +41,13 @@ import java.util.Optional;
  */
 public abstract class BaseCompat<T extends BaseCompat<T>>
 {
+	protected final CompatContext context;
+	
+	public BaseCompat(CompatContext ctx)
+	{
+		this.context = ctx;
+	}
+	
 	/**
 	 * Returns an {@link Optional} containing the specified ability, if present.
 	 *

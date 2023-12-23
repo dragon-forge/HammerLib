@@ -7,6 +7,7 @@ import org.zeith.hammerlib.core.adapter.OnlyIfAdapter;
 import org.zeith.hammerlib.util.java.*;
 import org.zeith.hammerlib.util.mcf.ScanDataHelper;
 
+import java.lang.reflect.Constructor;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -18,7 +19,7 @@ import java.util.function.Function;
  * {@link BaseCompat.LoadCompat} annotation and are associated with a specific mod, and then retrieve the
  * abilities provided by these instances using the {@link #getAbilities(Ability)} method.
  *
- * <p>To use this class, create an instance using the {@link #gather(Class)} method and pass in the base
+ * <p>To use this class, create an instance using the {@link #gather(Class, CompatContext)} method and pass in the base
  * class for the type of compatibility that you are interested in. For example, to gather block compatibility
  * classes, you could do the following:
  *
@@ -60,9 +61,9 @@ public class CompatList<T extends BaseCompat<T>>
 	 *
 	 * @return a {@link CompatList} instance containing the gathered compatibility instances
 	 */
-	public static <T extends BaseCompat<T>> CompatList<T> gather(Class<T> base)
+	public static <T extends BaseCompat<T>> CompatList<T> gather(Class<T> base, CompatContext context)
 	{
-		return gather(base, CompatList::new);
+		return gather(base, context, CompatList::new);
 	}
 	
 	/**
@@ -86,7 +87,7 @@ public class CompatList<T extends BaseCompat<T>>
 	 *
 	 * @return a `CompatList` instance containing the gathered compatibility classes
 	 */
-	public static <T extends BaseCompat<T>, R extends CompatList<T>> R gather(Class<T> base, Function<List<T>, R> listFun)
+	public static <T extends BaseCompat<T>, R extends CompatList<T>> R gather(Class<T> base, CompatContext context, Function<List<T>, R> listFun)
 	{
 		return listFun.apply(
 				ScanDataHelper.lookupAnnotatedObjects(BaseCompat.LoadCompat.class)
@@ -105,7 +106,28 @@ public class CompatList<T extends BaseCompat<T>>
 								)
 								.orElse(true)
 						)
-						.map(data -> (T) Cast.newInstanceWithRE(data.getOwnerClass()))
+						.map(data ->
+						{
+							var cls = data.getOwnerClass();
+							for(Constructor<?> ct : cls.getDeclaredConstructors())
+							{
+								if(ct.getParameterCount() != 1) continue;
+								
+								var t0 = ct.getParameterTypes()[0];
+								if(!t0.isInstance(context)) continue;
+								
+								ct.setAccessible(true);
+								
+								try
+								{
+									return (T) ct.newInstance(context);
+								} catch(ReflectiveOperationException e)
+								{
+									throw new RuntimeException(e);
+								}
+							}
+							throw new RuntimeException("Unable to find suitable contructor for " + data.clazz());
+						})
 						.toList()
 		);
 	}
@@ -114,9 +136,9 @@ public class CompatList<T extends BaseCompat<T>>
 	public String toString()
 	{
 		return "CompatList{" +
-				"lst=" + lst +
-				", cachedAbilities=" + cachedAbilities +
-				'}';
+			   "lst=" + lst +
+			   ", cachedAbilities=" + cachedAbilities +
+			   '}';
 	}
 	
 	/**

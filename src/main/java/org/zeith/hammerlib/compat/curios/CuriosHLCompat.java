@@ -1,6 +1,6 @@
 package org.zeith.hammerlib.compat.curios;
 
-import org.zeith.hammerlib.compat.base.BaseCompat;
+import org.zeith.hammerlib.compat.base.*;
 import org.zeith.hammerlib.compat.base._hl.BaseHLCompat;
 import org.zeith.hammerlib.util.charging.ItemChargeHelper;
 
@@ -11,8 +11,9 @@ import org.zeith.hammerlib.util.charging.ItemChargeHelper;
 public class CuriosHLCompat
 		extends BaseHLCompat
 {
-	public CuriosHLCompat()
+	public CuriosHLCompat(CompatContext ctx)
 	{
+		super(ctx);
 		ItemChargeHelper.registerInventoryFactory(new CuriosInvLister());
 	}
 }

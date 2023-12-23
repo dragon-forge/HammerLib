@@ -9,7 +9,7 @@ import org.zeith.hammerlib.annotations.OnlyIf;
 import org.zeith.hammerlib.client.CustomFoilConfigs;
 import org.zeith.hammerlib.client.adapter.ChatMessageAdapter;
 import org.zeith.hammerlib.client.render.TintingVertexConsumer;
-import org.zeith.hammerlib.compat.base.BaseCompat;
+import org.zeith.hammerlib.compat.base.*;
 import org.zeith.hammerlib.compat.base._hl.BaseHLCompat;
 import org.zeith.hammerlib.util.mcf.ModHelper;
 
@@ -22,21 +22,23 @@ import org.zeith.hammerlib.util.mcf.ModHelper;
 public class RubidiumCompat
 		extends BaseHLCompat
 {
-	public RubidiumCompat()
+	public RubidiumCompat(CompatContext ctx)
 	{
+		super(ctx);
+		
 		if(ModHelper.isModLoaded("embeddium"))
 		{
 			HammerLib.LOG.info("Detected Rubidium from Embeddium. Disabling safeguard.");
 			return; // Embeddium does a compat wrapper for any other vertex consumer.
 		}
 		
-		DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () ->
+		ctx.runWhenOn(Dist.CLIENT, () -> () ->
 		{
 			CustomFoilConfigs.rubidiumInstaller = this::reload;
 			reload();
 		});
 		
-		DistExecutor.unsafeRunWhenOn(Dist.DEDICATED_SERVER, () -> () ->
+		ctx.runWhenOn(Dist.DEDICATED_SERVER, () -> () ->
 		{
 			HammerLib.LOG.fatal("You tried to start a dedicated server with Rubidium installed. This is probably not a good idea.");
 		});

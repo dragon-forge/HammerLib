@@ -6,7 +6,6 @@ import com.lowdragmc.shimmer.forge.event.ForgeShimmerReloadEvent;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.api.lighting.ColoredLight;
 import org.zeith.hammerlib.api.lighting.impl.*;
@@ -15,7 +14,7 @@ import org.zeith.hammerlib.compat.base._hl.*;
 import org.zeith.hammerlib.util.java.Cast;
 
 import java.util.*;
-import java.util.function.Supplier;
+import java.util.function.*;
 
 @BaseCompat.LoadCompat(
 		modid = "shimmer",
@@ -43,10 +42,10 @@ public class ShimmerCompat
 		}
 	};
 	
-	public ShimmerCompat()
+	public ShimmerCompat(CompatContext ctx)
 	{
-		var modBus = FMLJavaModLoadingContext.get().getModEventBus();
-//		FIXME: modBus.addListener(this::reloadShimmer);
+		super(ctx);
+//		FIXME: ctx.getModBus().addListener(this::reloadShimmer);
 		HammerLib.LOG.info("Enabling Shimmer compatibility module.");
 	}
 	

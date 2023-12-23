@@ -9,7 +9,7 @@ import net.neoforged.bus.api.*;
 import net.neoforged.fml.*;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.*;
-import net.neoforged.fml.javafmlmod.*;
+import net.neoforged.fml.javafmlmod.FMLModContainer;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.moddiscovery.ModAnnotation;
 import net.neoforged.neoforge.client.event.RegisterGuiOverlaysEvent;
@@ -22,7 +22,7 @@ import org.zeith.hammerlib.annotations.client.ClientSetup;
 import org.zeith.hammerlib.api.IRecipeProvider;
 import org.zeith.hammerlib.api.io.NBTSerializationHelper;
 import org.zeith.hammerlib.api.items.CreativeTab;
-import org.zeith.hammerlib.compat.base.CompatList;
+import org.zeith.hammerlib.compat.base.*;
 import org.zeith.hammerlib.compat.base._hl.BaseHLCompat;
 import org.zeith.hammerlib.core.ConfigHL;
 import org.zeith.hammerlib.core.adapter.*;
@@ -48,13 +48,15 @@ public class HammerLib
 	public static final HLCommonProxy PROXY = DistExecutor.unsafeRunForDist(() -> HLClientProxy::new, () -> HLCommonProxy::new);
 	public static final IEventBus EVENT_BUS = BusBuilder.builder().build();
 	
-	public static final CompatList<BaseHLCompat> HL_COMPAT_LIST = CompatList.gather(BaseHLCompat.class);
+	private static CompatList<BaseHLCompat> hlCompatList;
 	
 	public HammerLib(IEventBus modEventBus)
 	{
 		CommonMessages.printMessageOnIllegalRedistribution(HammerLib.class,
 				LOG, "HammerLib", "https://www.curseforge.com/minecraft/mc-mods/hammer-lib"
 		);
+		
+		hlCompatList = CompatList.gather(BaseHLCompat.class, CompatContext.builder(modEventBus).build());
 		
 		modEventBus.register(this);
 		PROXY.construct(modEventBus);
@@ -132,7 +134,7 @@ public class HammerLib
 		ConfigAdapter.setup();
 		
 		List<ModAnnotation.EnumHolder> bothSides = Stream.of(Dist.values())
-				.map(dst -> new ModAnnotation.EnumHolder("Lnet/minecraftforge/itf/distmarker/Dist;", dst.name()))
+				.map(dst -> new ModAnnotation.EnumHolder("Lnet/neoforged/api/distmarker/Dist;", dst.name()))
 				.collect(Collectors.toList());
 		
 		// Register all setups
@@ -240,5 +242,10 @@ public class HammerLib
 		if(logHLEvents || (cfgs != null && cfgs.internal.logHLBusEvents))
 			HammerLib.LOG.info("[HammerLib.postEvent] " + evt);
 		return HammerLib.EVENT_BUS.post(evt);
+	}
+	
+	public static CompatList<BaseHLCompat> getHLCompats()
+	{
+		return hlCompatList;
 	}
 }

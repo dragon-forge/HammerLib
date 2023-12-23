@@ -4,7 +4,7 @@ import net.minecraft.core.registries.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.*;
 import org.zeith.hammerlib.HammerLib;
-import org.zeith.hammerlib.compat.base.BaseCompat;
+import org.zeith.hammerlib.compat.base.*;
 import org.zeith.hammerlib.compat.base._hl.BaseHLCompat;
 import org.zeith.hammerlib.core.init.TagsHL;
 import org.zeith.hammerlib.event.recipe.BuildTagsEvent;
@@ -18,8 +18,9 @@ import java.util.function.Function;
 public class IC2HLCompat
 		extends BaseHLCompat
 {
-	public IC2HLCompat()
+	public IC2HLCompat(CompatContext ctx)
 	{
+		super(ctx);
 		HammerLib.EVENT_BUS.addListener(this::addWrenches);
 	}
 	
