@@ -1,24 +1,17 @@
 package org.zeith.hammerlib.api.lighting;
 
 import com.google.common.base.Predicates;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.common.MinecraftForge;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.api.forge.BlockAPI;
-import org.zeith.hammerlib.api.lighting.impl.IGlowingEntity;
-import org.zeith.hammerlib.api.lighting.impl.IGlowingItem;
-import org.zeith.hammerlib.util.java.ReflectionUtil;
+import org.zeith.hammerlib.api.lighting.impl.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.BooleanSupplier;
-import java.util.function.Function;
-import java.util.function.IntSupplier;
+import java.util.*;
+import java.util.function.*;
 import java.util.stream.Stream;
 
 public class ColoredLightManager
@@ -41,75 +34,6 @@ public class ColoredLightManager
 	public static boolean isColoredLightActive()
 	{
 		return COLORED_LIGHTING_ENABLED.getAsBoolean();
-	}
-
-	@Deprecated
-	public static void registerOperator(BooleanSupplier enabled, BooleanSupplier uniforms, BooleanSupplier bindTerrain, BooleanSupplier unbindTerrain)
-	{
-		BooleanSupplier prevBS = ColoredLightManager.COLORED_LIGHTING_ENABLED;
-		ReflectionUtil.setStaticFinalField(ColoredLightManager.class, "COLORED_LIGHTING_ENABLED", (BooleanSupplier) () -> (prevBS != null && prevBS.getAsBoolean()) || enabled.getAsBoolean());
-
-		BooleanSupplier prevSUS = SHADER_UNIFORM_SETUP;
-		ReflectionUtil.setStaticFinalField(ColoredLightManager.class, "SHADER_UNIFORM_SETUP", (BooleanSupplier) () ->
-		{
-			boolean got = prevSUS.getAsBoolean();
-			return uniforms.getAsBoolean() || got;
-		});
-
-		BooleanSupplier prevBT = BIND_TERRAIN;
-		ReflectionUtil.setStaticFinalField(ColoredLightManager.class, "BIND_TERRAIN", (BooleanSupplier) () ->
-		{
-			boolean got = prevBT.getAsBoolean();
-			return bindTerrain.getAsBoolean() || got;
-		});
-
-		BooleanSupplier prevUBT = UNBIND_TERRAIN;
-		ReflectionUtil.setStaticFinalField(ColoredLightManager.class, "UNBIND_TERRAIN", (BooleanSupplier) () ->
-		{
-			boolean got = prevUBT.getAsBoolean();
-			return unbindTerrain.getAsBoolean() || got;
-		});
-	}
-
-	public static void registerOperator(BooleanSupplier enabled, BooleanSupplier uniforms, BooleanSupplier bindTerrain, BooleanSupplier bindEntity, BooleanSupplier unbindTerrain, BooleanSupplier unbindEntity)
-	{
-		BooleanSupplier prevBS = ColoredLightManager.COLORED_LIGHTING_ENABLED;
-		ReflectionUtil.setStaticFinalField(ColoredLightManager.class, "COLORED_LIGHTING_ENABLED", (BooleanSupplier) () -> (prevBS != null && prevBS.getAsBoolean()) || enabled.getAsBoolean());
-
-		BooleanSupplier prevSUS = SHADER_UNIFORM_SETUP;
-		ReflectionUtil.setStaticFinalField(ColoredLightManager.class, "SHADER_UNIFORM_SETUP", (BooleanSupplier) () ->
-		{
-			boolean got = prevSUS.getAsBoolean();
-			return uniforms.getAsBoolean() || got;
-		});
-
-		BooleanSupplier prevBT = BIND_TERRAIN;
-		ReflectionUtil.setStaticFinalField(ColoredLightManager.class, "BIND_TERRAIN", (BooleanSupplier) () ->
-		{
-			boolean got = prevBT.getAsBoolean();
-			return bindTerrain.getAsBoolean() || got;
-		});
-
-		BooleanSupplier prevBE = BIND_ENTITY;
-		ReflectionUtil.setStaticFinalField(ColoredLightManager.class, "BIND_ENTITY", (BooleanSupplier) () ->
-		{
-			boolean got = prevBE.getAsBoolean();
-			return bindEntity.getAsBoolean() || got;
-		});
-
-		BooleanSupplier prevUBT = UNBIND_TERRAIN;
-		ReflectionUtil.setStaticFinalField(ColoredLightManager.class, "UNBIND_TERRAIN", (BooleanSupplier) () ->
-		{
-			boolean got = prevUBT.getAsBoolean();
-			return unbindTerrain.getAsBoolean() || got;
-		});
-
-		BooleanSupplier prevUBE = UNBIND_ENTITY;
-		ReflectionUtil.setStaticFinalField(ColoredLightManager.class, "UNBIND_ENTITY", (BooleanSupplier) () ->
-		{
-			boolean got = prevUBE.getAsBoolean();
-			return unbindEntity.getAsBoolean() || got;
-		});
 	}
 
 	static
