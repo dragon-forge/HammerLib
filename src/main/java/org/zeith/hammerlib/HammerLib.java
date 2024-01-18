@@ -22,6 +22,7 @@ import org.zeith.hammerlib.annotations.client.ClientSetup;
 import org.zeith.hammerlib.api.IRecipeProvider;
 import org.zeith.hammerlib.api.io.NBTSerializationHelper;
 import org.zeith.hammerlib.api.items.CreativeTab;
+import org.zeith.hammerlib.api.proxy.IProxy;
 import org.zeith.hammerlib.compat.base.*;
 import org.zeith.hammerlib.compat.base._hl.BaseHLCompat;
 import org.zeith.hammerlib.core.ConfigHL;
@@ -45,7 +46,7 @@ import java.util.stream.*;
 public class HammerLib
 {
 	public static final Logger LOG = LogManager.getLogger("HammerLib");
-	public static final HLCommonProxy PROXY = DistExecutor.unsafeRunForDist(() -> HLClientProxy::new, () -> HLCommonProxy::new);
+	public static final HLCommonProxy PROXY = IProxy.create(() -> HLClientProxy::new, () -> HLCommonProxy::new);
 	public static final IEventBus EVENT_BUS = BusBuilder.builder().build();
 	
 	private static CompatList<BaseHLCompat> hlCompatList;
