@@ -2,7 +2,7 @@
 mod_id=hammerlib
 archive_name=HammerLib
 mod_name=HammerLib
-mod_version=19.3.75
+mod_version=19.3.76
 build_candidate=false
 
 # Maven Info
