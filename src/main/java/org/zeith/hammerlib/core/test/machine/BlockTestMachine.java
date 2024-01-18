@@ -1,7 +1,6 @@
 package org.zeith.hammerlib.core.test.machine;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.core.*;
 import net.minecraft.world.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -10,24 +9,22 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.*;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.*;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.BlockHitResult;
-import org.zeith.hammerlib.annotations.RegistryName;
-import org.zeith.hammerlib.annotations.SimplyRegister;
-import org.zeith.hammerlib.api.forge.BlockAPI;
-import org.zeith.hammerlib.api.forge.ContainerAPI;
+import org.zeith.hammerlib.annotations.*;
+import org.zeith.hammerlib.api.forge.*;
 import org.zeith.hammerlib.core.adapter.BlockHarvestAdapter;
-import org.zeith.hammerlib.core.adapter.CreativeTabAdapter;
 import org.zeith.hammerlib.proxy.HLConstants;
 import org.zeith.hammerlib.util.java.Cast;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
-@SimplyRegister
+@SimplyRegister(
+		creativeTabs = @Ref(value = HLConstants.class, field = "HL_TAB")
+)
 public class BlockTestMachine
 		extends BaseEntityBlock
 {
@@ -44,7 +41,6 @@ public class BlockTestMachine
 		);
 		
 		BlockHarvestAdapter.bindTool(BlockHarvestAdapter.MineableType.PICKAXE, Tiers.IRON, this);
-		CreativeTabAdapter.bindTab(this, HLConstants.HL_TAB);
 	}
 	
 	@Override
@@ -110,7 +106,7 @@ public class BlockTestMachine
 		return defaultBlockState()
 				.setValue(BlockStateProperties.ENABLED, false)
 				.setValue(BlockStateProperties.HORIZONTAL_FACING, ctx.getPlayer() != null
-						? ctx.getPlayer().getDirection().getOpposite()
-						: Direction.NORTH);
+																  ? ctx.getPlayer().getDirection().getOpposite()
+																  : Direction.NORTH);
 	}
 }
