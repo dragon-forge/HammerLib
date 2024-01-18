@@ -4,6 +4,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.resources.*;
 import net.minecraft.world.item.*;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.api.distmarker.Dist;
@@ -89,10 +90,20 @@ public class RegistryAdapter
 		
 		List<Tuple2<Block, ResourceLocation>> blockList = blocks.computeIfAbsent(source, s -> new ArrayList<>());
 		
+		var registrar = source.getAnnotation(SimplyRegister.class);
+		
+		List<CreativeModeTab> tabs =
+				registrar != null
+				? Ref.Resolver.resolveFields(CreativeModeTab.class, registrar.creativeTabs())
+				: List.of();
+		
 		BiConsumer<ResourceLocation, T> grabber = createRegisterer(registry, prefix).andThen((key, handler) ->
 		{
 			if(handler instanceof Block b)
 				blockList.add(Tuples.immutable(b, key));
+			
+			if(handler instanceof ItemLike item && !tabs.isEmpty())
+				CreativeTabAdapter.bindTab(item, tabs.toArray(CreativeModeTab[]::new));
 		});
 		
 		if(Item.class.equals(superType)) for(var e : blockList)
@@ -104,10 +115,12 @@ public class RegistryAdapter
 			if(blk instanceof ICustomBlockItem icbi) item = icbi.createBlockItem();
 			else
 			{
-				Item.Properties props = gen != null ? gen.createItemProperties(new Item.Properties()) : new Item.Properties();
+				Item.Properties def = new Item.Properties();
+				Item.Properties props = gen != null ? gen.createItemProperties(def) : def;
 				if(blk instanceof ICreativeTabBlock t) props = props.tab(t.getCreativeTab());
 				item = new BlockItem(blk, props);
 			}
+			
 			grabber.accept(e.b(), Cast.cast(item));
 		}
 		
@@ -120,29 +133,30 @@ public class RegistryAdapter
 		Arrays
 				.stream(source.getDeclaredFields())
 				.filter(f -> ICustomRegistrar.class.isAssignableFrom(f.getType()))
+				.filter(field -> Modifier.isStatic(field.getModifiers()) && Modifier.isFinal(field.getModifiers()))
 				.forEach(field ->
 				{
-					if(Modifier.isStatic(field.getModifiers()) && Modifier.isFinal(field.getModifiers()))
-						try
+					try
+					{
+						field.setAccessible(true);
+						var name = field.getAnnotation(RegistryName.class);
+						var rl = new ResourceLocation(modid, prefix + name.value());
+						
+						var val = field.get(null);
+						
+						var onlyIf = field.getAnnotation(OnlyIf.class); // Bring back OnlyIf, for registries that are non-intrusive. (Mostly, for custom registry types)
+						if(!RegistryMapping.isNonIntrusive(regKey)
+						   || OnlyIfAdapter.checkCondition(onlyIf, source.toString(),
+								superType != null ? superType.getSimpleName() : field.getType().getSimpleName(), val, rl
+						))
 						{
-							field.setAccessible(true);
-							var name = field.getAnnotation(RegistryName.class);
-							var rl = new ResourceLocation(modid, prefix + name.value());
-							
-							var val = field.get(null);
-							
-							var onlyIf = field.getAnnotation(OnlyIf.class); // Bring back OnlyIf, for registries that are non-intrusive. (Mostly, for custom registry types)
-							if(!RegistryMapping.isNonIntrusive(regKey)
-									|| OnlyIfAdapter.checkCondition(onlyIf, source.toString(),
-									superType != null ? superType.getSimpleName() : field.getType().getSimpleName(), val, rl))
-							{
-								if(val instanceof ICustomRegistrar cr)
-									cr.performRegister(event, rl);
-							}
-						} catch(IllegalArgumentException | IllegalAccessException e)
-						{
-							LogManager.getLogger(modid + "/" + source.getSimpleName()).error("Failed to register field {}", field.getName(), e);
+							if(val instanceof ICustomRegistrar cr)
+								cr.performRegister(event, rl);
 						}
+					} catch(IllegalArgumentException | IllegalAccessException e)
+					{
+						LogManager.getLogger(modid + "/" + source.getSimpleName()).error("Failed to register field {}", field.getName(), e);
+					}
 				});
 		
 		if(superType == null)
@@ -176,52 +190,52 @@ public class RegistryAdapter
 		Arrays
 				.stream(source.getDeclaredFields())
 				.filter(f -> superType.isAssignableFrom(f.getType())
-						&& !ICustomRegistrar.class.isAssignableFrom(f.getType())) // Custom registrars have been called by now.
+							 && !ICustomRegistrar.class.isAssignableFrom(f.getType())) // Custom registrars have been called by now.
+				.filter(field -> Modifier.isStatic(field.getModifiers()) && Modifier.isFinal(field.getModifiers()))
 				.forEach(field ->
 				{
-					if(Modifier.isStatic(field.getModifiers()) && Modifier.isFinal(field.getModifiers()))
-						try
+					try
+					{
+						field.setAccessible(true);
+						var name = field.getAnnotation(RegistryName.class);
+						var rl = new ResourceLocation(modid, name.value());
+						
+						var val = field.get(null);
+						
+						var onlyIf = field.getAnnotation(OnlyIf.class); // Bring back OnlyIf, for registries that are non-intrusive. (Mostly, for custom registry types)
+						if(!RegistryMapping.isNonIntrusive(regKey)
+						   || OnlyIfAdapter.checkCondition(onlyIf, source.toString(), superType.getSimpleName(), val, rl))
 						{
-							field.setAccessible(true);
-							var name = field.getAnnotation(RegistryName.class);
-							var rl = new ResourceLocation(modid, name.value());
+							var fval = superType.cast(val);
+							grabber.accept(rl, fval);
 							
-							var val = field.get(null);
-							
-							var onlyIf = field.getAnnotation(OnlyIf.class); // Bring back OnlyIf, for registries that are non-intrusive. (Mostly, for custom registry types)
-							if(!RegistryMapping.isNonIntrusive(regKey)
-									|| OnlyIfAdapter.checkCondition(onlyIf, source.toString(), superType.getSimpleName(), val, rl))
+							if(tileRegistryOnClient)
 							{
-								var fval = superType.cast(val);
-								grabber.accept(rl, fval);
-								
-								if(tileRegistryOnClient)
+								var tesr = TileRenderer.Info.get(source, field.getName());
+								if(tesr != null)
 								{
-									var tesr = TileRenderer.Info.get(source, field.getName());
-									if(tesr != null)
-									{
-										tesr.apply();
-										HammerLib.LOG.debug("Applied TESR registration for " + field.getType().getSimpleName() + "[" + registry.getKey(fval) + "] " + source.getSimpleName() + '.' + field.getName());
-									}
-								}
-								
-								if(particleRegistryOnClient)
-								{
-									var provider = Particles.Info.get(source, field.getName());
-									if(provider != null)
-									{
-										provider.apply();
-										HammerLib.LOG.debug(
-												"Applied ParticleProvider for " + field.getType().getSimpleName() +
-														"[" + registry.getKey(fval) + "] " + source.getSimpleName() +
-														'.' + field.getName());
-									}
+									tesr.apply();
+									HammerLib.LOG.debug("Applied TESR registration for " + field.getType().getSimpleName() + "[" + registry.getKey(fval) + "] " + source.getSimpleName() + '.' + field.getName());
 								}
 							}
-						} catch(IllegalArgumentException | IllegalAccessException e)
-						{
-							LogManager.getLogger(modid + "/" + source.getSimpleName()).error("Failed to register field {}", field.getName(), e);
+							
+							if(particleRegistryOnClient)
+							{
+								var provider = Particles.Info.get(source, field.getName());
+								if(provider != null)
+								{
+									provider.apply();
+									HammerLib.LOG.debug(
+											"Applied ParticleProvider for " + field.getType().getSimpleName() +
+											"[" + registry.getKey(fval) + "] " + source.getSimpleName() +
+											'.' + field.getName());
+								}
+							}
 						}
+					} catch(IllegalArgumentException | IllegalAccessException e)
+					{
+						LogManager.getLogger(modid + "/" + source.getSimpleName()).error("Failed to register field {}", field.getName(), e);
+					}
 				});
 		
 		return registry.getValues().size() - prevSize;
