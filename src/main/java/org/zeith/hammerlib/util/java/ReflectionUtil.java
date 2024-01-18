@@ -4,19 +4,13 @@ import com.google.common.collect.Lists;
 import org.objectweb.asm.Type;
 import org.zeith.hammerlib.HammerLib;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.annotation.*;
 import java.lang.reflect.*;
 import java.util.*;
-import java.util.function.Function;
-import java.util.function.Predicate;
+import java.util.function.*;
 
 public class ReflectionUtil
 {
-	private static Field modifiersField;
-	private static Object reflectionFactory;
-	private static Method newFieldAccessor;
-	private static Method fieldAccessorSet;
 	
 	public static Class<?> getArrayComponent(Class<?> array)
 	{
@@ -146,65 +140,6 @@ public class ReflectionUtil
 		}
 		
 		return currentClassFields;
-	}
-	
-	@Deprecated
-	public static boolean setStaticFinalField(Class<?> cls, String var, Object val)
-	{
-		try
-		{
-			return setStaticFinalField(cls.getDeclaredField(var), val);
-		} catch(Throwable err)
-		{
-			err.printStackTrace();
-		}
-		return false;
-	}
-	
-	@Deprecated
-	public static boolean setStaticFinalField(Field f, Object val)
-	{
-		try
-		{
-			if(Modifier.isStatic(f.getModifiers()))
-				return setFinalField(f, null, val);
-			return false;
-		} catch(Throwable err)
-		{
-			err.printStackTrace();
-		}
-		return false;
-	}
-	
-	@Deprecated
-	public static boolean setFinalField(Field f, @Nullable Object instance, Object thing) throws ReflectiveOperationException
-	{
-		if(Modifier.isFinal(f.getModifiers()))
-		{
-			makeWritable(f);
-			Object fieldAccessor = newFieldAccessor.invoke(reflectionFactory, f, false);
-			fieldAccessorSet.invoke(fieldAccessor, instance, thing);
-			return true;
-		} else
-			f.set(instance, thing);
-		return false;
-	}
-	
-	@Deprecated
-	private static Field makeWritable(Field f) throws ReflectiveOperationException
-	{
-		f.setAccessible(true);
-		if(modifiersField == null)
-		{
-			Method getReflectionFactory = Class.forName("sun.reflect.ReflectionFactory").getDeclaredMethod("getReflectionFactory");
-			reflectionFactory = getReflectionFactory.invoke(null);
-			newFieldAccessor = Class.forName("sun.reflect.ReflectionFactory").getDeclaredMethod("newFieldAccessor", Field.class, boolean.class);
-			fieldAccessorSet = Class.forName("sun.reflect.FieldAccessor").getDeclaredMethod("set", Object.class, Object.class);
-			modifiersField = Field.class.getDeclaredField("modifiers");
-			modifiersField.setAccessible(true);
-		}
-		modifiersField.setInt(f, f.getModifiers() & ~Modifier.FINAL);
-		return f;
 	}
 	
 	public static Object lookupValue(Object object, Class<?> type)
