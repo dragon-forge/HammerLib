@@ -6,7 +6,6 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import org.zeith.hammerlib.core.adapter.TagAdapter;
-import org.zeith.hammerlib.proxy.HLConstants;
 
 import java.util.List;
 
@@ -21,7 +20,6 @@ public class ItemGear
 	{
 		super(props);
 		TagAdapter.bind(tag, this);
-		HLConstants.HL_TAB.add(this);
 	}
 	
 	@Override

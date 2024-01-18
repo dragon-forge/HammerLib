@@ -1,19 +1,20 @@
 package org.zeith.hammerlib.core.init;
 
-import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.TagKey;
+import net.minecraft.tags.*;
 import net.minecraft.world.item.*;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.SmithingTransformRecipe;
+import net.minecraft.world.item.crafting.*;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.registries.ForgeRegistries;
-import org.zeith.hammerlib.annotations.RegistryName;
-import org.zeith.hammerlib.annotations.SimplyRegister;
+import org.zeith.hammerlib.annotations.*;
 import org.zeith.hammerlib.core.RecipeHelper;
 import org.zeith.hammerlib.core.items.ItemGear;
 import org.zeith.hammerlib.event.recipe.RegisterRecipesEvent;
+import org.zeith.hammerlib.proxy.HLConstants;
 
-@SimplyRegister(prefix = "gears/")
+@SimplyRegister(
+		prefix = "gears/",
+		creativeTabs = @Ref(value = HLConstants.class, field = "HL_TAB")
+)
 public interface GearsHL
 {
 	@RegistryName("wooden")
