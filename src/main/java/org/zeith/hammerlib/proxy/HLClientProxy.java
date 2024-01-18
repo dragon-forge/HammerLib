@@ -31,6 +31,7 @@ import org.zeith.hammerlib.api.inv.IScreenContainer;
 import org.zeith.hammerlib.api.items.tooltip.*;
 import org.zeith.hammerlib.api.lighting.*;
 import org.zeith.hammerlib.api.lighting.impl.IGlowingEntity;
+import org.zeith.hammerlib.api.proxy.IClientProxy;
 import org.zeith.hammerlib.client.model.SimpleModelGenerator;
 import org.zeith.hammerlib.client.render.tile.*;
 import org.zeith.hammerlib.client.utils.TexturePixelGetter;
@@ -51,6 +52,7 @@ import java.util.stream.Stream;
 
 public class HLClientProxy
 		extends HLCommonProxy
+		implements IClientProxy
 {
 	protected List<QueuedTask> clientTickTasks = new ArrayList<>();
 	

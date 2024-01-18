@@ -15,12 +15,14 @@ import net.minecraftforge.server.ServerLifecycleHooks;
 import org.objectweb.asm.Type;
 import org.zeith.hammerlib.api.LanguageHelper.LangMap;
 import org.zeith.hammerlib.api.lighting.ColoredLight;
+import org.zeith.hammerlib.api.proxy.IProxy;
 
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public class HLCommonProxy
+		implements IProxy
 {
 	protected List<QueuedTask> serverTickTasks = new ArrayList<>();
 	
@@ -82,6 +84,7 @@ public class HLCommonProxy
 		return getLanguage();
 	}
 	
+	@Override
 	public Player getClientPlayer()
 	{
 		return null;

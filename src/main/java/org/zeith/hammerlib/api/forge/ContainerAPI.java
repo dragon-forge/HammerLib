@@ -57,7 +57,7 @@ public class ContainerAPI
 
 	public static <T extends BlockEntity & IContainerTile> void openContainerTile(Player player, T tile)
 	{
-		if(player instanceof ServerPlayer && tile != null)
-			NetworkHooks.openScreen((ServerPlayer) player, forTile(tile), buf -> buf.writeBlockPos(tile.getBlockPos()));
+		if(player instanceof ServerPlayer mp && tile != null)
+			NetworkHooks.openScreen(mp, forTile(tile), buf -> buf.writeBlockPos(tile.getBlockPos()));
 	}
 }
