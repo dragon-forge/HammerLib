@@ -61,7 +61,7 @@ public class ZeithLinkRepository
 			  },
 			  "mods": {
 			    "improvableskills": {
-			      "news": "https://mods.zeith.org/improvableskills/news.txt"
+			      "news": "https://assets.zeith.org/txt/is3-news.txt"
 			    }
 			  }
 			}
