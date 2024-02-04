@@ -15,7 +15,7 @@ import com.zeitheron.hammercore.lib.zlib.error.JSONException;
 import com.zeitheron.hammercore.lib.zlib.io.IOUtils;
 import com.zeitheron.hammercore.lib.zlib.json.JSONArray;
 import com.zeitheron.hammercore.lib.zlib.json.JSONObject;
-import com.zeitheron.hammercore.utils.ListUtils;
+import com.zeitheron.hammercore.utils.*;
 
 public class DaylengthSplashes
 {
@@ -27,7 +27,8 @@ public class DaylengthSplashes
 	{
 		try
 		{
-			JSONObject jobj = (JSONObject) IOUtils.downloadjsonOrLoadFromInternal("https://pastebin.com/raw/U8ZNkcLV", "/assets/hammercore/io/dlsplashes.json");
+			String link = ZeithLinkRepository.getLink(ZeithLinkRepository.PredefinedLink.DAY_SPLASHES);
+			JSONObject jobj = (JSONObject) IOUtils.downloadjsonOrLoadFromInternal(link, "/assets/hammercore/io/dlsplashes.json");
 			for(String key : jobj.keySet())
 			{
 				List<String> vals = new ArrayList<>();

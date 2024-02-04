@@ -129,6 +129,7 @@ public class HammerCore
 	static
 	{
 		FMLCommonHandler.instance().registerCrashCallable(new CrashUtil());
+		ZeithLinkRepository.initialize();
 	}
 	
 	public HammerCore()
@@ -304,6 +305,7 @@ public class HammerCore
 	public void loadComplete(FMLLoadCompleteEvent e)
 	{
 		renderProxy.loadComplete();
+		ZeithLinkRepository.finishLoading();
 	}
 	
 	@EventHandler

@@ -19,6 +19,8 @@ import java.util.zip.InflaterInputStream;
 
 import javax.imageio.ImageIO;
 
+import com.zeitheron.hammercore.HLConstants;
+import com.zeitheron.hammercore.utils.forge.ModHelper;
 import org.apache.http.client.methods.HttpOptions;
 
 import com.zeitheron.hammercore.lib.zlib.error.JSONException;
@@ -115,8 +117,7 @@ public class IOUtils
 		if(!cache.preventLiveConnection(url))
 			try
 			{
-				URL u = new URL(url);
-				internet = u.openStream();
+				internet = HttpRequest.get(url).userAgent("HammerLib " + ModHelper.getModVersion(HLConstants.MODID) + "; Minecraft 1.12.2").stream();
 				live = true;
 			} catch(Throwable err)
 			{
