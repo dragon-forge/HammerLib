@@ -210,7 +210,7 @@ task makeChangelog(type: se.bjurr.gitchangelog.plugin.gradle.GitChangelogTask) {
     gitHubIssuePattern = "nonada123";
     templateContent = """
 {{#tags}}
-<h3><a href="https://github.com/dragon-forge/maven">To get developer builds, consult our maven repository</a></h3>
+<h3><a href="https://mcdoc.zeith.org/docs/intro">To get developer builds, see HammerLib wiki.</a></h3>
 <h1>Changes:</h1>
   <ul>
     {{#commits}}
