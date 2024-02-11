@@ -38,15 +38,6 @@ public class IOUtils
 	public static final DecimalFormat lenform = new DecimalFormat("#0.00");
 	public static int heapLimit = 4096;
 	public static final byte[] ZERO_ARRAY = new byte[0];
-	private static final ThreadLocal<byte[]> buf = ThreadLocal.withInitial(new Supplier<byte[]>()
-	{
-		
-		@Override
-		public byte[] get()
-		{
-			return new byte[IOUtils.heapLimit];
-		}
-	});
 	
 	public static Object jsonparse(File file) throws JSONException
 	{
@@ -153,8 +144,8 @@ public class IOUtils
 	{
 		try
 		{
-			byte[] buf = IOUtils.buf.get();
-			int read = 0;
+			byte[] buf = new byte[IOUtils.heapLimit];
+			int read;
 			while((read = from.read(buf)) > 0)
 				to.write(buf, 0, read);
 		} catch(Throwable buf)

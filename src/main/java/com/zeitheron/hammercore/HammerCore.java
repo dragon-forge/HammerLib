@@ -79,11 +79,6 @@ public class HammerCore
 	@SidedProxy(modId = HLConstants.MODID, clientSide = "com.zeitheron.hammercore.proxy.RenderProxy_Client", serverSide = "com.zeitheron.hammercore.proxy.RenderProxy_Common")
 	public static RenderProxy_Common renderProxy;
 	
-	// /**
-	// * All sources compiled from 'javacode' dir
-	// */
-	// public static ClassLoader javaLoader;
-	
 	/**
 	 * Audio proxy for HC used to interact with audio in any way
 	 */

@@ -1,21 +1,13 @@
 package com.zeitheron.hammercore.client.witty;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.TimeZone;
-
-import javax.annotation.Nullable;
-
 import com.zeitheron.hammercore.lib.zlib.error.JSONException;
 import com.zeitheron.hammercore.lib.zlib.io.IOUtils;
-import com.zeitheron.hammercore.lib.zlib.json.JSONArray;
-import com.zeitheron.hammercore.lib.zlib.json.JSONObject;
+import com.zeitheron.hammercore.lib.zlib.json.*;
 import com.zeitheron.hammercore.utils.*;
+
+import javax.annotation.Nullable;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class DaylengthSplashes
 {
@@ -25,10 +17,12 @@ public class DaylengthSplashes
 	
 	static
 	{
+		load:
 		try
 		{
 			String link = ZeithLinkRepository.getLink(ZeithLinkRepository.PredefinedLink.DAY_SPLASHES);
 			JSONObject jobj = (JSONObject) IOUtils.downloadjsonOrLoadFromInternal(link, "/assets/hammercore/io/dlsplashes.json");
+			if(jobj == null) break load;
 			for(String key : jobj.keySet())
 			{
 				List<String> vals = new ArrayList<>();
