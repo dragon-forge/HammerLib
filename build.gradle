@@ -31,7 +31,7 @@ configFile.withReader {
 }
 
 version = "${config.mod_version}"
-group = "tk.zeitheron.hammerlib"
+group = "org.zeith.HammerLib"
 archivesBaseName = "HammerLib-${config.minecraft_version}"
 
 sourceCompatibility = targetCompatibility = "1.8"
@@ -82,20 +82,20 @@ minecraft {
 }
 
 processResources
-        {
-            inputs.property "version", project.version
-            inputs.property "mcversion", config.minecraft_version
-            from(sourceSets.main.resources.srcDirs) {
-                include 'mcmod.info'
-                include 'pack.mcmeta'
-                expand 'version': project.version, 'mcversion': project.minecraft.version
-            }
-            from(sourceSets.main.resources.srcDirs) {
-                exclude 'mcmod.info'
-                exclude 'pack.mcmeta'
-            }
-            rename "hc_at.cfg", "META-INF/hc_at.cfg"
-        }
+{
+    inputs.property "version", project.version
+    inputs.property "mcversion", config.minecraft_version
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+        include 'pack.mcmeta'
+        expand 'version': project.version, 'mcversion': project.minecraft.version
+    }
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+        exclude 'pack.mcmeta'
+    }
+    rename "hc_at.cfg", "META-INF/hc_at.cfg"
+}
 
 task deobfJar(type: Jar) {
     from sourceSets.main.output

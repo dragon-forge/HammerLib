@@ -5,6 +5,7 @@ import com.zeitheron.hammercore.annotations.*;
 import com.zeitheron.hammercore.api.*;
 import com.zeitheron.hammercore.api.blocks.*;
 import com.zeitheron.hammercore.api.multipart.BlockMultipartProvider;
+import com.zeitheron.hammercore.internal.ap.*;
 import com.zeitheron.hammercore.internal.blocks.IItemBlock;
 import com.zeitheron.hammercore.internal.init.ItemsHC;
 import com.zeitheron.hammercore.utils.*;
@@ -24,6 +25,7 @@ import net.minecraftforge.fml.common.discovery.ASMDataTable;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.registries.*;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 
@@ -32,7 +34,7 @@ public class SimpleRegisterKernel
 	protected final String className;
 	protected final SimpleRegisterKernelForMod container;
 	
-	protected Map<Class<?>, List<Tuple2<IForgeRegistryEntry<?>, ResourceLocation>>> fields;
+	protected Map<Class<?>, List<RegisterEntry>> fields;
 	protected List<Tuple2<ICustomRegistrar, ResourceLocation>> customRegistrars;
 	
 	protected CreativeTabs assignedTab;
@@ -66,24 +68,29 @@ public class SimpleRegisterKernel
 			
 			for(Field f : ownerCls.getDeclaredFields())
 			{
-				if(!ICustomRegistrar.class.isAssignableFrom(f.getType()) || !Modifier.isStatic(f.getModifiers()))
-					continue;
-				if(!SimpleRegistration.doRegister(f))
-				{
-					HammerCore.LOG.debug("Skipped {} since @RegisterIf returned false.", f);
-					continue;
-				}
+				IAPContext.Builder ctxb = IAPContext.builder();
 				
-				RegistryName key = f.getAnnotation(RegistryName.class);
-				if(key == null) continue; // silence
+				boolean register = SimpleRegistration.doRegister(f);
+				ctxb.shouldRegister(register);
 				
 				f.setAccessible(true);
-				ICustomRegistrar ctr = Cast.cast(f.get(null), ICustomRegistrar.class);
-				if(ctr == null) continue;
+				Object value = f.get(null);
 				
-				ResourceLocation regKey = new ResourceLocation(container.getModId(), prefix + key.value());
-				customRegistrars.add(Tuples.immutable(ctr, regKey));
+				RegistryName key = f.getAnnotation(RegistryName.class);
+				if(key != null)
+				{
+					ResourceLocation regKey = new ResourceLocation(container.getModId(), prefix + key.value());
+					ctxb.id(regKey);
+					ICustomRegistrar ctr = Cast.cast(value, ICustomRegistrar.class);
+					if(register && ctr != null) customRegistrars.add(Tuples.immutable(ctr, regKey));
+				}
+				
+				IAPContext ctx = ctxb.build();
+				AnnotationProcessorRegistry.scan(ctx, f, value);
 			}
+			
+			for(Method m : ownerCls.getDeclaredMethods())
+				AnnotationProcessorRegistry.scan(IAPContext.DUMMY, m);
 		} catch(Exception e)
 		{
 			HammerCore.LOG.error("Failed to register custom registrars from class {}", className, e);
@@ -92,7 +99,7 @@ public class SimpleRegisterKernel
 		return customRegistrars;
 	}
 	
-	public Map<Class<?>, List<Tuple2<IForgeRegistryEntry<?>, ResourceLocation>>> getFields()
+	public Map<Class<?>, List<RegisterEntry>> getFields()
 	{
 		if(fields != null) return fields;
 		fields = new HashMap<>();
@@ -115,11 +122,8 @@ public class SimpleRegisterKernel
 			{
 				if(!IForgeRegistryEntry.class.isAssignableFrom(f.getType()) || !Modifier.isStatic(f.getModifiers()))
 					continue;
-				if(!SimpleRegistration.doRegister(f))
-				{
-					HammerCore.LOG.debug("Skipped {} since @RegisterIf returned false.", f);
-					continue;
-				}
+				
+				boolean register = SimpleRegistration.doRegister(f);
 				
 				RegistryName key = f.getAnnotation(RegistryName.class);
 				if(key == null) continue; // silence
@@ -130,7 +134,7 @@ public class SimpleRegisterKernel
 				
 				ResourceLocation regKey = new ResourceLocation(container.getModId(), prefix + key.value());
 				fields.computeIfAbsent(ctr.getRegistryType(), ignore -> new ArrayList<>())
-						.add(Tuples.immutable(ctr, regKey));
+						.add(new RegisterEntry(f, ctr, regKey, register));
 			}
 		} catch(Exception e)
 		{
@@ -154,7 +158,7 @@ public class SimpleRegisterKernel
 	{
 		IForgeRegistry<?> reg = evt.getRegistry();
 		Class<? extends IForgeRegistryEntry<?>> base = reg.getRegistrySuperType();
-		List<Tuple2<IForgeRegistryEntry<?>, ResourceLocation>> toRegister = getFields().get(base);
+		List<RegisterEntry> toRegister = getFields().get(base);
 		
 		boolean blocks = base.equals(Block.class);
 		boolean items = base.equals(Item.class);
@@ -173,10 +177,18 @@ public class SimpleRegisterKernel
 		if(toRegister != null)
 			try
 			{
-				for(Tuple2<IForgeRegistryEntry<?>, ResourceLocation> tup : toRegister)
+				for(RegisterEntry tup : toRegister)
 				{
-					IForgeRegistryEntry<?> ctr = tup.a();
-					ResourceLocation regKey = tup.b();
+					IForgeRegistryEntry<?> ctr = tup.entry;
+					ResourceLocation regKey = tup.id;
+					boolean doReg = tup.register;
+					
+					IAPContext ctx = IAPContext.builder().shouldRegister(doReg).id(regKey).build();
+					
+					AnnotationProcessorRegistry.scanReg(ctx, tup.field, ctr, false);
+					
+					if(!doReg) continue;
+					
 					ctr.setRegistryName(regKey);
 					
 					if(items)
@@ -267,6 +279,8 @@ public class SimpleRegisterKernel
 						RegisterHook.HookCollector.propagate(rl);
 					}
 					
+					AnnotationProcessorRegistry.scanReg(ctx, tup.field, ctr, true);
+					
 					HammerCore.LOG.debug("Registered {}: {} ({})", base.getSimpleName(), ctr, regKey);
 				}
 			} catch(Exception e)
@@ -302,5 +316,21 @@ public class SimpleRegisterKernel
 	public boolean is(String modid)
 	{
 		return Objects.equals(container.getModId(), modid);
+	}
+	
+	public static class RegisterEntry
+	{
+		public final Field field;
+		public final IForgeRegistryEntry<?> entry;
+		public final ResourceLocation id;
+		public final boolean register;
+		
+		public RegisterEntry(Field field, IForgeRegistryEntry<?> entry, ResourceLocation id, boolean register)
+		{
+			this.field = field;
+			this.entry = entry;
+			this.id = id;
+			this.register = register;
+		}
 	}
 }
