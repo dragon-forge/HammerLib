@@ -1,6 +1,7 @@
-package com.zeitheron.hammercore.internal.ap;
+package org.zeith.hammerlib.annotations.ap;
 
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.fml.javafmlmod.FMLModContainer;
 
 import java.util.Optional;
 
@@ -18,11 +19,16 @@ public interface IAPContext
 	
 	/**
 	 * Defines if the object will be registered or not.
-	 * Determined by @{@link com.zeitheron.hammercore.annotations.RegisterIf}
+	 * Determined by @{@link org.zeith.hammerlib.annotations.OnlyIf}
 	 */
 	default boolean shouldRegister()
 	{
 		return true;
+	}
+	
+	default Optional<FMLModContainer> getOwnerMod()
+	{
+		return Optional.empty();
 	}
 	
 	static IAPContext.Builder builder()
@@ -30,15 +36,22 @@ public interface IAPContext
 		return new Builder();
 	}
 	
+	@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 	class Builder
 	{
-		@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 		protected Optional<ResourceLocation> id = Optional.empty();
+		protected Optional<FMLModContainer> ownerMod = Optional.empty();
 		protected boolean shouldRegister = true;
 		
 		public Builder id(ResourceLocation id)
 		{
 			this.id = Optional.ofNullable(id);
+			return this;
+		}
+		
+		public Builder owner(FMLModContainer mod)
+		{
+			this.ownerMod = Optional.ofNullable(mod);
 			return this;
 		}
 		
@@ -62,6 +75,12 @@ public interface IAPContext
 				public boolean shouldRegister()
 				{
 					return shouldRegister;
+				}
+				
+				@Override
+				public Optional<FMLModContainer> getOwnerMod()
+				{
+					return ownerMod;
 				}
 			};
 		}

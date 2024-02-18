@@ -134,7 +134,7 @@ public class HammerLib
 								LOG.info("Hooked " + data.clazz() + " from " + mc.getModId() + " to register it's stuff.");
 								mc.getEventBus()
 										.addListener((Consumer<RegisterEvent>) event ->
-												RegistryAdapter.register(event, data.getOwnerClass(), mc.getModId(), data.getProperty("prefix").map(Objects::toString).orElse(""))
+												RegistryAdapter.register(event, data.getOwnerClass(), mc, data.getProperty("prefix").map(Objects::toString).orElse(""))
 										);
 							});
 			});
