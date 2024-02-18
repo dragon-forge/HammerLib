@@ -1,10 +1,12 @@
 package org.zeith.hammerlib.proxy;
 
+import net.minecraft.core.particles.ParticleType;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
@@ -114,12 +116,12 @@ public class HLCommonProxy
 		return finishedLoading;
 	}
 	
-	public Consumer<FMLClientSetupEvent> addTESR(Type owner, String member, Type tesr)
+	public Consumer<FMLClientSetupEvent> addTESR(BlockEntityType<?> type, Class<?> anyTesr)
 	{
 		return null;
 	}
 	
-	public Consumer<RegisterParticleProvidersEvent> addParticleTypeProvider(Type owner, String member, Type tesr)
+	public Consumer<RegisterParticleProvidersEvent> addParticleTypeProvider(ParticleType<?> type, Class<?> providerCls)
 	{
 		return null;
 	}

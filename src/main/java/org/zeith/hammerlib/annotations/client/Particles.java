@@ -28,10 +28,7 @@ public @interface Particles
 			if(mc != null && value instanceof ParticleType<?> pt)
 			{
 				mc.getEventBus().addListener(
-						HammerLib.PROXY.addParticleTypeProvider(
-								Type.getType(field.getDeclaringClass()), field.getName(),
-								Type.getType(annotation.value())
-						)
+						HammerLib.PROXY.addParticleTypeProvider(pt, annotation.value())
 				);
 				var id = context.getRegistryName().map(ResourceLocation::toString).orElse("??:??");
 				HammerLib.LOG.debug("Applied TESR for {}[{}] {}.{}", field.getType().getSimpleName(), id, field.getDeclaringClass().getSimpleName(), field.getName());
