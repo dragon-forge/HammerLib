@@ -1,21 +1,19 @@
 package org.zeith.hammerlib.core.adapter;
 
 import net.minecraft.core.Registry;
-import net.minecraft.core.particles.ParticleType;
 import net.minecraft.resources.*;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.event.lifecycle.*;
-import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.minecraftforge.fml.javafmlmod.FMLModContainer;
 import net.minecraftforge.registries.*;
 import org.apache.logging.log4j.LogManager;
 import org.zeith.api.registry.RegistryMapping;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.annotations.*;
-import org.zeith.hammerlib.annotations.client.*;
+import org.zeith.hammerlib.annotations.ap.*;
+import org.zeith.hammerlib.annotations.client.ClientSetup;
 import org.zeith.hammerlib.api.blocks.*;
 import org.zeith.hammerlib.api.fml.*;
 import org.zeith.hammerlib.util.java.*;
@@ -28,6 +26,8 @@ import java.util.function.BiConsumer;
 
 public class RegistryAdapter
 {
+	private static final Set<Class<?>> SCANNED_CLASSES = ConcurrentHashMap.newKeySet();
+	
 	public static <T> Optional<BiConsumer<ResourceLocation, T>> createRegisterer(RegisterEvent event, ResourceKey<Registry<T>> registryType, String prefix)
 	{
 		if(event.getRegistryKey().equals(registryType))
@@ -72,19 +72,67 @@ public class RegistryAdapter
 	
 	private static final Map<Class<?>, List<Tuple2<Block, ResourceLocation>>> blocks = new ConcurrentHashMap<>();
 	
-	public static int register(RegisterEvent event, Class<?> source, String modid, String prefix)
+	public static int register(RegisterEvent event, Class<?> source, FMLModContainer mod, String prefix)
 	{
 		IForgeRegistry<?> reg = event.getForgeRegistry();
 		if(reg == null)
 			reg = RegistryMapping.getRegistryByType(RegistryMapping.getSuperType(event.getRegistryKey()));
-		return RegistryAdapter.register(event, reg, source, modid, prefix);
+		
+		//<editor-fold desc="Scan phase for all classes, performs AP setup.">
+		if(SCANNED_CLASSES.add(source))
+		{
+			var modid = mod.getModId();
+			var superType = RegistryMapping.getSuperType(reg);
+			var regKey = event.getRegistryKey();
+			
+			for(Field field : source.getDeclaredFields())
+			{
+				if(!Modifier.isStatic(field.getModifiers())) continue;
+				try
+				{
+					var ctxb = IAPContext.builder().owner(mod);
+					
+					field.setAccessible(true);
+					var val = field.get(null);
+					
+					var name = field.getAnnotation(RegistryName.class);
+					if(name != null)
+					{
+						var rl = new ResourceLocation(modid, prefix + name.value());
+						ctxb.id(rl);
+						
+						var onlyIf = field.getAnnotation(OnlyIf.class); // Bring back OnlyIf, for registries that are non-intrusive. (Mostly, for custom registry types)
+						boolean register = !RegistryMapping.isNonIntrusive(regKey)
+										   || OnlyIfAdapter.checkCondition(onlyIf, source.toString(),
+								superType != null ? superType.getSimpleName() : field.getType().getSimpleName(), val, rl
+						);
+						
+						ctxb.shouldRegister(register);
+					}
+					
+					AnnotationProcessorRegistry.scan(ctxb.build(), field, val);
+				} catch(ReflectiveOperationException roe)
+				{
+					HammerLib.LOG.error("Failed to scan field {}", field);
+				}
+			}
+			
+			for(Method method : source.getDeclaredMethods())
+			{
+				AnnotationProcessorRegistry.scan(IAPContext.DUMMY, method);
+			}
+		}
+		//</editor-fold>
+		
+		return RegistryAdapter.register(event, reg, source, mod, prefix);
 	}
 	
 	/**
 	 * Registers all static fields (from source) with the matching registry type, and methods that accept Consumer<T>
 	 */
-	public static <T> int register(RegisterEvent event, IForgeRegistry<T> registry, Class<?> source, String modid, String prefix)
+	public static <T> int register(RegisterEvent event, IForgeRegistry<T> registry, Class<?> source, FMLModContainer mod, String prefix)
 	{
+		var modid = mod.getModId();
 		var superType = RegistryMapping.getSuperType(registry);
 		var regKey = event.getRegistryKey();
 		
@@ -124,9 +172,6 @@ public class RegistryAdapter
 			grabber.accept(e.b(), Cast.cast(item));
 		}
 		
-		boolean tileRegistryOnClient = BlockEntityType.class.equals(superType) && FMLEnvironment.dist == Dist.CLIENT;
-		boolean particleRegistryOnClient = ParticleType.class.equals(superType) && FMLEnvironment.dist == Dist.CLIENT;
-		
 		int prevSize = registry != null ? registry.getValues().size() : 0;
 		
 		// ICustomRegistrar hook!
@@ -143,15 +188,22 @@ public class RegistryAdapter
 						var rl = new ResourceLocation(modid, prefix + name.value());
 						
 						var val = field.get(null);
-						
 						var onlyIf = field.getAnnotation(OnlyIf.class); // Bring back OnlyIf, for registries that are non-intrusive. (Mostly, for custom registry types)
-						if(!RegistryMapping.isNonIntrusive(regKey)
-						   || OnlyIfAdapter.checkCondition(onlyIf, source.toString(),
+						boolean register = !RegistryMapping.isNonIntrusive(regKey)
+										   || OnlyIfAdapter.checkCondition(onlyIf, source.toString(),
 								superType != null ? superType.getSimpleName() : field.getType().getSimpleName(), val, rl
-						))
+						);
+						
+						var ctx = IAPContext.builder().owner(mod).id(rl).shouldRegister(register).build();
+						AnnotationProcessorRegistry.scanReg(ctx, field, val, false);
+						
+						if(register)
 						{
 							if(val instanceof ICustomRegistrar cr)
+							{
 								cr.performRegister(event, rl);
+								AnnotationProcessorRegistry.scanReg(ctx, field, val, true);
+							}
 						}
 					} catch(IllegalArgumentException | IllegalAccessException e)
 					{
@@ -203,34 +255,17 @@ public class RegistryAdapter
 						var val = field.get(null);
 						
 						var onlyIf = field.getAnnotation(OnlyIf.class); // Bring back OnlyIf, for registries that are non-intrusive. (Mostly, for custom registry types)
-						if(!RegistryMapping.isNonIntrusive(regKey)
-						   || OnlyIfAdapter.checkCondition(onlyIf, source.toString(), superType.getSimpleName(), val, rl))
+						var register = !RegistryMapping.isNonIntrusive(regKey) || OnlyIfAdapter.checkCondition(onlyIf, source.toString(), superType.getSimpleName(), val, rl);
+						
+						var ctx = IAPContext.builder().owner(mod).id(rl).shouldRegister(register).build();
+						AnnotationProcessorRegistry.scanReg(ctx, field, val, false);
+						
+						if(register)
 						{
 							var fval = superType.cast(val);
 							grabber.accept(rl, fval);
 							
-							if(tileRegistryOnClient)
-							{
-								var tesr = TileRenderer.Info.get(source, field.getName());
-								if(tesr != null)
-								{
-									tesr.apply();
-									HammerLib.LOG.debug("Applied TESR registration for " + field.getType().getSimpleName() + "[" + registry.getKey(fval) + "] " + source.getSimpleName() + '.' + field.getName());
-								}
-							}
-							
-							if(particleRegistryOnClient)
-							{
-								var provider = Particles.Info.get(source, field.getName());
-								if(provider != null)
-								{
-									provider.apply();
-									HammerLib.LOG.debug(
-											"Applied ParticleProvider for " + field.getType().getSimpleName() +
-											"[" + registry.getKey(fval) + "] " + source.getSimpleName() +
-											'.' + field.getName());
-								}
-							}
+							AnnotationProcessorRegistry.scanReg(ctx,field,val, true);
 						}
 					} catch(IllegalArgumentException | IllegalAccessException e)
 					{
