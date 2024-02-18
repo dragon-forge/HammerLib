@@ -1,4 +1,4 @@
-package com.zeitheron.hammercore.internal.ap;
+package org.zeith.hammerlib.annotations.ap;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
