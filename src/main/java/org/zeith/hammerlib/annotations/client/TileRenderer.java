@@ -1,6 +1,7 @@
 package org.zeith.hammerlib.annotations.client;
 
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import org.objectweb.asm.Type;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.annotations.ap.*;
@@ -24,13 +25,10 @@ public @interface TileRenderer
 		public void onPostRegistered(IAPContext context, TileRenderer annotation, Field field, Object value)
 		{
 			var mc = context.getOwnerMod().orElse(null);
-			if(mc != null)
+			if(mc != null && value instanceof BlockEntityType<?> bet)
 			{
 				mc.getEventBus().addListener(
-						HammerLib.PROXY.addTESR(
-								Type.getType(field.getDeclaringClass()), field.getName(),
-								Type.getType(annotation.value())
-						)
+						HammerLib.PROXY.addTESR(bet, annotation.value())
 				);
 				var id = context.getRegistryName().map(ResourceLocation::toString).orElse("??:??");
 				HammerLib.LOG.debug("Applied ParticleProvider for {}[{}] {}.{}", field.getType().getSimpleName(), id, field.getDeclaringClass().getSimpleName(), field.getName());
