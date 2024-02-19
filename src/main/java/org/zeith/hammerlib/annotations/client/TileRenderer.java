@@ -2,7 +2,6 @@ package org.zeith.hammerlib.annotations.client;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import org.objectweb.asm.Type;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.annotations.ap.*;
 import org.zeith.hammerlib.client.render.tile.IBESR;
