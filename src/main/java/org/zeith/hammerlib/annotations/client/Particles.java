@@ -18,6 +18,7 @@ public @interface Particles
 {
 	Class<?> value();
 	
+	@RegisterAP(value = Particles.class, clientOnly = true)
 	class AP
 			implements IAnnotationProcessor<Particles>
 	{

@@ -5,9 +5,9 @@ import net.minecraftforge.fml.ModList;
 import net.minecraftforge.forgespi.language.ModFileScanData;
 import org.jetbrains.annotations.*;
 import org.objectweb.asm.Type;
-import org.zeith.hammerlib.annotations.client.*;
-import org.zeith.hammerlib.util.java.ReflectionUtil;
-import org.zeith.hammerlib.util.mcf.ModHelper;
+import org.zeith.hammerlib.HammerLib;
+import org.zeith.hammerlib.util.java.*;
+import org.zeith.hammerlib.util.mcf.*;
 
 import java.lang.annotation.*;
 import java.lang.reflect.*;
@@ -23,10 +23,25 @@ public class AnnotationProcessorRegistry
 	
 	static
 	{
-		if(ModHelper.isClient()) // these APs don't need to exist on server.
+		boolean forced = ModHelper.isClient();
+		
+		for(var data : ScanDataHelper.lookupAnnotatedObjects(RegisterAP.class))
 		{
-			register(TileRenderer.class, new TileRenderer.AP());
-			register(Particles.class, new Particles.AP());
+			var clientOnly = (boolean) data.getProperty("clientOnly").orElse(false);
+			var type = (Type) data.getProperty("value").orElse(null);
+			
+			if(type == null) continue;
+			if(!forced && clientOnly) continue;
+			
+			Class<? extends Annotation> t = ReflectionUtil.fetchClass(type);
+			try
+			{
+				register(t, IAnnotationProcessor.class.cast(data.getOwnerClass().getDeclaredConstructor().newInstance()));
+				HammerLib.LOG.info("Register AP {} for {}.", data.getOwnerClass(), t);
+			} catch(ReflectiveOperationException e)
+			{
+				throw new RuntimeException(e);
+			}
 		}
 	}
 	
