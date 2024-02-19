@@ -32,7 +32,7 @@ public @interface Particles
 						HammerLib.PROXY.addParticleTypeProvider(pt, annotation.value())
 				);
 				var id = context.getRegistryName().map(ResourceLocation::toString).orElse("??:??");
-				HammerLib.LOG.debug("Applied TESR for {}[{}] {}.{}", field.getType().getSimpleName(), id, field.getDeclaringClass().getSimpleName(), field.getName());
+				HammerLib.LOG.debug("Applied ParticleProvider for {}[{}] {}.{}", field.getType().getSimpleName(), id, field.getDeclaringClass().getSimpleName(), field.getName());
 			}
 		}
 	}
