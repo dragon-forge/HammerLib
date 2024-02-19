@@ -2,7 +2,6 @@ package org.zeith.hammerlib.annotations.client;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import org.objectweb.asm.Type;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.annotations.ap.*;
 import org.zeith.hammerlib.client.render.tile.IBESR;
@@ -32,7 +31,7 @@ public @interface TileRenderer
 						HammerLib.PROXY.addTESR(bet, annotation.value())
 				);
 				var id = context.getRegistryName().map(ResourceLocation::toString).orElse("??:??");
-				HammerLib.LOG.debug("Applied ParticleProvider for {}[{}] {}.{}", field.getType().getSimpleName(), id, field.getDeclaringClass().getSimpleName(), field.getName());
+				HammerLib.LOG.debug("Applied TileRenderer for {}[{}] {}.{}", field.getType().getSimpleName(), id, field.getDeclaringClass().getSimpleName(), field.getName());
 			}
 		}
 	}
