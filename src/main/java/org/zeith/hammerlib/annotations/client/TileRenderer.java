@@ -18,6 +18,7 @@ public @interface TileRenderer
 {
 	Class<?> value();
 	
+	@RegisterAP(value = TileRenderer.class, clientOnly = true)
 	class AP
 			implements IAnnotationProcessor<TileRenderer>
 	{
