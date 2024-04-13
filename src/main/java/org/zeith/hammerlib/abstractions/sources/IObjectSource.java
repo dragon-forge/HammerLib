@@ -1,14 +1,17 @@
 package org.zeith.hammerlib.abstractions.sources;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import org.jetbrains.annotations.NotNull;
 import org.zeith.hammerlib.core.RegistriesHL;
 import org.zeith.hammerlib.util.java.Cast;
 
 import javax.annotation.*;
+import java.io.IOException;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -51,5 +54,23 @@ public interface IObjectSource<T>
 		IObjectSourceType type = RegistriesHL.objectSources().get(new ResourceLocation(tag.getString("Type")));
 		if(type == null) return Optional.empty();
 		return Optional.ofNullable(type.readSource(tag.getCompound("Src")));
+	}
+	
+	static void writeSource(@Nullable IObjectSource<?> src, @NotNull FriendlyByteBuf buf)
+	{
+		buf.writeBoolean(src != null);
+		if(src == null) return;
+		buf.writeResourceLocation(src.getType().getRegistryKey());
+		buf.writeNbt(src.writeSource());
+	}
+	
+	static Optional<IObjectSource<?>> readSource(@NotNull FriendlyByteBuf buf)
+			throws IOException
+	{
+		if(!buf.readBoolean()) return Optional.empty();
+		IObjectSourceType type = RegistriesHL.objectSources().get(buf.readResourceLocation());
+		var src = buf.readNbt();
+		if(type == null) return Optional.empty();
+		return Optional.ofNullable(type.readSource(src));
 	}
 }

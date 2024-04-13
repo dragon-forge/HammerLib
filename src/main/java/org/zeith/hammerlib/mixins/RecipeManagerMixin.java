@@ -40,7 +40,7 @@ public abstract class RecipeManagerMixin
 	)
 	private void HammerLib_replaceRecipeId(ResourceLocation id, CallbackInfoReturnable<Optional<? extends Recipe<?>>> cir)
 	{
-		if(hl$SpoofByName.containsKey(id))
+		if(id != null && hl$SpoofByName.containsKey(id))
 		{
 			var recipe = HammerLib_findFirstRecipe(hl$SpoofByName.getOrDefault(id, List.of(id)));
 			if(recipe.isPresent()) cir.setReturnValue(recipe);
