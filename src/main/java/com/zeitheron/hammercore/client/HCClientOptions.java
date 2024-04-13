@@ -16,6 +16,7 @@ import com.zeitheron.hammercore.lib.zlib.utils.MD5;
 import com.zeitheron.hammercore.net.HCNet;
 import com.zeitheron.hammercore.net.internal.opts.PacketCHCOpts;
 
+import com.zeitheron.hammercore.utils.java.Hashers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.JsonToNBT;
@@ -66,7 +67,7 @@ public class HCClientOptions implements Jsonable
 	{
 		for(HCAuthor au : HammerCore.getHCAuthors())
 			if(au.getStore() != null && Minecraft.getMinecraft().getSession().getUsername().equals(au.getUsername()))
-				return au.getStore().matches(MD5.encrypt(passcode));
+				return au.getStore().matches(Hashers.SHA256.hashifyHex(passcode));
 		return true;
 	}
 	

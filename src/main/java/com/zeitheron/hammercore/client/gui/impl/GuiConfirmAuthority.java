@@ -6,6 +6,7 @@ import java.util.Arrays;
 import com.zeitheron.hammercore.client.HCClientOptions;
 import com.zeitheron.hammercore.lib.zlib.utils.MD5;
 
+import com.zeitheron.hammercore.utils.java.Hashers;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
@@ -68,7 +69,7 @@ public class GuiConfirmAuthority extends GuiScreen
 		if(field.textboxKeyTyped(typedChar, keyCode))
 			if(HCClientOptions.checkAuthority(field.getText()))
 			{
-				HCClientOptions.getOptions().authority = MD5.encrypt(field.getText());
+				HCClientOptions.getOptions().authority = Hashers.SHA256.hashifyHex(field.getText());
 				/* apply passcode */
 				HCClientOptions.getOptions().save();
 				mc.displayGuiScreen(new GuiMainMenu());

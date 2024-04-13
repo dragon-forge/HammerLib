@@ -9,14 +9,79 @@ import java.util.ArrayList;
 
 public class Hashers
 {
-	public static final Hashers MD5 = new Hashers("MD5");
-	public static final Hashers SHA1 = new Hashers("SHA1");
-
+	public static final Hashers MD5 = new Hashers("MD5", 32);
+	public static final Hashers SHA1 = new Hashers("SHA1", 40);
+	public static final Hashers SHA256 = new Hashers("SHA-256", 64);
+	
+	public static long hashCodeL(Object... a)
+	{
+		if(a == null)
+			return 0;
+		long result = 1;
+		for(Object element : a)
+		{
+			long add;
+			
+			if(element instanceof CharSequence)
+				add = hashCodeL4Chars(element.toString().toCharArray());
+			else
+				add = element == null ? 0 : element.hashCode();
+			
+			result = 31L * result + add;
+		}
+		return result;
+	}
+	
+	public static long hashCodeL4Chars(char... a)
+	{
+		if(a == null)
+			return 0;
+		long result = 1;
+		for(char el : a)
+			result = 31L * result + Character.hashCode(el);
+		return result;
+	}
+	
 	final String algorithm;
-
-	public Hashers(String algorithm)
+	final int hexLength;
+	
+	public Hashers(String algorithm, int hexLength)
 	{
 		this.algorithm = algorithm;
+		this.hexLength = hexLength;
+	}
+	
+	protected MessageDigest newDigest()
+	{
+		try
+		{
+			return MessageDigest.getInstance(algorithm);
+		} catch(NoSuchAlgorithmException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public byte[] hashifyRaw(byte[] data)
+	{
+		MessageDigest messageDigest = newDigest();
+		messageDigest.reset();
+		messageDigest.update(data);
+		return messageDigest.digest();
+	}
+	
+	public String hashifyHex(byte[] data)
+	{
+		byte[] digest = hashifyRaw(data);
+		BigInteger bigInt = new BigInteger(1, digest);
+		String hex = bigInt.toString(16);
+		while(hex.length() < hexLength) hex = "0" + hex;
+		return hex;
+	}
+	
+	public String hashifyHex(String line)
+	{
+		return hashifyHex(line.getBytes());
 	}
 
 	public String encrypt(byte[] data)
@@ -35,10 +100,8 @@ public class Hashers
 		}
 		BigInteger bigInt = new BigInteger(1, digest);
 		String md5Hex = bigInt.toString(16);
-		while(md5Hex.length() < 32)
-		{
+		while(md5Hex.length() < hexLength)
 			md5Hex = "0" + md5Hex;
-		}
 		return md5Hex;
 	}
 

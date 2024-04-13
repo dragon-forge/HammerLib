@@ -21,6 +21,7 @@ import com.zeitheron.hammercore.proxy.*;
 import com.zeitheron.hammercore.utils.*;
 import com.zeitheron.hammercore.utils.charging.ItemChargeHelper;
 import com.zeitheron.hammercore.utils.color.ColorHelper;
+import com.zeitheron.hammercore.utils.java.Hashers;
 import com.zeitheron.hammercore.utils.recipes.BrewingRecipe;
 import com.zeitheron.hammercore.utils.recipes.helper.*;
 import com.zeitheron.hammercore.utils.structure.StructureAPI;
@@ -54,6 +55,7 @@ import org.apache.logging.log4j.*;
 import org.xml.sax.SAXException;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Supplier;
 
@@ -382,10 +384,10 @@ public class HammerCore
 		
 		for(RecipeRegistry rr : recipeRegistries)
 			rr //
-			   .collect() //
-			   .stream() //
-			   .filter(r -> r != null && r.getRegistryName() != null) //
-			   .forEach(fr::register);
+					.collect() //
+					.stream() //
+					.filter(r -> r != null && r.getRegistryName() != null) //
+					.forEach(fr::register);
 		
 		SimpleRegistration.$addRegisterRecipes(fr::register);
 	}
@@ -452,69 +454,16 @@ public class HammerCore
 			long start = System.currentTimeMillis();
 			reg.registerCubes(RayCubeRegistry.instance);
 			LOG.info("Registered raytrace  plugin: " + reg.getClass().getName() + " in " +
-					(System.currentTimeMillis() - start) + " ms");
+					 (System.currentTimeMillis() - start) + " ms");
 		}
 	}
 	
 	public static int client_ticks = 0;
 	
-	private static final byte[][] data = new byte[][] {
-			new byte[] {
-					-109,
-					-99,
-					124,
-					-113,
-					-102,
-					6,
-					-25,
-					-55,
-					55,
-					52,
-					30,
-					111,
-					71,
-					124,
-					80,
-					-4,
-					-112,
-					87,
-					60,
-					-106,
-					-11,
-					17,
-					-115,
-					106,
-					-46,
-					-101,
-					21,
-					83,
-					-55,
-					-68,
-					92,
-					-101,
-					-41,
-					121,
-					-96,
-					23,
-					8,
-					7,
-					77,
-					96,
-					-37,
-					22,
-					-60,
-					-63,
-					-127,
-					80,
-					-66,
-					-70
-			}
-	};
-	public static final List<String> DRAGONS = Arrays.asList();
 	private static final HCAuthor[] HCAUTHORS = //
 			{ //
 					new HCAuthor("Zeitheron", TextFormatting.DARK_PURPLE + "" + TextFormatting.ITALIC + "         " +
-							TextFormatting.RESET + "   ", () ->
+											  TextFormatting.RESET + "   ", () ->
 					{
 						float sine = .5F * ((float) Math.sin(Math.toRadians(16 * client_ticks)) + 1);
 						
@@ -523,7 +472,7 @@ public class HammerCore
 						int b = 205 + (int) (sine * 50);
 						
 						return ColorHelper.packRGB(r / 255F, g / 255F, b / 255F);
-					}, true, data[0]),
+					}, true, new byte[] { 18, 50, -25, -30, 60, -127, -19, 74, 44, 106, 52, -81, 82, 69, -25, -10, -22, -128, -6, -120, -48, 26, 89, 123, 106, -27, -62, 0, -18, -73, -109, 90 }),
 					//
 			};
 	

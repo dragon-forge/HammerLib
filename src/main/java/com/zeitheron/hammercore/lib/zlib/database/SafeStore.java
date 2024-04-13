@@ -1,11 +1,12 @@
 package com.zeitheron.hammercore.lib.zlib.database;
 
-import java.security.SecureRandom;
+import com.zeitheron.hammercore.utils.java.Hashers;
+
 import java.util.Arrays;
 
 public class SafeStore
 {
-	private final byte[] store;
+	public final byte[] store;
 	
 	public SafeStore(byte[] store)
 	{
@@ -14,7 +15,7 @@ public class SafeStore
 	
 	public boolean matches(byte[] contents)
 	{
-		return equals(of(contents, store.length));
+		return equals(of(contents));
 	}
 	
 	public boolean matches(CharSequence contents)
@@ -35,19 +36,6 @@ public class SafeStore
 	
 	public static SafeStore of(byte[] contents)
 	{
-		return of(contents, 32);
-	}
-	
-	public static SafeStore of(CharSequence contents, int storeLen)
-	{
-		return of((contents + "").getBytes(), storeLen);
-	}
-	
-	public static SafeStore of(byte[] contents, int storeLen)
-	{
-		SecureRandom rand = new SecureRandom(contents);
-		byte[] data = new byte[storeLen];
-		rand.nextBytes(data);
-		return new SafeStore(data);
+		return new SafeStore(Hashers.SHA256.hashifyRaw(contents));
 	}
 }
