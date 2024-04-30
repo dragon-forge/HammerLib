@@ -2,10 +2,14 @@ package org.zeith.hammerlib.tiles.tooltip.own.impl;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.neoforged.api.distmarker.*;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.zeith.hammerlib.tiles.tooltip.own.*;
 
 import javax.annotation.Nullable;
@@ -18,6 +22,7 @@ public class GuiTooltip
 	public final LinkedList<TooltipLine> infos = new LinkedList<>();
 	protected Level world;
 	protected BlockPos pos;
+	protected BlockHitResult blockHitResult;
 	
 	protected Player player;
 	protected Entity ent;
@@ -144,6 +149,18 @@ public class GuiTooltip
 		return player;
 	}
 	
+	@Override
+	public Direction getSideHit()
+	{
+		return blockHitResult != null ? blockHitResult.getDirection() : null;
+	}
+	
+	@Override
+	public Vec3 getHitVec()
+	{
+		return blockHitResult != null ? blockHitResult.getLocation() : null;
+	}
+	
 	public GuiTooltip withLocation(Level world, BlockPos pos)
 	{
 		this.world = world;
@@ -161,6 +178,12 @@ public class GuiTooltip
 	public GuiTooltip withPlayer(Player player)
 	{
 		this.player = player;
+		return this;
+	}
+	
+	public GuiTooltip withBlockHitResult(BlockHitResult blockHitResult)
+	{
+		this.blockHitResult = blockHitResult;
 		return this;
 	}
 	
