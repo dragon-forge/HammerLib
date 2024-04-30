@@ -1,28 +1,33 @@
 package org.zeith.hammerlib.core.adapter;
 
 import net.minecraft.core.Registry;
-import net.minecraft.core.particles.ParticleType;
-import net.minecraft.resources.*;
-import net.minecraft.world.item.*;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.event.lifecycle.*;
+import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLModContainer;
-import net.minecraftforge.fml.loading.FMLEnvironment;
-import net.minecraftforge.registries.*;
+import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.RegisterEvent;
 import org.apache.logging.log4j.LogManager;
 import org.zeith.api.registry.RegistryMapping;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.annotations.*;
-import org.zeith.hammerlib.annotations.ap.*;
-import org.zeith.hammerlib.annotations.client.*;
+import org.zeith.hammerlib.annotations.ap.AnnotationProcessorRegistry;
+import org.zeith.hammerlib.annotations.ap.IAPContext;
+import org.zeith.hammerlib.annotations.client.ClientSetup;
 import org.zeith.hammerlib.api.blocks.*;
-import org.zeith.hammerlib.api.fml.*;
+import org.zeith.hammerlib.api.fml.ICustomRegistrar;
+import org.zeith.hammerlib.api.fml.IRegisterListener;
 import org.zeith.hammerlib.api.items.CreativeTab;
-import org.zeith.hammerlib.util.java.*;
-import org.zeith.hammerlib.util.java.tuples.*;
+import org.zeith.hammerlib.util.java.Cast;
+import org.zeith.hammerlib.util.java.ReflectionUtil;
+import org.zeith.hammerlib.util.java.tuples.Tuple2;
+import org.zeith.hammerlib.util.java.tuples.Tuples;
 
 import java.lang.reflect.*;
 import java.util.*;
@@ -76,6 +81,17 @@ public class RegistryAdapter
 	}
 	
 	private static final Map<Class<?>, List<Tuple2<Block, ResourceLocation>>> blocks = new ConcurrentHashMap<>();
+	
+	/**
+	 * Should be called within the RegisterEvent on your mod, letting HL grab the active mod container and deal with the namespaces and everything else.
+	 * Returns -1 if HL is unable to determine the active mod.
+	 */
+	public static int registerCurrentMod(RegisterEvent event, Class<?> source, String prefix)
+	{
+		var mc = ModLoadingContext.get().getActiveContainer();
+		if(!(mc instanceof FMLModContainer fmlmc)) return -1;
+		return register(event, source, fmlmc, prefix);
+	}
 	
 	public static int register(RegisterEvent event, Class<?> source, FMLModContainer mod, String prefix)
 	{
