@@ -4,24 +4,27 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraftforge.fml.unsafe.UnsafeHacks;
-import net.neoforged.api.distmarker.*;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.*;
-import net.neoforged.fml.*;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.*;
-import net.neoforged.fml.javafmlmod.*;
+import net.neoforged.fml.javafmlmod.FMLModContainer;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.moddiscovery.ModAnnotation;
 import net.neoforged.neoforge.client.event.RegisterGuiOverlaysEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
-import org.apache.logging.log4j.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.zeith.hammerlib.annotations.*;
 import org.zeith.hammerlib.annotations.client.ClientSetup;
 import org.zeith.hammerlib.api.IRecipeProvider;
 import org.zeith.hammerlib.api.io.NBTSerializationHelper;
 import org.zeith.hammerlib.api.items.CreativeTab;
+import org.zeith.hammerlib.api.proxy.IProxy;
 import org.zeith.hammerlib.compat.base.CompatList;
 import org.zeith.hammerlib.compat.base._hl.BaseHLCompat;
 import org.zeith.hammerlib.core.ConfigHL;
@@ -31,7 +34,8 @@ import org.zeith.hammerlib.core.init.TagsHL;
 import org.zeith.hammerlib.event.fml.FMLFingerprintCheckEvent;
 import org.zeith.hammerlib.proxy.*;
 import org.zeith.hammerlib.tiles.tooltip.own.impl.TooltipRenderEngine;
-import org.zeith.hammerlib.util.*;
+import org.zeith.hammerlib.util.CommonMessages;
+import org.zeith.hammerlib.util.ZeithLinkRepository;
 import org.zeith.hammerlib.util.charging.ItemChargeHelper;
 import org.zeith.hammerlib.util.java.ReflectionUtil;
 import org.zeith.hammerlib.util.mcf.ScanDataHelper;
@@ -39,13 +43,14 @@ import org.zeith.hammerlib.util.mcf.ScanDataHelper;
 import java.lang.annotation.ElementType;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Mod(HLConstants.MOD_ID)
 public class HammerLib
 {
 	public static final Logger LOG = LogManager.getLogger("HammerLib");
-	public static final HLCommonProxy PROXY = DistExecutor.unsafeRunForDist(() -> HLClientProxy::new, () -> HLCommonProxy::new);
+	public static final HLCommonProxy PROXY = IProxy.create(() -> HLClientProxy::new, () -> HLCommonProxy::new);
 	public static final IEventBus EVENT_BUS = BusBuilder.builder().build();
 	
 	public static final CompatList<BaseHLCompat> HL_COMPAT_LIST = CompatList.gather(BaseHLCompat.class);
