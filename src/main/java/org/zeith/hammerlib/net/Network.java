@@ -16,7 +16,6 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
 import org.zeith.hammerlib.HammerLib;
-import org.zeith.hammerlib.annotations.Setup;
 import org.zeith.hammerlib.proxy.HLConstants;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.mcf.LogicalSidePredictor;
@@ -25,7 +24,7 @@ import org.zeith.hammerlib.util.mcf.ModHelper;
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class Network
 {
-	public static final ResourceLocation MAIN_CHANNEL = new ResourceLocation("hammerlib", "main");
+	public static final ResourceLocation MAIN_CHANNEL = HLConstants.id("main");
 	
 	@SubscribeEvent
 	private static void initialize(RegisterPayloadHandlerEvent event)

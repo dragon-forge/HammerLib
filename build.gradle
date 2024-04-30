@@ -62,6 +62,11 @@ runs {
     }
 }
 
+configurations {
+    runtimeClasspath.extendsFrom localRuntime
+    implementation.extendsFrom localImplementation
+}
+
 repositories {
     maven {
         name = "Zeitheron Maven"
@@ -120,7 +125,7 @@ dependencies {
             def modartifact = file.name.substring(0, splitPos)
             def modversion = file.name.substring(splitPos + 1, file.name.length() - 4)
             dependencies {
-                implementation(project.dependencies.create("_all:$modartifact:$modversion") {
+                localImplementation(project.dependencies.create("_all:$modartifact:$modversion") {
                     transitive = false
                 })
             }
@@ -148,7 +153,7 @@ dependencies {
             def modartifact = file.name.substring(0, splitPos)
             def modversion = file.name.substring(splitPos + 1, file.name.length() - 4)
             dependencies {
-                runtimeOnly(project.dependencies.create("_runtime:$modartifact:$modversion") {
+                localRuntime(project.dependencies.create("_runtime:$modartifact:$modversion") {
                     transitive = false
                 })
             }
