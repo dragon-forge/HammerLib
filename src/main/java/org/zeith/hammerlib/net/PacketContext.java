@@ -1,23 +1,27 @@
 package org.zeith.hammerlib.net;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.neoforged.fml.LogicalSide;
 import net.neoforged.neoforge.common.util.LogicalSidedProvider;
-import net.neoforged.neoforge.network.NetworkEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+import org.zeith.hammerlib.util.java.Cast;
 
 @Getter
 public class PacketContext
 {
+	private @Getter final IPayloadContext neo;
 	private final ServerPlayer sender;
 	private final LogicalSide side;
 	private @Setter IPacket reply;
 	
-	public PacketContext(NetworkEvent.Context ctx)
+	public PacketContext(IPayloadContext ctx)
 	{
-		this.side = ctx.getDirection().getReceptionSide();
-		this.sender = ctx.getSender();
+		this.neo = ctx;
+		this.side = ctx.flow().getReceptionSide();
+		this.sender = ctx.player().map(Cast.convertTo(ServerPlayer.class)).orElse(null);
 	}
 	
 	public boolean hasSender()

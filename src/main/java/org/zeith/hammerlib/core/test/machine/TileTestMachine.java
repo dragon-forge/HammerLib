@@ -20,6 +20,7 @@ import org.zeith.hammerlib.api.inv.SimpleInventory;
 import org.zeith.hammerlib.api.io.NBTSerializable;
 import org.zeith.hammerlib.api.tiles.IContainerTile;
 import org.zeith.hammerlib.core.RecipeHelper;
+import org.zeith.hammerlib.core.init.GearsHL;
 import org.zeith.hammerlib.net.properties.*;
 import org.zeith.hammerlib.tiles.TileSyncableTickable;
 import org.zeith.hammerlib.tiles.tooltip.*;
@@ -33,6 +34,7 @@ import java.util.Optional;
 public class TileTestMachine
 		extends TileSyncableTickable
 		implements IContainerTile, IWrenchable, ITooltipProvider
+//		, ITooltipTile
 {
 	@TileRenderer(TESRTestMachine.class)
 	@RegistryName("test_machine")
@@ -272,4 +274,27 @@ public class TileTestMachine
 			tip.addText(Component.literal("Progress: ")).addProgressBar(bar);
 		}
 	}
+	
+//	@Override
+//	public void addTooltip(ITooltipConsumer consumer, Player player)
+//	{
+//		consumer.addLine(Component.literal("Progress: "));
+//
+//		int _maxProgress = 200;
+//		int _progress = 20;
+//
+//		var bar = new ProgressBar(_maxProgress)
+//				.setProgress(_progress)
+//				.withStyle(ProgressBar.ProgressBarStyle.FORGE_ENERGY_STYLE)
+//				.withNumberFormat(EnumNumberFormat.FULL);
+//
+//		float hue = bar.getProgress() / 3.5F;
+//
+//		bar.filledMainColor = 255 << 24 | Mth.hsvToRgb(hue, 1F, 1F);
+//		bar.filledAlternateColor = 255 << 24 | Mth.hsvToRgb(hue, 1F, 0.75F);
+//
+//		consumer.addBar(bar);
+//
+//		consumer.addItem(GearsHL.COPPER_GEAR.getDefaultInstance());
+//	}
 }

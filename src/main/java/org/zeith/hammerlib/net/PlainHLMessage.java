@@ -1,12 +1,14 @@
 package org.zeith.hammerlib.net;
 
 import net.minecraft.network.FriendlyByteBuf;
-import net.neoforged.neoforge.network.NetworkEvent;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Supplier;
 
 public class PlainHLMessage
+		implements CustomPacketPayload
 {
 	IPacket packet;
 
@@ -32,7 +34,13 @@ public class PlainHLMessage
 		if(packet != null)
 			packet.write(buf);
 	}
-
+	
+	@Override
+	public ResourceLocation id()
+	{
+		return Network.MAIN_CHANNEL;
+	}
+	
 	public boolean isValid()
 	{
 		return packet != null;
@@ -43,7 +51,7 @@ public class PlainHLMessage
 		return packet;
 	}
 
-	public void handle(NetworkEvent.Context ctx)
+	public void handle(IPayloadContext ctx)
 	{
 		PacketContext pctx = new PacketContext(ctx);
 		if(packet != null)
@@ -51,7 +59,7 @@ public class PlainHLMessage
 			CompletableFuture<Void> exec;
 			if(packet.executeOnMainThread())
 			{
-				exec = ctx.enqueueWork(() -> packet.execute(pctx));
+				exec = ctx.workHandler().submitAsync(() -> packet.execute(pctx));
 			} else
 			{
 				packet.execute(pctx);
@@ -62,10 +70,8 @@ public class PlainHLMessage
 			{
 				IPacket reply = pctx.getReply();
 				if(reply != null)
-					ctx.getPacketDispatcher().sendPacket(Network.MAIN_CHANNEL, Network.toBuffer(new PlainHLMessage(reply)));
+					ctx.replyHandler().send(new PlainHLMessage(reply));
 			});
-
-			ctx.setPacketHandled(true);
 		}
 	}
 }
