@@ -7,7 +7,7 @@ modId = "${mod_id}"
 version = "${mod_version}"
 displayName = "${mod_name}"
 updateJSONURL = "https://api.modrinth.com/updates/${modrinth_project}/forge_updates.json"
-displayURL = "https://modrinth.com/mod/PlkSuVtM"
+displayURL = "https://modrinth.com/mod/${modrinth_project}"
 logoFile = "logo.png"
 authors = "${mod_authors}"
 
