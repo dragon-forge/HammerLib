@@ -1,7 +1,8 @@
 package org.zeith.hammerlib;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.*;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
@@ -9,12 +10,14 @@ import net.minecraftforge.eventbus.api.*;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.*;
-import net.minecraftforge.fml.javafmlmod.*;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.javafmlmod.FMLModContainer;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.moddiscovery.ModAnnotation;
 import net.minecraftforge.fml.unsafe.UnsafeHacks;
 import net.minecraftforge.registries.RegisterEvent;
-import org.apache.logging.log4j.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.zeith.hammerlib.annotations.*;
 import org.zeith.hammerlib.annotations.client.ClientSetup;
 import org.zeith.hammerlib.api.IRecipeProvider;
@@ -29,14 +32,16 @@ import org.zeith.hammerlib.core.init.TagsHL;
 import org.zeith.hammerlib.event.fml.FMLFingerprintCheckEvent;
 import org.zeith.hammerlib.proxy.*;
 import org.zeith.hammerlib.tiles.tooltip.own.impl.TooltipRenderEngine;
-import org.zeith.hammerlib.util.*;
+import org.zeith.hammerlib.util.CommonMessages;
+import org.zeith.hammerlib.util.ZeithLinkRepository;
 import org.zeith.hammerlib.util.charging.ItemChargeHelper;
 import org.zeith.hammerlib.util.mcf.ScanDataHelper;
 
 import java.lang.annotation.ElementType;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Mod(HLConstants.MOD_ID)
 public class HammerLib
