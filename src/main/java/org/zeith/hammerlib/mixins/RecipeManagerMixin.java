@@ -24,7 +24,8 @@ import java.util.*;
 @Implements({
 		@Interface(iface = ISpoofedRecipeManager.class, prefix = "isrm$")
 })
-public class RecipeManagerMixin
+public abstract class RecipeManagerMixin
+		implements ISpoofedRecipeManager
 {
 	@Shadow(remap = false)
 	@Final
@@ -33,36 +34,27 @@ public class RecipeManagerMixin
 	@Shadow
 	public Map<ResourceLocation, Recipe<?>> byName;
 	
-	private Map<ResourceLocation, List<ResourceLocation>> hammerLibSpoofByName = SpoofRecipesEvent.gather();
+	@Unique
+	private final Map<ResourceLocation, List<ResourceLocation>> hammerLib$SpoofByName = SpoofRecipesEvent.gather();
 	
 	@Inject(
 			method = "byKey",
 			at = @At("HEAD"),
 			cancellable = true
 	)
-	private void replaceRecipeId(ResourceLocation id, CallbackInfoReturnable<Optional<? extends Recipe<?>>> cir)
+	private void HammerLib_replaceRecipeId(ResourceLocation id, CallbackInfoReturnable<Optional<? extends Recipe<?>>> cir)
 	{
-		if(hammerLibSpoofByName.containsKey(id))
-		{
-			var recipe = findFirstRecipe_HL(hammerLibSpoofByName.getOrDefault(id, List.of(id)));
-			if(recipe.isPresent()) cir.setReturnValue(recipe);
-			else HammerLib.LOG.error("Failed to locate recipe with mapping " + id + "=" + hammerLibSpoofByName.get(id));
-		}
-	}
-	
-	private Optional<? extends Recipe<?>> findFirstRecipe_HL(Collection<ResourceLocation> rl)
-	{
-		return rl.stream()
-				.map(byName::get)
-				.filter(Objects::nonNull)
-				.findFirst();
+		if(id == null || !hammerLib$SpoofByName.containsKey(id)) return;
+		var recipe = findFirstRecipeHL(hammerLib$SpoofByName.getOrDefault(id, List.of(id)));
+		if(recipe.isPresent()) cir.setReturnValue(recipe);
+		else HammerLib.LOG.error("Failed to locate recipe with mapping " + id + "=" + hammerLib$SpoofByName.get(id));
 	}
 	
 	@Inject(
 			method = "apply*",
 			at = @At("TAIL")
 	)
-	public void reloadRecipes_HammerLib(Map<ResourceLocation, JsonElement> recipes,
+	public void HammerLib_reloadRecipes(Map<ResourceLocation, JsonElement> recipes,
 										ResourceManager manager,
 										ProfilerFiller profiler,
 										CallbackInfo ci)
@@ -71,8 +63,16 @@ public class RecipeManagerMixin
 		RecipeHelper.injectRecipes(mgr, context);
 	}
 	
-	public Map<ResourceLocation, List<ResourceLocation>> isrm$getSpoofedRecipes()
+	public Map<ResourceLocation, List<ResourceLocation>> isrm$getSpoofedRecipesHL()
 	{
-		return hammerLibSpoofByName;
+		return hammerLib$SpoofByName;
+	}
+	
+	public Optional<? extends Recipe<?>> isrm$findFirstRecipeHL(Collection<ResourceLocation> ids)
+	{
+		return ids.stream()
+				.map(byName::get)
+				.filter(Objects::nonNull)
+				.findFirst();
 	}
 }

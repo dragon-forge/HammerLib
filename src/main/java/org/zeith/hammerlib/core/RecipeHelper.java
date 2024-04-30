@@ -64,7 +64,7 @@ public class RecipeHelper
 	public static void injectRecipes(RecipeManager mgr, ICondition.IContext context)
 	{
 		Internal.mutableManager(mgr);
-		var spoofed = ((ISpoofedRecipeManager) mgr).getSpoofedRecipes();
+		var spoofed = ((ISpoofedRecipeManager) mgr).getSpoofedRecipesHL();
 		
 		List<Recipe<?>> recipeList = new ArrayList<>();
 		Set<ResourceLocation> removed = new HashSet<>();
