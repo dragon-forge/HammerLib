@@ -38,7 +38,7 @@ public class RequestPropertiesPacket
 			if(props != null)
 			{
 				var pd = props.getProperties();
-				ctx.withReply(pd.createGlobalUpdate());
+				ctx.withReply(pd.createGlobalUpdate(lvl.registryAccess()));
 			}
 		}
 	}

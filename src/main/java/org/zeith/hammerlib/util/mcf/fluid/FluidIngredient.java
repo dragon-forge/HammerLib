@@ -1,22 +1,28 @@
 package org.zeith.hammerlib.util.mcf.fluid;
 
-import com.google.gson.JsonElement;
-import com.mojang.serialization.*;
+import com.google.common.collect.Lists;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.*;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public record FluidIngredient(CompareMode mode, List<FluidStack> asFluidStack, List<TagKey<Fluid>> asTags)
 		implements Predicate<FluidStack>
 {
-	public static final Codec<FluidIngredient> CODEC = RecordCodecBuilder.create(instance ->
+	public static final MapCodec<FluidIngredient> CODEC = RecordCodecBuilder.mapCodec(instance ->
 			instance.group(
 					Codec.STRING.fieldOf("mode").xmap(CompareMode::valueOf, CompareMode::name).forGetter(FluidIngredient::mode),
 					FluidStack.CODEC.listOf().fieldOf("fluids").forGetter(FluidIngredient::asFluidStack),
@@ -24,10 +30,10 @@ public record FluidIngredient(CompareMode mode, List<FluidStack> asFluidStack, L
 			).apply(instance, FluidIngredient::new)
 	);
 	
-	public static FluidIngredient fromJson(JsonElement json)
-	{
-		return JsonOps.INSTANCE.withDecoder(CODEC).apply(json).result().orElseThrow().getFirst();
-	}
+	public static final StreamCodec<RegistryFriendlyByteBuf, FluidIngredient> STREAM_CODEC = StreamCodec.of(
+			(buf, ing) -> ing.toNetwork(buf),
+			FluidIngredient::fromNetwork
+	);
 	
 	public static FluidIngredient EMPTY = new FluidIngredient(CompareMode.VALUES, List.of(), List.of());
 	
@@ -76,11 +82,6 @@ public record FluidIngredient(CompareMode mode, List<FluidStack> asFluidStack, L
 		this.asTags = asTags;
 	}
 	
-	public JsonElement toJson()
-	{
-		return JsonOps.INSTANCE.withEncoder(CODEC).apply(this).result().orElseThrow();
-	}
-	
 	FluidIngredient resolve()
 	{
 		return isEmpty() ? EMPTY : this;
@@ -104,14 +105,14 @@ public record FluidIngredient(CompareMode mode, List<FluidStack> asFluidStack, L
 		
 		return switch(mode)
 		{
-			case BOTH -> asFluidStack.stream().anyMatch(fluidStack::isFluidEqual)
+			case BOTH -> asFluidStack.stream().anyMatch(fs -> FluidStack.isSameFluidSameComponents(fluidStack, fs))
 						 || asTags.stream().map(BuiltInRegistries.FLUID::getOrCreateTag)
 								 .flatMap(HolderSet.ListBacked::stream)
 								 .filter(Holder::isBound)
 								 .map(Holder::value)
 								 .anyMatch(fluidStack.getFluid()::equals);
 			
-			case VALUES -> asFluidStack.stream().anyMatch(fluidStack::isFluidEqual);
+			case VALUES -> asFluidStack.stream().anyMatch(fs -> FluidStack.isSameFluidSameComponents(fluidStack, fs));
 			
 			case TAGS -> asTags.stream().map(BuiltInRegistries.FLUID::getOrCreateTag)
 					.flatMap(HolderSet.ListBacked::stream)
@@ -145,6 +146,27 @@ public record FluidIngredient(CompareMode mode, List<FluidStack> asFluidStack, L
 					.map(fs -> FluidHelper.withAmount(fs, amount))
 					.toArray(FluidStack[]::new);
 		};
+	}
+	
+	public static FluidIngredient fromNetwork(RegistryFriendlyByteBuf buf)
+	{
+		CompareMode mode = buf.readEnum(CompareMode.class);
+		
+		int cap = buf.readVarInt();
+		List<FluidStack> stacks = Lists.newArrayListWithCapacity(cap);
+		for(int i = 0; i < cap; i++) stacks.add(FluidStack.STREAM_CODEC.decode(buf));
+		
+		cap = buf.readVarInt();
+		List<TagKey<Fluid>> tags = Lists.newArrayListWithCapacity(cap);
+		for(int i = 0; i < cap; i++) tags.add(TagKey.create(Registries.FLUID, buf.readResourceLocation()));
+		
+		return new FluidIngredient(mode, stacks, tags);
+	}
+	
+	public void toNetwork(RegistryFriendlyByteBuf buf)
+	{
+		buf.writeEnum(mode());
+		
 	}
 	
 	public enum CompareMode

@@ -27,6 +27,6 @@ public interface IPropertyEntity
 		BlockEntity tile = (BlockEntity) this;
 		Level world = tile.getLevel();
 		if(world != null && !world.isClientSide)
-			Network.sendToTracking(tile, getProperties().detectAndGenerateChanges(true));
+			Network.sendToTracking(tile, getProperties().detectAndGenerateChanges(true, world.registryAccess()));
 	}
 }

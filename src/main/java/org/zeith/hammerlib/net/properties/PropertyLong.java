@@ -1,6 +1,6 @@
 package org.zeith.hammerlib.net.properties;
 
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import org.zeith.hammerlib.util.java.DirectStorage;
 
 public class PropertyLong
@@ -27,13 +27,13 @@ public class PropertyLong
 	}
 	
 	@Override
-	public void write(FriendlyByteBuf buf)
+	public void write(RegistryFriendlyByteBuf buf)
 	{
 		buf.writeLong(value.get());
 	}
 	
 	@Override
-	public void read(FriendlyByteBuf buf)
+	public void read(RegistryFriendlyByteBuf buf)
 	{
 		value.set(buf.readLong());
 	}

@@ -2,27 +2,32 @@ package org.zeith.hammerlib.api.fluid;
 
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
-import net.minecraft.client.renderer.*;
-import net.minecraft.core.registries.*;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.block.state.*;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.*;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.fml.DistExecutor;
 import net.neoforged.neoforge.fluids.*;
-import net.neoforged.neoforge.registries.*;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import net.neoforged.neoforge.registries.RegisterEvent;
 import org.jetbrains.annotations.Nullable;
-import org.zeith.hammerlib.api.fml.*;
+import org.zeith.hammerlib.api.fml.ICustomRegistrar;
+import org.zeith.hammerlib.api.fml.IRegisterListener;
 import org.zeith.hammerlib.api.items.CreativeTab;
+import org.zeith.hammerlib.api.proxy.IProxy;
 import org.zeith.hammerlib.core.adapter.TagAdapter;
 import org.zeith.hammerlib.util.java.Cast;
-import org.zeith.hammerlib.util.mcf.fluid.*;
+import org.zeith.hammerlib.util.mcf.fluid.FluidIngredient;
+import org.zeith.hammerlib.util.mcf.fluid.FluidIngredientStack;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
 import java.util.function.*;
 
 public class FluidFactory
@@ -167,42 +172,42 @@ public class FluidFactory
 	public boolean has(ItemStack stack)
 	{
 		return !stack.isEmpty() &&
-				FluidUtil.getFluidHandler(stack)
-						.map(h ->
-						{
-							int t = h.getTanks();
-							for(int i = 0; i < t; i++)
-							{
-								var ft = h.getFluidInTank(i);
-								if(is(ft))
-									return true;
-							}
-							return false;
-						})
-						.orElse(false);
+			   FluidUtil.getFluidHandler(stack)
+					   .map(h ->
+					   {
+						   int t = h.getTanks();
+						   for(int i = 0; i < t; i++)
+						   {
+							   var ft = h.getFluidInTank(i);
+							   if(is(ft))
+								   return true;
+						   }
+						   return false;
+					   })
+					   .orElse(false);
 	}
 	
 	public boolean has(ItemStack stack, int minAmount)
 	{
 		return !stack.isEmpty() &&
-				FluidUtil.getFluidHandler(stack)
-						.map(h ->
-						{
-							int amt = 0;
-							int t = h.getTanks();
-							for(int i = 0; i < t; i++)
-							{
-								var ft = h.getFluidInTank(i);
-								if(is(ft))
-								{
-									amt += ft.getAmount();
-									if(amt >= minAmount)
-										return true;
-								}
-							}
-							return amt >= minAmount;
-						})
-						.orElse(false);
+			   FluidUtil.getFluidHandler(stack)
+					   .map(h ->
+					   {
+						   int amt = 0;
+						   int t = h.getTanks();
+						   for(int i = 0; i < t; i++)
+						   {
+							   var ft = h.getFluidInTank(i);
+							   if(is(ft))
+							   {
+								   amt += ft.getAmount();
+								   if(amt >= minAmount)
+									   return true;
+							   }
+						   }
+						   return amt >= minAmount;
+					   })
+					   .orElse(false);
 	}
 	
 	@Override
@@ -228,8 +233,15 @@ public class FluidFactory
 			if(getSource() instanceof IRegisterListener rl) rl.onPostRegistered(fluidId);
 			if(getFlowing() instanceof IRegisterListener rl) rl.onPostRegistered(subId(fluidId, "flow"));
 			
-			DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ItemBlockRenderTypes.setRenderLayer(getSource(), Cast.get2(renderType)));
-			DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ItemBlockRenderTypes.setRenderLayer(getFlowing(), Cast.get2(renderType)));
+			Runnable bind = IProxy.createSided(() -> () -> () ->
+			{
+				ItemBlockRenderTypes.setRenderLayer(getSource(), Cast.get2(renderType));
+				ItemBlockRenderTypes.setRenderLayer(getFlowing(), Cast.get2(renderType));
+			}, () -> () -> () ->
+			{
+			});
+			
+			bind.run();
 		}
 		
 		if(block != null && Registries.BLOCK.equals(key))
@@ -287,7 +299,7 @@ public class FluidFactory
 		
 		public Builder withBucket()
 		{
-			return withBucket(fluid -> new BucketItem(fluid,
+			return withBucket(fluid -> new BucketItem(fluid.get(),
 					new Item.Properties()
 							.craftRemainder(Items.BUCKET)
 							.stacksTo(1)
@@ -296,7 +308,7 @@ public class FluidFactory
 		
 		public Builder withBlock()
 		{
-			return withBlock(flowing -> new LiquidBlock(flowing,
+			return withBlock(flowing -> new LiquidBlock(flowing.get(),
 					BlockBehaviour.Properties.of()
 							.replaceable()
 							.noCollission()

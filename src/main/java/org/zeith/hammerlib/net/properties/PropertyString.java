@@ -1,6 +1,6 @@
 package org.zeith.hammerlib.net.properties;
 
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import org.zeith.hammerlib.util.java.DirectStorage;
 
 public class PropertyString
@@ -17,7 +17,7 @@ public class PropertyString
 	}
 	
 	@Override
-	public void write(FriendlyByteBuf buf)
+	public void write(RegistryFriendlyByteBuf buf)
 	{
 		String value = this.value.get();
 		buf.writeBoolean(value != null);
@@ -25,7 +25,7 @@ public class PropertyString
 	}
 	
 	@Override
-	public void read(FriendlyByteBuf buf)
+	public void read(RegistryFriendlyByteBuf buf)
 	{
 		value.set(buf.readBoolean() ? buf.readUtf() : null);
 	}

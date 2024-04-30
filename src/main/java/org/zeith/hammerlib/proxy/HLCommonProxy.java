@@ -11,15 +11,15 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.TickEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
-import org.objectweb.asm.Type;
 import org.zeith.hammerlib.api.LanguageHelper.LangMap;
 import org.zeith.hammerlib.api.lighting.ColoredLight;
 import org.zeith.hammerlib.api.proxy.IProxy;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -40,9 +40,8 @@ public class HLCommonProxy
 			serverTickTasks.add(new QueuedTask(delay, task));
 	}
 	
-	private void serverTick(TickEvent.ServerTickEvent e)
+	private void serverTick(ServerTickEvent.Pre e)
 	{
-		if(e.phase == TickEvent.Phase.START) return;
 		for(int i = 0; i < serverTickTasks.size(); i++)
 		{
 			if(serverTickTasks.get(i).shouldRemove())

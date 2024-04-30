@@ -52,7 +52,7 @@ public interface GearsHL
 	static void recipes(RegisterRecipesEvent e)
 	{
 		e.shaped().shape(" s ", "sps", " s ").map('s', Tags.Items.RODS_WOODEN).map('p', ItemTags.PLANKS).result(WOODEN_GEAR).registerIf(WOODEN_GEAR::defaultRecipe);
-		e.shaped().shape(" s ", "sgs", " s ").map('s', Tags.Items.COBBLESTONE).map('g', WOODEN_GEAR).result(STONE_GEAR).registerIf(STONE_GEAR::defaultRecipe);
+		e.shaped().shape(" s ", "sgs", " s ").map('s', Tags.Items.COBBLESTONES).map('g', WOODEN_GEAR).result(STONE_GEAR).registerIf(STONE_GEAR::defaultRecipe);
 		e.shaped().shape(" s ", "sgs", " s ").map('s', Tags.Items.INGOTS_COPPER).map('g', STONE_GEAR).result(COPPER_GEAR).registerIf(COPPER_GEAR::defaultRecipe);
 		e.shaped().shape(" s ", "sgs", " s ").map('s', Tags.Items.INGOTS_IRON).map('g', COPPER_GEAR).result(IRON_GEAR).registerIf(IRON_GEAR::defaultRecipe);
 		e.shaped().shape(" s ", "sgs", " s ").map('s', Tags.Items.INGOTS_GOLD).map('g', IRON_GEAR).result(GOLD_GEAR).registerIf(GOLD_GEAR::defaultRecipe);

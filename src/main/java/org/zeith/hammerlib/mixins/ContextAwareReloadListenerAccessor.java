@@ -1,17 +1,17 @@
 package org.zeith.hammerlib.mixins;
 
-import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.HolderLookup;
 import net.neoforged.neoforge.common.conditions.ICondition;
 import net.neoforged.neoforge.resource.ContextAwareReloadListener;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.gen.Accessor;
+import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(ContextAwareReloadListener.class)
 public interface ContextAwareReloadListenerAccessor
 {
-	@Accessor
-	ICondition.IContext getConditionContext();
+	@Invoker
+	HolderLookup.Provider callGetRegistryLookup();
 	
-	@Accessor
-	RegistryAccess getRegistryAccess();
+	@Invoker
+	ICondition.IContext callGetContext();
 }

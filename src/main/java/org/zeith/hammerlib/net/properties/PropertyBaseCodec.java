@@ -3,7 +3,7 @@ package org.zeith.hammerlib.net.properties;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import net.minecraft.nbt.*;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import org.zeith.hammerlib.util.java.*;
 
 import java.util.Optional;
@@ -30,7 +30,7 @@ public class PropertyBaseCodec<T>
 	}
 	
 	@Override
-	public void write(FriendlyByteBuf buf)
+	public void write(RegistryFriendlyByteBuf buf)
 	{
 		T value = this.value.get();
 		
@@ -46,7 +46,7 @@ public class PropertyBaseCodec<T>
 	}
 	
 	@Override
-	public void read(FriendlyByteBuf buf)
+	public void read(RegistryFriendlyByteBuf buf)
 	{
 		if(buf.readBoolean())
 		{

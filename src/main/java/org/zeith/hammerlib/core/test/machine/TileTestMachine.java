@@ -1,6 +1,7 @@
 package org.zeith.hammerlib.core.test.machine;
 
-import net.minecraft.core.*;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -13,7 +14,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.zeith.api.wrench.IWrenchable;
-import org.zeith.hammerlib.annotations.*;
+import org.zeith.hammerlib.annotations.RegistryName;
+import org.zeith.hammerlib.annotations.SimplyRegister;
 import org.zeith.hammerlib.annotations.client.TileRenderer;
 import org.zeith.hammerlib.api.forge.BlockAPI;
 import org.zeith.hammerlib.api.inv.SimpleInventory;
@@ -21,14 +23,14 @@ import org.zeith.hammerlib.api.io.NBTSerializable;
 import org.zeith.hammerlib.api.tiles.IContainerTile;
 import org.zeith.hammerlib.core.RecipeHelper;
 import org.zeith.hammerlib.core.init.GearsHL;
-import org.zeith.hammerlib.net.properties.*;
+import org.zeith.hammerlib.net.properties.PropertyInt;
+import org.zeith.hammerlib.net.properties.PropertyResourceLocation;
 import org.zeith.hammerlib.tiles.TileSyncableTickable;
 import org.zeith.hammerlib.tiles.tooltip.*;
-import org.zeith.hammerlib.tiles.tooltip.own.*;
+import org.zeith.hammerlib.tiles.tooltip.own.ITooltip;
+import org.zeith.hammerlib.tiles.tooltip.own.ITooltipProvider;
+import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.java.DirectStorage;
-
-import java.util.Optional;
-
 
 @SimplyRegister
 public class TileTestMachine
@@ -138,9 +140,9 @@ public class TileTestMachine
 	
 	public RecipeTestMachine getActiveRecipe()
 	{
-		return Optional.ofNullable(RecipeHelper.getRecipeMap(level, RecipeTestMachine.TYPE)
-						.get(_activeRecipeId))
+		return level.getRecipeManager().byKey(_activeRecipeId)
 				.map(RecipeHolder::value)
+				.map(Cast.convertTo(RecipeTestMachine.class))
 				.orElse(null);
 	}
 	
@@ -173,7 +175,7 @@ public class TileTestMachine
 	{
 		ItemStack stack = inventory.getItem(2);
 		if(stack.isEmpty()) return true;
-		if(!ItemStack.isSameItemSameTags(result, stack)) return false;
+		if(!ItemStack.isSameItemSameComponents(result, stack)) return false;
 		return stack.getCount() + result.getCount() <= Math.min(inventory.getMaxStackSize(), result.getMaxStackSize());
 	}
 	

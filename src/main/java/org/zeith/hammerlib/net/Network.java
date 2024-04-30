@@ -1,8 +1,11 @@
 package org.zeith.hammerlib.net;
 
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.*;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
@@ -10,30 +13,32 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.LogicalSide;
-import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.PacketDistributor;
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlerEvent;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import org.jetbrains.annotations.Nullable;
 import org.zeith.hammerlib.HammerLib;
-import org.zeith.hammerlib.annotations.Setup;
 import org.zeith.hammerlib.proxy.HLConstants;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.mcf.LogicalSidePredictor;
 import org.zeith.hammerlib.util.mcf.ModHelper;
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD)
 public class Network
 {
-	public static final ResourceLocation MAIN_CHANNEL = new ResourceLocation("hammerlib", "main");
+	public static final CustomPacketPayload.Type<PlainHLMessage> MAIN_CHANNEL = new CustomPacketPayload.Type<>(new ResourceLocation("hammerlib", "main"));
 	
 	@SubscribeEvent
-	private static void initialize(RegisterPayloadHandlerEvent event)
+	private static void initialize(RegisterPayloadHandlersEvent event)
 	{
 		HammerLib.LOG.info("Setup HammerLib networking!");
 		var reg = event.registrar(HLConstants.MOD_ID)
 				.versioned(ModHelper.getModVersion(HLConstants.MOD_ID));
-		reg.common(MAIN_CHANNEL, PlainHLMessage::new, PlainHLMessage::handle);
+		
+		reg.commonBidirectional(MAIN_CHANNEL, StreamCodec.ofMember(PlainHLMessage::write, PlainHLMessage::new), PlainHLMessage::handle);
 	}
 	
 	///
@@ -51,13 +56,13 @@ public class Network
 	public static void sendTo(IPacket packet, Player player)
 	{
 		if(packet != null && player instanceof ServerPlayer sp)
-			PacketDistributor.PLAYER.with(sp).send(toPlain(packet));
+			PacketDistributor.sendToPlayer(sp, toPlain(packet));
 	}
 	
 	public static void sendTo(IPacket packet, ServerPlayer player)
 	{
 		if(player != null && packet != null)
-			PacketDistributor.PLAYER.with(player).send(toPlain(packet));
+			PacketDistributor.sendToPlayer(player, toPlain(packet));
 	}
 	
 	public static void sendToTracking(LevelChunk chunk, IPacket packet)
@@ -67,8 +72,8 @@ public class Network
 	
 	public static void sendToTracking(IPacket packet, LevelChunk chunk)
 	{
-		if(packet != null && chunk != null)
-			PacketDistributor.TRACKING_CHUNK.with(chunk).send(toPlain(packet));
+		if(packet != null && chunk != null && chunk.getLevel() instanceof ServerLevel sl)
+			PacketDistributor.sendToPlayersTrackingChunk(sl, chunk.getPos(), toPlain(packet));
 	}
 	
 	public static void sendToTracking(BlockEntity tile, IPacket packet)
@@ -90,7 +95,7 @@ public class Network
 	public static void sendToTracking(IPacket packet, Entity entity)
 	{
 		if(packet != null && entity != null)
-			PacketDistributor.TRACKING_ENTITY.with(entity).send(toPlain(packet));
+			PacketDistributor.sendToPlayersTrackingEntity(entity, toPlain(packet));
 	}
 	
 	public static void sendToTrackingAndSelf(Entity entity, IPacket packet)
@@ -101,25 +106,15 @@ public class Network
 	public static void sendToTrackingAndSelf(IPacket packet, Entity entity)
 	{
 		if(packet != null && entity != null)
-			PacketDistributor.TRACKING_ENTITY_AND_SELF.with(entity).send(toPlain(packet));
+			PacketDistributor.sendToPlayersTrackingEntityAndSelf(entity, toPlain(packet));
 	}
 	
 	public static void sendToDimension(Level dim, IPacket packet)
 	{
-		sendToDimension(packet, dim.dimension());
-	}
-	
-	public static void sendToDimension(ResourceKey<Level> dim, IPacket packet)
-	{
-		sendToDimension(packet, dim);
-	}
-	
-	public static void sendToDimension(IPacket packet, ResourceKey<Level> dim)
-	{
-		if(dim == null || packet == null)
+		if(!(dim instanceof ServerLevel sl) || packet == null)
 			return;
 		if(LogicalSidePredictor.getCurrentLogicalSide() == LogicalSide.SERVER)
-			PacketDistributor.DIMENSION.with(dim).send(toPlain(packet));
+			PacketDistributor.sendToPlayersInDimension(sl, toPlain(packet));
 	}
 	
 	public static void sendToAll(IPacket packet)
@@ -127,19 +122,19 @@ public class Network
 		if(packet == null)
 			return;
 		if(LogicalSidePredictor.getCurrentLogicalSide() == LogicalSide.SERVER)
-			PacketDistributor.ALL.noArg().send(toPlain(packet));
+			PacketDistributor.sendToAllPlayers(toPlain(packet));
 	}
 	
 	public static void sendToArea(HLTargetPoint point, IPacket packet)
 	{
-		sendToArea(point.toForge().get(), packet);
+		if(point == null || point.dim == null || packet == null) return;
+		sendToArea(point.dim, point.excluded, point, point.range, packet);
 	}
 	
-	public static void sendToArea(PacketDistributor.TargetPoint point, IPacket packet)
+	public static void sendToArea(ServerLevel level, @Nullable ServerPlayer excluded, Vec3 pos, double radius, IPacket packet)
 	{
-		if(point == null || packet == null) return;
 		if(LogicalSidePredictor.getCurrentLogicalSide() == LogicalSide.SERVER)
-			PacketDistributor.NEAR.with(point).send(toPlain(packet));
+			PacketDistributor.sendToPlayersNear(level, excluded, pos.x, pos.y, pos.z, radius, toPlain(packet));
 	}
 	
 	public static void sendToServer(IPacket packet)
@@ -147,7 +142,7 @@ public class Network
 		if(packet == null)
 			return;
 		if(LogicalSidePredictor.getCurrentLogicalSide() == LogicalSide.CLIENT)
-			PacketDistributor.SERVER.noArg().send(toPlain(packet));
+			PacketDistributor.sendToServer(toPlain(packet));
 	}
 	
 	///

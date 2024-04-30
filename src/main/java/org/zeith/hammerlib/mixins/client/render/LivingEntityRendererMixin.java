@@ -27,21 +27,6 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extend
 		implements RenderLayerParent<T, M>
 {
 	@Shadow
-	public static boolean isEntityUpsideDown(LivingEntity p_194454_)
-	{
-		return false;
-	}
-	
-	@Shadow
-	protected abstract float getBob(T p_115305_, float p_115306_);
-	
-	@Shadow
-	protected abstract void setupRotations(T p_115317_, PoseStack p_115318_, float p_115319_, float p_115320_, float p_115321_);
-	
-	@Shadow
-	protected abstract void scale(T p_115314_, PoseStack p_115315_, float p_115316_);
-	
-	@Shadow
 	protected M model;
 	
 	@Shadow

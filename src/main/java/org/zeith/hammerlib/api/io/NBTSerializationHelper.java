@@ -1,16 +1,21 @@
 package org.zeith.hammerlib.api.io;
 
-import com.google.common.collect.*;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.*;
 import net.neoforged.neoforge.common.util.INBTSerializable;
-import org.apache.logging.log4j.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Type;
 import org.zeith.hammerlib.api.io.serializers.*;
-import org.zeith.hammerlib.util.java.*;
+import org.zeith.hammerlib.util.java.Cast;
+import org.zeith.hammerlib.util.java.ReflectionUtil;
 import org.zeith.hammerlib.util.mcf.ScanDataHelper;
 
 import java.lang.reflect.*;
-import java.math.*;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -81,7 +86,7 @@ public class NBTSerializationHelper
 		});
 	}
 	
-	public static void serializeField(Class<?> type, Object instance, CompoundTag nbt, String key)
+	public static void serializeField(HolderLookup.Provider provider, Class<?> type, Object instance, CompoundTag nbt, String key)
 	{
 		if(instance == null) return;
 		
@@ -91,7 +96,7 @@ public class NBTSerializationHelper
 		
 		if(serializer != null)
 		{
-			serializer.serialize(nbt, key, Cast.cast(instance));
+			serializer.serialize(provider, key, Cast.cast(instance), nbt);
 		} else
 		{
 			if(type.isArray())
@@ -102,7 +107,7 @@ public class NBTSerializationHelper
 				for(int i = 0; i < length; ++i)
 				{
 					Object component = Array.get(instance, i);
-					serializeField(compType, component, lst, Integer.toString(i));
+					serializeField(provider, compType, component, lst, Integer.toString(i));
 				}
 				nbt.put(key, lst);
 			} else
@@ -110,7 +115,7 @@ public class NBTSerializationHelper
 		}
 	}
 	
-	public static Object deserializeField(Class<?> type, CompoundTag nbt, String key)
+	public static Object deserializeField(HolderLookup.Provider provider, Class<?> type, CompoundTag nbt, String key)
 	{
 		INBTSerializer<?> serializer;
 		if(type.isEnum()) serializer = forEnum(Cast.cast(type));
@@ -118,7 +123,7 @@ public class NBTSerializationHelper
 		
 		if(serializer != null)
 		{
-			return serializer.deserialize(nbt, key);
+			return serializer.deserialize(provider, key, nbt);
 		} else
 		{
 			if(type.isArray())
@@ -133,7 +138,7 @@ public class NBTSerializationHelper
 					Object instance = Array.newInstance(compType, length);
 					
 					for(int i = 0; i < length; ++i)
-						Array.set(instance, i, deserializeField(compType, lst, Integer.toString(i)));
+						Array.set(instance, i, deserializeField(provider, compType, lst, Integer.toString(i)));
 					
 					return instance;
 				}
@@ -146,7 +151,7 @@ public class NBTSerializationHelper
 		return null;
 	}
 	
-	public static CompoundTag serialize(Object instance)
+	public static CompoundTag serialize(HolderLookup.Provider provider, Object instance)
 	{
 		Class<?> type = instance.getClass();
 		CompoundTag nbt = new CompoundTag();
@@ -167,7 +172,7 @@ public class NBTSerializationHelper
 					{
 						if(field.get(instance) instanceof INBTSerializable<?> s)
 						{
-							nbt.put(name, s.serializeNBT());
+							nbt.put(name, s.serializeNBT(provider));
 						} else
 						{
 							if(!INBTSerializer.class.isAssignableFrom(field.getType()))
@@ -175,7 +180,7 @@ public class NBTSerializationHelper
 						}
 					} else
 					{
-						serializeField(field.getType(), field.get(instance), nbt, name);
+						serializeField(provider, field.getType(), field.get(instance), nbt, name);
 					}
 				} catch(ReflectiveOperationException e)
 				{
@@ -187,7 +192,7 @@ public class NBTSerializationHelper
 		return nbt;
 	}
 	
-	public static void deserialize(Object instance, CompoundTag nbt)
+	public static void deserialize(HolderLookup.Provider provider, Object instance, CompoundTag nbt)
 	{
 		Class<?> type = instance.getClass();
 		for(Field field : ReflectionUtil.getFieldsUpTo(type, null))
@@ -207,7 +212,7 @@ public class NBTSerializationHelper
 						if(field.get(instance) instanceof INBTSerializable s)
 						{
 							Tag tag = nbt.get(name);
-							if(tag != null) s.deserializeNBT(tag);
+							if(tag != null) s.deserializeNBT(provider, tag);
 						} else
 						{
 							if(INBTSerializer.class.isAssignableFrom(field.getType()))
@@ -223,7 +228,7 @@ public class NBTSerializationHelper
 						}
 					} else
 					{
-						Object val = deserializeField(field.getType(), nbt, name);
+						Object val = deserializeField(provider, field.getType(), nbt, name);
 						if(val != null || !field.getType().isPrimitive()) field.set(instance, val);
 					}
 				} catch(Throwable e)

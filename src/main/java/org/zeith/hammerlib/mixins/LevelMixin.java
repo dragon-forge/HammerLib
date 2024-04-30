@@ -2,9 +2,7 @@ package org.zeith.hammerlib.mixins;
 
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.spongepowered.asm.mixin.Implements;
-import org.spongepowered.asm.mixin.Interface;
-import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -21,6 +19,7 @@ import java.util.List;
 public abstract class LevelMixin
 		implements IBlockEntityLevel
 {
+	@Unique
 	private final List<BlockEntity> loadedBlockEntities_HL = new ArrayList<>(), loadBlockEntitityQueue_HL = new ArrayList<>(), unloadBlockEntitityQueue_HL = new ArrayList<>();
 
 	public List<BlockEntity> BEL$getLoadedBlockEntities_HammerLib()

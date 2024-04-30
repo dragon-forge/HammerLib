@@ -3,8 +3,9 @@ package org.zeith.hammerlib.core;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.neoforge.registries.*;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.registries.NewRegistryEvent;
+import net.neoforged.neoforge.registries.RegistryBuilder;
 import org.zeith.api.registry.RegistryMapping;
 import org.zeith.hammerlib.abstractions.sources.IObjectSourceType;
 import org.zeith.hammerlib.core.recipes.replacers.IRemainingItemReplacer;
@@ -13,7 +14,7 @@ import org.zeith.hammerlib.proxy.HLConstants;
 import static net.minecraft.resources.ResourceKey.createRegistryKey;
 import static org.zeith.hammerlib.proxy.HLConstants.id;
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD)
 public class RegistriesHL
 {
 	private static Registry<IObjectSourceType> OBJECT_SOURCE;

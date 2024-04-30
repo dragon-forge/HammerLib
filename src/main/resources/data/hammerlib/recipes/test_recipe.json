@@ -14,12 +14,12 @@
   },
   "time": 300,
   "result": {
-    "item": "minecraft:emerald",
+    "id": "minecraft:emerald",
     "count": 1
   },
-  "conditions": [
+  "neoforge:conditions": [
     {
-      "type": "forge:false"
+      "type": "neoforge:false"
     }
   ]
 }

@@ -3,7 +3,6 @@ package org.zeith.hammerlib.core.items;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.*;
-import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import org.zeith.hammerlib.core.adapter.TagAdapter;
 
@@ -23,7 +22,7 @@ public class ItemGear
 	}
 	
 	@Override
-	public void appendHoverText(ItemStack p_41421_, @Nullable Level p_41422_, List<Component> tooltip, TooltipFlag p_41424_)
+	public void appendHoverText(ItemStack p_41421_, @Nullable TooltipContext p_41422_, List<Component> tooltip, TooltipFlag p_41424_)
 	{
 		super.appendHoverText(p_41421_, p_41422_, tooltip, p_41424_);
 		tooltip.add(CRAFTING_MATERIAL);

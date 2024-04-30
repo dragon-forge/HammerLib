@@ -1,5 +1,6 @@
 package org.zeith.hammerlib.api.io.serializers;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import org.jetbrains.annotations.NotNull;
@@ -17,14 +18,14 @@ public class EnumNBTSerializer<ET extends Enum<ET>>
 	}
 
 	@Override
-	public void serialize(CompoundTag nbt, String key, @NotNull ET value)
+	public void serialize(HolderLookup.Provider provider, String key, @NotNull ET value, CompoundTag nbt)
 	{
 		if(value != null)
 			nbt.putInt(key, value.ordinal());
 	}
 
 	@Override
-	public ET deserialize(CompoundTag nbt, String key)
+	public ET deserialize(HolderLookup.Provider provider, String key, CompoundTag nbt)
 	{
 		if(nbt.contains(key, Tag.TAG_INT))
 			return constants[Math.abs(nbt.getInt(key)) % constants.length];

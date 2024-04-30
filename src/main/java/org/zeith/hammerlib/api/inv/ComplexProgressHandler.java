@@ -1,10 +1,11 @@
 package org.zeith.hammerlib.api.inv;
 
 import io.netty.buffer.Unpooled;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import org.zeith.hammerlib.net.properties.IProperty;
 
-import java.util.Arrays;
 import java.util.List;
 
 public interface ComplexProgressHandler
@@ -15,14 +16,14 @@ public interface ComplexProgressHandler
 	
 	void containerTick(ComplexProgressManager manager);
 	
-	static ComplexProgressHandler withProperties(List<IProperty<?>> properties)
+	static ComplexProgressHandler withProperties(List<IProperty<?>> properties, RegistryAccess access)
 	{
-		return withProperties(0, properties);
+		return withProperties(0, properties, access);
 	}
 	
-	static ComplexProgressHandler withProperties(int offset, List<IProperty<?>> properties)
+	static ComplexProgressHandler withProperties(int offset, List<IProperty<?>> properties, RegistryAccess access)
 	{
-		var buf = new FriendlyByteBuf(Unpooled.buffer(32));
+		var buf = new RegistryFriendlyByteBuf(Unpooled.buffer(32), access);
 		for(var property : properties)
 			property.write(buf);
 		final int cSize = buf.writerIndex();
@@ -41,7 +42,7 @@ public interface ComplexProgressHandler
 			@Override
 			public void update(ComplexProgressManager manager)
 			{
-				var buf = new FriendlyByteBuf(Unpooled.buffer(32));
+				var buf = new RegistryFriendlyByteBuf(Unpooled.buffer(32), access);
 				for(var property : properties)
 					property.write(buf);
 				manager.putBytes(0, buf.array(), 0, buf.writerIndex());
@@ -50,7 +51,7 @@ public interface ComplexProgressHandler
 			@Override
 			public void containerTick(ComplexProgressManager manager)
 			{
-				var buf = new FriendlyByteBuf(Unpooled.wrappedBuffer(manager.getBytes()));
+				var buf = new RegistryFriendlyByteBuf(Unpooled.wrappedBuffer(manager.getBytes()), access);
 				for(var property : properties)
 					property.read(buf);
 			}

@@ -1,6 +1,7 @@
 package org.zeith.hammerlib.api.io.serializers;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import org.jetbrains.annotations.NotNull;
@@ -11,7 +12,7 @@ public class BlockPosSerializer
 		implements INBTSerializer<BlockPos>
 {
 	@Override
-	public void serialize(CompoundTag nbt, String key, @NotNull BlockPos value)
+	public void serialize(HolderLookup.Provider provider, String key, @NotNull BlockPos value, CompoundTag nbt)
 	{
 		if(value != null)
 		{
@@ -24,7 +25,7 @@ public class BlockPosSerializer
 	}
 
 	@Override
-	public BlockPos deserialize(CompoundTag nbt, String key)
+	public BlockPos deserialize(HolderLookup.Provider provider, String key, CompoundTag nbt)
 	{
 		if(nbt.contains(key, Tag.TAG_COMPOUND))
 		{

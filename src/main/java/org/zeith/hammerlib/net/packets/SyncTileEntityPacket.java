@@ -1,6 +1,7 @@
 package org.zeith.hammerlib.net.packets;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.Level;
@@ -25,7 +26,10 @@ public class SyncTileEntityPacket
 	public SyncTileEntityPacket(BlockEntity tile, boolean updateTag)
 	{
 		this.pos = tile.getBlockPos();
-		this.nbt = updateTag ? tile.getUpdateTag() : tile.serializeNBT();
+		
+		var provider = tile.getLevel().registryAccess();
+		this.nbt = updateTag ? tile.getUpdateTag(provider) : tile.saveWithFullMetadata(provider);
+		
 		this.updateTag = updateTag;
 	}
 	
@@ -56,9 +60,9 @@ public class SyncTileEntityPacket
 		if(tile != null)
 		{
 			if(updateTag)
-				tile.handleUpdateTag(nbt);
+				tile.handleUpdateTag(nbt, world.registryAccess());
 			else
-				tile.load(nbt);
+				tile.loadWithComponents(nbt, world.registryAccess());
 		}
 	}
 }

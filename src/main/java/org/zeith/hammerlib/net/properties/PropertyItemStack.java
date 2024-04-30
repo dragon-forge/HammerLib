@@ -1,6 +1,6 @@
 package org.zeith.hammerlib.net.properties;
 
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.item.ItemStack;
 import org.zeith.hammerlib.util.java.DirectStorage;
 
@@ -24,15 +24,14 @@ public class PropertyItemStack
 	}
 	
 	@Override
-	public void write(FriendlyByteBuf buf)
+	public void write(RegistryFriendlyByteBuf buf)
 	{
-		ItemStack value = this.value.get();
-		buf.writeItem(value);
+		ItemStack.STREAM_CODEC.encode(buf, this.value.get());
 	}
 	
 	@Override
-	public void read(FriendlyByteBuf buf)
+	public void read(RegistryFriendlyByteBuf buf)
 	{
-		value.set(buf.readItem());
+		value.set(ItemStack.STREAM_CODEC.decode(buf));
 	}
 }

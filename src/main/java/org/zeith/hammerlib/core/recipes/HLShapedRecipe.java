@@ -1,10 +1,13 @@
 package org.zeith.hammerlib.core.recipes;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import lombok.Getter;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.inventory.CraftingContainer;
@@ -125,14 +128,18 @@ public class HLShapedRecipe
 	public static class HLSerializer
 			implements RecipeSerializer<HLShapedRecipe>
 	{
-		public static final Codec<HLShapedRecipe> CODEC = RecordCodecBuilder.create(inst ->
+		public static final MapCodec<HLShapedRecipe> CODEC = RecordCodecBuilder.mapCodec(inst ->
 				inst.group(
-						ExtraCodecs.strictOptionalField(Codec.STRING, "group", "").forGetter(ShapedRecipe::getGroup),
+						Codec.STRING.optionalFieldOf("group", "").forGetter(ShapedRecipe::getGroup),
 						CraftingBookCategory.CODEC.fieldOf("category").orElse(CraftingBookCategory.MISC).forGetter(i -> i.category),
 						ShapedRecipePattern.MAP_CODEC.forGetter(i -> i.pattern),
-						ItemStack.ITEM_WITH_COUNT_CODEC.fieldOf("result").forGetter(i -> i.result),
-						ExtraCodecs.strictOptionalField(Codec.BOOL, "show_notification", true).forGetter(ShapedRecipe::showNotification)
+						ItemStack.CODEC.fieldOf("result").forGetter(i -> i.result),
+						Codec.BOOL.optionalFieldOf("show_notification", true).forGetter(ShapedRecipe::showNotification)
 				).apply(inst, HLShapedRecipe::new)
+		);
+		
+		public static final StreamCodec<RegistryFriendlyByteBuf, HLShapedRecipe> STREAM_CODEC = StreamCodec.of(
+				HLShapedRecipe.HLSerializer::toNetwork, HLShapedRecipe.HLSerializer::fromNetwork
 		);
 		
 		public HLSerializer()
@@ -140,15 +147,20 @@ public class HLShapedRecipe
 		}
 		
 		@Override
-		public Codec<HLShapedRecipe> codec()
+		public MapCodec<HLShapedRecipe> codec()
 		{
 			return CODEC;
 		}
 		
 		@Override
-		public HLShapedRecipe fromNetwork(FriendlyByteBuf buf)
+		public StreamCodec<RegistryFriendlyByteBuf, HLShapedRecipe> streamCodec()
 		{
-			var base = RecipeSerializer.SHAPED_RECIPE.fromNetwork(buf);
+			return STREAM_CODEC;
+		}
+		
+		public static HLShapedRecipe fromNetwork(RegistryFriendlyByteBuf buf)
+		{
+			var base = RecipeSerializer.SHAPED_RECIPE.streamCodec().decode(buf);
 			
 			var mod = new HLShapedRecipe(
 					base.group,
@@ -163,10 +175,9 @@ public class HLShapedRecipe
 			return mod;
 		}
 		
-		@Override
-		public void toNetwork(FriendlyByteBuf buf, HLShapedRecipe r)
+		public static void toNetwork(RegistryFriendlyByteBuf buf, HLShapedRecipe r)
 		{
-			RecipeSerializer.SHAPED_RECIPE.toNetwork(buf, r);
+			RecipeSerializer.SHAPED_RECIPE.streamCodec().encode(buf, r);
 			IRemainingItemReplacer.toNetwork(r.inputModifier, buf);
 		}
 	}

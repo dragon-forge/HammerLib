@@ -1,5 +1,6 @@
 package org.zeith.hammerlib.api.io.serializers;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import org.jetbrains.annotations.NotNull;
@@ -22,14 +23,14 @@ public class NumberSerializer<N extends Number, NBT extends Tag>
 	}
 
 	@Override
-	public void serialize(CompoundTag nbt, String key, @NotNull N value)
+	public void serialize(HolderLookup.Provider provider, String key, @NotNull N value, CompoundTag nbt)
 	{
 		if(value != null)
 			nbt.put(key, encode.apply(value));
 	}
 
 	@Override
-	public N deserialize(CompoundTag nbt, String key)
+	public N deserialize(HolderLookup.Provider provider, String key, CompoundTag nbt)
 	{
 		if(nbt.contains(key, nbtType)) return decode.apply(Cast.cast(nbt.get(key)));
 		return null;

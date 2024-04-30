@@ -12,7 +12,8 @@ import org.zeith.hammerlib.util.java.Cast;
 @Getter
 public class PacketContext
 {
-	private @Getter final IPayloadContext neo;
+	private @Getter
+	final IPayloadContext neo;
 	private final ServerPlayer sender;
 	private final LogicalSide side;
 	private @Setter IPacket reply;
@@ -21,7 +22,7 @@ public class PacketContext
 	{
 		this.neo = ctx;
 		this.side = ctx.flow().getReceptionSide();
-		this.sender = ctx.player().map(Cast.convertTo(ServerPlayer.class)).orElse(null);
+		this.sender = Cast.cast(ctx.player(), ServerPlayer.class);
 	}
 	
 	public boolean hasSender()

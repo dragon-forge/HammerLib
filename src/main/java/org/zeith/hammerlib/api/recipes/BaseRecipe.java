@@ -1,6 +1,7 @@
 package org.zeith.hammerlib.api.recipes;
 
-import net.minecraft.core.*;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.NonNullList;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
@@ -54,7 +55,7 @@ public abstract class BaseRecipe<R extends BaseRecipe<R>>
 	}
 	
 	@Override
-	public ItemStack assemble(Container container, RegistryAccess access)
+	public ItemStack assemble(Container container, HolderLookup.Provider provider)
 	{
 		return vanillaResult.copy();
 	}
@@ -66,7 +67,7 @@ public abstract class BaseRecipe<R extends BaseRecipe<R>>
 	}
 	
 	@Override
-	public ItemStack getResultItem(RegistryAccess access)
+	public ItemStack getResultItem(HolderLookup.Provider provider)
 	{
 		return vanillaResult.copy();
 	}

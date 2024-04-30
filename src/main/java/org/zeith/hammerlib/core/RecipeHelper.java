@@ -4,12 +4,14 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
-import net.minecraft.world.level.*;
-import net.neoforged.fml.*;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.Level;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.neoforge.common.conditions.ICondition;
-import org.zeith.api.level.ISpoofedRecipeManager;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.api.items.IIngredientProvider;
 import org.zeith.hammerlib.core.adapter.OreDictionaryAdapter;
@@ -23,13 +25,20 @@ import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.*;
-import java.util.stream.*;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class RecipeHelper
 {
-	public static final String NEOFORGE_MOD_ID_FOR_TAGS = "forge";
+	public static final String NEOFORGE_MOD_ID_FOR_TAGS = "c";
 	
-	public static void registerCustomRecipes(Predicate<ResourceLocation> idInUse, Consumer<RecipeHolder<?>> addRecipe, Consumer<Set<ResourceLocation>> removeRecipes, boolean silent, ICondition.IContext context)
+	public static void registerCustomRecipes(
+			Predicate<ResourceLocation> idInUse,
+			Consumer<RecipeHolder<?>> addRecipe,
+			Consumer<Set<ResourceLocation>> removeRecipes,
+			boolean silent,
+			ICondition.IContext context
+	)
 	{
 		RegisterRecipesEvent rre = new RegisterRecipesEvent(context, idInUse);
 		ModList.get().forEachModInOrder(mc ->
@@ -62,17 +71,9 @@ public class RecipeHelper
 			);
 	}
 	
-	public static void injectRecipes(RecipeManager mgr, ICondition.IContext context)
+	public static void injectRecipes(RecipeManager mgr, ICondition.IContext context, Consumer<RecipeHolder<?>> registrar, Consumer<ResourceLocation> delete)
 	{
-		Internal.mutableManager(mgr);
-		var spoofed = ((ISpoofedRecipeManager) mgr).getSpoofedRecipesHL();
-		
-		List<RecipeHolder<?>> recipeList = new ArrayList<>();
-		Set<ResourceLocation> removed = new HashSet<>();
-		registerCustomRecipes(id -> mgr.byKey(id)
-				.isPresent(), recipeList::add, removed::addAll, false, context);
-		Internal.addRecipes(mgr, recipeList);
-		Internal.removeRecipes(mgr, removed::stream);
+		registerCustomRecipes(id -> mgr.byKey(id).isPresent(), registrar, s -> s.forEach(delete), false, context);
 	}
 	
 	public static void injectRecipesCustom(Map<ResourceLocation, Recipe<?>> handler, Set<ResourceLocation> removed, Map<ResourceLocation, List<ResourceLocation>> spoofedRecipes, ICondition.IContext ctx)
@@ -80,54 +81,19 @@ public class RecipeHelper
 		registerCustomRecipes(handler::containsKey, r -> handler.put(r.id(), r.value()), removed::addAll, false, ctx);
 	}
 	
-	public static <C extends Container, T extends Recipe<C>> Map<ResourceLocation, RecipeHolder<T>> getRecipeMap(Level level, RecipeType<T> type)
+	public static <C extends Container, T extends Recipe<C>> List<RecipeHolder<T>> getRecipeMap(Level level, RecipeType<T> type)
 	{
-		return level.getRecipeManager().byType(type);
+		return level.getRecipeManager().getAllRecipesFor(type);
 	}
 	
 	public static <C extends Container, T extends Recipe<C>> Stream<RecipeHolder<T>> getRecipeHolders(Level level, RecipeType<T> type)
 	{
-		return getRecipeMap(level, type).values().stream();
+		return getRecipeMap(level, type).stream();
 	}
 	
 	public static <C extends Container, T extends Recipe<C>> Stream<T> getRecipes(Level level, RecipeType<T> type)
 	{
 		return getRecipeHolders(level, type).map(RecipeHolder::value);
-	}
-	
-	private static class Internal
-	{
-		private static void addRecipes(RecipeManager mgr, List<RecipeHolder<?>> recipes)
-		{
-			recipes.forEach(r ->
-			{
-				Map<ResourceLocation, RecipeHolder<?>> map = mgr.recipes.computeIfAbsent(r.value().getType(), t -> new HashMap<>());
-				map.putIfAbsent(r.id(), r);
-				mgr.byName.putAll(map);
-			});
-			HammerLib.LOG.info("Registered {} additional recipes.", recipes.size());
-		}
-		
-		private static void removeRecipes(RecipeManager mgr, Supplier<Stream<ResourceLocation>> recipes)
-		{
-			recipes.get().forEach(id ->
-			{
-				mgr.byKey(id).ifPresent(recipe ->
-				{
-					var rmap = mgr.recipes.get(recipe.value().getType());
-					if(rmap != null) rmap.remove(id);
-					mgr.byName.remove(id);
-				});
-			});
-		}
-		
-		private static void mutableManager(RecipeManager mgr)
-		{
-			mgr.byName = new HashMap<>(mgr.byName);
-			mgr.recipes = new HashMap<>(mgr.recipes);
-			for(RecipeType<?> type : mgr.recipes.keySet())
-				mgr.recipes.put(type, new HashMap<>(mgr.recipes.get(type)));
-		}
 	}
 	
 	public static ItemStack cycleIngredientStack(Ingredient ingr, long displayDurationMS)

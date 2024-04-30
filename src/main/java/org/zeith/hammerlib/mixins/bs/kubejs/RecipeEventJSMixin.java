@@ -5,11 +5,9 @@ import dev.latvian.mods.kubejs.recipe.RecipesEventJS;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeManager;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.*;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.zeith.hammerlib.HammerLib;
-import org.zeith.hammerlib.core.RecipeHelper;
-import org.zeith.hammerlib.mixins.ContextAwareReloadListenerAccessor;
 
 import java.util.Map;
 
@@ -22,7 +20,7 @@ public class RecipeEventJSMixin
 	)
 	public void modify_HammerLib(RecipeManager mgr, Map<ResourceLocation, JsonElement> datapackRecipeMap, CallbackInfo ci)
 	{
-		RecipeHelper.injectRecipes(mgr, ((ContextAwareReloadListenerAccessor) mgr).getConditionContext());
-		HammerLib.LOG.info("Performed HammerLib recipe injection into KubeJS recipe system.");
+//		RecipeHelper.injectRecipes(mgr, ((ContextAwareReloadListenerAccessor) mgr).getConditionContext());
+//		HammerLib.LOG.info("Performed HammerLib recipe injection into KubeJS recipe system.");
 	}
 }

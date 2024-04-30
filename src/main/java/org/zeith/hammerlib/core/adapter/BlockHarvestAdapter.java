@@ -2,6 +2,7 @@ package org.zeith.hammerlib.core.adapter;
 
 import net.minecraft.tags.*;
 import net.minecraft.world.item.Tier;
+import net.minecraft.world.item.Tiers;
 import net.minecraft.world.level.block.Block;
 
 import javax.annotation.Nonnull;
@@ -14,12 +15,12 @@ public class BlockHarvestAdapter
 		TagAdapter.bind(tool.blockTag(), blocks);
 	}
 	
-	public static void bindToolTier(Tier tier, Block... blocks)
+	public static void bindToolTier(Tiers tier, Block... blocks)
 	{
 		TagAdapter.bind(Objects.requireNonNull(tier.getTag()), blocks);
 	}
 	
-	public static void bindTool(MineableType tool, Tier tier, Block... blocks)
+	public static void bindTool(MineableType tool, Tiers tier, Block... blocks)
 	{
 		bindToolType(tool, blocks);
 		bindToolTier(tier, blocks);

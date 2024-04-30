@@ -1,6 +1,6 @@
 package org.zeith.hammerlib.net.properties;
 
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import org.zeith.hammerlib.util.java.DirectStorage;
 
@@ -18,7 +18,7 @@ public class PropertyResourceLocation
 	}
 	
 	@Override
-	public void write(FriendlyByteBuf buf)
+	public void write(RegistryFriendlyByteBuf buf)
 	{
 		ResourceLocation value = this.value.get();
 		buf.writeBoolean(value != null);
@@ -27,7 +27,7 @@ public class PropertyResourceLocation
 	}
 	
 	@Override
-	public void read(FriendlyByteBuf buf)
+	public void read(RegistryFriendlyByteBuf buf)
 	{
 		value.set(buf.readBoolean() ? buf.readResourceLocation() : null);
 	}

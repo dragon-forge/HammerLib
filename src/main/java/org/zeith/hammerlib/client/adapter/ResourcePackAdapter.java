@@ -1,19 +1,18 @@
 package org.zeith.hammerlib.client.adapter;
 
-import net.minecraft.SharedConstants;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.*;
-import net.minecraft.server.packs.repository.*;
-import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.server.packs.repository.Pack;
+import net.minecraft.server.packs.repository.PackSource;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
 import org.zeith.hammerlib.api.fml.IRegisterListener;
 
 import java.util.*;
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD)
 public class ResourcePackAdapter
 {
 	public static final List<PackResources> BUILTIN_PACKS = new ArrayList<>();
@@ -34,34 +33,33 @@ public class ResourcePackAdapter
 				if(pack instanceof IRegisterListener rl)
 					rl.onPreRegistered(new ResourceLocation(pack.packId()));
 				
-				add.accept(Pack.create(
-						pack.packId(),
-						Component.literal(pack.packId()),
-						true,
+				add.accept(Pack.readMetaAndCreate(
+						new PackLocationInfo(
+								pack.packId(),
+								Component.literal(pack.packId()),
+								PackSource.BUILT_IN,
+								Optional.empty()
+						),
 						new Pack.ResourcesSupplier()
 						{
 							@Override
-							public PackResources openPrimary(String p_294636_)
+							public PackResources openPrimary(PackLocationInfo info)
 							{
 								return pack;
 							}
 							
 							@Override
-							public PackResources openFull(String p_251717_, Pack.Info p_294956_)
+							public PackResources openFull(PackLocationInfo info, Pack.Metadata meta)
 							{
 								return pack;
 							}
 						},
-						new Pack.Info(
-								Component.translatable("fml.resources.modresources", 1),
-								PackCompatibility.COMPATIBLE,
-								FeatureFlagSet.of(),
-								List.of(),
+						PackType.CLIENT_RESOURCES,
+						new PackSelectionConfig(
+								true,
+								Pack.Position.TOP,
 								true
-						),
-						Pack.Position.TOP,
-						pack.isHidden(),
-						PackSource.BUILT_IN
+						)
 				));
 				
 				if(pack instanceof IRegisterListener rl)

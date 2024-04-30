@@ -34,7 +34,7 @@ public class TexturePixelGetter
 	
 	private static CompletableFuture<int[]> getRenderedColors(ItemStack stack)
 	{
-		return cachedRenderedColors.computeIfAbsent(stack.toString() + "_" + stack.getTag(), ignore ->
+		return cachedRenderedColors.computeIfAbsent(stack.toString() + "_" + stack.getComponents(), ignore ->
 		{
 			AtomicReference<NativeImage> colors = new AtomicReference<>();
 			AtomicBoolean complete = new AtomicBoolean(false);
@@ -74,7 +74,7 @@ public class TexturePixelGetter
 	
 	public static int[] getAllColors(ItemStack stack)
 	{
-		var key = stack.toString() + "_" + stack.getTag();
+		var key = stack.toString() + "_" + stack.getComponentsPatch();
 		
 		var rendered = getRenderedColors(stack);
 		if(rendered.isDone() && !rendered.isCompletedExceptionally())

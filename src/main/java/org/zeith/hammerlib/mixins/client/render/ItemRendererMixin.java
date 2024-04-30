@@ -5,12 +5,17 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.world.item.*;
-import org.spongepowered.asm.mixin.*;
-import org.spongepowered.asm.mixin.injection.*;
-import org.spongepowered.asm.mixin.injection.callback.*;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.zeith.hammerlib.api.items.IColoredFoilItem;
-import org.zeith.hammerlib.client.render.*;
+import org.zeith.hammerlib.client.render.RenderCustomGlint;
+import org.zeith.hammerlib.client.render.TintingVertexConsumer;
 
 @Mixin(ItemRenderer.class)
 public class ItemRendererMixin
@@ -78,8 +83,7 @@ public class ItemRendererMixin
 											pBuffer.getBuffer(RenderCustomGlint.glint()),
 											color
 									),
-									pMatrixEntry.pose(),
-									pMatrixEntry.normal(),
+									pMatrixEntry,
 									0.0078125F
 							),
 							pBuffer.getBuffer(pRenderType)
@@ -105,8 +109,7 @@ public class ItemRendererMixin
 											pBuffer.getBuffer(RenderCustomGlint.glintDirect()),
 											color
 									),
-									pMatrixEntry.pose(),
-									pMatrixEntry.normal(),
+									pMatrixEntry,
 									0.0078125F
 							),
 							pBuffer.getBuffer(pRenderType)

@@ -3,11 +3,11 @@ package org.zeith.hammerlib.core.adapter;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.context.UseOnContext;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import org.zeith.api.wrench.IWrenchItem;
 
-@Mod.EventBusSubscriber
+@EventBusSubscriber
 public class WrenchAdapter
 {
 	@SubscribeEvent

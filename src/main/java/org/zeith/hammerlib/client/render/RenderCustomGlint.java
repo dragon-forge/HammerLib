@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.RenderStateShard.ShaderStateShard;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.RegisterShadersEvent;
 import org.joml.Matrix4f;
@@ -48,14 +49,14 @@ public class RenderCustomGlint
 	
 	protected static final RenderStateShard.LayeringStateShard VIEW_OFFSET_Z_LAYERING = new RenderStateShard.LayeringStateShard("view_offset_z_layering", () ->
 	{
-		PoseStack posestack = RenderSystem.getModelViewStack();
-		posestack.pushPose();
+		var posestack = RenderSystem.getModelViewStack();
+		posestack.pushMatrix();
 		posestack.scale(0.99975586F, 0.99975586F, 0.99975586F);
 		RenderSystem.applyModelViewMatrix();
 	}, () ->
 	{
-		PoseStack posestack = RenderSystem.getModelViewStack();
-		posestack.popPose();
+		var posestack = RenderSystem.getModelViewStack();
+		posestack.popMatrix();
 		RenderSystem.applyModelViewMatrix();
 	});
 	
@@ -251,7 +252,7 @@ public class RenderCustomGlint
 		}
 	}
 	
-	@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+	@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 	public static class GlintShaders
 	{
 		private static ShaderInstance armorGlintShader;

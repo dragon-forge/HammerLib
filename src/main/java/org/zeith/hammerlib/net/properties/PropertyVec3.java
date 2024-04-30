@@ -1,6 +1,6 @@
 package org.zeith.hammerlib.net.properties;
 
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.phys.Vec3;
 import org.zeith.hammerlib.util.java.DirectStorage;
 
@@ -18,7 +18,7 @@ public class PropertyVec3
 	}
 	
 	@Override
-	public void write(FriendlyByteBuf buf)
+	public void write(RegistryFriendlyByteBuf buf)
 	{
 		Vec3 value = this.value.get();
 		buf.writeBoolean(value != null);
@@ -31,7 +31,7 @@ public class PropertyVec3
 	}
 	
 	@Override
-	public void read(FriendlyByteBuf buf)
+	public void read(RegistryFriendlyByteBuf buf)
 	{
 		if(buf.readBoolean())
 		{

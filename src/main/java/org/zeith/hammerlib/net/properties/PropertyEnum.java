@@ -1,6 +1,6 @@
 package org.zeith.hammerlib.net.properties;
 
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import org.zeith.hammerlib.util.java.DirectStorage;
 
 public class PropertyEnum<E extends Enum<E>>
@@ -17,13 +17,13 @@ public class PropertyEnum<E extends Enum<E>>
 	}
 	
 	@Override
-	public void write(FriendlyByteBuf buf)
+	public void write(RegistryFriendlyByteBuf buf)
 	{
 		buf.writeEnum(value.get());
 	}
 	
 	@Override
-	public void read(FriendlyByteBuf buf)
+	public void read(RegistryFriendlyByteBuf buf)
 	{
 		value.set(buf.readEnum(type));
 	}

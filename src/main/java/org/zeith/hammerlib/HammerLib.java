@@ -13,7 +13,7 @@ import net.neoforged.fml.event.lifecycle.*;
 import net.neoforged.fml.javafmlmod.FMLModContainer;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.fml.loading.moddiscovery.ModAnnotation;
-import net.neoforged.neoforge.client.event.RegisterGuiOverlaysEvent;
+import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
@@ -223,9 +223,9 @@ public class HammerLib
 	
 	@SubscribeEvent
 	@OnlyIn(Dist.CLIENT)
-	public void clientSetup(RegisterGuiOverlaysEvent e)
+	public void clientSetup(RegisterGuiLayersEvent e)
 	{
-		e.registerAboveAll("tooltip_engine", new TooltipRenderEngine());
+		e.registerAboveAll(id("tooltip_engine"), new TooltipRenderEngine());
 	}
 	
 	@SubscribeEvent

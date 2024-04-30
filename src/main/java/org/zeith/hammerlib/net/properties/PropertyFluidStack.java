@@ -1,6 +1,6 @@
 package org.zeith.hammerlib.net.properties;
 
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.zeith.hammerlib.util.java.DirectStorage;
 
@@ -20,19 +20,19 @@ public class PropertyFluidStack
 	@Override
 	protected boolean differ(FluidStack a, FluidStack b)
 	{
-		return !a.isFluidStackIdentical(b);
+		return !FluidStack.isSameFluidSameComponents(a, b);
 	}
 	
 	@Override
-	public void write(FriendlyByteBuf buf)
+	public void write(RegistryFriendlyByteBuf buf)
 	{
 		FluidStack value = this.value.get();
-		buf.writeFluidStack(value);
+		FluidStack.STREAM_CODEC.encode(buf, value);
 	}
 	
 	@Override
-	public void read(FriendlyByteBuf buf)
+	public void read(RegistryFriendlyByteBuf buf)
 	{
-		value.set(buf.readFluidStack());
+		value.set(FluidStack.STREAM_CODEC.decode(buf));
 	}
 }

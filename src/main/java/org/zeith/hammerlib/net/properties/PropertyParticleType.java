@@ -1,8 +1,8 @@
 package org.zeith.hammerlib.net.properties;
 
 import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import org.zeith.hammerlib.util.java.DirectStorage;
 
 
@@ -20,19 +20,19 @@ public class PropertyParticleType
 	}
 	
 	@Override
-	public void write(FriendlyByteBuf buf)
+	public void write(RegistryFriendlyByteBuf buf)
 	{
 		var val = this.value.get();
 		buf.writeBoolean(val != null);
-		if(val != null) EntityDataSerializers.PARTICLE.write(buf, this.value.get());
+		if(val != null) ParticleTypes.STREAM_CODEC.encode(buf, this.value.get());
 	}
 	
 	@Override
-	public void read(FriendlyByteBuf buf)
+	public void read(RegistryFriendlyByteBuf buf)
 	{
 		this.value.set(
 				buf.readBoolean()
-				? EntityDataSerializers.PARTICLE.read(buf)
+				? ParticleTypes.STREAM_CODEC.decode(buf)
 				: null
 		);
 	}

@@ -2,6 +2,9 @@ package org.zeith.hammerlib.util.mcf.fluid;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.function.Predicate;
@@ -16,6 +19,12 @@ public record FluidIngredientStack(FluidIngredient fluid, int amount)
 					FluidIngredient.CODEC.fieldOf("fluid").forGetter(FluidIngredientStack::fluid),
 					Codec.INT.fieldOf("amount").forGetter(FluidIngredientStack::amount)
 			).apply(instance, FluidIngredientStack::new)
+	);
+	
+	public static final StreamCodec<RegistryFriendlyByteBuf, FluidIngredientStack> STREAM_CODEC = StreamCodec.composite(
+			FluidIngredient.STREAM_CODEC, FluidIngredientStack::fluid,
+			ByteBufCodecs.INT, FluidIngredientStack::amount,
+			FluidIngredientStack::new
 	);
 	
 	public FluidIngredientStack(FluidIngredient fluid, int amount)

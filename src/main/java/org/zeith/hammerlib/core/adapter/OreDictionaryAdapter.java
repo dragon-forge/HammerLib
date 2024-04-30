@@ -103,8 +103,6 @@ public class OreDictionaryAdapter
 			// Ingots
 			register("ingotIron", Tags.Items.INGOTS_IRON);
 			register("ingotGold", Tags.Items.INGOTS_GOLD);
-			register("ingotBrick", Tags.Items.INGOTS_BRICK);
-			register("ingotBrickNether", Tags.Items.INGOTS_NETHER_BRICK);
 
 			// Nugget
 			register("nuggetIron", Tags.Items.NUGGETS_IRON);
@@ -119,7 +117,6 @@ public class OreDictionaryAdapter
 			register("enderpearl", Tags.Items.ENDER_PEARLS);
 
 			// Dusts
-			register("dustPrismarine", Tags.Items.DUSTS_PRISMARINE);
 			register("dustRedstone", Tags.Items.DUSTS_REDSTONE);
 			register("dustGlowstone", Tags.Items.DUSTS_GLOWSTONE);
 
@@ -130,16 +127,15 @@ public class OreDictionaryAdapter
 			register("blockDiamond", Tags.Items.STORAGE_BLOCKS_DIAMOND);
 			register("blockRedstone", Tags.Items.STORAGE_BLOCKS_REDSTONE);
 			register("blockEmerald", Tags.Items.STORAGE_BLOCKS_EMERALD);
-			register("blockQuartz", Tags.Items.STORAGE_BLOCKS_QUARTZ);
 			register("blockCoal", Tags.Items.STORAGE_BLOCKS_COAL);
-			register("blockGlass", Tags.Items.GLASS);
+			register("blockGlass", Tags.Items.GLASS_BLOCKS);
 
 			// Misc
 			register("dye", Tags.Items.DYES);
 
 			// Blocks
-			register("stone", Tags.Items.STONE);
-			register("obsidian", Tags.Items.OBSIDIAN);
+			register("stone", Tags.Items.STONES);
+			register("obsidian", Tags.Items.OBSIDIANS);
 			register("sand", ItemTags.SAND);
 			register("brickStone", ItemTags.STONE_BRICKS);
 

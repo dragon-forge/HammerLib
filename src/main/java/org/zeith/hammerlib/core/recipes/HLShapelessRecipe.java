@@ -2,8 +2,10 @@ package org.zeith.hammerlib.core.recipes;
 
 import com.mojang.serialization.*;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.*;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.NonNullList;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.inventory.CraftingContainer;
@@ -79,9 +81,9 @@ public class HLShapelessRecipe
 		static int MAX_WIDTH = 3;
 		static int MAX_HEIGHT = 3;
 		
-		private static final Codec<HLShapelessRecipe> CODEC = RecordCodecBuilder.create(
+		private static final MapCodec<HLShapelessRecipe> CODEC = RecordCodecBuilder.mapCodec(
 				inst -> inst.group(
-								ExtraCodecs.strictOptionalField(Codec.STRING, "group", "").forGetter(ShapelessRecipe::getGroup),
+								Codec.STRING.optionalFieldOf("group", "").forGetter(ShapelessRecipe::getGroup),
 								CraftingBookCategory.CODEC.fieldOf("category").orElse(CraftingBookCategory.MISC).forGetter(ShapelessRecipe::category),
 								Ingredient.CODEC_NONEMPTY
 										.listOf()
@@ -100,10 +102,14 @@ public class HLShapelessRecipe
 											}
 										}, DataResult::success)
 										.forGetter(ShapelessRecipe::getIngredients),
-								ItemStack.ITEM_WITH_COUNT_CODEC.fieldOf("result").forGetter(hlr -> hlr.result),
+								ItemStack.CODEC.fieldOf("result").forGetter(hlr -> hlr.result),
 								RegistryMapping.registryCodec(RegistriesHL.Keys.REMAINING_ITEM_REPLACER).listOf().fieldOf("replacers").forGetter(hlr -> hlr.inputModifier)
 						)
 						.apply(inst, HLShapelessRecipe::new)
+		);
+		
+		public static final StreamCodec<RegistryFriendlyByteBuf, HLShapelessRecipe> STREAM_CODEC = StreamCodec.of(
+				HLShapelessRecipe.HLSerializer::toNetwork, HLShapelessRecipe.HLSerializer::fromNetwork
 		);
 		
 		public HLSerializer()
@@ -111,15 +117,20 @@ public class HLShapelessRecipe
 		}
 		
 		@Override
-		public Codec<HLShapelessRecipe> codec()
+		public MapCodec<HLShapelessRecipe> codec()
 		{
 			return CODEC;
 		}
 		
 		@Override
-		public HLShapelessRecipe fromNetwork(FriendlyByteBuf buf)
+		public StreamCodec<RegistryFriendlyByteBuf, HLShapelessRecipe> streamCodec()
 		{
-			var base = RecipeSerializer.SHAPELESS_RECIPE.fromNetwork(buf);
+			return STREAM_CODEC;
+		}
+		
+		public static HLShapelessRecipe fromNetwork(RegistryFriendlyByteBuf buf)
+		{
+			var base = RecipeSerializer.SHAPELESS_RECIPE.streamCodec().decode(buf);
 			var mod = new HLShapelessRecipe(base.getGroup(), base.category(), base.getIngredients(), base.getResultItem(RegistryAccess.EMPTY));
 			
 			mod.inputModifier.addAll(IRemainingItemReplacer.fromNetwork(buf));
@@ -127,10 +138,9 @@ public class HLShapelessRecipe
 			return mod;
 		}
 		
-		@Override
-		public void toNetwork(FriendlyByteBuf buf, HLShapelessRecipe r)
+		public static void toNetwork(RegistryFriendlyByteBuf buf, HLShapelessRecipe r)
 		{
-			RecipeSerializer.SHAPELESS_RECIPE.toNetwork(buf, r);
+			RecipeSerializer.SHAPELESS_RECIPE.streamCodec().encode(buf, r);
 			
 			IRemainingItemReplacer.toNetwork(r.inputModifier, buf);
 		}

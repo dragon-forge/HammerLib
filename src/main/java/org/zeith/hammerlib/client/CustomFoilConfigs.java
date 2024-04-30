@@ -1,30 +1,35 @@
 package org.zeith.hammerlib.client;
 
-import net.minecraft.*;
+import net.minecraft.CrashReport;
+import net.minecraft.ReportedException;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.InterModComms;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.event.lifecycle.*;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.InterModEnqueueEvent;
+import net.neoforged.fml.event.lifecycle.InterModProcessEvent;
 import net.neoforged.fml.loading.FMLPaths;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.api.items.IColoredFoilItem;
 import org.zeith.hammerlib.core.init.ItemsHL;
 import org.zeith.hammerlib.core.test.machine.BlockTestMachine;
 import org.zeith.hammerlib.proxy.HLConstants;
-import org.zeith.hammerlib.util.java.*;
-import org.zeith.hammerlib.util.java.tuples.*;
+import org.zeith.hammerlib.util.java.Cast;
+import org.zeith.hammerlib.util.java.IOUtils;
+import org.zeith.hammerlib.util.java.tuples.Tuple2;
+import org.zeith.hammerlib.util.java.tuples.Tuples;
 import org.zeith.hammerlib.util.shaded.json.*;
 
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.function.ToIntFunction;
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD)
 public class CustomFoilConfigs
 {
 	private static final List<Tuple2<Item, IColoredFoilItem>> overrides = new ArrayList<>();

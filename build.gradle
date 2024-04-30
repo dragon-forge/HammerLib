@@ -7,7 +7,7 @@ buildscript {
 plugins {
     id 'java-library'
     id "com.modrinth.minotaur" version "2.+"
-    id 'net.neoforged.gradle.userdev' version '7.0.71'
+    id 'net.neoforged.gradle.userdev' version '7.0.109'
 }
 
 apply plugin: 'idea'
@@ -31,7 +31,7 @@ base {
     archivesName = "${config.archive_name}-${config.mc_version}"
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 
 minecraft {
@@ -60,6 +60,12 @@ runs {
         systemProperty 'forge.enabledGameTestNamespaces', config.mod_id
         programArgument '--nogui'
     }
+}
+
+sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+configurations {
+    runtimeClasspath.extendsFrom localRuntime
 }
 
 repositories {
@@ -148,7 +154,7 @@ dependencies {
             def modartifact = file.name.substring(0, splitPos)
             def modversion = file.name.substring(splitPos + 1, file.name.length() - 4)
             dependencies {
-                runtimeOnly(project.dependencies.create("_runtime:$modartifact:$modversion") {
+                localRuntime(project.dependencies.create("_runtime:$modartifact:$modversion") {
                     transitive = false
                 })
             }
@@ -174,7 +180,7 @@ dependencies {
     } else libDir.mkdir();
 }
 
-def resourceTargets = ['META-INF/mods.toml', 'pack.mcmeta']
+def resourceTargets = ['META-INF/neoforge.mods.toml', 'pack.mcmeta']
 def replaceProperties = [
         minecraft_version: config.mc_version, minecraft_version_range: config.mc_range,
         forge_version    : "${config.mc_version}-${config.forge_version}", forge_version_range: config.forge_range,
@@ -185,10 +191,9 @@ def replaceProperties = [
 ]
 tasks.withType(ProcessResources).configureEach {
     inputs.properties replaceProperties
-    replaceProperties.put 'project', project
 
     filesMatching(resourceTargets) {
-        expand replaceProperties + [project: project]
+        expand replaceProperties
     }
 }
 
@@ -201,8 +206,7 @@ jar {
                 "Implementation-Title"    : project.name,
                 "Implementation-Version"  : archiveVersion,
                 "Implementation-Vendor"   : config.mod_authors,
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-                "MixinConfigs"            : "mixins.${config.mod_id}.json"
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }
 }
@@ -218,8 +222,7 @@ task deobfJar(type: Jar) {
                 "Implementation-Title"    : project.name,
                 "Implementation-Version"  : archiveVersion,
                 "Implementation-Vendor"   : config.mod_authors,
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-                "MixinConfigs"            : "mixins.${config.mod_id}.json"
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }
 }
@@ -343,4 +346,11 @@ tasks.build.doLast {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+}
+
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
+    }
 }

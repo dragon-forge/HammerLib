@@ -1,6 +1,6 @@
 package org.zeith.hammerlib.net.properties;
 
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import org.zeith.hammerlib.util.java.DirectStorage;
 
@@ -18,16 +18,16 @@ public class PropertyComponent
 	}
 	
 	@Override
-	public void write(FriendlyByteBuf buf)
+	public void write(RegistryFriendlyByteBuf buf)
 	{
 		Component value = this.value.get();
 		buf.writeBoolean(value != null);
-		if(value != null) buf.writeComponent(value);
+		if(value != null) buf.writeUtf(Component.Serializer.toJson(value, buf.registryAccess()));
 	}
 	
 	@Override
-	public void read(FriendlyByteBuf buf)
+	public void read(RegistryFriendlyByteBuf buf)
 	{
-		value.set(buf.readBoolean() ? buf.readComponent() : null);
+		value.set(buf.readBoolean() ? Component.Serializer.fromJson(buf.readUtf(), buf.registryAccess()) : null);
 	}
 }

@@ -1,15 +1,19 @@
 package org.zeith.hammerlib.net.properties;
 
-import com.google.common.collect.*;
-import net.minecraft.network.FriendlyByteBuf;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.level.Level;
 import org.zeith.hammerlib.abstractions.sources.IObjectSource;
 import org.zeith.hammerlib.net.Network;
-import org.zeith.hammerlib.net.packets.*;
+import org.zeith.hammerlib.net.packets.RequestPropertiesPacket;
+import org.zeith.hammerlib.net.packets.SendPropertiesPacket;
 import org.zeith.hammerlib.util.mcf.ByteBufTransposer;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Supplier;
 
 public class PropertyDispatcher
@@ -51,7 +55,7 @@ public class PropertyDispatcher
 		return properties.get(id);
 	}
 	
-	public void decodeChanges(FriendlyByteBuf buf)
+	public void decodeChanges(RegistryFriendlyByteBuf buf)
 	{
 		String str;
 		while("!".compareTo(str = buf.readUtf()) != 0)
@@ -78,10 +82,10 @@ public class PropertyDispatcher
 	}
 	
 	@Nullable
-	public SendPropertiesPacket detectAndGenerateChanges(boolean cleanse)
+	public SendPropertiesPacket detectAndGenerateChanges(boolean cleanse, RegistryAccess access)
 	{
 		ByteBufTransposer.Builder transposer = ByteBufTransposer.begin();
-		var buf = transposer.buffer();
+		var buf = RegistryFriendlyByteBuf.decorator(access).apply(transposer.rawBuffer());
 		if(!dirty.isEmpty())
 		{
 			dirty.forEach((id, prop) ->
@@ -105,12 +109,12 @@ public class PropertyDispatcher
 	}
 	
 	@Nullable
-	public SendPropertiesPacket createGlobalUpdate()
+	public SendPropertiesPacket createGlobalUpdate(RegistryAccess access)
 	{
 		if(properties.isEmpty()) return null;
 		
 		ByteBufTransposer.Builder transposer = ByteBufTransposer.begin();
-		var buf = transposer.buffer();
+		var buf = RegistryFriendlyByteBuf.decorator(access).apply(transposer.rawBuffer());
 		properties.forEach((id, prop) ->
 		{
 			buf.writeUtf(id);

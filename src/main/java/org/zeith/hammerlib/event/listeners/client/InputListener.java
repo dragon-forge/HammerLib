@@ -3,16 +3,17 @@ package org.zeith.hammerlib.event.listeners.client;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.*;
-import net.neoforged.api.distmarker.*;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.InputEvent;
 import org.zeith.hammerlib.api.blocks.IHitsDifferentTargetBlock;
 import org.zeith.hammerlib.mixins.BlockHitResultAccessor;
 
 
 @OnlyIn(Dist.CLIENT)
-@Mod.EventBusSubscriber(Dist.CLIENT)
+@EventBusSubscriber(Dist.CLIENT)
 public class InputListener
 {
 	@SubscribeEvent

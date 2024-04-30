@@ -35,12 +35,6 @@ public class PlainHLMessage
 			packet.write(buf);
 	}
 	
-	@Override
-	public ResourceLocation id()
-	{
-		return Network.MAIN_CHANNEL;
-	}
-	
 	public boolean isValid()
 	{
 		return packet != null;
@@ -59,7 +53,7 @@ public class PlainHLMessage
 			CompletableFuture<Void> exec;
 			if(packet.executeOnMainThread())
 			{
-				exec = ctx.workHandler().submitAsync(() -> packet.execute(pctx));
+				exec = ctx.enqueueWork(() -> packet.execute(pctx));
 			} else
 			{
 				packet.execute(pctx);
@@ -70,8 +64,14 @@ public class PlainHLMessage
 			{
 				IPacket reply = pctx.getReply();
 				if(reply != null)
-					ctx.replyHandler().send(new PlainHLMessage(reply));
+					ctx.reply(new PlainHLMessage(reply));
 			});
 		}
+	}
+	
+	@Override
+	public Type<? extends CustomPacketPayload> type()
+	{
+		return Network.MAIN_CHANNEL;
 	}
 }

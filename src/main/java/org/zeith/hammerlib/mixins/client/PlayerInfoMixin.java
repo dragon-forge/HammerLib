@@ -25,20 +25,23 @@ import java.util.*;
 })
 public abstract class PlayerInfoMixin
 {
-	private boolean pendingEmissiveTextures;
+	@Unique
+	private boolean hammerLib$pendingEmissiveTextures;
 	
 	@Shadow
 	@Final
 	private GameProfile profile;
-	private final Map<MinecraftProfileTexture.Type, ResourceLocation> emissiveTextureLocations = Maps.newEnumMap(MinecraftProfileTexture.Type.class);
+	
+	@Unique
+	private final Map<MinecraftProfileTexture.Type, ResourceLocation> hammerLib$emissiveTextureLocations = Maps.newEnumMap(MinecraftProfileTexture.Type.class);
 	
 	private void registerEmissiveTextures()
 	{
 		synchronized(this)
 		{
-			if(!pendingEmissiveTextures)
+			if(!hammerLib$pendingEmissiveTextures)
 			{
-				pendingEmissiveTextures = true;
+				hammerLib$pendingEmissiveTextures = true;
 				
 				Util.backgroundExecutor().execute(() ->
 				{
@@ -65,9 +68,9 @@ public abstract class PlayerInfoMixin
 							
 							HttpTextureDownloader.create(texture, entry.getValue(), () ->
 							{
-								synchronized(emissiveTextureLocations)
+								synchronized(hammerLib$emissiveTextureLocations)
 								{
-									emissiveTextureLocations.put(type, texture);
+									hammerLib$emissiveTextureLocations.put(type, texture);
 								}
 							});
 						}
@@ -81,20 +84,20 @@ public abstract class PlayerInfoMixin
 	public ResourceLocation IEPI$getEmissiveSkinLocation()
 	{
 		this.registerEmissiveTextures();
-		return MoreObjects.firstNonNull(this.emissiveTextureLocations.get(MinecraftProfileTexture.Type.SKIN), FXUtils.EMPTY_TEXTURE);
+		return MoreObjects.firstNonNull(this.hammerLib$emissiveTextureLocations.get(MinecraftProfileTexture.Type.SKIN), FXUtils.EMPTY_TEXTURE);
 	}
 	
 	@Nullable
 	public ResourceLocation IEPI$getEmissiveCapeLocation()
 	{
 		this.registerEmissiveTextures();
-		return this.emissiveTextureLocations.get(MinecraftProfileTexture.Type.CAPE);
+		return this.hammerLib$emissiveTextureLocations.get(MinecraftProfileTexture.Type.CAPE);
 	}
 	
 	@Nullable
 	public ResourceLocation IEPI$getEmissiveElytraLocation()
 	{
 		this.registerEmissiveTextures();
-		return this.emissiveTextureLocations.get(MinecraftProfileTexture.Type.ELYTRA);
+		return this.hammerLib$emissiveTextureLocations.get(MinecraftProfileTexture.Type.ELYTRA);
 	}
 }

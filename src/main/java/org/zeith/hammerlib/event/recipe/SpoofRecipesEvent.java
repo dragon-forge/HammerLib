@@ -26,7 +26,7 @@ public class SpoofRecipesEvent
 	
 	public static Map<ResourceLocation, List<ResourceLocation>> gather()
 	{
-		return Map.copyOf(ModLoader.get().postEventWithReturn(
+		return Map.copyOf(ModLoader.postEventWithReturn(
 				new SpoofRecipesEvent(new ConcurrentHashMap<>())
 		).spoofedRecipes);
 	}

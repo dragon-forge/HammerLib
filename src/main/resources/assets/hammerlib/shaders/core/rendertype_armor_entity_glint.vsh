@@ -18,7 +18,7 @@ out vec4 vertexColor;
 void main() {
     gl_Position = ProjMat * ModelViewMat * vec4(Position, 1.0);
 
-    vertexDistance = fog_distance(ModelViewMat, Position, FogShape);
+    vertexDistance = fog_distance(Position, FogShape);
     texCoord0 = (TextureMat * vec4(UV0, 0.0, 1.0)).xy;
 	vertexColor = Color;
 }

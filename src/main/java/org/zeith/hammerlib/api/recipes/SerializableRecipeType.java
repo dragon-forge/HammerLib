@@ -1,17 +1,18 @@
 package org.zeith.hammerlib.api.recipes;
 
-import com.google.gson.*;
-import net.minecraft.core.NonNullList;
-import net.minecraft.core.registries.*;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.*;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.registries.RegisterEvent;
 import org.jetbrains.annotations.Nullable;
-import org.zeith.hammerlib.abstractions.recipes.*;
+import org.zeith.hammerlib.abstractions.recipes.IRecipeVisualizer;
+import org.zeith.hammerlib.abstractions.recipes.IVisualizedRecipeType;
 import org.zeith.hammerlib.api.fml.ICustomRegistrar;
 import org.zeith.hammerlib.util.java.Cast;
 
@@ -33,17 +34,6 @@ public abstract class SerializableRecipeType<T extends Recipe<?>>
 	public static final String DEFAULT_GROUP_KEY = "group";
 	
 	/**
-	 * Deserializes a recipe from a network buffer.
-	 *
-	 * @param buf
-	 * 		the network buffer containing the recipe data
-	 *
-	 * @return the deserialized recipe, or null if deserialization failed
-	 */
-	@Override
-	public abstract @Nullable T fromNetwork(FriendlyByteBuf buf);
-	
-	/**
 	 * Serializes a recipe to a network buffer.
 	 *
 	 * @param buf
@@ -51,8 +41,25 @@ public abstract class SerializableRecipeType<T extends Recipe<?>>
 	 * @param recipe
 	 * 		the recipe to be serialized
 	 */
+	public abstract void toNetwork(RegistryFriendlyByteBuf buf, T recipe);
+	
+	/**
+	 * Deserializes a recipe from a network buffer.
+	 *
+	 * @param buf
+	 * 		the network buffer containing the recipe data
+	 *
+	 * @return the deserialized recipe, or null if deserialization failed
+	 */
+	public abstract @Nullable T fromNetwork(RegistryFriendlyByteBuf buf);
+	
+	protected final StreamCodec<RegistryFriendlyByteBuf, T> streamCodec = StreamCodec.of(this::toNetwork, this::fromNetwork);
+	
 	@Override
-	public abstract void toNetwork(FriendlyByteBuf buf, T recipe);
+	public StreamCodec<RegistryFriendlyByteBuf, T> streamCodec()
+	{
+		return streamCodec;
+	}
 	
 	/**
 	 * Registers the recipe type and serializer with the Forge registry, using @{@link org.zeith.hammerlib.annotations.SimplyRegister} and @{@link org.zeith.hammerlib.annotations.RegistryName}.
@@ -88,32 +95,5 @@ public abstract class SerializableRecipeType<T extends Recipe<?>>
 	public ItemStack getToastSymbol(Recipe<?> recipe)
 	{
 		return new ItemStack(Blocks.CRAFTING_TABLE);
-	}
-	
-	public static Ingredient ingredientFromJson(JsonElement obj)
-	{
-		return Ingredient.fromJson(obj, true);
-	}
-	
-	public static NonNullList<Ingredient> ingredientsFromArray(JsonArray array)
-	{
-		NonNullList<Ingredient> nonnulllist = NonNullList.create();
-		for(int i = 0; i < array.size(); ++i) nonnulllist.add(ingredientFromJson(array.get(i)));
-		return nonnulllist;
-	}
-	
-	public static NonNullList<IngredientWithCount> ingredientsWithCountFromArray(JsonArray array)
-	{
-		NonNullList<IngredientWithCount> nonnulllist = NonNullList.create();
-		for(int i = 0; i < array.size(); ++i) nonnulllist.add(IngredientWithCount.fromJson(array.get(i)));
-		return nonnulllist;
-	}
-	
-	public static Item itemFromJson(JsonObject obj)
-	{
-		String s = GsonHelper.getAsString(obj, "item");
-		Item item = BuiltInRegistries.ITEM.getOptional(new ResourceLocation(s)).orElseThrow(() -> new JsonSyntaxException("Unknown item '" + s + "'"));
-		if(item == Items.AIR) throw new JsonSyntaxException("Invalid item: " + s);
-		else return item;
 	}
 }

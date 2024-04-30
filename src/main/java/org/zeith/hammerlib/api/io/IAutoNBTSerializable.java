@@ -1,5 +1,6 @@
 package org.zeith.hammerlib.api.io;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 
@@ -10,14 +11,14 @@ public interface IAutoNBTSerializable
 		extends INBTSerializable<CompoundTag>
 {
 	@Override
-	default CompoundTag serializeNBT()
+	default CompoundTag serializeNBT(HolderLookup.Provider provider)
 	{
-		return NBTSerializationHelper.serialize(this);
+		return NBTSerializationHelper.serialize(provider, this);
 	}
-
+	
 	@Override
-	default void deserializeNBT(CompoundTag nbt)
+	default void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt)
 	{
-		NBTSerializationHelper.deserialize(this, nbt);
+		NBTSerializationHelper.deserialize(provider, this, nbt);
 	}
 }

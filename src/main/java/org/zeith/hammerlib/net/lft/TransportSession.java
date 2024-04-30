@@ -106,7 +106,7 @@ public class TransportSession
 
 	public void sendToNearby(HLTargetPoint tp)
 	{
-		sendToPlayersIf(mp -> mp.level().dimension().compareTo(tp.dim) == 0 && Math.sqrt(mp.position().distanceTo(tp)) <= tp.range);
+		sendToPlayersIf(mp -> mp.level().dimension().compareTo(tp.dim.dimension()) == 0 && Math.sqrt(mp.position().distanceTo(tp)) <= tp.range);
 	}
 
 	public void sendToPlayersIf(Predicate<ServerPlayer> predicate)

@@ -1,6 +1,6 @@
 package org.zeith.hammerlib.net.properties;
 
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 
 public interface IProperty<T>
 {
@@ -12,9 +12,9 @@ public interface IProperty<T>
 
 	boolean hasChanged();
 
-	void write(FriendlyByteBuf buf);
+	void write(RegistryFriendlyByteBuf buf);
 
-	void read(FriendlyByteBuf buf);
+	void read(RegistryFriendlyByteBuf buf);
 
 	T get();
 

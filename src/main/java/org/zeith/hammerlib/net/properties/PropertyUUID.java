@@ -1,6 +1,6 @@
 package org.zeith.hammerlib.net.properties;
 
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import org.zeith.hammerlib.util.java.DirectStorage;
 
 import java.util.UUID;
@@ -19,7 +19,7 @@ public class PropertyUUID
 	}
 	
 	@Override
-	public void write(FriendlyByteBuf buf)
+	public void write(RegistryFriendlyByteBuf buf)
 	{
 		UUID value = this.value.get();
 		buf.writeBoolean(value != null);
@@ -27,7 +27,7 @@ public class PropertyUUID
 	}
 	
 	@Override
-	public void read(FriendlyByteBuf buf)
+	public void read(RegistryFriendlyByteBuf buf)
 	{
 		value.set(buf.readBoolean() ? buf.readUUID() : null);
 	}

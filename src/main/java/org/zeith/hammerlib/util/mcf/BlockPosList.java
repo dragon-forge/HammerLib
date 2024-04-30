@@ -1,9 +1,14 @@
 package org.zeith.hammerlib.util.mcf;
 
-import it.unimi.dsi.fastutil.longs.*;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
+import it.unimi.dsi.fastutil.longs.LongList;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.*;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.LongTag;
 import net.neoforged.neoforge.common.util.INBTSerializable;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.AbstractList;
 import java.util.function.LongConsumer;
@@ -27,7 +32,7 @@ public class BlockPosList
 	public BlockPosList(ListTag lst)
 	{
 		this.backing = new LongArrayList(lst.size());
-		deserializeNBT(lst);
+		deserializeNBT(null, lst);
 	}
 
 	@Override
@@ -103,15 +108,15 @@ public class BlockPosList
 	}
 
 	@Override
-	public ListTag serializeNBT()
+	public @UnknownNullability ListTag serializeNBT(HolderLookup.Provider provider)
 	{
 		ListTag nbt = new ListTag();
 		backing.forEach((LongConsumer) l -> nbt.add(LongTag.valueOf(l)));
 		return nbt;
 	}
-
+	
 	@Override
-	public void deserializeNBT(ListTag nbt)
+	public void deserializeNBT(@Nullable HolderLookup.Provider provider, ListTag nbt)
 	{
 		backing.clear();
 		nbt.forEach(i -> backing.add(((LongTag) i).getAsLong()));

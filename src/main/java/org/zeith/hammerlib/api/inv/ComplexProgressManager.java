@@ -1,5 +1,6 @@
 package org.zeith.hammerlib.api.inv;
 
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.inventory.*;
 import org.jetbrains.annotations.Nullable;
 import org.zeith.hammerlib.mixins.AbstractContainerMenuAccessor;
@@ -229,14 +230,14 @@ public class ComplexProgressManager
 	
 	@Nullable
 	@Override
-	public SendPropertiesPacket detectAndGenerateChanges(boolean cleanse)
+	public SendPropertiesPacket detectAndGenerateChanges(boolean cleanse, RegistryAccess access)
 	{
 		return null;
 	}
 	
 	@Nullable
 	@Override
-	public SendPropertiesPacket createGlobalUpdate()
+	public SendPropertiesPacket createGlobalUpdate(RegistryAccess access)
 	{
 		return null;
 	}

@@ -52,6 +52,11 @@ public class ByteBufTransposer
 		protected final ByteBuf bb = Unpooled.buffer();
 		protected final FriendlyByteBuf buf = new FriendlyByteBuf(bb);
 		
+		public ByteBuf rawBuffer()
+		{
+			return bb;
+		}
+		
 		public FriendlyByteBuf buffer()
 		{
 			return buf;

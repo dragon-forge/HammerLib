@@ -4,7 +4,9 @@ import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.network.FriendlyByteBuf;
-import net.neoforged.api.distmarker.*;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.zeith.hammerlib.abstractions.sources.IObjectSource;
 import org.zeith.hammerlib.net.*;
 import org.zeith.hammerlib.net.properties.IBasePropertyHolder;
@@ -48,7 +50,7 @@ public class SendPropertiesPacket
 			IBasePropertyHolder tile = source.get(IBasePropertyHolder.class, cw).orElse(null);
 			if(tile != null)
 			{
-				FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.wrappedBuffer(data));
+				RegistryFriendlyByteBuf buf = new RegistryFriendlyByteBuf(Unpooled.wrappedBuffer(data), cw.registryAccess());
 				tile.getProperties().decodeChanges(buf);
 			}
 		}

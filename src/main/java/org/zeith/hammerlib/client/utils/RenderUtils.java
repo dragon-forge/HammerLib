@@ -59,14 +59,14 @@ public class RenderUtils
 		RenderSystem.enableBlend();
 		RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-		PoseStack posestack = RenderSystem.getModelViewStack();
-		posestack.pushPose();
+		var posestack = RenderSystem.getModelViewStack();
+		posestack.pushMatrix();
 		
 		// copy the given pose over to the model view.
-		posestack.mulPoseMatrix(pose.last().pose());
+		posestack.mul(pose.last().pose());
 		
 		posestack.translate(x, y, 100.0F);
-		posestack.translate(8.0D, 8.0D, 0.0D);
+		posestack.translate(8.0F, 8.0F, 0.0F);
 		posestack.scale(1.0F, -1.0F, 1.0F);
 		posestack.scale(16.0F, 16.0F, 16.0F);
 		
@@ -87,7 +87,7 @@ public class RenderUtils
 			Lighting.setupFor3DItems();
 		}
 		
-		posestack.popPose();
+		posestack.popMatrix();
 		RenderSystem.applyModelViewMatrix();
 	}
 	

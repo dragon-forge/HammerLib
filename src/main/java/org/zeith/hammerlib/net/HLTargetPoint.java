@@ -2,19 +2,18 @@ package org.zeith.hammerlib.net;
 
 import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.network.PacketDistributor;
-
-import java.util.function.Supplier;
+import org.zeith.hammerlib.util.java.Cast;
 
 public class HLTargetPoint
 		extends Vec3
 {
 	public final ServerPlayer excluded;
 	public final double range;
-	public final ResourceKey<Level> dim;
+	public final ServerLevel dim;
 	
 	/**
 	 * A target point with excluded entity
@@ -32,7 +31,7 @@ public class HLTargetPoint
 	 * @param dim
 	 * 		DimensionType
 	 */
-	public HLTargetPoint(final ServerPlayer excluded, final double x, final double y, final double z, final double range, final ResourceKey<Level> dim)
+	public HLTargetPoint(final ServerPlayer excluded, final double x, final double y, final double z, final double range, final ServerLevel dim)
 	{
 		super(x, y, z);
 		this.excluded = excluded;
@@ -54,7 +53,7 @@ public class HLTargetPoint
 	 * @param dim
 	 * 		DimensionType
 	 */
-	public HLTargetPoint(final double x, final double y, final double z, final double range, final ResourceKey<Level> dim)
+	public HLTargetPoint(final double x, final double y, final double z, final double range, final ServerLevel dim)
 	{
 		super(x, y, z);
 		this.excluded = null;
@@ -62,12 +61,12 @@ public class HLTargetPoint
 		this.dim = dim;
 	}
 	
-	public HLTargetPoint(final Vec3i pos, final double range, final ResourceKey<Level> dim)
+	public HLTargetPoint(final Vec3i pos, final double range, final ServerLevel dim)
 	{
 		this(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, range, dim);
 	}
 	
-	public HLTargetPoint(final Vec3 pos, final double range, final ResourceKey<Level> dim)
+	public HLTargetPoint(final Vec3 pos, final double range, final ServerLevel dim)
 	{
 		this(pos.x, pos.y, pos.z, range, dim);
 	}
@@ -95,7 +94,7 @@ public class HLTargetPoint
 		super(x, y, z);
 		this.excluded = excluded;
 		this.range = range;
-		this.dim = world.dimension();
+		this.dim = Cast.cast(world, ServerLevel.class);
 	}
 	
 	/**
@@ -117,22 +116,16 @@ public class HLTargetPoint
 		super(x, y, z);
 		this.excluded = null;
 		this.range = range;
-		this.dim = world.dimension();
+		this.dim = Cast.cast(world, ServerLevel.class);
 	}
 	
 	public HLTargetPoint(final Vec3i pos, final double range, final Level world)
 	{
-		this(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, range, world.dimension());
+		this(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, range, world);
 	}
 	
 	public HLTargetPoint(final Vec3 pos, final double range, final Level world)
 	{
-		this(pos.x, pos.y, pos.z, range, world.dimension());
-	}
-	
-	public Supplier<PacketDistributor.TargetPoint> toForge()
-	{
-		PacketDistributor.TargetPoint tp = new PacketDistributor.TargetPoint(excluded, x, y, z, range, dim);
-		return () -> tp;
+		this(pos.x, pos.y, pos.z, range, world);
 	}
 }

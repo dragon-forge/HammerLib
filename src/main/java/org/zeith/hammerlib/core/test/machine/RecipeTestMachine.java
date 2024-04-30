@@ -1,18 +1,23 @@
 package org.zeith.hammerlib.core.test.machine;
 
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import lombok.Getter;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.*;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.ItemLike;
-import net.neoforged.api.distmarker.*;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
-import org.zeith.hammerlib.abstractions.recipes.*;
-import org.zeith.hammerlib.abstractions.recipes.layout.*;
-import org.zeith.hammerlib.annotations.*;
+import org.zeith.hammerlib.abstractions.recipes.IRecipeVisualizer;
+import org.zeith.hammerlib.abstractions.recipes.IVisualizedRecipe;
+import org.zeith.hammerlib.abstractions.recipes.layout.ISlotBuilder;
+import org.zeith.hammerlib.abstractions.recipes.layout.IVisualizerBuilder;
+import org.zeith.hammerlib.annotations.RegistryName;
+import org.zeith.hammerlib.annotations.SimplyRegister;
 import org.zeith.hammerlib.api.recipes.*;
 import org.zeith.hammerlib.client.render.IGuiDrawable;
 import org.zeith.hammerlib.core.adapter.recipe.RecipeBuilder;
@@ -61,39 +66,39 @@ public class RecipeTestMachine
 	public static class TestMachineRecipeType
 			extends SerializableRecipeType<RecipeTestMachine>
 	{
-		private static final Codec<RecipeTestMachine> CODEC = RecordCodecBuilder.create(
+		private static final MapCodec<RecipeTestMachine> CODEC = RecordCodecBuilder.mapCodec(
 				inst -> inst.group(
-						ExtraCodecs.strictOptionalField(Codec.STRING, "group", "").forGetter(RecipeTestMachine::getGroup),
-						ExtraCodecs.strictOptionalField(Codec.INT, "time", 200).forGetter(RecipeTestMachine::getTime),
-						ItemStack.ITEM_WITH_COUNT_CODEC.fieldOf("result").forGetter(o -> o.output),
+						ExtraCodecs.ESCAPED_STRING.optionalFieldOf("group", "").forGetter(RecipeTestMachine::getGroup),
+						ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("time", 200).forGetter(RecipeTestMachine::getTime),
+						ItemStack.OPTIONAL_CODEC.fieldOf("result").forGetter(o -> o.output),
 						IngredientWithCount.CODEC.fieldOf("a").forGetter(o -> o.inputA),
 						IngredientWithCount.CODEC.fieldOf("b").forGetter(o -> o.inputB)
 				).apply(inst, RecipeTestMachine::new)
 		);
 		
 		@Override
-		public Codec<RecipeTestMachine> codec()
+		public MapCodec<RecipeTestMachine> codec()
 		{
 			return CODEC;
 		}
 		
 		@Override
-		public void toNetwork(FriendlyByteBuf buf, RecipeTestMachine recipe)
+		public void toNetwork(RegistryFriendlyByteBuf buf, RecipeTestMachine recipe)
 		{
 			recipe.inputA.toNetwork(buf);
 			recipe.inputB.toNetwork(buf);
 			buf.writeVarInt(recipe.time);
-			buf.writeItem(recipe.output);
+			ItemStack.OPTIONAL_STREAM_CODEC.encode(buf, recipe.output);
 			buf.writeUtf(recipe.group);
 		}
 		
 		@Override
-		public @Nullable RecipeTestMachine fromNetwork(FriendlyByteBuf buf)
+		public @Nullable RecipeTestMachine fromNetwork(RegistryFriendlyByteBuf buf)
 		{
 			var ingrA = IngredientWithCount.fromNetwork(buf);
 			var ingrB = IngredientWithCount.fromNetwork(buf);
 			int time = buf.readVarInt();
-			var res = buf.readItem();
+			var res = ItemStack.OPTIONAL_STREAM_CODEC.decode(buf);
 			var group = buf.readUtf();
 			return new RecipeTestMachine(group, time, res, ingrA, ingrB);
 		}

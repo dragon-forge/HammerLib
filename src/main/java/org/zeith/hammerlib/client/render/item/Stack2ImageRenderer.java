@@ -4,29 +4,34 @@ import com.mojang.blaze3d.pipeline.MainTarget;
 import com.mojang.blaze3d.platform.*;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.*;
+import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraft.world.inventory.*;
+import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.*;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.*;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.LogicalSide;
-import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.common.CreativeModeTabRegistry;
-import net.neoforged.neoforge.event.TickEvent;
+import org.joml.Matrix4fStack;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.compat.jei.IJeiPluginHL;
 import org.zeith.hammerlib.core.ConfigHL;
-import org.zeith.hammerlib.proxy.*;
+import org.zeith.hammerlib.proxy.HLClientProxy;
+import org.zeith.hammerlib.proxy.HLConstants;
 import org.zeith.hammerlib.util.java.Cast;
 
 import javax.imageio.ImageIO;
@@ -37,7 +42,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.function.Consumer;
 
-@Mod.EventBusSubscriber(Dist.CLIENT)
+@EventBusSubscriber(Dist.CLIENT)
 public class Stack2ImageRenderer
 {
 	private static final List<RenderQueueItem> QUEUE = new ArrayList<>();
@@ -104,12 +109,12 @@ public class Stack2ImageRenderer
 		});
 	}
 	
-	private record ItemWithData(Item item, CompoundTag data)
+	private record ItemWithData(Item item, DataComponentPatch data)
 	{
 		public ItemStack stack()
 		{
 			ItemStack stack = new ItemStack(item);
-			stack.setTag(data);
+			stack.applyComponents(data);
 			return stack;
 		}
 	}
@@ -131,7 +136,7 @@ public class Stack2ImageRenderer
 		CreativeModeTabRegistry.getSortedCreativeModeTabs()
 				.stream()
 				.flatMap(tab -> tab.getDisplayItems().stream())
-				.map(stack -> new ItemWithData(stack.getItem(), stack.getTag()))
+				.map(stack -> new ItemWithData(stack.getItem(), stack.getComponentsPatch()))
 				.distinct()
 				.forEach(s ->
 				{
@@ -150,7 +155,7 @@ public class Stack2ImageRenderer
 				.stream()
 				.flatMap(tab -> tab.getDisplayItems().stream())
 				.filter(item -> BuiltInRegistries.ITEM.getKey(item.getItem()).getNamespace().equals(modid))
-				.map(stack -> new ItemWithData(stack.getItem(), stack.getTag()))
+				.map(stack -> new ItemWithData(stack.getItem(), stack.getComponentsPatch()))
 				.distinct()
 				.forEach(s ->
 				{
@@ -166,26 +171,21 @@ public class Stack2ImageRenderer
 	}
 	
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
-	public static void onFrameStart(TickEvent.RenderTickEvent eventThatWeDoNotCareMuchAbout)
+	public static void onFrameStart(ClientTickEvent.Pre eventThatWeDoNotCareMuchAbout)
 	{
-		if(eventThatWeDoNotCareMuchAbout.phase == TickEvent.Phase.START)
+		if(HLClientProxy.RENDER_GUI_ITEM.consumeClick())
 		{
-			if(HLClientProxy.RENDER_GUI_ITEM.consumeClick())
-			{
-				var mc = Minecraft.getInstance();
-				
-				Cast.optionally(mc.screen, AbstractContainerScreen.class)
-						.map(AbstractContainerScreen::getSlotUnderMouse)
-						.map(Slot::getItem)
-						.or(() -> IJeiPluginHL.get().getIngredientUnderMouseJEI(ItemStack.class))
-						.ifPresent(stack ->
-						{
-							int res = Mth.clamp(ConfigHL.INSTANCE.get(LogicalSide.CLIENT).clientSide.guiItemRenderResolution, 16, 32768);
-							renderItem(Component.literal("Hotkey"), stack, res);
-						});
-			}
+			var mc = Minecraft.getInstance();
 			
-			return;
+			Cast.optionally(mc.screen, AbstractContainerScreen.class)
+					.map(AbstractContainerScreen::getSlotUnderMouse)
+					.map(Slot::getItem)
+					.or(() -> IJeiPluginHL.get().getIngredientUnderMouseJEI(ItemStack.class))
+					.ifPresent(stack ->
+					{
+						int res = Mth.clamp(ConfigHL.INSTANCE.get(LogicalSide.CLIENT).clientSide.guiItemRenderResolution, 16, 32768);
+						renderItem(Component.literal("Hotkey"), stack, res);
+					});
 		}
 		
 		if(!QUEUE.isEmpty())
@@ -211,11 +211,11 @@ public class Stack2ImageRenderer
 				RenderSystem.enableBlend();
 				RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 				RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-				PoseStack mview = RenderSystem.getModelViewStack();
-				mview.pushPose();
+				Matrix4fStack mview = RenderSystem.getModelViewStack();
+				mview.pushMatrix();
 				mview.scale(16, 16, 16);
 				mview.translate(0, 0, 0.0F);
-				mview.translate(13.333333333333D, 7.5D, 0.0D);
+				mview.translate(13.333333333333F, 7.5F, 0.0F);
 				mview.scale(1.783549783549338F, -1.0F, 1.0F);
 				mview.scale(15.0F, 15.0F, 15.0F);
 				RenderSystem.applyModelViewMatrix();
@@ -232,7 +232,7 @@ public class Stack2ImageRenderer
 				RenderSystem.enableDepthTest();
 				if(flat) Lighting.setupFor3DItems();
 				
-				mview.popPose();
+				mview.popMatrix();
 				RenderSystem.applyModelViewMatrix();
 			}
 			

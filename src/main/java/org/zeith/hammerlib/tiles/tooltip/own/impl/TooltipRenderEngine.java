@@ -2,21 +2,24 @@ package org.zeith.hammerlib.tiles.tooltip.own.impl;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.*;
-import net.neoforged.api.distmarker.*;
-import net.neoforged.neoforge.client.gui.overlay.*;
-import org.zeith.hammerlib.tiles.tooltip.*;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import org.zeith.hammerlib.tiles.tooltip.EnumTooltipEngine;
+import org.zeith.hammerlib.tiles.tooltip.ITooltipTile;
 import org.zeith.hammerlib.tiles.tooltip.own.ITooltipProvider;
 
-import java.util.*;
+import java.util.Objects;
+import java.util.UUID;
 
 @OnlyIn(Dist.CLIENT)
 public class TooltipRenderEngine
-		implements IGuiOverlay
+		implements LayeredDraw.Layer
 {
 	public HitResult.Type lastType;
 	public BlockPos lastPos;
@@ -24,7 +27,7 @@ public class TooltipRenderEngine
 	public GuiTooltip lastTooltip;
 	
 	@Override
-	public void render(ExtendedGui gui, GuiGraphics poseStack, float partialTick, int screenWidth, int screenHeight)
+	public void render(GuiGraphics gfx, float partialTick)
 	{
 		var mc = Minecraft.getInstance();
 		HitResult res = mc.hitResult;
@@ -97,14 +100,13 @@ public class TooltipRenderEngine
 		
 		if(lastTooltip != null)
 		{
-			var window = gui.getMinecraft().window;
-			int sw = window.getGuiScaledWidth();
-			int sh = window.getGuiScaledHeight();
+			int sw = gfx.guiWidth();
+			int sh = gfx.guiHeight();
 			
 			float cx = ((float) sw) / 2F + 12;
 			float cy = ((float) sh - lastTooltip.getHeight()) / 2F + 2;
 			
-			lastTooltip.render(poseStack, cx, cy, partialTick);
+			lastTooltip.render(gfx, cx, cy, partialTick);
 		}
 	}
 }

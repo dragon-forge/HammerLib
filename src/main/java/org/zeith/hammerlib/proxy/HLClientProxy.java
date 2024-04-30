@@ -10,6 +10,7 @@ import net.minecraft.client.particle.*;
 import net.minecraft.client.renderer.blockentity.*;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.world.entity.player.Player;
@@ -24,7 +25,6 @@ import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.settings.KeyConflictContext;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.TickEvent;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.api.forge.ContainerAPI;
 import org.zeith.hammerlib.api.inv.IScreenContainer;
@@ -34,6 +34,7 @@ import org.zeith.hammerlib.api.lighting.ColoredLight;
 import org.zeith.hammerlib.api.lighting.HandleLightOverrideEvent;
 import org.zeith.hammerlib.api.lighting.impl.IGlowingEntity;
 import org.zeith.hammerlib.api.proxy.IClientProxy;
+import org.zeith.hammerlib.client.adapter.ChatMessageAdapter;
 import org.zeith.hammerlib.client.model.SimpleModelGenerator;
 import org.zeith.hammerlib.client.render.tile.IBESR;
 import org.zeith.hammerlib.client.render.tile.TESRBase;
@@ -328,30 +329,32 @@ public class HLClientProxy
 		}
 	}
 	
-	private void clientTick(TickEvent.ClientTickEvent e)
+	private void clientTick(ClientTickEvent.Pre e)
 	{
 		var mc = Minecraft.getInstance();
 		
-		if(e.phase == TickEvent.Phase.START)
+		if(mc.level != null)
 		{
-			if(mc.level != null)
+			Component c;
+			while((c = ChatMessageAdapter.clientTick()) != null)
+				mc.chatListener.handleSystemMessage(c, false);
+		}
+		
+		if(mc.level != null)
+		{
+			if(!mc.isPaused())
 			{
-				if(!mc.isPaused())
+				pingTimer--;
+				if(pingTimer <= 0)
 				{
-					pingTimer--;
-					if(pingTimer <= 0)
-					{
-						pingTimer += 40;
-						Network.sendToServer(new PingServerPacket(System.currentTimeMillis()));
-					}
+					pingTimer += 40;
+					Network.sendToServer(new PingServerPacket(System.currentTimeMillis()));
 				}
-			} else if(renderedWorld)
-			{
-				renderedWorld = false;
-				ConfigAdapter.resetClientsideSync();
 			}
-			
-			return;
+		} else if(renderedWorld)
+		{
+			renderedWorld = false;
+			ConfigAdapter.resetClientsideSync();
 		}
 		
 		if(mc.level == null)
