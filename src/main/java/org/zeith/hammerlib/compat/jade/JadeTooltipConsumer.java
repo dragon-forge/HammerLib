@@ -55,8 +55,9 @@ public class JadeTooltipConsumer
 		SimpleProgressStyle style = new SimpleProgressStyle();
 		
 		BoxStyle.GradientBorder boxStyle = BoxStyle.GradientBorder.DEFAULT_NESTED_BOX.clone();
+		boxStyle.roundCorner = false;
 		boxStyle.bgColor = bar.backgroundColor;
-		boxStyle.borderColor = new int[] { bar.borderColor, bar.borderColor };
+		boxStyle.borderColor = new int[] { bar.borderColor, bar.borderColor, bar.borderColor, bar.borderColor };
 		boxStyle.borderWidth = 1f;
 		style.color = bar.filledMainColor;
 		style.color2 = bar.filledAlternateColor;
