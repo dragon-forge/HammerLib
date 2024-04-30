@@ -58,6 +58,7 @@ public class TooltipRenderEngine
 					lastTooltip = new GuiTooltip()
 							.withPlayer(mc.player)
 							.withLocation(wc, bp)
+							.withBlockHitResult(bhr)
 							.withProvider(prov);
 				}
 				
