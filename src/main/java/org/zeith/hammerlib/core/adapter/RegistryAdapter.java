@@ -5,6 +5,7 @@ import net.minecraft.resources.*;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.event.lifecycle.*;
 import net.minecraftforge.fml.javafmlmod.FMLModContainer;
 import net.minecraftforge.registries.*;
@@ -71,6 +72,17 @@ public class RegistryAdapter
 	}
 	
 	private static final Map<Class<?>, List<Tuple2<Block, ResourceLocation>>> blocks = new ConcurrentHashMap<>();
+	
+	/**
+	 * Should be called within the RegisterEvent on your mod, letting HL grab the active mod container and deal with the namespaces and everything else.
+	 * Returns -1 if HL is unable to determine the active mod.
+	 */
+	public static int registerCurrentMod(RegisterEvent event, Class<?> source, String prefix)
+	{
+		var mc = ModLoadingContext.get().getActiveContainer();
+		if(!(mc instanceof FMLModContainer fmlmc)) return -1;
+		return register(event, source, fmlmc, prefix);
+	}
 	
 	public static int register(RegisterEvent event, Class<?> source, FMLModContainer mod, String prefix)
 	{
