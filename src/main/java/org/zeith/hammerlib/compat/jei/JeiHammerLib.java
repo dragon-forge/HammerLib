@@ -1,12 +1,14 @@
 package org.zeith.hammerlib.compat.jei;
 
 import com.google.common.base.Preconditions;
-import mezz.jei.api.*;
+import mezz.jei.api.IModPlugin;
+import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.VanillaTypes;
-import mezz.jei.api.forge.ForgeTypes;
 import mezz.jei.api.ingredients.IIngredientType;
+import mezz.jei.api.neoforge.NeoForgeTypes;
 import mezz.jei.api.registration.*;
-import mezz.jei.api.runtime.*;
+import mezz.jei.api.runtime.IIngredientListOverlay;
+import mezz.jei.api.runtime.IJeiRuntime;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -14,7 +16,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.neoforged.neoforge.fluids.FluidStack;
-import org.apache.logging.log4j.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.abstractions.recipes.*;
 import org.zeith.hammerlib.client.screen.IAdvancedGui;
@@ -41,7 +44,7 @@ public class JeiHammerLib
 		
 		// Default JEI values. Mods may register this at any point they see fit.
 		registerType(ItemStack.class, VanillaTypes.ITEM_STACK);
-//		FIXME: registerType(FluidStack.class, ForgeTypes.FLUID_STACK);
+		registerType(FluidStack.class, NeoForgeTypes.FLUID_STACK);
 	}
 	
 	public static <T> Optional<IIngredientType<T>> findType(Class<T> type)

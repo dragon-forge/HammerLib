@@ -71,9 +71,9 @@ public class RecipeHelper
 			);
 	}
 	
-	public static void injectRecipes(RecipeManager mgr, ICondition.IContext context, Consumer<RecipeHolder<?>> registrar, Consumer<ResourceLocation> delete)
+	public static void injectRecipes(RecipeManager mgr, ICondition.IContext context, Predicate<ResourceLocation> recipeIdUsed, Consumer<RecipeHolder<?>> registrar, Consumer<ResourceLocation> delete)
 	{
-		registerCustomRecipes(id -> mgr.byKey(id).isPresent(), registrar, s -> s.forEach(delete), false, context);
+		registerCustomRecipes(recipeIdUsed, registrar, s -> s.forEach(delete), false, context);
 	}
 	
 	public static void injectRecipesCustom(Map<ResourceLocation, Recipe<?>> handler, Set<ResourceLocation> removed, Map<ResourceLocation, List<ResourceLocation>> spoofedRecipes, ICondition.IContext ctx)
