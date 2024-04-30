@@ -1,10 +1,15 @@
 package org.zeith.hammerlib.mixins;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.item.crafting.*;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -52,12 +57,37 @@ public abstract class RecipeManagerMixin
 	
 	@Inject(
 			method = "apply(Ljava/util/Map;Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)V",
-			at = @At("TAIL")
+			at = @At(
+					value = "INVOKE",
+					target = "Ljava/util/Map;entrySet()Ljava/util/Set;",
+					ordinal = 0
+			)
 	)
-	public void HammerLib_reloadRecipes(CallbackInfo ci)
+	public void HammerLib_reloadRecipes(Map<ResourceLocation, JsonElement> recipeMap, ResourceManager p_44038_, ProfilerFiller p_44039_, CallbackInfo ci,
+										@Local(index = 5) Map<RecipeType<?>, ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>>> map,
+										@Local(index = 6) com.google.common.collect.ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>> builder1
+	)
 	{
 		RecipeManager mgr = Cast.cast(this);
-		RecipeHelper.injectRecipes(mgr, conditionContext);
+		
+		Map<ResourceLocation, RecipeHolder<?>> addedRecipes = new HashMap<>();
+		Set<ResourceLocation> removedRecipes = new HashSet<>();
+		
+		RecipeHelper.injectRecipes(mgr, getContext(),
+				id -> recipeMap.containsKey(id) || addedRecipes.containsKey(id),
+				holder -> addedRecipes.put(holder.id(), holder),
+				removedRecipes::add
+		);
+		
+		addedRecipes.keySet().removeAll(removedRecipes);
+		recipeMap.keySet().removeAll(removedRecipes);
+		
+		for(RecipeHolder<?> r : addedRecipes.values())
+		{
+			map.computeIfAbsent(r.value().getType(), type -> ImmutableMap.builder())
+					.put(r.id(), r);
+			builder1.put(r.id(), r);
+		}
 	}
 	
 	public Map<ResourceLocation, List<ResourceLocation>> isrm$getSpoofedRecipesHL()
@@ -65,7 +95,7 @@ public abstract class RecipeManagerMixin
 		return hammerLib$SpoofByName;
 	}
 	
-	private Optional<? extends Recipe<?>> isrm$findFirstRecipeHL(Collection<ResourceLocation> rl)
+	public Optional<? extends Recipe<?>> isrm$findFirstRecipeHL(Collection<ResourceLocation> rl)
 	{
 		return rl.stream()
 				.map(byName::get)
