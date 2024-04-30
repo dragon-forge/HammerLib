@@ -16,8 +16,7 @@ public interface ITooltipTile
 	
 	default boolean isEngineSupported(EnumTooltipEngine engine)
 	{
-//		return HLConstants.enableHammerLibTooltipEngine || engine != EnumTooltipEngine.HAMMER_LIB;
-		return true;
+		return HLConstants.enableHammerLibTooltipEngine || engine != EnumTooltipEngine.HAMMER_LIB;
 	}
 	
 	default boolean hasProgressBars(Player player)
