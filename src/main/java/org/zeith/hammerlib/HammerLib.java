@@ -73,6 +73,13 @@ public class HammerLib
 		// Register all recipe providers
 		ScanDataHelper.lookupAnnotatedObjects(ProvideRecipes.class).forEach(data ->
 		{
+			var ow = data.getOwnerMod().orElse(null);
+			if(ow == null)
+			{
+				LOG.info("Skipping mod-less @ProvideRecipes annotation in " + data.getOwnerClass());
+				return;
+			}
+			
 			Class<?> c = data.getOwnerClass();
 			if(IRecipeProvider.class.isAssignableFrom(c))
 			{
@@ -120,7 +127,7 @@ public class HammerLib
 					{
 						if(data.getTargetType() == ElementType.METHOD)
 						{
-							HammerLib.LOG.info("Injecting setup into {}.", data.clazz().getClassName());
+							HammerLib.LOG.info("Injecting setup into " + data.clazz().getClassName());
 							data.getOwnerMod()
 									.map(FMLModContainer::getEventBus)
 									.ifPresent(b -> b.addListener((Consumer<FMLCommonSetupEvent>) event -> RegistryAdapter.setup(event, data.getOwnerClass(), data.getMemberName())));
@@ -211,5 +218,13 @@ public class HammerLib
 		if(logHLEvents || (cfgs != null && cfgs.internal.logHLBusEvents))
 			HammerLib.LOG.info("[HammerLib.postEvent] " + evt);
 		return HammerLib.EVENT_BUS.post(evt);
+	}
+	
+	public static boolean postEvent(Event evt, IEventBusInvokeDispatcher dispatcher)
+	{
+		ConfigHL cfgs = ConfigHL.INSTANCE.getCurrent();
+		if(logHLEvents || (cfgs != null && cfgs.internal.logHLBusEvents))
+			HammerLib.LOG.info("[HammerLib.postEvent] " + evt);
+		return HammerLib.EVENT_BUS.post(evt, dispatcher);
 	}
 }

@@ -44,8 +44,17 @@ public record TooltipInfoProgressBar(ProgressBar bar)
 		for(int j = 0; j < fill; j += 2)
 			RenderUtils.drawColoredModalRect(pose, 1 + j, 1, 1, 10, bar.filledAlternateColor);
 		
+		String core = switch(bar.numberFormat)
+		{
+			case COMPACT -> Math.round(bar.getProgress() * 100f) + " ";
+			case NONE -> "";
+			default -> Integer.toString(Math.round(bar.getProgress() * 100f));
+		};
+		
+		String txt = (bar.prefix != null ? bar.prefix : "") + core + (bar.suffix != null ? bar.suffix : "");
+		
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
-		Minecraft.getInstance().font.draw(pose, (bar.prefix != null ? bar.prefix : "") + (bar.suffix != null ? bar.suffix : ""), 3, 2, 0xFFFFFF);
+		Minecraft.getInstance().font.draw(pose, txt, 3, 2, 0xFFFFFF);
 		
 		pose.popPose();
 	}

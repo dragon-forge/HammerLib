@@ -21,8 +21,10 @@ public class HLConstants
 		}
 	};
 	
-	public static ResourceLocation id(String id)
+	public static boolean enableHammerLibTooltipEngine;
+	
+	public static ResourceLocation id(String path)
 	{
-		return new ResourceLocation(MOD_ID, id);
+		return new ResourceLocation(HLConstants.MOD_ID, path);
 	}
 }
