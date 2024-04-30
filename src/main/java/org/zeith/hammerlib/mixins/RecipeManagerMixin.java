@@ -3,10 +3,13 @@ package org.zeith.hammerlib.mixins;
 import com.google.gson.Gson;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
-import net.minecraft.world.item.crafting.*;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeManager;
 import org.spongepowered.asm.mixin.*;
-import org.spongepowered.asm.mixin.injection.*;
-import org.spongepowered.asm.mixin.injection.callback.*;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.zeith.api.level.ISpoofedRecipeManager;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.core.RecipeHelper;
@@ -21,16 +24,17 @@ import java.util.*;
 })
 public abstract class RecipeManagerMixin
 		extends SimpleJsonResourceReloadListener
+		implements ISpoofedRecipeManager
 {
 	@Shadow
 	public Map<ResourceLocation, Recipe<?>> byName;
 	
 	@Unique
-	private final Map<ResourceLocation, List<ResourceLocation>> hl$SpoofByName = SpoofRecipesEvent.gather();
+	private final Map<ResourceLocation, List<ResourceLocation>> hammerLib$SpoofByName = SpoofRecipesEvent.gather();
 	
-	public RecipeManagerMixin(Gson p_10768_, String p_10769_)
+	public RecipeManagerMixin(Gson gson, String dir)
 	{
-		super(p_10768_, p_10769_);
+		super(gson, dir);
 	}
 	
 	@Inject(
@@ -40,20 +44,10 @@ public abstract class RecipeManagerMixin
 	)
 	private void HammerLib_replaceRecipeId(ResourceLocation id, CallbackInfoReturnable<Optional<? extends Recipe<?>>> cir)
 	{
-		if(id != null && hl$SpoofByName.containsKey(id))
-		{
-			var recipe = HammerLib_findFirstRecipe(hl$SpoofByName.getOrDefault(id, List.of(id)));
-			if(recipe.isPresent()) cir.setReturnValue(recipe);
-			else HammerLib.LOG.error("Failed to locate recipe with mapping " + id + "=" + hl$SpoofByName.get(id));
-		}
-	}
-	
-	private Optional<? extends Recipe<?>> HammerLib_findFirstRecipe(Collection<ResourceLocation> rl)
-	{
-		return rl.stream()
-				.map(byName::get)
-				.filter(Objects::nonNull)
-				.findFirst();
+		if(id == null || !hammerLib$SpoofByName.containsKey(id)) return;
+		var recipe = findFirstRecipeHL(hammerLib$SpoofByName.getOrDefault(id, List.of(id)));
+		if(recipe.isPresent()) cir.setReturnValue(recipe);
+		else HammerLib.LOG.error("Failed to locate recipe with mapping " + id + "=" + hammerLib$SpoofByName.get(id));
 	}
 	
 	@Inject(
@@ -66,8 +60,16 @@ public abstract class RecipeManagerMixin
 		RecipeHelper.injectRecipes(mgr, conditionContext);
 	}
 	
-	public Map<ResourceLocation, List<ResourceLocation>> isrm$getSpoofedRecipes()
+	public Map<ResourceLocation, List<ResourceLocation>> isrm$getSpoofedRecipesHL()
 	{
-		return hl$SpoofByName;
+		return hammerLib$SpoofByName;
+	}
+	
+	private Optional<? extends Recipe<?>> isrm$findFirstRecipeHL(Collection<ResourceLocation> rl)
+	{
+		return rl.stream()
+				.map(byName::get)
+				.filter(Objects::nonNull)
+				.findFirst();
 	}
 }
