@@ -1,40 +1,37 @@
 package org.zeith.hammerlib.api.lighting;
 
 import com.google.common.base.Predicates;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.api.forge.BlockAPI;
-import org.zeith.hammerlib.api.lighting.impl.*;
+import org.zeith.hammerlib.api.lighting.impl.IGlowingEntity;
+import org.zeith.hammerlib.api.lighting.impl.IGlowingItem;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.*;
 import java.util.stream.Stream;
 
 public class ColoredLightManager
 {
 	private static final List<Function<Float, Stream<ColoredLight>>> lightGenerators = new ArrayList<>();
-
-	public static BooleanSupplier COLORED_LIGHTING_ENABLED = () -> false;
-	public static BooleanSupplier SHADER_UNIFORM_SETUP = () -> false;
-
-	public static BooleanSupplier BIND_TERRAIN = () -> false;
-	public static BooleanSupplier BIND_ENTITY = () -> false;
-
-	public static BooleanSupplier UNBIND_TERRAIN = () -> false;
-	public static BooleanSupplier UNBIND_ENTITY = () -> false;
-
+	
+	public static final BooleanSupplier COLORED_LIGHTING_ENABLED = () -> false;
+	public static final BooleanSupplier SHADER_UNIFORM_SETUP = () -> false;
+	
 	public static IntSupplier UNIFORM_LIGHT_COUNT = () -> 0;
-
+	
 	public static int LAST_LIGHTS;
-
+	
 	public static boolean isColoredLightActive()
 	{
 		return COLORED_LIGHTING_ENABLED.getAsBoolean();
 	}
-
+	
 	static
 	{
 		addGenerator(partialTicks ->
@@ -50,23 +47,23 @@ public class ColoredLightManager
 					if(ent instanceof LivingEntity)
 					{
 						LivingEntity base = (LivingEntity) ent;
-
+						
 						ItemStack main = base.getMainHandItem();
 						if((igi = IGlowingItem.fromStack(main)) != null)
 							lights.add(igi.produceColoredLight(base, main));
-
+						
 						ItemStack off = base.getOffhandItem();
 						if((igi = IGlowingItem.fromStack(off)) != null)
 							lights.add(igi.produceColoredLight(base, off));
 					} else if(ent instanceof ItemEntity)
 					{
 						ItemEntity ei = (ItemEntity) ent;
-
+						
 						ItemStack item = ei.getItem();
 						if((igi = IGlowingItem.fromStack(item)) != null)
 							lights.add(igi.produceColoredLight(ei, item));
 					}
-
+					
 					return lights.build().filter(Predicates.notNull()).map(l -> l.reposition(ent, partialTicks));
 				});
 				Stream<ColoredLight> entities = Stream.concat(players, ents.stream().map(e ->
@@ -89,22 +86,22 @@ public class ColoredLightManager
 			return Stream.empty();
 		});
 	}
-
+	
 	public static <A, B, C> Function<A, C> dfunc(Function<A, B> fa, Function<B, C> fb)
 	{
 		return a -> fb.apply(fa.apply(a));
 	}
-
+	
 	public static Player getClientPlayer()
 	{
 		return HammerLib.PROXY.getClientPlayer();
 	}
-
+	
 	public static void addGenerator(Function<Float, Stream<ColoredLight>> gen)
 	{
 		lightGenerators.add(gen);
 	}
-
+	
 	/**
 	 * @return A stream of non-null lights currently observable for the
 	 * {@link #getClientPlayer()}.
