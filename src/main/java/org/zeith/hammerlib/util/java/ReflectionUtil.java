@@ -13,11 +13,6 @@ import java.util.function.Predicate;
 
 public class ReflectionUtil
 {
-	private static Field modifiersField;
-	private static Object reflectionFactory;
-	private static Method newFieldAccessor;
-	private static Method fieldAccessorSet;
-	
 	public static Class<?> getArrayComponent(Class<?> array)
 	{
 		return array.isArray() ? getArrayComponent(array.getComponentType()) : array;

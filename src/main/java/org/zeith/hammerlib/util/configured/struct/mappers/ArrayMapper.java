@@ -2,11 +2,10 @@ package org.zeith.hammerlib.util.configured.struct.mappers;
 
 import org.zeith.hammerlib.util.configured.ConfigToken;
 import org.zeith.hammerlib.util.configured.struct.reflection.IField;
-import org.zeith.hammerlib.util.configured.struct.reflection.TriConsumer;
-import org.zeith.hammerlib.util.configured.io.UnsafeHax;
 import org.zeith.hammerlib.util.configured.types.ConfigArray;
 import org.zeith.hammerlib.util.configured.types.ConfigElement;
 import org.zeith.hammerlib.util.java.Cast;
+import org.zeith.hammerlib.util.java.consumers.Consumer3;
 
 import java.lang.reflect.Array;
 import java.util.function.Function;
@@ -18,9 +17,9 @@ public class ArrayMapper<A extends ConfigElement<A>, O>
 	protected final Class<O[]> type;
 	protected final ConfigToken<ConfigArray<A>> token;
 	protected final Function<A, O> converter;
-	protected final TriConsumer<A, IField<?>, O> setDefault;
+	protected final Consumer3<A, IField<?>, O> setDefault;
 	
-	public ArrayMapper(Class<O> comType, Class<O[]> type, ConfigToken<ConfigArray<A>> token, Function<A, O> converter, TriConsumer<A, IField<?>, O> setDefault)
+	public ArrayMapper(Class<O> comType, Class<O[]> type, ConfigToken<ConfigArray<A>> token, Function<A, O> converter, Consumer3<A, IField<?>, O> setDefault)
 	{
 		this.comType = comType;
 		this.type = type;
