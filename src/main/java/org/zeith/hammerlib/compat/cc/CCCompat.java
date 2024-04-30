@@ -2,7 +2,6 @@ package org.zeith.hammerlib.compat.cc;
 
 import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.shared.ModRegistry;
-import net.neoforged.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import org.zeith.api.blocks.redstone.RedstoneBundleCapability;
 import org.zeith.hammerlib.compat.base.*;

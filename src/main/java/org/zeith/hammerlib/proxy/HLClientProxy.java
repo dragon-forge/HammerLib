@@ -87,6 +87,7 @@ public class HLClientProxy
 		modBus.addListener(this::modelBake);
 		modBus.addListener(this::registerClientTooltips);
 		modBus.addListener(this::loadComplete);
+		modBus.addListener(this::registerGuis);
 		modBus.addListener(TexturePixelGetter::reloadTexture);
 		SimpleModelGenerator.setup();
 
@@ -121,15 +122,18 @@ public class HLClientProxy
 //		e.getModels().put(BlockModelShaper.stateToModelLocation(state), null);
 	}
 	
-	@Override
-	public void clientSetup()
+	@SuppressWarnings({ "rawtypes", "unchecked", "DataFlowIssue" })
+	public void registerGuis(RegisterMenuScreensEvent e)
 	{
-		//noinspection DataFlowIssue,rawtypes
-		MenuScreens.register(ContainerAPI.TILE_CONTAINER, (MenuScreens.ScreenConstructor) (ctr, inv, txt) -> Cast
+		e.register(ContainerAPI.TILE_CONTAINER, (MenuScreens.ScreenConstructor) (ctr, inv, txt) -> Cast
 				.optionally(ctr, IScreenContainer.class)
 				.map(c -> c.openScreen(inv, txt))
 				.orElse(null));
-		
+	}
+	
+	@Override
+	public void clientSetup()
+	{
 		PARTICLE_MAP = ((ParticleEngineAccessor) Minecraft.getInstance().particleEngine).getParticles();
 	}
 	
