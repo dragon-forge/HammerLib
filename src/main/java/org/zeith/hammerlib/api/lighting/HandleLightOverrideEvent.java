@@ -20,6 +20,11 @@ public class HandleLightOverrideEvent
 		this.light = this.newLight = light;
 	}
 	
+	public Object getObject()
+	{
+		return object;
+	}
+	
 	public float getPartialTime()
 	{
 		return partialTime;
