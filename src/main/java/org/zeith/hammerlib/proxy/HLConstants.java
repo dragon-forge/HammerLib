@@ -35,6 +35,8 @@ public class HLConstants
 					)
 	);
 	
+	public static boolean enableHammerLibTooltipEngine = true;
+	
 	public static ResourceLocation id(String path)
 	{
 		return new ResourceLocation(HLConstants.MOD_ID, path);

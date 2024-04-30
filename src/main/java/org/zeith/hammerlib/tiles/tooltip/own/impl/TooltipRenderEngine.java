@@ -1,6 +1,5 @@
 package org.zeith.hammerlib.tiles.tooltip.own.impl;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -63,6 +62,7 @@ public class TooltipRenderEngine
 					lastTooltip = new GuiTooltip()
 							.withPlayer(mc.player)
 							.withLocation(wc, bp)
+							.withBlockHitResult(bhr)
 							.withProvider(prov);
 				}
 				

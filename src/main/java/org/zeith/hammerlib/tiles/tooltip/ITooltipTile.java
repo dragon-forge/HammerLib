@@ -3,17 +3,20 @@ package org.zeith.hammerlib.tiles.tooltip;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import org.zeith.hammerlib.proxy.HLConstants;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public interface ITooltipTile
 {
 	ProgressBar[] NO_BARS = new ProgressBar[0];
 	
-	void getTextTooltip(List<Component> list, Player player);
+	default void getTextTooltip(List<Component> list, Player player) {}
 	
 	default boolean isEngineSupported(EnumTooltipEngine engine)
 	{
+//		return HLConstants.enableHammerLibTooltipEngine || engine != EnumTooltipEngine.HAMMER_LIB;
 		return true;
 	}
 	
@@ -36,5 +39,16 @@ public interface ITooltipTile
 	default ItemStack getItemIconOverride()
 	{
 		return ItemStack.EMPTY;
+	}
+	
+	default void addTooltip(ITooltipConsumer consumer, Player player)
+	{
+		List<Component> tip = new ArrayList<>();
+		getTextTooltip(tip, player);
+		for(var s : tip)
+			consumer.addLine(s);
+		if(hasProgressBars(player))
+			for(var bar : getProgressBars(player))
+				consumer.addBar(bar);
 	}
 }

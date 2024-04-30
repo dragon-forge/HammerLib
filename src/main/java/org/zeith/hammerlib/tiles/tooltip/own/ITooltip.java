@@ -1,14 +1,15 @@
 package org.zeith.hammerlib.tiles.tooltip.own;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.zeith.hammerlib.tiles.tooltip.ProgressBar;
@@ -71,6 +72,10 @@ public interface ITooltip
 	Entity getEntity();
 	
 	Player getPlayer();
+	
+	Direction getSideHit();
+	
+	Vec3 getHitVec();
 	
 	/**
 	 * Gets the total width of the tooltip. It's calculated using
