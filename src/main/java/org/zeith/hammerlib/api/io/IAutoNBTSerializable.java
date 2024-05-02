@@ -8,7 +8,7 @@ import net.neoforged.neoforge.common.util.INBTSerializable;
  * Lets the object be {@link INBTSerializable} with defaulting serialization using HammerLib's {@link NBTSerializationHelper}
  */
 public interface IAutoNBTSerializable
-		extends INBTSerializable<CompoundTag>
+		extends ICompoundSerializable
 {
 	@Override
 	default CompoundTag serializeNBT(HolderLookup.Provider provider)
