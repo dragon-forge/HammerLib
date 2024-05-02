@@ -8,6 +8,11 @@ import org.zeith.hammerlib.proxy.HLConstants;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The abstract interface to be applied onto {@link net.minecraft.world.level.block.entity.BlockEntity}.
+ * <p>
+ * It enables tooltip engines like Jade or The One Probe to fill tooltip using {@link #addTooltip(ITooltipConsumer, Player)} method.
+ */
 public interface ITooltipTile
 {
 	ProgressBar[] NO_BARS = new ProgressBar[0];
