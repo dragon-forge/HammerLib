@@ -1,30 +1,92 @@
 package org.zeith.hammerlib.util;
 
+import net.minecraft.world.level.LevelReader;
 import net.neoforged.fml.LogicalSide;
 import org.zeith.hammerlib.util.mcf.LogicalSidePredictor;
 
-import java.util.*;
+import java.util.Objects;
 import java.util.function.*;
 import java.util.stream.Stream;
 
-public class SidedLocal<T>
+public final class SidedLocal<T>
 {
-	final EnumMap<LogicalSide, T> values = new EnumMap<>(LogicalSide.class);
-	final Function<LogicalSide, T> defaultValues;
+	private T client, server;
 	
 	public SidedLocal()
 	{
-		this.defaultValues = side -> null;
 	}
 	
 	public SidedLocal(Function<LogicalSide, T> defaultValue)
 	{
-		this.defaultValues = defaultValue;
+		this.client = defaultValue.apply(LogicalSide.CLIENT);
+		this.server = defaultValue.apply(LogicalSide.SERVER);
 	}
 	
-	public LogicalSide currentEnvironment()
+	public static <T> SidedLocal<T> createEmpty()
 	{
-		return LogicalSidePredictor.getCurrentLogicalSide();
+		return new SidedLocal<>();
+	}
+	
+	public static <T> SidedLocal<T> initializeSideBased(Function<LogicalSide, ? extends T> trade)
+	{
+		SidedLocal<T> s = createEmpty();
+		s.server = trade.apply(LogicalSide.SERVER);
+		s.client = trade.apply(LogicalSide.CLIENT);
+		return s;
+	}
+	
+	public static <T> SidedLocal<T> initializeSeparately(Supplier<? extends T> server, Supplier<? extends T> client)
+	{
+		SidedLocal<T> s = createEmpty();
+		s.server = server.get();
+		s.client = client.get();
+		return s;
+	}
+	
+	public static <T> SidedLocal<T> initializeForBoth(Supplier<? extends T> both)
+	{
+		SidedLocal<T> s = createEmpty();
+		s.server = both.get();
+		s.client = both.get();
+		return s;
+	}
+	
+	public static <T> SidedLocal<T> initializeForBothF(Function<LogicalSide, ? extends T> both)
+	{
+		SidedLocal<T> s = createEmpty();
+		s.server = both.apply(LogicalSide.SERVER);
+		s.client = both.apply(LogicalSide.CLIENT);
+		return s;
+	}
+	
+	public static <T> SidedLocal<T> withInitial(T server, T client)
+	{
+		SidedLocal<T> s = createEmpty();
+		s.server = server;
+		s.client = client;
+		return s;
+	}
+	
+	// Without side
+	
+	public T get()
+	{
+		return get(LogicalSidePredictor.getCurrentLogicalSide());
+	}
+	
+	public void set(T data)
+	{
+		set(LogicalSidePredictor.getCurrentLogicalSide(), data);
+	}
+	
+	public T getAndSet(T data)
+	{
+		return getAndSet(LogicalSidePredictor.getCurrentLogicalSide(), data);
+	}
+	
+	public void apply(UnaryOperator<T> op)
+	{
+		apply(LogicalSidePredictor.getCurrentLogicalSide(), op);
 	}
 	
 	public boolean equalsTo(T value)
@@ -32,30 +94,65 @@ public class SidedLocal<T>
 		return Objects.equals(get(), value);
 	}
 	
-	public T set(T value)
+	// With level
+	
+	public T get(LevelReader level)
 	{
-		return values.put(currentEnvironment(), value);
+		return get(LogicalSidePredictor.getCurrentLogicalSide(level));
 	}
 	
-	public T get()
+	public void set(LevelReader level, T data)
 	{
-		return values.computeIfAbsent(currentEnvironment(), defaultValues);
+		set(LogicalSidePredictor.getCurrentLogicalSide(level), data);
 	}
 	
-	public T set(LogicalSide side, T value)
+	public T getAndSet(LevelReader level, T data)
 	{
-		return values.put(side, value);
+		return getAndSet(LogicalSidePredictor.getCurrentLogicalSide(level), data);
 	}
+	
+	public void apply(LevelReader level, UnaryOperator<T> op)
+	{
+		apply(LogicalSidePredictor.getCurrentLogicalSide(level), op);
+	}
+	
+	public boolean equalsTo(LevelReader level, T value)
+	{
+		return Objects.equals(get(level), value);
+	}
+	
+	// With side
 	
 	public T get(LogicalSide side)
 	{
-		return values.computeIfAbsent(side, defaultValues);
+		if(side.isClient()) return client;
+		return server;
+	}
+	
+	public void set(LogicalSide side, T data)
+	{
+		if(side.isClient()) client = data;
+		else server = data;
+	}
+	
+	public T getAndSet(LogicalSide side, T data)
+	{
+		T prev = get(side);
+		set(side, data);
+		return prev;
 	}
 	
 	public void apply(LogicalSide side, UnaryOperator<T> op)
 	{
 		set(side, op.apply(get(side)));
 	}
+	
+	public boolean equalsTo(LogicalSide side, T value)
+	{
+		return Objects.equals(get(side), value);
+	}
+	
+	// Misc
 	
 	public void applyForAllSides(UnaryOperator<T> op)
 	{
@@ -65,11 +162,26 @@ public class SidedLocal<T>
 	
 	public Stream<T> bothSides()
 	{
-		return values.values().stream();
+		return Stream.of(client, server);
 	}
 	
 	public void acceptBoth(Consumer<T> handler)
 	{
-		values.values().forEach(handler);
+		handler.accept(client);
+		handler.accept(server);
+	}
+	
+	public void acceptBoth(BiConsumer<T, T> handler)
+	{
+		handler.accept(client, server);
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "SidedLocal{" +
+			   "client=" + client +
+			   ", server=" + server +
+			   '}';
 	}
 }
