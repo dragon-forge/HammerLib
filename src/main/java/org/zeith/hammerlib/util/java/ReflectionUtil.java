@@ -11,6 +11,13 @@ import java.util.function.*;
 
 public class ReflectionUtil
 {
+	public static boolean isUniqueMethod(Method method)
+	{
+		return Arrays.stream(method.getDeclaringClass().getMethods())
+					   .map(Method::getName)
+					   .filter(method.getName()::equals)
+					   .count() == 1L;
+	}
 	
 	public static Class<?> getArrayComponent(Class<?> array)
 	{
@@ -131,8 +138,7 @@ public class ReflectionUtil
 		List<Field> currentClassFields = Lists.newArrayList(startClass.getDeclaredFields());
 		Class<?> parentClass = startClass.getSuperclass();
 		
-		if(parentClass != null &&
-				(exclusiveParent == null || !(parentClass.equals(exclusiveParent))))
+		if(parentClass != null && (exclusiveParent == null || !(parentClass.equals(exclusiveParent))))
 		{
 			List<Field> parentClassFields =
 					(List<Field>) getFieldsUpTo(parentClass, exclusiveParent);
@@ -254,7 +260,8 @@ public class ReflectionUtil
 		return Optional.empty();
 	}
 	
-	public static Method findDeclaredMethod(Class<?> c, String member, Predicate<Method> o) throws NoSuchMethodException
+	public static Method findDeclaredMethod(Class<?> c, String member, Predicate<Method> o)
+			throws NoSuchMethodException
 	{
 		for(Method method : c.getDeclaredMethods())
 			if(method.getName().equals(member) && o.test(method))
