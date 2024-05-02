@@ -12,7 +12,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.*;
 import net.neoforged.fml.javafmlmod.FMLModContainer;
 import net.neoforged.fml.loading.FMLEnvironment;
-import net.neoforged.fml.loading.moddiscovery.ModAnnotation;
+import net.neoforged.fml.loading.modscan.ModAnnotation;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
