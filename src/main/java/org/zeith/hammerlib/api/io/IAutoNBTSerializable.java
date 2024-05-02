@@ -7,14 +7,14 @@ import net.minecraftforge.common.util.INBTSerializable;
  * Lets the object be {@link INBTSerializable} with defaulting serialization using HammerLib's {@link NBTSerializationHelper}
  */
 public interface IAutoNBTSerializable
-		extends INBTSerializable<CompoundTag>
+		extends ICompoundSerializable
 {
 	@Override
 	default CompoundTag serializeNBT()
 	{
 		return NBTSerializationHelper.serialize(this);
 	}
-
+	
 	@Override
 	default void deserializeNBT(CompoundTag nbt)
 	{
