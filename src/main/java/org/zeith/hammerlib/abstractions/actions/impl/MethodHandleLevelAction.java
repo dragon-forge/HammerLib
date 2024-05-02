@@ -43,7 +43,13 @@ public class MethodHandleLevelAction
 	@Override
 	public void run(ServerLevel level)
 	{
-		if(handle == null || !handle.isResolved() || !handle.getMethod().isAnnotationPresent(ExposedToLevelAction.class)) return;
+		if(handle == null || !handle.isResolved()) return;
+		
+		if(!handle.getMethod().isAnnotationPresent(ExposedToLevelAction.class))
+		{
+			HammerLib.LOG.warn("Completely ignored non-exposed call method handle: {}", handle.serializeNBT());
+			return;
+		}
 		
 		try
 		{

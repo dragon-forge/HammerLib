@@ -2,6 +2,7 @@ package org.zeith.hammerlib.core.test;
 
 import net.minecraft.core.GlobalPos;
 import org.zeith.hammerlib.HammerLib;
+import org.zeith.hammerlib.annotations.ExposedToLevelAction;
 import org.zeith.hammerlib.util.java.reflection.SerializableMethodHandle;
 import org.zeith.hammerlib.util.mcf.LogicalSidePredictor;
 
@@ -12,6 +13,7 @@ public class MethodHandleTest
 		return SerializableMethodHandle.create(MethodHandleTest.class, "performTest", null, pos);
 	}
 	
+	@ExposedToLevelAction
 	public static void performTest(GlobalPos pos)
 	{
 		var level = LogicalSidePredictor.getLevel(pos.dimension());
