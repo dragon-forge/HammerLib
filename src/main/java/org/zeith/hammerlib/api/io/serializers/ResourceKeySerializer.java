@@ -19,7 +19,7 @@ public class ResourceKeySerializer
 			CompoundTag tag = new CompoundTag();
 			tag.putString("Registry", value.registry().toString());
 			tag.putString("Location", value.location().toString());
-			nbt.putString(key, value.toString());
+			nbt.put(key, tag);
 		}
 	}
 	
