@@ -4,7 +4,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import org.zeith.hammerlib.HammerLib;
-import org.zeith.hammerlib.abstractions.actions.*;
+import org.zeith.hammerlib.abstractions.actions.ILevelActionType;
+import org.zeith.hammerlib.abstractions.actions.RunnableLevelAction;
 import org.zeith.hammerlib.annotations.ExposedToLevelAction;
 import org.zeith.hammerlib.core.init.LevelActionTypesHL;
 import org.zeith.hammerlib.util.java.reflection.SerializableMethodHandle;
@@ -60,15 +61,5 @@ public class MethodHandleLevelAction
 		if(handle != null && handle.isResolved())
 			nbt.put("Target", handle.serializeNBT());
 		return nbt;
-	}
-	
-	public static class MethodHandleActionType
-			implements ILevelActionType
-	{
-		@Override
-		public LevelAction read(Level level, CompoundTag tag)
-		{
-			return new MethodHandleLevelAction(this, level, tag);
-		}
 	}
 }

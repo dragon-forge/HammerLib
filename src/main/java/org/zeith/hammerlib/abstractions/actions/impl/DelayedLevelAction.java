@@ -68,14 +68,4 @@ public class DelayedLevelAction
 		tag.put("Run", write(level, action));
 		return tag;
 	}
-	
-	public static class DelayedType
-			implements ILevelActionType
-	{
-		@Override
-		public LevelAction read(Level level, CompoundTag tag)
-		{
-			return new DelayedLevelAction(this, level, tag);
-		}
-	}
 }
