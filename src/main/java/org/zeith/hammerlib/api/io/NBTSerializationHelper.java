@@ -9,10 +9,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Type;
 import org.zeith.hammerlib.api.io.serializers.*;
+import org.zeith.hammerlib.api.io.serializers.codec.CodecSerializer;
+import org.zeith.hammerlib.api.io.serializers.codec.ICodecSerializer;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.java.ReflectionUtil;
 import org.zeith.hammerlib.util.mcf.ScanDataHelper;
 
+import java.lang.annotation.ElementType;
 import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -60,7 +63,7 @@ public class NBTSerializationHelper
 		
 		ScanDataHelper.lookupAnnotatedObjects(NBTSerializer.class).forEach(data ->
 		{
-			data.getProperty("value").map(List.class::cast).ifPresent(ts ->
+			data.getProperty("value").map(List.class::cast).ifPresentOrElse(ts ->
 			{
 				try
 				{
@@ -74,15 +77,49 @@ public class NBTSerializationHelper
 						if(c != null)
 						{
 							SERIALIZER_MAP.putIfAbsent(c, ser);
-							LOG.debug("Registered NBT serializer for type " + c + ": " + ser);
+							LOG.debug("Registered NBT serializer for type {}: {}", c, ser);
 						} else
-							LOG.error("Unable to find class " + type.getInternalName() + "!");
+							LOG.error("Unable to find class {}!", type.getInternalName());
 					}
 				} catch(ReflectiveOperationException roe)
 				{
-					LOG.error("Failed to create an instance of " + data.getOwnerClass().getName(), roe);
+					LOG.error("Failed to create an instance of {}", data.getOwnerClass().getName(), roe);
 				}
-			});
+			}, () -> LOG.error("Completely ignored broken @NBTSerializer annotation with data {}", data.parent.annotationData()));
+		});
+		
+		ScanDataHelper.lookupAnnotatedObjects(CodecSerializer.class).forEach(data ->
+		{
+			if(data.getTargetType() != ElementType.FIELD)
+			{
+				LOG.error("Completely ignored invalid targeted @CodecSerializer at {} {}. (targeted at {})", data.clazz(), data.getMemberName(), data.getTargetType().name());
+				return;
+			}
+			
+			Field field = ReflectionUtil.lookupField(data.getOwnerClass(), data.getMemberName());
+			if(field == null)
+			{
+				LOG.error("Completely ignored invalid @CodecSerializer at {} {}. (field not found)", data.clazz(), data.getMemberName());
+				return;
+			}
+			
+			if(!Modifier.isStatic(field.getModifiers()))
+			{
+				LOG.error("Completely ignored invalid @CodecSerializer at {} {}. (field is not static)", data.clazz(), data.getMemberName());
+				return;
+			}
+			
+			ICodecSerializer codecSer = ReflectionUtil.fetchValue(field, null, ICodecSerializer.class).orElse(null);
+			if(codecSer == null)
+			{
+				LOG.error("@CodecSerializer field at {} {} is not ICodecSerializer. (unable to obtain value that implements ICodecSerializer)", data.clazz(), data.getMemberName());
+				return;
+			}
+			
+			var c = codecSer.type();
+			var ser = codecSer.asSerializer();
+			registerSerializer(c, ser);
+			LOG.debug("Registered NBT serializer for type {}: {}", c, ser);
 		});
 	}
 	
@@ -111,7 +148,7 @@ public class NBTSerializationHelper
 				}
 				nbt.put(key, lst);
 			} else
-				LOG.warn("Don't know how to serialize " + type + " " + key + " in " + type);
+				LOG.warn("Don't know how to serialize {} {}", type, key);
 		}
 	}
 	
@@ -145,7 +182,7 @@ public class NBTSerializationHelper
 				
 				return null;
 			} else
-				LOG.warn("Don't know how to deserialize " + type + " " + key + " in " + type);
+				LOG.warn("Don't know how to deserialize {} {}", type, key);
 		}
 		
 		return null;
@@ -176,7 +213,7 @@ public class NBTSerializationHelper
 						} else
 						{
 							if(!INBTSerializer.class.isAssignableFrom(field.getType()))
-								LOG.warn("Don't know how to serialize " + field + " in " + type);
+								LOG.warn("Don't know how to serialize {} in {}", field, type);
 						}
 					} else
 					{
@@ -184,7 +221,7 @@ public class NBTSerializationHelper
 					}
 				} catch(ReflectiveOperationException e)
 				{
-					LOG.error("Failed to serialize field " + field + " in " + type, e);
+					LOG.error("Failed to serialize field {} in {}", field, type, e);
 				}
 			}
 		}
@@ -219,12 +256,10 @@ public class NBTSerializationHelper
 							{
 								if(nbt.contains(name))
 								{
-									LOG.warn("Can't deserialize " + field + " in " + type +
-											" since the final value is null. Trying to deserialize tag: " +
-											nbt.get(name));
+									LOG.warn("Can't deserialize {} in {} since the final value is null. Trying to deserialize tag: {}", field, type, nbt.get(name));
 								}
 							} else
-								LOG.warn("Don't know how to deserialize " + field + " in " + type);
+								LOG.warn("Don't know how to deserialize {} in {}", field, type);
 						}
 					} else
 					{
@@ -233,7 +268,7 @@ public class NBTSerializationHelper
 					}
 				} catch(Throwable e)
 				{
-					LOG.error("Failed to deserialize field " + field + " in " + type, e);
+					LOG.error("Failed to deserialize field {} in {}", field, type, e);
 				}
 			}
 		}
