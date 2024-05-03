@@ -2,9 +2,12 @@ package org.zeith.hammerlib.net.properties;
 
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
-import net.minecraft.nbt.*;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.FriendlyByteBuf;
-import org.zeith.hammerlib.util.java.*;
+import org.zeith.hammerlib.api.io.serializers.codec.ICodecSerializer;
+import org.zeith.hammerlib.util.java.Cast;
+import org.zeith.hammerlib.util.java.DirectStorage;
 
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -14,6 +17,19 @@ public class PropertyBaseCodec<T>
 {
 	protected final Codec<T> codec;
 	protected final Supplier<T> defaultValue;
+	
+	
+	public PropertyBaseCodec(ICodecSerializer<T> serializer, DirectStorage<T> value)
+	{
+		this(serializer.codec(), serializer::defaultValue, serializer.type(), value);
+	}
+	
+	public PropertyBaseCodec(ICodecSerializer<T> serializer)
+	{
+		this(serializer.codec(), serializer::defaultValue, serializer.type());
+	}
+	
+	
 	
 	public PropertyBaseCodec(Codec<T> codec, Supplier<T> defaultValue, Class<T> type, DirectStorage<T> value)
 	{
