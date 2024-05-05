@@ -153,7 +153,7 @@ public class HammerLib
 			{
 				for(Object o : lst)
 				{
-					if(o instanceof ModAnnotation.EnumHolder h && FMLEnvironment.dist.name().equals(h.getValue()))
+					if(o instanceof ModAnnotation.EnumHolder h && FMLEnvironment.dist.name().equals(h.value()))
 					{
 						if(data.getTargetType() == ElementType.METHOD)
 						{

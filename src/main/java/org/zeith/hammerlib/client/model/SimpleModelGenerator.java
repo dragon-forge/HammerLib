@@ -127,7 +127,7 @@ public class SimpleModelGenerator<T extends org.zeith.hammerlib.client.model.IUn
 							.ifPresent(mc ->
 									mc.getEventBus().addListener((Consumer<ModelEvent.RegisterGeometryLoaders>) evt ->
 											{
-												evt.register(path, new SimpleModelGenerator<>(factoryFinal));
+												evt.register(new ResourceLocation(mc.getNamespace(), path), new SimpleModelGenerator<>(factoryFinal));
 												HammerLib.LOG.info("Registered a new model with loader " + JSONObject.quote(ModLoadingContext.get().getActiveNamespace() + ":" + path));
 											}
 									)
