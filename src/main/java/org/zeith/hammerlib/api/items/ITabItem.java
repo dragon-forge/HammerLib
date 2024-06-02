@@ -1,6 +1,5 @@
 package org.zeith.hammerlib.api.items;
 
-import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.*;
 
 import java.util.Collections;
@@ -12,7 +11,7 @@ public interface ITabItem
 	{
 		if(getCreativeTabs().stream().anyMatch(t -> t == tab)) return true;
 		CreativeModeTab creativemodetab = this.getItemCategory();
-		return creativemodetab != null && (tab == CreativeModeTabs.searchTab() || tab == creativemodetab);
+		return creativemodetab != null && tab == creativemodetab;
 	}
 	
 	CreativeModeTab getItemCategory();
@@ -23,7 +22,7 @@ public interface ITabItem
 		return c != null ? Collections.singleton(c) : Collections.emptySet();
 	}
 	
-	default void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> items)
+	default void fillItemCategory(CreativeModeTab tab, Set<ItemStack> items)
 	{
 		if(allowedIn(tab))
 		{

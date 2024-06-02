@@ -48,6 +48,8 @@ public class CreativeTabAdapter
 	@SubscribeEvent
 	public static void populate(BuildCreativeModeTabContentsEvent e)
 	{
+		Set<ItemStack> items = ItemStackLinkedSet.createTypeAndComponentsSet();
+		
 		CreativeTab tab = REGISTERED.get(e.getTab());
 		if(tab != null)
 		{
@@ -55,11 +57,10 @@ public class CreativeTabAdapter
 			{
 				if(item instanceof ITabItem)
 					continue;
-				e.accept(item);
+				items.add(item.asItem().getDefaultInstance());
 			}
 		}
 		
-		NonNullList<ItemStack> items = NonNullList.create();
 		for(ITabItem item : CUSTOM_TAB_ITEMS.get()) item.fillItemCategory(e.getTab(), items);
 		e.acceptAll(items);
 	}
