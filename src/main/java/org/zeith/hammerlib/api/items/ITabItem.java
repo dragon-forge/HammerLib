@@ -1,6 +1,5 @@
 package org.zeith.hammerlib.api.items;
 
-import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.*;
 
 import java.util.Collections;
@@ -23,7 +22,7 @@ public interface ITabItem
 		return c != null ? Collections.singleton(c) : Collections.emptySet();
 	}
 	
-	default void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> items)
+	default void fillItemCategory(CreativeModeTab tab, Set<ItemStack> items)
 	{
 		if(allowedIn(tab))
 		{
