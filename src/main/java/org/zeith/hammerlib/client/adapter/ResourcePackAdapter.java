@@ -1,7 +1,6 @@
 package org.zeith.hammerlib.client.adapter;
 
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.*;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
@@ -9,6 +8,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
 import org.zeith.hammerlib.api.fml.IRegisterListener;
+import org.zeith.hammerlib.util.mcf.Resources;
 
 import java.util.*;
 
@@ -31,7 +31,7 @@ public class ResourcePackAdapter
 			for(PackResources pack : ResourcePackAdapter.BUILTIN_PACKS)
 			{
 				if(pack instanceof IRegisterListener rl)
-					rl.onPreRegistered(new ResourceLocation(pack.packId()));
+					rl.onPreRegistered(Resources.locationOrNull(pack.packId()));
 				
 				add.accept(Pack.readMetaAndCreate(
 						new PackLocationInfo(
@@ -63,7 +63,7 @@ public class ResourcePackAdapter
 				));
 				
 				if(pack instanceof IRegisterListener rl)
-					rl.onPostRegistered(new ResourceLocation(pack.packId()));
+					rl.onPostRegistered(Resources.locationOrNull(pack.packId()));
 			}
 		});
 	}

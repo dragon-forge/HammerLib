@@ -101,26 +101,24 @@ public class RenderUtils
 		Matrix4f pose4f = pose.last().pose();
 		float n = 0.00390625F;
 		Tesselator tess = Tesselator.getInstance();
-		BufferBuilder vb = tess.getBuilder();
-		vb.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-		vb.vertex(pose4f, x, y + height, zLevel).uv(texX * n, (texY + height) * n).endVertex();
-		vb.vertex(pose4f, x + width, y + height, zLevel).uv((texX + width) * n, (texY + height) * n).endVertex();
-		vb.vertex(pose4f, x + width, y, zLevel).uv((texX + width) * n, texY * n).endVertex();
-		vb.vertex(pose4f, x, y, zLevel).uv(texX * n, texY * n).endVertex();
-		tess.end();
+		BufferBuilder vb = tess.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+		vb.addVertex(pose4f, x, y + height, zLevel).setUv(texX * n, (texY + height) * n);
+		vb.addVertex(pose4f, x + width, y + height, zLevel).setUv((texX + width) * n, (texY + height) * n);
+		vb.addVertex(pose4f, x + width, y, zLevel).setUv((texX + width) * n, texY * n);
+		vb.addVertex(pose4f, x, y, zLevel).setUv(texX * n, texY * n);
+		BufferUploader.drawWithShader(vb.buildOrThrow());
 	}
 	
 	public static void drawFullTexturedModalRect(GuiGraphics pose, float x, float y, float width, float height)
 	{
 		Matrix4f pose4f = pose.pose().last().pose();
 		Tesselator tess = Tesselator.getInstance();
-		BufferBuilder vb = tess.getBuilder();
-		vb.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-		vb.vertex(pose4f, x, y + height, zLevel).uv(0, 1).endVertex();
-		vb.vertex(pose4f, x + width, y + height, zLevel).uv(1, 1).endVertex();
-		vb.vertex(pose4f, x + width, y, zLevel).uv(1, 0).endVertex();
-		vb.vertex(pose4f, x, y, zLevel).uv(0, 0).endVertex();
-		tess.end();
+		BufferBuilder vb = tess.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+		vb.addVertex(pose4f, x, y + height, zLevel).setUv(0, 1);
+		vb.addVertex(pose4f, x + width, y + height, zLevel).setUv(1, 1);
+		vb.addVertex(pose4f, x + width, y, zLevel).setUv(1, 0);
+		vb.addVertex(pose4f, x, y, zLevel).setUv(0, 0);
+		BufferUploader.drawWithShader(vb.buildOrThrow());
 	}
 	
 	public static void drawColoredModalRect(GuiGraphics pose, float x, float y, float width, float height, int rgb)
@@ -128,13 +126,12 @@ public class RenderUtils
 		Matrix4f pose4f = pose.pose().last().pose();
 		float r = ColorHelper.getRed(rgb), g = ColorHelper.getGreen(rgb), b = ColorHelper.getBlue(rgb), a = ColorHelper.getAlpha(rgb);
 		Tesselator tess = Tesselator.getInstance();
-		BufferBuilder vb = tess.getBuilder();
-		vb.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-		vb.vertex(pose4f, x, y + height, zLevel).color(r, g, b, a).endVertex();
-		vb.vertex(pose4f, x + width, y + height, zLevel).color(r, g, b, a).endVertex();
-		vb.vertex(pose4f, x + width, y, zLevel).color(r, g, b, a).endVertex();
-		vb.vertex(pose4f, x, y, zLevel).color(r, g, b, a).endVertex();
-		tess.end();
+		BufferBuilder vb = tess.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+		vb.addVertex(pose4f, x, y + height, zLevel).setColor(r, g, b, a);
+		vb.addVertex(pose4f, x + width, y + height, zLevel).setColor(r, g, b, a);
+		vb.addVertex(pose4f, x + width, y, zLevel).setColor(r, g, b, a);
+		vb.addVertex(pose4f, x, y, zLevel).setColor(r, g, b, a);
+		BufferUploader.drawWithShader(vb.buildOrThrow());
 	}
 	
 	public static void drawTexturedModalRect(PoseStack pose, float xCoord, float yCoord, @Nullable TextureAtlasSprite textureSprite, float widthIn, float heightIn)
@@ -159,14 +156,13 @@ public class RenderUtils
 			maxV = textureSprite.getV1();
 		}
 		
-		Tesselator tessellator = Tesselator.getInstance();
-		BufferBuilder vertexbuffer = tessellator.getBuilder();
-		vertexbuffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-		vertexbuffer.vertex(pose4f, xCoord, yCoord + heightIn, 0).uv(minU, maxV).endVertex();
-		vertexbuffer.vertex(pose4f, xCoord + widthIn, yCoord + heightIn, 0).uv(maxU, maxV).endVertex();
-		vertexbuffer.vertex(pose4f, xCoord + widthIn, yCoord, 0).uv(maxU, minV).endVertex();
-		vertexbuffer.vertex(pose4f, xCoord, yCoord, 0).uv(minU, minV).endVertex();
-		tessellator.end();
+		Tesselator tess = Tesselator.getInstance();
+		BufferBuilder vb = tess.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+		vb.addVertex(pose4f, xCoord, yCoord + heightIn, 0).setUv(minU, maxV);
+		vb.addVertex(pose4f, xCoord + widthIn, yCoord + heightIn, 0).setUv(maxU, maxV);
+		vb.addVertex(pose4f, xCoord + widthIn, yCoord, 0).setUv(maxU, minV);
+		vb.addVertex(pose4f, xCoord, yCoord, 0).setUv(minU, minV);
+		BufferUploader.drawWithShader(vb.buildOrThrow());
 	}
 	
 	public static void drawTextRGBA(Font font, GuiGraphics stack, String s, int x, int y, int r, int g, int b, int a)
@@ -287,23 +283,23 @@ public class RenderUtils
 	
 	private static void vertex01(VertexConsumer c, Matrix4f pose, int r, int g, int b, int a)
 	{
-		c.vertex(pose, 0.0F, 0.0F, 0.0F).color(r, g, b, a).endVertex();
-		c.vertex(pose, 0.0F, 0.0F, 0.0F).color(r, g, b, a).endVertex();
+		c.addVertex(pose, 0.0F, 0.0F, 0.0F).setColor(r, g, b, a);
+		c.addVertex(pose, 0.0F, 0.0F, 0.0F).setColor(r, g, b, a);
 	}
 	
 	private static void vertex2(VertexConsumer c, Matrix4f pose, float p_229060_2_, float p_229060_3_, int r, int g, int b)
 	{
-		c.vertex(pose, -HALF_SQRT_3 * p_229060_3_, p_229060_2_, -0.5F * p_229060_3_).color(r, g, b, 0).endVertex();
+		c.addVertex(pose, -HALF_SQRT_3 * p_229060_3_, p_229060_2_, -0.5F * p_229060_3_).setColor(r, g, b, 0);
 	}
 	
 	private static void vertex3(VertexConsumer c, Matrix4f pose, float p_229062_2_, float p_229062_3_, int r, int g, int b)
 	{
-		c.vertex(pose, HALF_SQRT_3 * p_229062_3_, p_229062_2_, -0.5F * p_229062_3_).color(r, g, b, 0).endVertex();
+		c.addVertex(pose, HALF_SQRT_3 * p_229062_3_, p_229062_2_, -0.5F * p_229062_3_).setColor(r, g, b, 0);
 	}
 	
 	private static void vertex4(VertexConsumer c, Matrix4f pose, float p_229063_2_, float p_229063_3_, int r, int g, int b)
 	{
-		c.vertex(pose, 0.0F, p_229063_2_, p_229063_3_).color(r, g, b, 0).endVertex();
+		c.addVertex(pose, 0.0F, p_229063_2_, p_229063_3_).setColor(r, g, b, 0);
 	}
 	
 	public static void drawRect(GuiGraphics pose, int x, int y, int width, int height, int color)

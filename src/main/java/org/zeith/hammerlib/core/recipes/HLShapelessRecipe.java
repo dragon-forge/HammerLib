@@ -7,8 +7,6 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.ExtraCodecs;
-import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import org.zeith.api.registry.RegistryMapping;
@@ -66,7 +64,7 @@ public class HLShapelessRecipe
 	}
 	
 	@Override
-	public NonNullList<ItemStack> getRemainingItems(CraftingContainer ctr)
+	public NonNullList<ItemStack> getRemainingItems(CraftingInput ctr)
 	{
 		var remaining = super.getRemainingItems(ctr);
 		for(var replacer : inputModifier)

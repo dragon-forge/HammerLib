@@ -2,25 +2,27 @@ package org.zeith.hammerlib.client.model.builtin;
 
 import com.google.common.collect.Lists;
 import com.google.gson.*;
-import it.unimi.dsi.fastutil.ints.*;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.Util;
 import net.minecraft.client.renderer.block.model.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.*;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.neoforged.neoforge.client.RenderTypeGroup;
-import net.neoforged.neoforge.client.model.geometry.*;
-import org.zeith.hammerlib.client.model.IUnbakedGeometry;
+import net.neoforged.neoforge.client.model.geometry.IGeometryBakingContext;
+import net.neoforged.neoforge.client.model.geometry.UnbakedGeometryHelper;
 import org.zeith.hammerlib.client.model.*;
-import org.zeith.hammerlib.mixins.client.BlockElementFaceAccessor;
-import org.zeith.hammerlib.util.java.tuples.*;
+import org.zeith.hammerlib.util.java.tuples.Tuple2;
+import org.zeith.hammerlib.util.java.tuples.Tuples;
+import org.zeith.hammerlib.util.mcf.Resources;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.*;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 @LoadUnbakedGeometry(path = "grouped")
 public class GroupedModel
@@ -45,14 +47,15 @@ public class GroupedModel
 		
 		for(BlockElement element : elements)
 		{
-			for(BlockElementFace value : element.faces.values())
+			element.faces.replaceAll((dir, value) ->
 			{
-				if(value.texture.startsWith("#"))
+				if(value.texture().startsWith("#"))
 				{
-					var ntx = textures.getOrDefault(value.texture.substring(1), "missing");
-					((BlockElementFaceAccessor) value).setTexture(ntx);
+					var ntx = textures.getOrDefault(value.texture().substring(1), "missing");
+					return new BlockElementFace(value.cullForDirection(), value.tintIndex(), ntx, value.uv(), value.faceData(), value.parent());
 				}
-			}
+				return value;
+			});
 		}
 		
 		IntList ungrouped = new IntArrayList();
@@ -104,7 +107,7 @@ public class GroupedModel
 	}
 	
 	@Override
-	public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides, ResourceLocation modelLocation)
+	public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides)
 	{
 		try
 		{
@@ -113,12 +116,12 @@ public class GroupedModel
 			
 			for(int i = 0; i < elements.size(); i++)
 			{
-				var baked = UnbakedGeometryHelper.bakeElements(List.of(elements.get(i)), spriteGetter, modelState, modelLocation);
+				var baked = UnbakedGeometryHelper.bakeElements(List.of(elements.get(i)), spriteGetter, modelState);
 				quadOffsetsAndCounts[i] = new int[] { quads.size(), quads.size() + baked.size() };
 				quads.addAll(baked);
 			}
 			
-			TextureAtlasSprite particle = spriteGetter.apply(new Material(InventoryMenu.BLOCK_ATLAS, new ResourceLocation(textures.getOrDefault("particle", "particle"))));
+			TextureAtlasSprite particle = spriteGetter.apply(new Material(InventoryMenu.BLOCK_ATLAS, Resources.location(textures.getOrDefault("particle", "particle"))));
 			
 			var renderTypeHint = context.getRenderTypeHint();
 			var renderTypes = renderTypeHint != null ? context.getRenderType(renderTypeHint) : RenderTypeGroup.EMPTY;

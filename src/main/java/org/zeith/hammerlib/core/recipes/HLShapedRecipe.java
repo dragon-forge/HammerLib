@@ -64,7 +64,7 @@ public class HLShapedRecipe
 	}
 	
 	@Override
-	public NonNullList<ItemStack> getRemainingItems(CraftingContainer ctr)
+	public NonNullList<ItemStack> getRemainingItems(CraftingInput ctr)
 	{
 		var remaining = super.getRemainingItems(ctr);
 		for(var replacer : inputModifier)

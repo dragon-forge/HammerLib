@@ -148,7 +148,7 @@ public class GetTOP
 	public static class Panel
 			implements IElement
 	{
-		public static final ResourceLocation ELEMENT_ID = HammerLib.id("panel");
+		public static final ResourceLocation ELEMENT_ID = HLConstants.id("panel");
 		
 		@Getter
 		protected List<IElement> children;

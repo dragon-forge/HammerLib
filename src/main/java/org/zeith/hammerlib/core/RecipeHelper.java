@@ -20,6 +20,7 @@ import org.zeith.hammerlib.event.recipe.RegisterRecipesEvent;
 import org.zeith.hammerlib.mixins.IngredientAccessor;
 import org.zeith.hammerlib.proxy.HLConstants;
 import org.zeith.hammerlib.util.java.Cast;
+import org.zeith.hammerlib.util.mcf.Resources;
 
 import java.lang.reflect.Array;
 import java.util.*;
@@ -81,17 +82,17 @@ public class RecipeHelper
 		registerCustomRecipes(handler::containsKey, r -> handler.put(r.id(), r.value()), removed::addAll, false, ctx);
 	}
 	
-	public static <C extends Container, T extends Recipe<C>> List<RecipeHolder<T>> getRecipeMap(Level level, RecipeType<T> type)
+	public static <C extends RecipeInput, T extends Recipe<C>> List<RecipeHolder<T>> getRecipeMap(Level level, RecipeType<T> type)
 	{
 		return level.getRecipeManager().getAllRecipesFor(type);
 	}
 	
-	public static <C extends Container, T extends Recipe<C>> Stream<RecipeHolder<T>> getRecipeHolders(Level level, RecipeType<T> type)
+	public static <C extends RecipeInput, T extends Recipe<C>> Stream<RecipeHolder<T>> getRecipeHolders(Level level, RecipeType<T> type)
 	{
 		return getRecipeMap(level, type).stream();
 	}
 	
-	public static <C extends Container, T extends Recipe<C>> Stream<T> getRecipes(Level level, RecipeType<T> type)
+	public static <C extends RecipeInput, T extends Recipe<C>> Stream<T> getRecipes(Level level, RecipeType<T> type)
 	{
 		return getRecipeHolders(level, type).map(RecipeHolder::value);
 	}
@@ -159,7 +160,7 @@ public class RecipeHelper
 					
 					ResourceLocation tag;
 					if(odConv != null) tag = odConv;
-					else tag = new ResourceLocation(st.contains(":") ? st : (NEOFORGE_MOD_ID_FOR_TAGS + ":" + st));
+					else tag = Resources.location(st.contains(":") ? st : (NEOFORGE_MOD_ID_FOR_TAGS + ":" + st));
 					
 					return fromTag(getItemTag(tag));
 				}

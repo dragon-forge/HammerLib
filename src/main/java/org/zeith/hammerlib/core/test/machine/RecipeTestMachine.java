@@ -28,7 +28,7 @@ import java.util.stream.Stream;
 
 @SimplyRegister
 public class RecipeTestMachine
-		extends BaseRecipe<RecipeTestMachine>
+		extends BaseCustomRecipe<RecipeTestMachine>
 {
 	@RegistryName("test_machine")
 	public static final TestMachineRecipeType TYPE = new TestMachineRecipeType();

@@ -91,7 +91,7 @@ public class RenderCustomGlint
 	});
 	
 	private static final RenderType ARMOR_GLINT = RenderType.create(HLConstants.MOD_ID +
-			":armor_glint", DefaultVertexFormat.POSITION_COLOR_TEX, VertexFormat.Mode.QUADS, 256, false, false, RenderType.CompositeState.builder()
+			":armor_glint", DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS, 256, false, false, RenderType.CompositeState.builder()
 			.setShaderState(RENDERTYPE_ARMOR_GLINT_SHADER)
 			.setTextureState(new RenderStateShard.TextureStateShard(ENCHANTED_GLINT_ENTITY, true, false))
 			.setWriteMaskState(COLOR_WRITE)
@@ -104,7 +104,7 @@ public class RenderCustomGlint
 	);
 	
 	private static final RenderType ARMOR_ENTITY_GLINT = RenderType.create(HLConstants.MOD_ID +
-			":armor_entity_glint", DefaultVertexFormat.POSITION_COLOR_TEX, VertexFormat.Mode.QUADS, 256, false, false, RenderType.CompositeState.builder()
+			":armor_entity_glint", DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS, 256, false, false, RenderType.CompositeState.builder()
 			.setShaderState(RENDERTYPE_ARMOR_ENTITY_GLINT_SHADER)
 			.setTextureState(new RenderStateShard.TextureStateShard(ENCHANTED_GLINT_ENTITY, true, false))
 			.setWriteMaskState(COLOR_WRITE)
@@ -117,7 +117,7 @@ public class RenderCustomGlint
 	);
 	
 	private static final RenderType GLINT_TRANSLUCENT = RenderType.create(HLConstants.MOD_ID +
-			":glint_translucent", DefaultVertexFormat.POSITION_COLOR_TEX, VertexFormat.Mode.QUADS, 256, false, false, RenderType.CompositeState.builder()
+			":glint_translucent", DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS, 256, false, false, RenderType.CompositeState.builder()
 			.setShaderState(RENDERTYPE_GLINT_TRANSLUCENT_SHADER)
 			.setTextureState(new RenderStateShard.TextureStateShard(ENCHANTED_GLINT_ITEM, true, false))
 			.setWriteMaskState(COLOR_WRITE)
@@ -130,7 +130,7 @@ public class RenderCustomGlint
 	);
 	
 	private static final RenderType GLINT = RenderType.create(HLConstants.MOD_ID +
-			":glint", DefaultVertexFormat.POSITION_COLOR_TEX, VertexFormat.Mode.QUADS, 256, false, false, RenderType.CompositeState.builder()
+			":glint", DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS, 256, false, false, RenderType.CompositeState.builder()
 			.setShaderState(RENDERTYPE_GLINT_SHADER)
 			.setTextureState(new RenderStateShard.TextureStateShard(ENCHANTED_GLINT_ITEM, true, false))
 			.setWriteMaskState(COLOR_WRITE)
@@ -142,7 +142,7 @@ public class RenderCustomGlint
 	);
 	
 	private static final RenderType GLINT_DIRECT = RenderType.create(HLConstants.MOD_ID +
-			":glint_direct", DefaultVertexFormat.POSITION_COLOR_TEX, VertexFormat.Mode.QUADS, 256, false, false, RenderType.CompositeState.builder()
+			":glint_direct", DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS, 256, false, false, RenderType.CompositeState.builder()
 			.setShaderState(RENDERTYPE_GLINT_DIRECT_SHADER)
 			.setTextureState(new RenderStateShard.TextureStateShard(ENCHANTED_GLINT_ITEM, true, false))
 			.setWriteMaskState(COLOR_WRITE)
@@ -154,7 +154,7 @@ public class RenderCustomGlint
 	);
 	
 	private static final RenderType ENTITY_GLINT = RenderType.create(HLConstants.MOD_ID +
-			":entity_glint", DefaultVertexFormat.POSITION_COLOR_TEX, VertexFormat.Mode.QUADS, 256, false, false, RenderType.CompositeState.builder()
+			":entity_glint", DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS, 256, false, false, RenderType.CompositeState.builder()
 			.setShaderState(RENDERTYPE_ENTITY_GLINT_SHADER)
 			.setTextureState(new RenderStateShard.TextureStateShard(ENCHANTED_GLINT_ENTITY, true, false))
 			.setWriteMaskState(COLOR_WRITE)
@@ -167,7 +167,7 @@ public class RenderCustomGlint
 	);
 	
 	private static final RenderType ENTITY_GLINT_DIRECT = RenderType.create(HLConstants.MOD_ID +
-			":entity_glint_direct", DefaultVertexFormat.POSITION_COLOR_TEX, VertexFormat.Mode.QUADS, 256, false, false, RenderType.CompositeState.builder()
+			":entity_glint_direct", DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS, 256, false, false, RenderType.CompositeState.builder()
 			.setShaderState(RENDERTYPE_ENTITY_GLINT_DIRECT_SHADER)
 			.setTextureState(new RenderStateShard.TextureStateShard(ENCHANTED_GLINT_ENTITY, true, false))
 			.setWriteMaskState(COLOR_WRITE)
@@ -274,7 +274,7 @@ public class RenderCustomGlint
 						new ShaderInstance(
 								pResourceProvider,
 								HLConstants.id("rendertype_armor_glint").toString(), // toString() temp fix
-								DefaultVertexFormat.POSITION_COLOR_TEX
+								DefaultVertexFormat.POSITION_TEX_COLOR
 						),
 						s -> armorGlintShader = s
 				);
@@ -283,7 +283,7 @@ public class RenderCustomGlint
 						new ShaderInstance(
 								pResourceProvider,
 								HLConstants.id("rendertype_armor_entity_glint").toString(), // toString() temp fix
-								DefaultVertexFormat.POSITION_COLOR_TEX
+								DefaultVertexFormat.POSITION_TEX_COLOR
 						),
 						s -> armorEntityGlintShader = s
 				);
@@ -292,7 +292,7 @@ public class RenderCustomGlint
 						new ShaderInstance(
 								pResourceProvider,
 								HLConstants.id("rendertype_glint_translucent").toString(), // toString() temp fix
-								DefaultVertexFormat.POSITION_COLOR_TEX
+								DefaultVertexFormat.POSITION_TEX_COLOR
 						),
 						s -> glintTranslucentShader = s
 				);
@@ -301,7 +301,7 @@ public class RenderCustomGlint
 						new ShaderInstance(
 								pResourceProvider,
 								HLConstants.id("rendertype_glint").toString(), // toString() temp fix
-								DefaultVertexFormat.POSITION_COLOR_TEX
+								DefaultVertexFormat.POSITION_TEX_COLOR
 						),
 						s -> glintShader = s
 				);
@@ -310,7 +310,7 @@ public class RenderCustomGlint
 						new ShaderInstance(
 								pResourceProvider,
 								HLConstants.id("rendertype_glint_direct").toString(), // toString() temp fix
-								DefaultVertexFormat.POSITION_COLOR_TEX
+								DefaultVertexFormat.POSITION_TEX_COLOR
 						),
 						s -> glintDirectShader = s
 				);
@@ -319,7 +319,7 @@ public class RenderCustomGlint
 						new ShaderInstance(
 								pResourceProvider,
 								HLConstants.id("rendertype_entity_glint").toString(), // toString() temp fix
-								DefaultVertexFormat.POSITION_COLOR_TEX
+								DefaultVertexFormat.POSITION_TEX_COLOR
 						),
 						s -> entityGlintShader = s
 				);
@@ -328,7 +328,7 @@ public class RenderCustomGlint
 						new ShaderInstance(
 								pResourceProvider,
 								HLConstants.id("rendertype_entity_glint_direct").toString(), // toString() temp fix
-								DefaultVertexFormat.POSITION_COLOR_TEX
+								DefaultVertexFormat.POSITION_TEX_COLOR
 						),
 						s -> entityGlintDirectShader = s
 				);

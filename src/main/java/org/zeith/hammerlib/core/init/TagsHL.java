@@ -5,6 +5,7 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import org.zeith.hammerlib.core.RecipeHelper;
+import org.zeith.hammerlib.util.mcf.Resources;
 
 public class TagsHL
 {
@@ -33,7 +34,7 @@ public class TagsHL
 		
 		private static TagKey<Item> tag(String name)
 		{
-			return ItemTags.create(new ResourceLocation(RecipeHelper.NEOFORGE_MOD_ID_FOR_TAGS, name));
+			return ItemTags.create(Resources.location(RecipeHelper.NEOFORGE_MOD_ID_FOR_TAGS, name));
 		}
 	}
 }

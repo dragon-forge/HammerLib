@@ -1,5 +1,6 @@
 package org.zeith.hammerlib.tiles.tooltip.own;
 
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -106,7 +107,7 @@ public interface ITooltip
 	 * 		events, TESRs.
 	 */
 	@OnlyIn(Dist.CLIENT)
-	void render(GuiGraphics pose, float x, float y, float partialTime);
+	void render(GuiGraphics pose, float x, float y, DeltaTracker partialTime);
 	
 	/**
 	 * Clears current tooltip and resets width, height, x and y of renderer

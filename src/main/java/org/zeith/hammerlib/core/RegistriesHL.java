@@ -7,7 +7,6 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
 import net.neoforged.neoforge.registries.RegistryBuilder;
 import org.zeith.api.registry.RegistryMapping;
-import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.abstractions.actions.ILevelActionType;
 import org.zeith.hammerlib.abstractions.sources.IObjectSourceType;
 import org.zeith.hammerlib.core.recipes.replacers.IRemainingItemReplacer;
@@ -56,7 +55,7 @@ public class RegistriesHL
 		
 		private static <T> ResourceKey<Registry<T>> key(String name)
 		{
-			return ResourceKey.createRegistryKey(HammerLib.id(name));
+			return ResourceKey.createRegistryKey(HLConstants.id(name));
 		}
 	}
 }

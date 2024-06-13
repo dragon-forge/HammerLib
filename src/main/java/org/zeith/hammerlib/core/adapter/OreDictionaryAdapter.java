@@ -1,12 +1,14 @@
 package org.zeith.hammerlib.core.adapter;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.*;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.common.Tags;
 import org.zeith.hammerlib.core.RecipeHelper;
 import org.zeith.hammerlib.core.init.TagsHL;
 import org.zeith.hammerlib.proxy.HLConstants;
+import org.zeith.hammerlib.util.mcf.Resources;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -29,7 +31,7 @@ public class OreDictionaryAdapter
 
 	public static void register(String key, String value)
 	{
-		register(key, new ResourceLocation(value.contains(":") ? value : ("forge:" + value)));
+		register(key, Resources.location(value.contains(":") ? value : ("forge:" + value)));
 	}
 
 	public static void register(String key, TagKey<Item> tag)
@@ -49,19 +51,19 @@ public class OreDictionaryAdapter
 		if(!MAPPING.containsKey(od))
 		{
 			if(od.startsWith("ingot"))
-				addMapping(od, new ResourceLocation(RecipeHelper.NEOFORGE_MOD_ID_FOR_TAGS, "ingots/" + od.substring(5).toLowerCase()));
+				addMapping(od, Resources.location(RecipeHelper.NEOFORGE_MOD_ID_FOR_TAGS, "ingots/" + od.substring(5).toLowerCase()));
 			if(od.startsWith("ore"))
-				addMapping(od, new ResourceLocation(RecipeHelper.NEOFORGE_MOD_ID_FOR_TAGS, "ores/" + od.substring(3).toLowerCase()));
+				addMapping(od, Resources.location(RecipeHelper.NEOFORGE_MOD_ID_FOR_TAGS, "ores/" + od.substring(3).toLowerCase()));
 			if(od.startsWith("gem"))
-				addMapping(od, new ResourceLocation(RecipeHelper.NEOFORGE_MOD_ID_FOR_TAGS, "gems/" + od.substring(3).toLowerCase()));
+				addMapping(od, Resources.location(RecipeHelper.NEOFORGE_MOD_ID_FOR_TAGS, "gems/" + od.substring(3).toLowerCase()));
 			if(od.startsWith("block"))
-				addMapping(od, new ResourceLocation(RecipeHelper.NEOFORGE_MOD_ID_FOR_TAGS, "storage_blocks/" + od.substring(5).toLowerCase()));
+				addMapping(od, Resources.location(RecipeHelper.NEOFORGE_MOD_ID_FOR_TAGS, "storage_blocks/" + od.substring(5).toLowerCase()));
 			if(od.startsWith("dust"))
-				addMapping(od, new ResourceLocation(RecipeHelper.NEOFORGE_MOD_ID_FOR_TAGS, "dusts/" + od.substring(4).toLowerCase()));
+				addMapping(od, Resources.location(RecipeHelper.NEOFORGE_MOD_ID_FOR_TAGS, "dusts/" + od.substring(4).toLowerCase()));
 			if(od.startsWith("gear"))
-				addMapping(od, new ResourceLocation(RecipeHelper.NEOFORGE_MOD_ID_FOR_TAGS, "gears/" + od.substring(4).toLowerCase()));
+				addMapping(od, Resources.location(RecipeHelper.NEOFORGE_MOD_ID_FOR_TAGS, "gears/" + od.substring(4).toLowerCase()));
 			if(od.startsWith("plate"))
-				addMapping(od, new ResourceLocation(RecipeHelper.NEOFORGE_MOD_ID_FOR_TAGS, "plates/" + od.substring(5).toLowerCase()));
+				addMapping(od, Resources.location(RecipeHelper.NEOFORGE_MOD_ID_FOR_TAGS, "plates/" + od.substring(5).toLowerCase()));
 			if(MAPPING.containsKey(od))
 				HLConstants.LOG.debug("Generated mapping for " + od + ": " + MAPPING.get(od));
 		}

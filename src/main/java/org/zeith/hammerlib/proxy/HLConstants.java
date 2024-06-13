@@ -8,6 +8,7 @@ import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.api.items.CreativeTab;
 import org.zeith.hammerlib.core.init.ItemsHL;
 import org.zeith.hammerlib.util.CommonMessages;
+import org.zeith.hammerlib.util.mcf.Resources;
 
 public class HLConstants
 {
@@ -39,6 +40,6 @@ public class HLConstants
 	
 	public static ResourceLocation id(String path)
 	{
-		return new ResourceLocation(HLConstants.MOD_ID, path);
+		return Resources.location(HLConstants.MOD_ID, path);
 	}
 }

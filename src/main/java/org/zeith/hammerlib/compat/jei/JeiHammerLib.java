@@ -25,6 +25,7 @@ import org.zeith.hammerlib.core.RecipeHelper;
 import org.zeith.hammerlib.proxy.HLConstants;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.java.tuples.Tuple2;
+import org.zeith.hammerlib.util.mcf.Resources;
 import org.zeith.hammerlib.util.mcf.ScanDataHelper;
 
 import java.util.*;
@@ -35,7 +36,7 @@ public class JeiHammerLib
 		implements IModPlugin, IJeiPluginHL
 {
 	public static final Logger LOG = LogManager.getLogger(JeiHammerLib.class);
-	public static final ResourceLocation HL_PLUGIN = new ResourceLocation(HLConstants.MOD_ID, "jei");
+	public static final ResourceLocation HL_PLUGIN = Resources.location(HLConstants.MOD_ID, "jei");
 	public static final Map<Class<?>, IIngredientType<?>> INGREDIENT_TYPES = new HashMap<>();
 	
 	{
@@ -133,7 +134,7 @@ public class JeiHammerLib
 		));
 	}
 	
-	private <R extends Recipe<C>, C extends net.minecraft.world.Container, T extends IVisualizedRecipe<R>>
+	private <R extends Recipe<C>, C extends RecipeInput, T extends IVisualizedRecipe<R>>
 	void registerRecipesFor(
 			IRecipeRegistration reg,
 			RecipeType<R> recipeType, mezz.jei.api.recipe.RecipeType<T> type,
@@ -233,7 +234,7 @@ public class JeiHammerLib
 				.map(ing -> Cast.cast(ing.getIngredient()));
 	}
 	
-	public static <T extends Recipe<C>, C extends net.minecraft.world.Container> Stream<RecipeHolder<T>> getRecipes(RecipeType<T> type)
+	public static <T extends Recipe<C>, C extends RecipeInput> Stream<RecipeHolder<T>> getRecipes(RecipeType<T> type)
 	{
 		var lvl = Minecraft.getInstance().level;
 		return lvl != null ? RecipeHelper.getRecipeHolders(lvl, type) : Stream.of();

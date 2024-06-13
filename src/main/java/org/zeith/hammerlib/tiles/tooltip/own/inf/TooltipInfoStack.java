@@ -1,6 +1,7 @@
 package org.zeith.hammerlib.tiles.tooltip.own.inf;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.world.item.ItemStack;
@@ -25,7 +26,7 @@ public record TooltipInfoStack(ItemStack stack, float width, float height)
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void render(GuiGraphics matrix, float x, float y, float partialTime)
+	public void render(GuiGraphics matrix, float x, float y, DeltaTracker partialTime)
 	{
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		

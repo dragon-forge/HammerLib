@@ -1,10 +1,8 @@
 package org.zeith.hammerlib.net;
 
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.codec.*;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -23,13 +21,12 @@ import org.jetbrains.annotations.Nullable;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.proxy.HLConstants;
 import org.zeith.hammerlib.util.java.Cast;
-import org.zeith.hammerlib.util.mcf.LogicalSidePredictor;
-import org.zeith.hammerlib.util.mcf.ModHelper;
+import org.zeith.hammerlib.util.mcf.*;
 
 @EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD)
 public class Network
 {
-	public static final CustomPacketPayload.Type<PlainHLMessage> MAIN_CHANNEL = new CustomPacketPayload.Type<>(new ResourceLocation("hammerlib", "main"));
+	public static final CustomPacketPayload.Type<PlainHLMessage> MAIN_CHANNEL = new CustomPacketPayload.Type<>(Resources.location("hammerlib", "main"));
 	
 	@SubscribeEvent
 	private static void initialize(RegisterPayloadHandlersEvent event)

@@ -1,5 +1,6 @@
 package org.zeith.hammerlib.tiles.tooltip.own.inf;
 
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphics;
 import net.neoforged.api.distmarker.*;
 import org.zeith.hammerlib.tiles.tooltip.own.IRenderableInfo;
@@ -21,7 +22,7 @@ public record TooltipInfoSpacing(float width, float height)
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void render(GuiGraphics matrix, float x, float y, float partialTime)
+	public void render(GuiGraphics matrix, float x, float y, DeltaTracker partialTime)
 	{
 	}
 }

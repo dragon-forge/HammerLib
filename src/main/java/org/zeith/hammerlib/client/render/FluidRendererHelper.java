@@ -11,7 +11,8 @@ import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtension
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
-import org.zeith.hammerlib.client.utils.*;
+import org.zeith.hammerlib.client.utils.FXUtils;
+import org.zeith.hammerlib.client.utils.FluidTextureType;
 import org.zeith.hammerlib.util.colors.ColorHelper;
 
 
@@ -34,8 +35,7 @@ public class FluidRendererHelper
 				FXUtils.bindTexture(InventoryMenu.BLOCK_ATLAS);
 				
 				Tesselator tess = Tesselator.getInstance();
-				BufferBuilder bb = tess.getBuilder();
-				bb.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+				BufferBuilder bb = tess.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
 				
 				float[] colors = RenderSystem.getShaderColor().clone();
 				RenderSystem.setShaderColor(r, g, b, a);
@@ -54,17 +54,16 @@ public class FluidRendererHelper
 						float yCoord = y + height - ch - ys;
 						float minY = sprite.getV(16 - Math.min(16, heightF * 16F / width));
 						
-						bb.vertex(pose4f, x, yCoord + ch, 0).uv(minX, maxY).endVertex();
-						bb.vertex(pose4f, x + width, yCoord + ch, 0).uv(maxX, maxY).endVertex();
-						bb.vertex(pose4f, x + width, yCoord, 0).uv(maxX, minY).endVertex();
-						bb.vertex(pose4f, x, yCoord, 0).uv(minX, minY).endVertex();
+						bb.addVertex(pose4f, x, yCoord + ch, 0).setUv(minX, maxY);
+						bb.addVertex(pose4f, x + width, yCoord + ch, 0).setUv(maxX, maxY);
+						bb.addVertex(pose4f, x + width, yCoord, 0).setUv(maxX, minY);
+						bb.addVertex(pose4f, x, yCoord, 0).setUv(minX, minY);
 					}
 					heightF -= ch;
 					ys += ch;
 				}
 				
-				tess.end();
-				
+				BufferUploader.drawWithShader(bb.build());
 				RenderSystem.setShaderColor(colors[0], colors[1], colors[2], colors[3]);
 			}
 		}

@@ -13,6 +13,7 @@ import net.neoforged.neoforge.client.event.TextureAtlasStitchedEvent;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import org.zeith.hammerlib.client.render.item.Stack2ImageRenderer;
 import org.zeith.hammerlib.util.colors.ColorHelper;
+import org.zeith.hammerlib.util.mcf.Resources;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -141,7 +142,7 @@ public class TexturePixelGetter
 	
 	private static ResourceLocation getResourceLocation(ResourceLocation txPath)
 	{
-		return new ResourceLocation(txPath.getNamespace(), String.format(Locale.ROOT, "textures/%s%s", txPath.getPath(), ".png"));
+		return Resources.location(txPath.getNamespace(), String.format(Locale.ROOT, "textures/%s%s", txPath.getPath(), ".png"));
 	}
 	
 	private static final ResourceLocation MISSINGNO = getResourceLocation(MissingTextureAtlasSprite.getLocation());

@@ -43,7 +43,7 @@ public abstract class LevelAction
 	public static Optional<LevelAction> read(Level level, @Nullable CompoundTag tag)
 	{
 		if(tag == null) return Optional.empty();
-		ILevelActionType type = RegistriesHL.levelActions().get(new ResourceLocation(tag.getString("Type")));
+		ILevelActionType type = RegistriesHL.levelActions().get(ResourceLocation.tryParse(tag.getString("Type")));
 		if(type == null) return Optional.empty();
 		return Optional.ofNullable(type.read(level, tag.getCompound("Data")));
 	}

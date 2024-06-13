@@ -5,6 +5,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.*;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.event.LanguageReloadEvent;
+import org.zeith.hammerlib.util.mcf.Resources;
 
 import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
@@ -39,10 +40,10 @@ public class LanguageAdapter
 		HammerLib.LOG.debug("Reloading HammerLib-enabled language namespaces: " + mgr.getNamespaces());
 		for(String modId : modids)
 			findFirstExisting(mgr,
-					new ResourceLocation(modId, "langs/" + e.getLang().toLowerCase() + "._hl"),
-					new ResourceLocation(modId, "lang/" + e.getLang().toLowerCase() + "._hl"),
-					new ResourceLocation(modId, "langs/" + e.getLang().toLowerCase() + ".lang"),
-					new ResourceLocation(modId, "lang/" + e.getLang().toLowerCase() + ".lang"))
+					Resources.location(modId, "langs/" + e.getLang().toLowerCase() + "._hl"),
+					Resources.location(modId, "lang/" + e.getLang().toLowerCase() + "._hl"),
+					Resources.location(modId, "langs/" + e.getLang().toLowerCase() + ".lang"),
+					Resources.location(modId, "lang/" + e.getLang().toLowerCase() + ".lang"))
 					.forEach(langFile ->
 					{
 						List<Resource> resources = mgr.getResourceStack(langFile);

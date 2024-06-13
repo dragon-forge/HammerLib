@@ -1,7 +1,6 @@
 package org.zeith.hammerlib.client.model;
 
 import com.google.gson.*;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fml.unsafe.UnsafeHacks;
 import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.javafmlmod.FMLModContainer;
@@ -13,6 +12,7 @@ import org.zeith.hammerlib.annotations.OnlyIf;
 import org.zeith.hammerlib.core.adapter.OnlyIfAdapter;
 import org.zeith.hammerlib.proxy.HLConstants;
 import org.zeith.hammerlib.util.java.Cast;
+import org.zeith.hammerlib.util.mcf.Resources;
 import org.zeith.hammerlib.util.mcf.ScanDataHelper;
 import org.zeith.hammerlib.util.shaded.json.JSONObject;
 
@@ -48,7 +48,7 @@ public class SimpleModelGenerator<T extends org.zeith.hammerlib.client.model.IUn
 				
 				BiFunction<JsonObject, JsonDeserializationContext, org.zeith.hammerlib.client.model.IUnbakedGeometry> factory = (json, context) -> Cast.cast(UnsafeHacks.newInstance(c));
 				
-				var loaderId = new ResourceLocation(data.getOwnerMod().map(FMLModContainer::getModId).orElse(HLConstants.MOD_ID), path);
+				var loaderId = Resources.location(data.getOwnerMod().map(FMLModContainer::getModId).orElse(HLConstants.MOD_ID), path);
 				
 				OnlyIf condition = null;
 				
@@ -127,7 +127,7 @@ public class SimpleModelGenerator<T extends org.zeith.hammerlib.client.model.IUn
 							.ifPresent(mc ->
 									mc.getEventBus().addListener((Consumer<ModelEvent.RegisterGeometryLoaders>) evt ->
 											{
-												evt.register(new ResourceLocation(mc.getNamespace(), path), new SimpleModelGenerator<>(factoryFinal));
+												evt.register(Resources.location(mc.getNamespace(), path), new SimpleModelGenerator<>(factoryFinal));
 												HammerLib.LOG.info("Registered a new model with loader " + JSONObject.quote(ModLoadingContext.get().getActiveNamespace() + ":" + path));
 											}
 									)

@@ -1,13 +1,17 @@
 package org.zeith.hammerlib.compat.ic2;
 
-import net.minecraft.core.registries.*;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import org.zeith.hammerlib.HammerLib;
-import org.zeith.hammerlib.compat.base.*;
+import org.zeith.hammerlib.compat.base.BaseCompat;
+import org.zeith.hammerlib.compat.base.CompatContext;
 import org.zeith.hammerlib.compat.base._hl.BaseHLCompat;
 import org.zeith.hammerlib.core.init.TagsHL;
 import org.zeith.hammerlib.event.recipe.BuildTagsEvent;
+import org.zeith.hammerlib.util.mcf.Resources;
 
 import java.util.function.Function;
 
@@ -30,15 +34,15 @@ public class IC2HLCompat
 		{
 			Function<ResourceLocation, Item> its = BuiltInRegistries.ITEM::get;
 			
-			var wrench = its.apply(new ResourceLocation("ic2", "wrench"));
+			var wrench = its.apply(Resources.location("ic2", "wrench"));
 			if(!new ItemStack(wrench).isEmpty())
 				e.addToTag(TagsHL.Items.TOOLS_WRENCH, wrench);
 			
-			wrench = its.apply(new ResourceLocation("ic2", "electric_wrench"));
+			wrench = its.apply(Resources.location("ic2", "electric_wrench"));
 			if(!new ItemStack(wrench).isEmpty())
 				e.addToTag(TagsHL.Items.TOOLS_WRENCH, wrench);
 			
-			wrench = its.apply(new ResourceLocation("ic2", "precision_wrench"));
+			wrench = its.apply(Resources.location("ic2", "precision_wrench"));
 			if(!new ItemStack(wrench).isEmpty())
 				e.addToTag(TagsHL.Items.TOOLS_WRENCH, wrench);
 		}

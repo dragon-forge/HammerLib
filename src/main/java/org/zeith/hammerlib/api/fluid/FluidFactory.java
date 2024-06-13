@@ -23,6 +23,7 @@ import org.zeith.hammerlib.api.items.CreativeTab;
 import org.zeith.hammerlib.api.proxy.IProxy;
 import org.zeith.hammerlib.core.adapter.TagAdapter;
 import org.zeith.hammerlib.util.java.Cast;
+import org.zeith.hammerlib.util.mcf.Resources;
 import org.zeith.hammerlib.util.mcf.fluid.FluidIngredient;
 import org.zeith.hammerlib.util.mcf.fluid.FluidIngredientStack;
 
@@ -141,7 +142,7 @@ public class FluidFactory
 	
 	public ResourceLocation subId(ResourceLocation fluidId, String thing)
 	{
-		return new ResourceLocation(fluidId.getNamespace(), fluidId.getPath() + "_" + thing);
+		return Resources.location(fluidId.getNamespace(), fluidId.getPath() + "_" + thing);
 	}
 	
 	public boolean is(Fluid fluid)

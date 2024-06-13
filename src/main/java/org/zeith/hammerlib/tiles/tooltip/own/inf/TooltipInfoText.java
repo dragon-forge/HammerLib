@@ -1,5 +1,6 @@
 package org.zeith.hammerlib.tiles.tooltip.own.inf;
 
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
 import net.minecraft.network.chat.*;
@@ -43,7 +44,7 @@ public class TooltipInfoText
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void render(GuiGraphics gfx, float x, float y, float partialTime)
+	public void render(GuiGraphics gfx, float x, float y, DeltaTracker partialTime)
 	{
 		gfx.drawString(fontRenderer, getText().getVisualOrderText(), x, y, 0xFFFFFFFF, dropShadow);
 	}

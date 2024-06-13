@@ -49,7 +49,7 @@ public abstract class HumanoidArmorLayerMixin<T extends LivingEntity, M extends 
 					),
 					pPackedLight,
 					OverlayTexture.NO_OVERLAY,
-					1.0F, 1.0F, 1.0F, 1.0F
+					0xFFFFFFFF
 			);
 			
 			ci.cancel();

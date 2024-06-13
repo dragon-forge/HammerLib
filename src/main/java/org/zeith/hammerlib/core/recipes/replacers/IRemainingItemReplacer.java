@@ -1,8 +1,8 @@
 package org.zeith.hammerlib.core.recipes.replacers;
 
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingInput;
 import org.zeith.hammerlib.core.RegistriesHL;
 
 import java.util.*;
@@ -25,7 +25,7 @@ public interface IRemainingItemReplacer
 	 * which takes into account previous replacers before replacing a water bottle with an empty glass bottle.
 	 *
 	 * @param container
-	 * 		the crafting container
+	 * 		the crafting input
 	 * @param slot
 	 * 		the slot index in the container
 	 * @param prevItem
@@ -33,7 +33,7 @@ public interface IRemainingItemReplacer
 	 *
 	 * @return the remaining item stack, or prevItem if no modification should take place.
 	 */
-	ItemStack replace(CraftingContainer container, int slot, ItemStack prevItem);
+	ItemStack replace(CraftingInput container, int slot, ItemStack prevItem);
 	
 	static void toNetwork(List<IRemainingItemReplacer> lst, FriendlyByteBuf buf)
 	{

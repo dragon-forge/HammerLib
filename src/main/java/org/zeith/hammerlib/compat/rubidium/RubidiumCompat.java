@@ -3,7 +3,6 @@ package org.zeith.hammerlib.compat.rubidium;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.*;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.fml.DistExecutor;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.annotations.OnlyIf;
 import org.zeith.hammerlib.client.CustomFoilConfigs;
@@ -12,7 +11,6 @@ import org.zeith.hammerlib.client.render.TintingVertexConsumer;
 import org.zeith.hammerlib.compat.base.*;
 import org.zeith.hammerlib.compat.base._hl.BaseHLCompat;
 import org.zeith.hammerlib.util.mcf.ModHelper;
-
 
 @BaseCompat.LoadCompat(
 		modid = "rubidium",

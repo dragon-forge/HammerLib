@@ -1,5 +1,6 @@
 package org.zeith.hammerlib.tiles.tooltip.own.impl;
 
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.LayeredDraw;
@@ -27,7 +28,7 @@ public class TooltipRenderEngine
 	public GuiTooltip lastTooltip;
 	
 	@Override
-	public void render(GuiGraphics gfx, float partialTick)
+	public void render(GuiGraphics gfx, DeltaTracker partialTick)
 	{
 		var mc = Minecraft.getInstance();
 		HitResult res = mc.hitResult;

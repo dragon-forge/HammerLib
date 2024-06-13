@@ -6,6 +6,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.zeith.hammerlib.api.io.NBTSerializer;
+import org.zeith.hammerlib.util.mcf.Resources;
 
 @NBTSerializer(ResourceLocation.class)
 public class ResourceLocationSerializer
@@ -21,6 +22,6 @@ public class ResourceLocationSerializer
 	@Override
 	public ResourceLocation deserialize(HolderLookup.Provider provider, String key, CompoundTag nbt)
 	{
-		return nbt.contains(key, Tag.TAG_STRING) ? new ResourceLocation(nbt.getString(key)) : null;
+		return nbt.contains(key, Tag.TAG_STRING) ? Resources.locationOrNull(nbt.getString(key)) : null;
 	}
 }

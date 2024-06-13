@@ -1,6 +1,7 @@
 package org.zeith.hammerlib.tiles.tooltip.own.inf;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
@@ -26,7 +27,7 @@ public record TooltipInfoProgressBar(ProgressBar bar)
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void render(GuiGraphics gfx, float x, float y, float partialTime)
+	public void render(GuiGraphics gfx, float x, float y, DeltaTracker partialTime)
 	{
 		RenderSystem.setShader(GameRenderer::getPositionColorShader);
 		

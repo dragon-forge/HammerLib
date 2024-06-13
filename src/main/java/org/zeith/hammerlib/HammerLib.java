@@ -39,6 +39,7 @@ import org.zeith.hammerlib.util.CommonMessages;
 import org.zeith.hammerlib.util.ZeithLinkRepository;
 import org.zeith.hammerlib.util.charging.ItemChargeHelper;
 import org.zeith.hammerlib.util.java.ReflectionUtil;
+import org.zeith.hammerlib.util.mcf.Resources;
 import org.zeith.hammerlib.util.mcf.ScanDataHelper;
 
 import java.lang.annotation.ElementType;
@@ -186,11 +187,6 @@ public class HammerLib
 		NBTSerializationHelper.construct();
 	}
 	
-	public static ResourceLocation id(String path)
-	{
-		return new ResourceLocation(HLConstants.MOD_ID, path);
-	}
-	
 	@SubscribeEvent
 	public void constructMod(FMLConstructModEvent e0)
 	{
@@ -225,7 +221,7 @@ public class HammerLib
 	@OnlyIn(Dist.CLIENT)
 	public void clientSetup(RegisterGuiLayersEvent e)
 	{
-		e.registerAboveAll(id("tooltip_engine"), new TooltipRenderEngine());
+		e.registerAboveAll(HLConstants.id("tooltip_engine"), new TooltipRenderEngine());
 	}
 	
 	@SubscribeEvent

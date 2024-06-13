@@ -80,8 +80,6 @@ public class RegistryMapping
 		report(MobEffect.class, BuiltInRegistries.MOB_EFFECT);
 		report(SoundEvent.class, BuiltInRegistries.SOUND_EVENT);
 		report(Potion.class, BuiltInRegistries.POTION);
-		report(Enchantment.class, BuiltInRegistries.ENCHANTMENT);
-		report(PaintingVariant.class, BuiltInRegistries.PAINTING_VARIANT);
 		report(Attribute.class, BuiltInRegistries.ATTRIBUTE);
 		report(VillagerType.class, BuiltInRegistries.VILLAGER_TYPE);
 		report(VillagerProfession.class, BuiltInRegistries.VILLAGER_PROFESSION);
@@ -120,7 +118,7 @@ public class RegistryMapping
 		reportRaw(RootPlacerType.class, BuiltInRegistries.ROOT_PLACER_TYPE);
 		reportRaw(FeatureSizeType.class, BuiltInRegistries.FEATURE_SIZE_TYPE);
 		reportRaw(ArgumentTypeInfo.class, BuiltInRegistries.COMMAND_ARGUMENT_TYPE);
-		reportRaw(DataComponentType.class, BuiltInRegistries.DATA_COMPONENT_TYPE);
+//		reportRaw(DataComponentType.class, BuiltInRegistries.DATA_COMPONENT_TYPE); // FIXME
 		reportRaw(CriterionTrigger.class, BuiltInRegistries.TRIGGER_TYPES);
 		reportRaw(NumberFormatType.class, BuiltInRegistries.NUMBER_FORMAT_TYPE);
 		reportRaw(StructureProcessorType.class, BuiltInRegistries.STRUCTURE_PROCESSOR);

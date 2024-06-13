@@ -27,6 +27,7 @@ import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.java.ReflectionUtil;
 import org.zeith.hammerlib.util.java.tuples.Tuple2;
 import org.zeith.hammerlib.util.java.tuples.Tuples;
+import org.zeith.hammerlib.util.mcf.Resources;
 
 import java.lang.reflect.*;
 import java.util.*;
@@ -51,7 +52,7 @@ public class RegistryAdapter
 	{
 		return (name, entry) ->
 		{
-			name = new ResourceLocation(name.getNamespace(), prefix + name.getPath());
+			name = Resources.location(name.getNamespace(), prefix + name.getPath());
 			IRegisterListener l = Cast.cast(entry, IRegisterListener.class);
 			if(l != null) l.onPreRegistered(name);
 			Registry.register(registry, name, entry);
@@ -96,7 +97,7 @@ public class RegistryAdapter
 					var name = field.getAnnotation(RegistryName.class);
 					if(name != null)
 					{
-						var rl = new ResourceLocation(modid, prefix + name.value());
+						var rl = Resources.location(modid, prefix + name.value());
 						ctxb.id(rl);
 						
 						var onlyIf = field.getAnnotation(OnlyIf.class); // Bring back OnlyIf, for registries that are non-intrusive. (Mostly, for custom registry types)
@@ -184,7 +185,7 @@ public class RegistryAdapter
 					{
 						field.setAccessible(true);
 						var name = field.getAnnotation(RegistryName.class);
-						var rl = new ResourceLocation(modid, prefix + name.value());
+						var rl = Resources.location(modid, prefix + name.value());
 						
 						var val = field.get(null);
 						var onlyIf = field.getAnnotation(OnlyIf.class); // Bring back OnlyIf, for registries that are non-intrusive. (Mostly, for custom registry types)
@@ -231,7 +232,7 @@ public class RegistryAdapter
 						
 						BiConsumer<ResourceLocation, T> grabber2 = (id, obj) ->
 						{
-							id = new ResourceLocation(id.getNamespace(), prefix2 + id.getPath());
+							id = Resources.location(id.getNamespace(), prefix2 + id.getPath());
 							grabber.accept(id, obj);
 						};
 						
@@ -255,7 +256,7 @@ public class RegistryAdapter
 					{
 						field.setAccessible(true);
 						var name = field.getAnnotation(RegistryName.class);
-						var rl = new ResourceLocation(modid, name.value());
+						var rl = Resources.location(modid, name.value());
 						
 						var val = field.get(null);
 						

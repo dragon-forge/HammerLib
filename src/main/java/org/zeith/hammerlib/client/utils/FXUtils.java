@@ -7,20 +7,21 @@ import net.minecraft.resources.ResourceLocation;
 import org.zeith.hammerlib.client.texture.HttpTextureDownloader;
 import org.zeith.hammerlib.proxy.HLConstants;
 import org.zeith.hammerlib.util.java.Hashers;
+import org.zeith.hammerlib.util.mcf.Resources;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class FXUtils
 {
-	public static final ResourceLocation EMPTY_TEXTURE = new ResourceLocation(HLConstants.MOD_ID, "textures/empty.png");
+	public static final ResourceLocation EMPTY_TEXTURE = Resources.location(HLConstants.MOD_ID, "textures/empty.png");
 	private static final Map<String, ResourceLocation> textures = new HashMap<>();
 	
 	public static ResourceLocation urlToTexturePath(String url)
 	{
 		String withoutHTTP = url.substring(url.indexOf("://") + 3);
 		String protocol = url.substring(0, url.indexOf("://"));
-		return new ResourceLocation(HLConstants.MOD_ID, protocol + "/" + Hashers.SHA1.hashify(withoutHTTP));
+		return Resources.location(HLConstants.MOD_ID, protocol + "/" + Hashers.SHA1.hashify(withoutHTTP));
 	}
 	
 	public static AbstractTexture downloadTexture(ResourceLocation texture, String url)
@@ -45,7 +46,7 @@ public class FXUtils
 				return;
 			}
 			
-			ResourceLocation value = new ResourceLocation(f);
+			ResourceLocation value = Resources.location(f);
 			textures.put(f, value);
 			bindTexture(value);
 		}
@@ -87,7 +88,7 @@ public class FXUtils
 			return;
 		}
 		
-		ResourceLocation value = new ResourceLocation(namespace, path);
+		ResourceLocation value = Resources.location(namespace, path);
 		textures.put(f, value);
 		bindTexture(value);
 	}

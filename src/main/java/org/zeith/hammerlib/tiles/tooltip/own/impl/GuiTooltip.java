@@ -1,5 +1,6 @@
 package org.zeith.hammerlib.tiles.tooltip.own.impl;
 
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -74,7 +75,7 @@ public class GuiTooltip
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void render(GuiGraphics pose, float x, float y, float partialTime)
+	public void render(GuiGraphics pose, float x, float y, DeltaTracker partialTime)
 	{
 		for(TooltipLine ln : infos)
 		{
@@ -101,7 +102,7 @@ public class GuiTooltip
 		protected float width, height;
 		
 		@OnlyIn(Dist.CLIENT)
-		public void render(GuiGraphics pose, float x, float y, float partialTime)
+		public void render(GuiGraphics pose, float x, float y, DeltaTracker partialTime)
 		{
 			for(IRenderableInfo info : this)
 			{

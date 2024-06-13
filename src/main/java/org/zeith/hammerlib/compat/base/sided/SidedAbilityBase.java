@@ -1,7 +1,7 @@
 package org.zeith.hammerlib.compat.base.sided;
 
 import com.google.common.base.Suppliers;
-import net.neoforged.fml.DistExecutor;
+import org.zeith.hammerlib.api.proxy.IProxy;
 import org.zeith.hammerlib.util.java.Cast;
 
 import java.util.function.Supplier;
@@ -60,7 +60,7 @@ public abstract class SidedAbilityBase<CLIENT extends SidedAbilityBase<? extends
 	/**
 	 * A supplier of the appropriate implementation of this ability for the client side of the game.
 	 *
-	 * <p>This field is initialized using the {@link DistExecutor#unsafeRunForDist(Supplier, Supplier)}
+	 * <p>This field is initialized using the {@link IProxy#createSided(Supplier, Supplier)}
 	 * method, which ensures that the correct implementation is returned based on the current side of the
 	 * game. On the client side, it returns a supplier of the client-side implementation of the ability.
 	 * On the server side, it returns a supplier that always returns `null`.
@@ -75,7 +75,7 @@ public abstract class SidedAbilityBase<CLIENT extends SidedAbilityBase<? extends
 	 * }
 	 * </pre>
 	 */
-	public final Supplier<Supplier<CLIENT>> client = DistExecutor.unsafeRunForDist(() -> () -> Suppliers.memoize(() -> forClient().get()), () -> () -> () -> () -> null);
+	public final Supplier<Supplier<CLIENT>> client = IProxy.createSided(() -> () -> Suppliers.memoize(() -> forClient().get()), () -> () -> () -> () -> null);
 	
 	/**
 	 * Constructs a new instance of this ability.

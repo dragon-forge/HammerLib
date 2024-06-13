@@ -1,8 +1,10 @@
 package org.zeith.hammerlib.core.recipes.replacers;
 
-import net.minecraft.world.inventory.CraftingContainer;
-import net.minecraft.world.item.*;
-import org.zeith.hammerlib.annotations.*;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.CraftingInput;
+import org.zeith.hammerlib.annotations.RegistryName;
+import org.zeith.hammerlib.annotations.SimplyRegister;
 
 
 @SimplyRegister
@@ -13,7 +15,7 @@ public class WaterBottleReplacer
 	public static final IRemainingItemReplacer REPLACER = new WaterBottleReplacer();
 	
 	@Override
-	public ItemStack replace(CraftingContainer container, int slot, ItemStack prevItem)
+	public ItemStack replace(CraftingInput container, int slot, ItemStack prevItem)
 	{
 		var stored = container.getItem(slot);
 		

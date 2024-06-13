@@ -4,17 +4,20 @@ import com.google.common.collect.*;
 import lombok.Getter;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.*;
 import net.neoforged.bus.api.Event;
 import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.event.IModBusEvent;
 import net.neoforged.neoforge.common.conditions.ICondition;
-import org.jetbrains.annotations.*;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 import org.zeith.hammerlib.api.recipes.RecipeBuilderExtension;
 import org.zeith.hammerlib.core.adapter.recipe.*;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.mcf.RecipeRegistrationContext;
+import org.zeith.hammerlib.util.mcf.Resources;
 import org.zeith.hammerlib.util.mcf.itf.IRecipeRegistrationEvent;
 
 import java.util.*;
@@ -145,7 +148,7 @@ public class RegisterRecipesEvent
 		var contextModId = ModLoadingContext.get().getActiveNamespace();
 		if(loc.getNamespace().equals(contextModId))
 			return loc;
-		return new ResourceLocation(contextModId, loc.getNamespace() + "/" + loc.getPath());
+		return Resources.location(contextModId, loc.getNamespace() + "/" + loc.getPath());
 	}
 	
 	@Override
@@ -160,7 +163,7 @@ public class RegisterRecipesEvent
 		int lastIdx = 1;
 		while(true)
 		{
-			rl = new ResourceLocation(rl.getNamespace(), rl.getPath() + "_" + (lastIdx++));
+			rl = Resources.location(rl.getNamespace(), rl.getPath() + "_" + (lastIdx++));
 			var tf = transformRecipeIdToContext(rl);
 			if(!isRecipeIdTaken(tf)) return tf;
 		}

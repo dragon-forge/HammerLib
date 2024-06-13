@@ -1,6 +1,7 @@
 package org.zeith.hammerlib.tiles.tooltip.own.inf;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
@@ -43,7 +44,7 @@ public class TooltipInfoTexture
 	
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void render(GuiGraphics matrix, float x, float y, float partialTime)
+	public void render(GuiGraphics matrix, float x, float y, DeltaTracker partialTime)
 	{
 		RenderSystem.enableBlend();
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);

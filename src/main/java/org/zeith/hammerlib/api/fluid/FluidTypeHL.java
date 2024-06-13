@@ -5,6 +5,7 @@ import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtension
 import net.neoforged.neoforge.fluids.FluidType;
 import org.zeith.hammerlib.api.fml.IRegisterListener;
 import org.zeith.hammerlib.proxy.HLConstants;
+import org.zeith.hammerlib.util.mcf.Resources;
 
 import java.util.function.Consumer;
 
@@ -28,8 +29,8 @@ public class FluidTypeHL
 	@Override
 	public void onPreRegistered(ResourceLocation id)
 	{
-		still = new ResourceLocation(id.getNamespace(), "block/" + id.getPath());
-		flow = new ResourceLocation(id.getNamespace(), "block/" + id.getPath() + "_flow");
+		still = Resources.location(id.getNamespace(), "block/" + id.getPath());
+		flow = Resources.location(id.getNamespace(), "block/" + id.getPath() + "_flow");
 	}
 	
 	@Override

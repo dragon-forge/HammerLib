@@ -5,13 +5,15 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.energy.IEnergyStorage;
+import org.zeith.hammerlib.util.mcf.Resources;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TooltipUtils
 {
-	public static final ResourceLocation ENERGY_SUB = new ResourceLocation("hammerlib", "energy");
-	public static final ResourceLocation FE_DEFINITION = new ResourceLocation("hammerlib", "fe");
+	public static final ResourceLocation ENERGY_SUB = Resources.location("hammerlib", "energy");
+	public static final ResourceLocation FE_DEFINITION = Resources.location("hammerlib", "fe");
 
 	private static final ThreadLocal<List<String>> TOOLTIP = ThreadLocal.withInitial(ArrayList::new);
 

@@ -18,6 +18,7 @@ import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.api.client.IEmissivePlayerInfo;
 import org.zeith.hammerlib.compat.base._hl.HLAbilities;
 import org.zeith.hammerlib.compat.base.sided.SidedAbilityBase;
+import org.zeith.hammerlib.util.colors.ColorHelper;
 import org.zeith.hammerlib.util.java.Cast;
 
 
@@ -71,8 +72,8 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extend
 				.map(abil -> abil.emissiveTranslucentArmor(emt))
 				.orElseGet(() -> RenderType.entityTranslucentEmissive(emt));
 		
-		VertexConsumer vertexconsumer = src.getBuffer(emissiveRT);
+		VertexConsumer vc = src.getBuffer(emissiveRT);
 		int i = getOverlayCoords(p_115308_, this.getWhiteOverlayProgress(p_115308_, p_115310_));
-		this.model.renderToBuffer(p_115311_, vertexconsumer, p_115313_, i, 1.0F, 1.0F, 1.0F, flag1 ? 0.15F : 1.0F);
+		this.model.renderToBuffer(p_115311_, vc, p_115313_, i, ColorHelper.packARGB(1.0F, 1.0F, 1.0F, flag1 ? 38.25f : 1.0F));
 	}
 }

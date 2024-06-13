@@ -1,10 +1,11 @@
 package org.zeith.hammerlib.compat.base;
 
-import net.minecraft.resources.ResourceLocation;
 import net.neoforged.fml.ModList;
 import org.objectweb.asm.Type;
 import org.zeith.hammerlib.core.adapter.OnlyIfAdapter;
-import org.zeith.hammerlib.util.java.*;
+import org.zeith.hammerlib.util.java.Cast;
+import org.zeith.hammerlib.util.java.ReflectionUtil;
+import org.zeith.hammerlib.util.mcf.Resources;
 import org.zeith.hammerlib.util.mcf.ScanDataHelper;
 
 import java.lang.reflect.Constructor;
@@ -101,7 +102,7 @@ public class CompatList<T extends BaseCompat<T>>
 												"CompatList.gather",
 												base.getSimpleName(),
 												data,
-												new ResourceLocation(Objects.toString(data.getProperty("modid").orElse("")), "root")
+												Resources.location(Objects.toString(data.getProperty("modid").orElse("")), "root")
 										)
 								)
 								.orElse(true)
