@@ -7,10 +7,12 @@ import net.minecraft.world.level.block.entity.*;
 import net.minecraft.world.level.block.state.BlockState;
 import org.zeith.api.level.IBlockEntityLevel;
 import org.zeith.hammerlib.api.tiles.ISidedTickableTile;
+import org.zeith.hammerlib.core.adapter.BlockEntityAdapter;
 import org.zeith.hammerlib.mixins.BlockEntityAccessor;
 import org.zeith.hammerlib.tiles.TileSyncableTickable;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -122,6 +124,14 @@ public class BlockAPI
 	public static <T extends BlockEntity> void spoofBlockEntityType(T be, BlockEntityType<T> type)
 	{
 		((BlockEntityAccessor) be).setType_HammerLib(type);
+	}
+	
+	/**
+	 * Adds a list of blocks to the internal set of valid blocks for a given BlockEntityType.
+	 */
+	public static synchronized void addBlocksToEntityType(BlockEntityType<?> type, Block... blocks)
+	{
+		BlockEntityAdapter.addBlocksToEntityType(type, blocks);
 	}
 	
 	/**

@@ -2,7 +2,8 @@ package org.zeith.hammerlib.core.adapter;
 
 import com.google.common.collect.Sets;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.*;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.event.LanguageReloadEvent;
 import org.zeith.hammerlib.util.mcf.Resources;
@@ -31,12 +32,7 @@ public class LanguageAdapter
 	
 	public static void reloadLangs(LanguageReloadEvent e)
 	{
-		ReloadableResourceManager mgr = HammerLib.PROXY.getResourceManager();
-		if(mgr == null)
-		{
-			HammerLib.LOG.warn("Failed to reload HammerLib languages due to lack of available ResourceManager");
-			return;
-		}
+		var mgr = e.getResources();
 		HammerLib.LOG.debug("Reloading HammerLib-enabled language namespaces: " + mgr.getNamespaces());
 		for(String modId : modids)
 			findFirstExisting(mgr,

@@ -24,7 +24,7 @@ shimmer_version=0.1.15
 mc_version=1.21.0
 mc_range=[1.21,1.22)
 forge_version=21.0.0-beta
-forge_range=[21.0,)
+forge_range=[21.0.0-beta,)
 fmljava_range=[1.0,)
 mc_user=Zeitheron,63fa4c485b5640809727d5d59663e603
 

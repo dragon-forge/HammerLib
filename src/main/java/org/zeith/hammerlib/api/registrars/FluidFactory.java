@@ -1,4 +1,4 @@
-package org.zeith.hammerlib.api.fluid;
+package org.zeith.hammerlib.api.registrars;
 
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
@@ -17,6 +17,7 @@ import net.neoforged.neoforge.fluids.*;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import net.neoforged.neoforge.registries.RegisterEvent;
 import org.jetbrains.annotations.Nullable;
+import org.zeith.hammerlib.api.fluid.FluidTypeHL;
 import org.zeith.hammerlib.api.fml.ICustomRegistrar;
 import org.zeith.hammerlib.api.fml.IRegisterListener;
 import org.zeith.hammerlib.api.items.CreativeTab;

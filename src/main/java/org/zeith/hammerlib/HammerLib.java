@@ -1,7 +1,6 @@
 package org.zeith.hammerlib;
 
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraftforge.fml.unsafe.UnsafeHacks;
 import net.neoforged.api.distmarker.Dist;
@@ -39,7 +38,6 @@ import org.zeith.hammerlib.util.CommonMessages;
 import org.zeith.hammerlib.util.ZeithLinkRepository;
 import org.zeith.hammerlib.util.charging.ItemChargeHelper;
 import org.zeith.hammerlib.util.java.ReflectionUtil;
-import org.zeith.hammerlib.util.mcf.Resources;
 import org.zeith.hammerlib.util.mcf.ScanDataHelper;
 
 import java.lang.annotation.ElementType;
@@ -67,7 +65,6 @@ public class HammerLib
 		
 		modEventBus.register(this);
 		PROXY.construct(modEventBus);
-		NeoForge.EVENT_BUS.register(PROXY);
 		NeoForge.EVENT_BUS.addListener(this::registerCommands);
 		
 		LanguageAdapter.registerMod(HLConstants.MOD_ID);

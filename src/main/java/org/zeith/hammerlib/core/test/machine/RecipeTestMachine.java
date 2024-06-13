@@ -19,6 +19,7 @@ import org.zeith.hammerlib.abstractions.recipes.layout.IVisualizerBuilder;
 import org.zeith.hammerlib.annotations.RegistryName;
 import org.zeith.hammerlib.annotations.SimplyRegister;
 import org.zeith.hammerlib.api.recipes.*;
+import org.zeith.hammerlib.api.registrars.SerializableRecipeType;
 import org.zeith.hammerlib.client.render.IGuiDrawable;
 import org.zeith.hammerlib.core.adapter.recipe.RecipeBuilder;
 import org.zeith.hammerlib.util.mcf.itf.IRecipeRegistrationEvent;

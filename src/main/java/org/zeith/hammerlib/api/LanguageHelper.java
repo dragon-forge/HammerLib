@@ -1,5 +1,6 @@
 package org.zeith.hammerlib.api;
 
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.entity.player.Player;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.event.LanguageReloadEvent;
@@ -9,24 +10,19 @@ import java.util.function.BiConsumer;
 
 public class LanguageHelper
 {
-	// This is a direct reference to a hash map of languages stored in client's i18n language at any given moment.
-	public static HashMap<String, String> clientLanguageMap = new HashMap<>();
-	
-	public static void reloadLanguage(HashMap<String, String> handler)
+	public static void reloadLanguage(Map<String, String> handler, ResourceManager resources, List<String> languageStack)
 	{
-		String lng = HammerLib.PROXY.getLanguage();
-
-		LangMap exist = new LangMap(lng);
-		reloadLang("en_us", exist);
-		if(!lng.equals("en_us")) reloadLang(lng, exist);
-		exist.apply(handler);
-		
-		clientLanguageMap = handler;
+		for(var lng : languageStack)
+		{
+			LangMap exist = new LangMap(lng);
+			reloadLang(lng, resources, exist);
+			exist.apply(handler);
+		}
 	}
 
-	private static void reloadLang(String lang, LangMap lmap)
+	private static void reloadLang(String lang, ResourceManager resources, LangMap lmap)
 	{
-		HammerLib.postEvent(new LanguageReloadEvent(lmap, lang));
+		HammerLib.postEvent(new LanguageReloadEvent(lmap, resources, lang));
 	}
 
 	public static String getLanguage(Player player)

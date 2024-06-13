@@ -5,6 +5,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
+import org.zeith.hammerlib.api.registrars.SerializableRecipeType;
 
 public abstract class BaseRecipe<R extends BaseRecipe<R, INPUT>, INPUT extends RecipeInput>
 		implements Recipe<INPUT>

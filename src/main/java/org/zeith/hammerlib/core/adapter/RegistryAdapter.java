@@ -123,7 +123,13 @@ public class RegistryAdapter
 		}
 		//</editor-fold>
 		
-		return RegistryAdapter.register(event, reg, source, mod, prefix);
+		try
+		{
+			return RegistryAdapter.register(event, reg, source, mod, prefix);
+		} catch(Throwable e)
+		{
+			throw new RuntimeException("Failed to perform registration for registry " + event.getRegistryKey(), e);
+		}
 	}
 	
 	/**
@@ -185,6 +191,7 @@ public class RegistryAdapter
 					{
 						field.setAccessible(true);
 						var name = field.getAnnotation(RegistryName.class);
+						if(name == null) throw new RuntimeException("Field " + field + " is missing @RegistryName!");
 						var rl = Resources.location(modid, prefix + name.value());
 						
 						var val = field.get(null);
@@ -271,7 +278,7 @@ public class RegistryAdapter
 							var fval = superType.cast(val);
 							grabber.accept(rl, fval);
 							
-							AnnotationProcessorRegistry.scanReg(ctx,field,val, true);
+							AnnotationProcessorRegistry.scanReg(ctx, field, val, true);
 						}
 					} catch(IllegalArgumentException | IllegalAccessException e)
 					{

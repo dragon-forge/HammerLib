@@ -21,7 +21,7 @@ public class FluidTypeHL
 			still = HLConstants.id("block/machine_down"),
 			flow = HLConstants.id("block/machine_down");
 	
-	protected FluidTypeHL(FluidType.Properties properties)
+	public FluidTypeHL(FluidType.Properties properties)
 	{
 		super(properties);
 	}

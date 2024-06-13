@@ -1,8 +1,7 @@
-package org.zeith.hammerlib.api.recipes;
+package org.zeith.hammerlib.api.registrars;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.*;
 import net.minecraft.resources.ResourceLocation;

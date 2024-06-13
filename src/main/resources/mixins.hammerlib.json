@@ -18,6 +18,7 @@
     "HTTPUtilMixin",
     "IngredientAccessor",
     "ItemStackMixin",
+    "languages.ServerLanguageMixin",
     "LevelChunkMixin",
     "LevelMixin",
     "LootTableAccessor",
@@ -27,11 +28,8 @@
     "bs.kubejs.RecipeEventJSMixin"
   ],
   "client": [
-    "client.BlockElementFaceAccessor",
-    "client.ClientLanguageAccessor",
+    "languages.ClientLanguageMixin",
     "client.ClientLevelMixin",
-    "client.I18nAccessor",
-    "client.LanguageManagerMixin",
     "client.MinecraftMixin",
     "client.ParticleEngineAccessor",
     "client.PlayerInfoMixin",

@@ -46,7 +46,7 @@ public class ItemRendererMixin
 			at = @At("HEAD"),
 			cancellable = true
 	)
-	private static void getArmorFoilBufferHook(MultiBufferSource pBuffer, RenderType pRenderType, boolean pNoEntity, boolean pWithGlint, CallbackInfoReturnable<VertexConsumer> cir)
+	private static void getArmorFoilBufferHook(MultiBufferSource pBuffer, RenderType pRenderType, boolean pWithGlint, CallbackInfoReturnable<VertexConsumer> cir)
 	{
 		IColoredFoilItem icgi;
 		if(pWithGlint && TintingVertexConsumer.tintingEnabled && !hl$contextStack.isEmpty() && (icgi = IColoredFoilItem.get(hl$contextStack)) != null)
@@ -54,10 +54,7 @@ public class ItemRendererMixin
 			int color = icgi.getFoilColor(hl$contextStack);
 			cir.setReturnValue(VertexMultiConsumer.create(
 							TintingVertexConsumer.wrap(
-									pBuffer.getBuffer(pNoEntity
-													  ? RenderCustomGlint.armorGlint()
-													  : RenderCustomGlint.armorEntityGlint()
-									),
+									pBuffer.getBuffer(RenderCustomGlint.armorEntityGlint()),
 									color
 							),
 							pBuffer.getBuffer(pRenderType)
@@ -93,7 +90,7 @@ public class ItemRendererMixin
 	}
 	
 	@Inject(
-			method = "getCompassFoilBufferDirect",
+			method = "getCompassFoilBuffer",
 			at = @At("HEAD"),
 			cancellable = true
 	)

@@ -3,6 +3,8 @@ package org.zeith.hammerlib.api.items;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.minecraft.world.item.*;
 import org.jetbrains.annotations.*;
+import org.zeith.hammerlib.api.items.coms.CustomGlintComponent;
+import org.zeith.hammerlib.core.init.ComponentTypesHL;
 
 import java.util.Map;
 
@@ -28,8 +30,15 @@ public interface IColoredFoilItem
 	@Nullable
 	static IColoredFoilItem get(ItemStack stack)
 	{
+		// Data component overrides go first!
+		CustomGlintComponent<?> comp = stack.get(ComponentTypesHL.CUSTOM_GLINT.get());
+		if(comp != null) return comp;
+		
+		// Then we check if the block is IColoredFoilItem
 		if(stack.getItem() instanceof BlockItem bi && bi.getBlock() instanceof IColoredFoilItem f)
 			return f;
+		
+		// Lastly we check if the item is IColoredFoilItem, and lastly - check overrides.
 		return stack.getItem() instanceof IColoredFoilItem f ? f : Binds.OVERRIDES.get(stack.getItem());
 	}
 	

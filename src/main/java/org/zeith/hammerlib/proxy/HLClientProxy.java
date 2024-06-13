@@ -91,7 +91,7 @@ public class HLClientProxy
 		modBus.addListener(TexturePixelGetter::reloadTexture);
 		SimpleModelGenerator.setup();
 
-//		MinecraftForge.EVENT_BUS.addListener(this::alterTooltip);
+		NeoForge.EVENT_BUS.register(this);
 	}
 	
 	private void loadComplete(FMLLoadCompleteEvent e)
