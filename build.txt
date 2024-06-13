@@ -21,7 +21,7 @@ maven_group=org.zeith.hammerlib
 shimmer_version=0.1.15
 
 # MC Info
-mc_version=1.21.0
+mc_version=1.21
 mc_range=[1.21,1.22)
 forge_version=21.0.0-beta
 forge_range=[21.0.0-beta,)
