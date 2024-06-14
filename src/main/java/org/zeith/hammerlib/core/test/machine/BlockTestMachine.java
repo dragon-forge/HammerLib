@@ -19,6 +19,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.zeith.hammerlib.annotations.*;
 import org.zeith.hammerlib.api.forge.BlockAPI;
 import org.zeith.hammerlib.api.forge.ContainerAPI;
+import org.zeith.hammerlib.api.registrars.Registrar;
 import org.zeith.hammerlib.core.adapter.BlockHarvestAdapter;
 import org.zeith.hammerlib.proxy.HLConstants;
 import org.zeith.hammerlib.util.java.Cast;
@@ -39,6 +40,9 @@ public class BlockTestMachine
 			.sound(SoundType.METAL)
 			.strength(1.5F));
 	
+	@RegistryName("test_machine")
+	public static final Registrar<MapCodec<BlockTestMachine>> CODEC = Registrar.blockType(simpleCodec(BlockTestMachine::new));
+	
 	public BlockTestMachine(BlockBehaviour.Properties props)
 	{
 		super(props);
@@ -46,12 +50,10 @@ public class BlockTestMachine
 		BlockHarvestAdapter.bindTool(BlockHarvestAdapter.MineableType.PICKAXE, Tiers.IRON, this);
 	}
 	
-	public static final MapCodec<BlockTestMachine> CODEC = simpleCodec(BlockTestMachine::new);
-	
 	@Override
 	protected MapCodec<? extends BaseEntityBlock> codec()
 	{
-		return CODEC;
+		return CODEC.get();
 	}
 	
 	@Override

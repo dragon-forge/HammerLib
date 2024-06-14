@@ -17,32 +17,38 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.SurfaceRules;
 import net.minecraft.world.level.levelgen.structure.pools.alias.PoolAliasBinding;
+import net.neoforged.neoforge.common.conditions.ICondition;
+import net.neoforged.neoforge.common.loot.IGlobalLootModifier;
+import net.neoforged.neoforge.common.world.BiomeModifier;
+import net.neoforged.neoforge.common.world.StructureModifier;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import net.neoforged.neoforge.registries.RegisterEvent;
 import org.zeith.hammerlib.api.fml.ICustomRegistrar;
 import org.zeith.hammerlib.api.fml.IRegisterListener;
 import org.zeith.hammerlib.util.java.Cast;
 
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 /**
  * Use this whenever you want to register something that either links back to multiple registries to filter things out.
  * <p>
  * Although it works for more granular registration with {@link org.zeith.hammerlib.annotations.SimplyRegister}
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({ "unused", "unchecked", "rawtypes" })
 public class Registrar<T>
 		implements ICustomRegistrar, Supplier<T>
 {
 	protected final ResourceKey<? extends Registry<T>> registryKey;
 	protected final Supplier<T> value;
 	
-	public Registrar(ResourceKey<? extends Registry<T>> registryKey, T value)
+	protected Registrar(ResourceKey<? extends Registry<T>> registryKey, T value)
 	{
 		this.registryKey = registryKey;
 		this.value = Cast.constant(value);
 	}
 	
-	public Registrar(ResourceKey<? extends Registry<T>> registryKey, Supplier<T> value)
+	protected Registrar(ResourceKey<? extends Registry<T>> registryKey, Supplier<T> value)
 	{
 		this.registryKey = registryKey;
 		this.value = Suppliers.memoize(value::get);
@@ -64,37 +70,47 @@ public class Registrar<T>
 		return value.get();
 	}
 	
-	public static Registrar<MapCodec<? extends PoolAliasBinding>> poolAliasBinding(MapCodec<? extends PoolAliasBinding> type)
+	public static <T> Registrar<T> of(ResourceKey<? extends Registry<T>> registryKey, T value)
+	{
+		return new Registrar<>(registryKey, value);
+	}
+	
+	public static <T> Registrar<T> of(ResourceKey<? extends Registry<T>> registryKey, Supplier<T> value)
+	{
+		return new Registrar<>(registryKey, value);
+	}
+	
+	public static <T extends PoolAliasBinding> Registrar<MapCodec<T>> poolAliasBinding(MapCodec<? super T> type)
 	{
 		return new Registrar<>(Registries.POOL_ALIAS_BINDING, type);
 	}
 	
-	public static Registrar<MapCodec<? extends BiomeSource>> biomeSource(MapCodec<? extends BiomeSource> type)
+	public static <T extends BiomeSource> Registrar<MapCodec<T>> biomeSource(MapCodec<? super T> type)
 	{
 		return new Registrar<>(Registries.BIOME_SOURCE, type);
 	}
 	
-	public static Registrar<MapCodec<? extends ChunkGenerator>> chunkGenerator(MapCodec<? extends ChunkGenerator> type)
+	public static <T extends ChunkGenerator> Registrar<MapCodec<T>> chunkGenerator(MapCodec<? super ChunkGenerator> type)
 	{
 		return new Registrar<>(Registries.CHUNK_GENERATOR, type);
 	}
 	
-	public static Registrar<MapCodec<? extends SurfaceRules.ConditionSource>> materialCondition(MapCodec<? extends SurfaceRules.ConditionSource> type)
+	public static <T extends SurfaceRules.ConditionSource> Registrar<MapCodec<T>> materialCondition(MapCodec<? super T> type)
 	{
 		return new Registrar<>(Registries.MATERIAL_CONDITION, type);
 	}
 	
-	public static Registrar<MapCodec<? extends SurfaceRules.RuleSource>> materialRule(MapCodec<? extends SurfaceRules.RuleSource> type)
+	public static <T extends SurfaceRules.RuleSource> Registrar<MapCodec<T>> materialRule(MapCodec<? super T> type)
 	{
 		return new Registrar<>(Registries.MATERIAL_RULE, type);
 	}
 	
-	public static Registrar<MapCodec<? extends DensityFunction>> densityFunction(MapCodec<? extends DensityFunction> type)
+	public static <T extends DensityFunction> Registrar<MapCodec<T>> densityFunction(MapCodec<? super T> type)
 	{
 		return new Registrar<>(Registries.DENSITY_FUNCTION_TYPE, type);
 	}
 	
-	public static Registrar<MapCodec<? extends Block>> blockType(MapCodec<? extends Block> type)
+	public static <T extends Block> Registrar<MapCodec<T>> blockType(MapCodec<? super T> type)
 	{
 		return new Registrar<>(Registries.BLOCK_TYPE, type);
 	}
@@ -104,38 +120,68 @@ public class Registrar<T>
 		return Cast.cast(new Registrar<>(Registries.DATA_COMPONENT_TYPE, type.build()));
 	}
 	
-	public static Registrar<DataComponentType<?>> enchantmentEffectDataComponentType(DataComponentType.Builder<?> type)
+	public static <T> Registrar<DataComponentType<T>> dataComponentType(UnaryOperator<DataComponentType.Builder<T>> type)
 	{
-		return new Registrar<>(Registries.DATA_COMPONENT_TYPE, type.build());
+		return Cast.cast(new Registrar<>(Registries.DATA_COMPONENT_TYPE, type.apply(DataComponentType.builder()).build()));
 	}
 	
-	public static Registrar<MapCodec<? extends EntitySubPredicate>> entitySubPredicateType(MapCodec<? extends EntitySubPredicate> type)
+	public static <T> Registrar<DataComponentType<T>> enchantmentEffectDataComponentType(DataComponentType.Builder<T> type)
+	{
+		return Cast.cast(new Registrar<>(Registries.ENCHANTMENT_EFFECT_COMPONENT_TYPE, type.build()));
+	}
+	
+	public static <T> Registrar<DataComponentType<T>> enchantmentEffectDataComponentType(UnaryOperator<DataComponentType.Builder<T>> type)
+	{
+		return Cast.cast(new Registrar<>(Registries.DATA_COMPONENT_TYPE, type.apply(DataComponentType.builder()).build()));
+	}
+	
+	public static <T extends EntitySubPredicate> Registrar<MapCodec<T>> entitySubPredicateType(MapCodec<? super T> type)
 	{
 		return new Registrar<>(Registries.ENTITY_SUB_PREDICATE_TYPE, type);
 	}
 	
-	public static Registrar<MapCodec<? extends LevelBasedValue>> enchantmentLevelBasedValueType(MapCodec<? extends LevelBasedValue> type)
+	public static <T extends LevelBasedValue> Registrar<MapCodec<T>> enchantmentLevelBasedValueType(MapCodec<? super T> type)
 	{
 		return new Registrar<>(Registries.ENCHANTMENT_LEVEL_BASED_VALUE_TYPE, type);
 	}
 	
-	public static Registrar<MapCodec<? extends EnchantmentEntityEffect>> enchantmentEntityBasedValueType(MapCodec<? extends EnchantmentEntityEffect> type)
+	public static <T extends EnchantmentEntityEffect> Registrar<MapCodec<T>> enchantmentEntityBasedValueType(MapCodec<? super T> type)
 	{
 		return new Registrar<>(Registries.ENCHANTMENT_ENTITY_EFFECT_TYPE, type);
 	}
 	
-	public static Registrar<MapCodec<? extends EnchantmentLocationBasedEffect>> enchantmentLocationBasedValueType(MapCodec<? extends EnchantmentLocationBasedEffect> type)
+	public static <T extends EnchantmentLocationBasedEffect> Registrar<MapCodec<T>> enchantmentLocationBasedValueType(MapCodec<? super T> type)
 	{
 		return new Registrar<>(Registries.ENCHANTMENT_LOCATION_BASED_EFFECT_TYPE, type);
 	}
 	
-	public static Registrar<MapCodec<? extends EnchantmentValueEffect>> enchantmentValueBasedValueType(MapCodec<? extends EnchantmentValueEffect> type)
+	public static <T extends EnchantmentValueEffect> Registrar<MapCodec<T>> enchantmentValueBasedValueType(MapCodec<? super T> type)
 	{
 		return new Registrar<>(Registries.ENCHANTMENT_VALUE_EFFECT_TYPE, type);
 	}
 	
-	public static Registrar<MapCodec<? extends EnchantmentProvider>> enchantmentProviderType(MapCodec<? extends EnchantmentProvider> type)
+	public static <T extends EnchantmentProvider> Registrar<MapCodec<T>> enchantmentProviderType(MapCodec<? super T> type)
 	{
 		return new Registrar<>(Registries.ENCHANTMENT_PROVIDER_TYPE, type);
+	}
+	
+	public static <T extends IGlobalLootModifier> Registrar<MapCodec<T>> globalLootModifier(MapCodec<? super T> type)
+	{
+		return new Registrar<>(NeoForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS, type);
+	}
+	
+	public static <T extends BiomeModifier> Registrar<MapCodec<T>> biomeModifierSerializer(MapCodec<? super T> type)
+	{
+		return new Registrar<>(NeoForgeRegistries.Keys.BIOME_MODIFIER_SERIALIZERS, type);
+	}
+	
+	public static <T extends StructureModifier> Registrar<MapCodec<T>> structureModifierSerializer(MapCodec<? super T> type)
+	{
+		return new Registrar<>(NeoForgeRegistries.Keys.STRUCTURE_MODIFIER_SERIALIZERS, type);
+	}
+	
+	public static <T extends ICondition> Registrar<MapCodec<T>> condition(MapCodec<? super T> type)
+	{
+		return new Registrar<>(NeoForgeRegistries.Keys.CONDITION_CODECS, type);
 	}
 }

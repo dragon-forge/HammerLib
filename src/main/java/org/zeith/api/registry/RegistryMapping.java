@@ -11,6 +11,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.numbers.NumberFormatType;
+import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
@@ -51,8 +52,12 @@ import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElementTy
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.saveddata.maps.MapDecorationType;
+import net.neoforged.neoforge.attachment.AttachmentType;
+import net.neoforged.neoforge.common.crafting.IngredientType;
 import net.neoforged.neoforge.fluids.FluidType;
+import net.neoforged.neoforge.fluids.crafting.FluidIngredientType;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import net.neoforged.neoforge.registries.holdersets.HolderSetType;
 import org.zeith.hammerlib.util.java.Cast;
 
 import java.util.*;
@@ -91,8 +96,16 @@ public class RegistryMapping
 		reportRaw(MapDecorationType.class, BuiltInRegistries.MAP_DECORATION_TYPE);
 		reportRaw(StructurePieceType.class, BuiltInRegistries.STRUCTURE_PIECE);
 		
-		// Forge is dumb, yes.
+		// NeoForge stuff here.
 		report(FluidType.class, NeoForgeRegistries.FLUID_TYPES);
+		report(ItemDisplayContext.class, NeoForgeRegistries.DISPLAY_CONTEXTS);
+		report(HolderSetType.class, NeoForgeRegistries.HOLDER_SET_TYPES);
+		
+		// NF generics
+		reportRaw(AttachmentType.class, NeoForgeRegistries.ATTACHMENT_TYPES);
+		reportRaw(FluidIngredientType.class, NeoForgeRegistries.FLUID_INGREDIENT_TYPES);
+		reportRaw(IngredientType.class, NeoForgeRegistries.INGREDIENT_TYPES);
+		reportRaw(EntityDataSerializer.class, NeoForgeRegistries.ENTITY_DATA_SERIALIZERS);
 		
 		// Generics.
 		reportRaw(EntityType.class, BuiltInRegistries.ENTITY_TYPE);
