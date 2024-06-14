@@ -1,9 +1,9 @@
 package org.zeith.hammerlib.core;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
@@ -34,6 +34,7 @@ public class RecipeHelper
 	public static final String NEOFORGE_MOD_ID_FOR_TAGS = "c";
 	
 	public static void registerCustomRecipes(
+			HolderLookup.Provider registries,
 			Predicate<ResourceLocation> idInUse,
 			Consumer<RecipeHolder<?>> addRecipe,
 			Consumer<Set<ResourceLocation>> removeRecipes,
@@ -41,7 +42,7 @@ public class RecipeHelper
 			ICondition.IContext context
 	)
 	{
-		RegisterRecipesEvent rre = new RegisterRecipesEvent(context, idInUse);
+		RegisterRecipesEvent rre = new RegisterRecipesEvent(registries, context, idInUse);
 		ModList.get().forEachModInOrder(mc ->
 		{
 			var bus = mc.getEventBus();
@@ -74,12 +75,7 @@ public class RecipeHelper
 	
 	public static void injectRecipes(RecipeManager mgr, ICondition.IContext context, Predicate<ResourceLocation> recipeIdUsed, Consumer<RecipeHolder<?>> registrar, Consumer<ResourceLocation> delete)
 	{
-		registerCustomRecipes(recipeIdUsed, registrar, s -> s.forEach(delete), false, context);
-	}
-	
-	public static void injectRecipesCustom(Map<ResourceLocation, Recipe<?>> handler, Set<ResourceLocation> removed, Map<ResourceLocation, List<ResourceLocation>> spoofedRecipes, ICondition.IContext ctx)
-	{
-		registerCustomRecipes(handler::containsKey, r -> handler.put(r.id(), r.value()), removed::addAll, false, ctx);
+		registerCustomRecipes(mgr.registries, recipeIdUsed, registrar, s -> s.forEach(delete), false, context);
 	}
 	
 	public static <C extends RecipeInput, T extends Recipe<C>> List<RecipeHolder<T>> getRecipeMap(Level level, RecipeType<T> type)

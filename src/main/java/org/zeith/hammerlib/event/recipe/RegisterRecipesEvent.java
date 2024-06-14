@@ -2,6 +2,7 @@ package org.zeith.hammerlib.event.recipe;
 
 import com.google.common.collect.*;
 import lombok.Getter;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -31,6 +32,7 @@ public class RegisterRecipesEvent
 		extends Event
 		implements IRecipeRegistrationEvent<Recipe<?>>, IModBusEvent
 {
+	protected final @Getter HolderLookup.Provider registries;
 	protected final @Getter ICondition.IContext context;
 	private final List<RecipeHolder<?>> recipes = Lists.newArrayList();
 	private final Set<ResourceLocation> removeRecipes = Sets.newHashSet();
@@ -40,8 +42,9 @@ public class RegisterRecipesEvent
 	
 	private final Map<Class<?>, RecipeBuilderExtension> extensions;
 	
-	public RegisterRecipesEvent(ICondition.IContext context, Predicate<ResourceLocation> idInUse)
+	public RegisterRecipesEvent(HolderLookup.Provider registries, ICondition.IContext context, Predicate<ResourceLocation> idInUse)
 	{
+		this.registries = registries;
 		this.context = context;
 		this.idInUse = idInUse;
 		this.extensions = RecipeBuilderExtension.attach(this);
