@@ -126,7 +126,7 @@ public class RenderUtils
 		Matrix4f pose4f = pose.pose().last().pose();
 		float r = ColorHelper.getRed(rgb), g = ColorHelper.getGreen(rgb), b = ColorHelper.getBlue(rgb), a = ColorHelper.getAlpha(rgb);
 		Tesselator tess = Tesselator.getInstance();
-		BufferBuilder vb = tess.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+		BufferBuilder vb = tess.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 		vb.addVertex(pose4f, x, y + height, zLevel).setColor(r, g, b, a);
 		vb.addVertex(pose4f, x + width, y + height, zLevel).setColor(r, g, b, a);
 		vb.addVertex(pose4f, x + width, y, zLevel).setColor(r, g, b, a);
