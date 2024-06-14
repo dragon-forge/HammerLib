@@ -18,17 +18,18 @@
     "HTTPUtilMixin",
     "IngredientAccessor",
     "ItemStackMixin",
-    "languages.ServerLanguageMixin",
     "LevelChunkMixin",
     "LevelMixin",
     "LootTableAccessor",
     "RecipeManagerMixin",
     "ServerLevelMixin",
     "TagLoaderMixin",
-    "bs.kubejs.RecipeEventJSMixin"
+    "bs.kubejs.RecipeEventJSMixin",
+    "data.RegistryDataLoaderMixin",
+    "data.ReloadableServerRegistriesMixin",
+    "languages.ServerLanguageMixin"
   ],
   "client": [
-    "languages.ClientLanguageMixin",
     "client.ClientLevelMixin",
     "client.MinecraftMixin",
     "client.ParticleEngineAccessor",
@@ -37,7 +38,8 @@
     "client.render.ItemRendererMixin",
     "client.render.LivingEntityRendererMixin",
     "client.render.PlayerRendererMixin",
-    "client.render.RenderBuffersMixin"
+    "client.render.RenderBuffersMixin",
+    "languages.ClientLanguageMixin"
   ],
   "server": [
   ]

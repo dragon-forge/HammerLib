@@ -239,8 +239,16 @@ public class HammerLib
 	{
 		ConfigHL cfgs = ConfigHL.INSTANCE.getCurrent();
 		if(logHLEvents || (cfgs != null && cfgs.internal.logHLBusEvents))
-			HammerLib.LOG.info("[HammerLib.postEvent] " + evt);
+			HammerLib.LOG.info("[HammerLib.postEvent] {}", evt);
 		return HammerLib.EVENT_BUS.post(evt);
+	}
+	
+	public static <T extends Event> T postNeoEvent(T evt)
+	{
+		ConfigHL cfgs = ConfigHL.INSTANCE.getCurrent();
+		if(logHLEvents || (cfgs != null && cfgs.internal.logNFBusEvents))
+			HammerLib.LOG.info("[HammerLib.postNeoEvent] {}", evt);
+		return NeoForge.EVENT_BUS.post(evt);
 	}
 	
 	public static CompatList<BaseHLCompat> getHLCompats()

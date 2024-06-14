@@ -328,7 +328,7 @@ public class HLClientProxy
 		if(!renderedWorld)
 		{
 			Network.sendToServer(new PacketPlayerReady());
-			NeoForge.EVENT_BUS.post(new ClientLoadedInEvent());
+			HammerLib.postNeoEvent(new ClientLoadedInEvent());
 			renderedWorld = true;
 		}
 	}

@@ -1,6 +1,6 @@
 package org.zeith.hammerlib.net.packets;
 
-import net.neoforged.neoforge.common.NeoForge;
+import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.event.player.PlayerLoadedInEvent;
 import org.zeith.hammerlib.net.*;
 
@@ -11,6 +11,6 @@ public class PacketPlayerReady
 	@Override
 	public void serverExecute(PacketContext ctx)
 	{
-		NeoForge.EVENT_BUS.post(new PlayerLoadedInEvent(ctx.getSender()));
+		HammerLib.postNeoEvent(new PlayerLoadedInEvent(ctx.getSender()));
 	}
 }

@@ -45,7 +45,8 @@ public class RecipeVisualizationRegistry
 	public void reload()
 	{
 		VIS_REGISTRY.clear();
-		HammerLib.EVENT_BUS.post(new RegisterRecipeVisualizationEvent(this));
+		HammerLib.postEvent(new RegisterRecipeVisualizationEvent(this));
+		HammerLib.postNeoEvent(new RegisterRecipeVisualizationEvent(this));
 		for(RecipeType<?> type : BuiltInRegistries.RECIPE_TYPE)
 		{
 			if(type instanceof IVisualizedRecipeType<?> visual)

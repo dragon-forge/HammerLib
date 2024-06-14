@@ -24,6 +24,10 @@ public class ConfigHL
 		@Config.ConfigEntry(entry = "Log HLB Events", comment = "Log HammerLib Event Bus Events? Don't enable this unless you know exactly what this does. Your logs will get spammed.")
 		@Config.BooleanEntry(false)
 		public boolean logHLBusEvents;
+		
+		@Config.ConfigEntry(entry = "Log Neo Events", comment = "Log NeoForge Event Bus Events? Don't enable this unless you know exactly what this does. Your logs will get spammed.")
+		@Config.BooleanEntry(false)
+		public boolean logNFBusEvents;
 	}
 	
 	public static class ConfigHLClientSide
