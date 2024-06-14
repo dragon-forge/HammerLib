@@ -320,7 +320,7 @@ publishing {
     }
     repositories {
         maven {
-            url "file:///SERVER//Maven"
+            url "file:///R:/"
         }
     }
 }
