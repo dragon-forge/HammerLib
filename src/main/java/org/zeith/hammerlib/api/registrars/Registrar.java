@@ -31,7 +31,7 @@ import java.util.function.Supplier;
  */
 @SuppressWarnings("unused")
 public class Registrar<T>
-		implements ICustomRegistrar
+		implements ICustomRegistrar, Supplier<T>
 {
 	protected final ResourceKey<? extends Registry<T>> registryKey;
 	protected final Supplier<T> value;
@@ -58,6 +58,7 @@ public class Registrar<T>
 		if(v instanceof IRegisterListener l) l.onPostRegistered(id);
 	}
 	
+	@Override
 	public T get()
 	{
 		return value.get();
