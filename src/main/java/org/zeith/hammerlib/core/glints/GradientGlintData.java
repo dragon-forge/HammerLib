@@ -2,6 +2,9 @@ package org.zeith.hammerlib.core.glints;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import org.zeith.hammerlib.api.forge.CodecsHL;
 import org.zeith.hammerlib.util.colors.ColorHelper;
 
@@ -9,11 +12,17 @@ import java.util.List;
 
 public record GradientGlintData(List<Integer> colors, long loopbackDurationMS)
 {
-	public static Codec<GradientGlintData> CODEC = RecordCodecBuilder.create(inst ->
+	public static final Codec<GradientGlintData> CODEC = RecordCodecBuilder.create(inst ->
 			inst.group(
 					CodecsHL.HEX_INT_CODEC.listOf().fieldOf("colors").forGetter(GradientGlintData::colors),
 					Codec.LONG.fieldOf("duration").forGetter(GradientGlintData::loopbackDurationMS)
 			).apply(inst, GradientGlintData::new)
+	);
+	
+	public static final StreamCodec<ByteBuf, GradientGlintData> STREAM_CODEC = StreamCodec.composite(
+			ByteBufCodecs.<ByteBuf, Integer>list().apply(ByteBufCodecs.INT), GradientGlintData::colors,
+			ByteBufCodecs.VAR_LONG, GradientGlintData::loopbackDurationMS,
+			GradientGlintData::new
 	);
 	
 	public int get(long ms)

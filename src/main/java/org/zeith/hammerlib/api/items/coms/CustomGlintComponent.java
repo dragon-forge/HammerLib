@@ -5,60 +5,48 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.Holder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.RegistryFixedCodec;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.zeith.hammerlib.api.forge.StreamCodecs;
 import org.zeith.hammerlib.api.items.IColoredFoilItem;
 import org.zeith.hammerlib.api.items.glint.IGlintProviderType;
 import org.zeith.hammerlib.core.RegistriesHL;
 import org.zeith.hammerlib.core.glints.GradientGlintData;
 import org.zeith.hammerlib.core.init.GlintProviderTypesHL;
+import org.zeith.hammerlib.util.java.Cast;
 
 import java.util.stream.IntStream;
 
-public record CustomGlintComponent<T>(Holder<IGlintProviderType<T>> type, T data)
+public record CustomGlintComponent<T>(IGlintProviderType<T> type, T data)
 		implements IColoredFoilItem
 {
 	public static final Codec<CustomGlintComponent<?>> CODEC = RecordCodecBuilder.create(inst ->
 			inst.group(
-					RegistryFixedCodec.create(RegistriesHL.Keys.GLINT_PROVIDERS)
+					Codec.lazyInitialized(() -> RegistriesHL.glintProviders().byNameCodec())
 							.fieldOf("type")
-							.forGetter(CustomGlintComponent::holder),
+							.forGetter(CustomGlintComponent::type),
 					ExtraCodecs.JSON.fieldOf("data").forGetter(CustomGlintComponent::serializeData)
-			).apply(inst, CustomGlintComponent::create)
+			).apply(inst, CustomGlintComponent::new)
 	);
 	
-	public static final StreamCodec<RegistryFriendlyByteBuf, CustomGlintComponent<?>> STREAM_CODEC = StreamCodecs.createRegistryAwareStreamCodec(CODEC);
+	public static final StreamCodec<RegistryFriendlyByteBuf, CustomGlintComponent<?>> STREAM_CODEC = StreamCodec.of(CustomGlintComponent::toNetwork, CustomGlintComponent::fromNetwork);
 	
-	public CustomGlintComponent(IGlintProviderType<T> type, T data)
+	public CustomGlintComponent(IGlintProviderType<T> type, JsonElement data)
 	{
-		this(Holder.direct(type), data);
-	}
-	
-	public CustomGlintComponent(Holder<IGlintProviderType<T>> type, JsonElement data)
-	{
-		this(type, type.value().codec().decode(JsonOps.INSTANCE, data).result().map(Pair::getFirst).orElse(null));
-	}
-	
-	public Holder<IGlintProviderType<?>> holder()
-	{
-		return (Holder) type;
+		this(type, type.codec().decode(JsonOps.INSTANCE, data).result().map(Pair::getFirst).orElse(null));
 	}
 	
 	private JsonElement serializeData()
 	{
-		return type.value().codec().encodeStart(JsonOps.INSTANCE, data).result().orElseThrow();
+		return type.codec().encodeStart(JsonOps.INSTANCE, data).result().orElseThrow();
 	}
 	
 	@Override
 	public int getFoilColor(@NotNull ItemStack stack)
 	{
-		return type.value().getGlint(stack, data);
+		return type.getGlint(stack, data);
 	}
 	
 	public static CustomGlintComponent<?> fixedColor(int color)
@@ -76,8 +64,17 @@ public record CustomGlintComponent<T>(Holder<IGlintProviderType<T>> type, T data
 		return new CustomGlintComponent<>(GlintProviderTypesHL.GRADIENT, new GradientGlintData(IntStream.of(colors).boxed().toList(), fullCycleMS));
 	}
 	
-	public static CustomGlintComponent<?> create(Holder<IGlintProviderType<?>> holder, JsonElement data)
+	public static <T> void toNetwork(RegistryFriendlyByteBuf buf, CustomGlintComponent<T> com)
 	{
-		return new CustomGlintComponent(holder, data);
+		IGlintProviderType<T> h = com.type();
+		buf.writeResourceLocation(buf.registryAccess().registryOrThrow(RegistriesHL.Keys.GLINT_PROVIDERS).getKey(h));
+		h.streamCodec().encode(Cast.cast(buf), com.data());
+	}
+	
+	public static CustomGlintComponent<?> fromNetwork(RegistryFriendlyByteBuf buf)
+	{
+		IGlintProviderType<?> type = buf.registryAccess().registryOrThrow(RegistriesHL.Keys.GLINT_PROVIDERS).getOrThrow(buf.readResourceKey(RegistriesHL.Keys.GLINT_PROVIDERS));
+		Object decode = type.streamCodec().decode(Cast.cast(buf));
+		return new CustomGlintComponent(type, decode);
 	}
 }

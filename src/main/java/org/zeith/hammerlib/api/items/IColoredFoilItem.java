@@ -31,7 +31,7 @@ public interface IColoredFoilItem
 	static IColoredFoilItem get(ItemStack stack)
 	{
 		// Data component overrides go first!
-		CustomGlintComponent<?> comp = stack.get(ComponentTypesHL.CUSTOM_GLINT.get());
+		CustomGlintComponent<?> comp = stack.get(ComponentTypesHL.CUSTOM_GLINT);
 		if(comp != null) return comp;
 		
 		// Then we check if the block is IColoredFoilItem
