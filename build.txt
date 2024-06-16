@@ -1,5 +1,5 @@
 # Mod Info
-mod_version=21.0.4
+mod_version=21.0.6
 build_candidate=false
 
 # Mod dependencies
@@ -36,4 +36,4 @@ cf_project=247401
 modrinth_project=PlkSuVtM
 
 # alpha, beta, release
-release_type=beta
+release_type=release
