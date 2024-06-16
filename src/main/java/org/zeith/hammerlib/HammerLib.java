@@ -2,7 +2,6 @@ package org.zeith.hammerlib;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraftforge.fml.unsafe.UnsafeHacks;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.*;
@@ -37,6 +36,7 @@ import org.zeith.hammerlib.tiles.tooltip.own.impl.TooltipRenderEngine;
 import org.zeith.hammerlib.util.CommonMessages;
 import org.zeith.hammerlib.util.ZeithLinkRepository;
 import org.zeith.hammerlib.util.charging.ItemChargeHelper;
+import org.zeith.hammerlib.util.configured.io.UnsafeHax;
 import org.zeith.hammerlib.util.java.ReflectionUtil;
 import org.zeith.hammerlib.util.mcf.ScanDataHelper;
 
@@ -87,7 +87,7 @@ public class HammerLib
 			Class<?> c = data.getOwnerClass();
 			if(IRecipeProvider.class.isAssignableFrom(c))
 			{
-				IRecipeProvider provider = (IRecipeProvider) UnsafeHacks.newInstance(c);
+				IRecipeProvider provider = (IRecipeProvider) UnsafeHax.unitializedInstance(c);
 				if(provider != null)
 				{
 					var bus = ow.getEventBus();

@@ -3,7 +3,7 @@ package org.zeith.hammerlib.net;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.fml.unsafe.UnsafeHacks;
+import org.zeith.hammerlib.util.configured.io.UnsafeHax;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -58,7 +58,7 @@ public class PacketFactory
 			return FACTORIES.get(pkt).get();
 		try
 		{
-			return IPacket.class.cast(UnsafeHacks.newInstance(pkt));
+			return UnsafeHax.unitializedInstance(pkt);
 		} catch(Throwable e)
 		{
 			return null;

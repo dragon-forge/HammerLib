@@ -98,7 +98,6 @@ public class RegistryMapping
 		
 		// NeoForge stuff here.
 		report(FluidType.class, NeoForgeRegistries.FLUID_TYPES);
-		report(ItemDisplayContext.class, NeoForgeRegistries.DISPLAY_CONTEXTS);
 		report(HolderSetType.class, NeoForgeRegistries.HOLDER_SET_TYPES);
 		
 		// NF generics

@@ -1,8 +1,10 @@
 package org.zeith.hammerlib.util.configured.io;
 
-import net.minecraftforge.fml.unsafe.UnsafeHacks;
+import com.google.gson.internal.UnsafeAllocator;
+import lombok.SneakyThrows;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class UnsafeHax
@@ -10,9 +12,10 @@ public class UnsafeHax
 	/**
 	 * Creates a new instance without calling constructor < init> method.
 	 */
+	@SneakyThrows
 	public static <T> T unitializedInstance(Class<T> type)
 	{
-		return UnsafeHacks.newInstance(type);
+		return UnsafeAllocator.INSTANCE.newInstance(type);
 	}
 	
 	public static String toString(Object[] array)

@@ -1,11 +1,11 @@
 package org.zeith.hammerlib.api.config;
 
 import net.minecraft.nbt.*;
-import net.minecraftforge.fml.unsafe.UnsafeHacks;
 import net.neoforged.fml.LogicalSide;
 import net.neoforged.fml.loading.FMLEnvironment;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.util.configured.ConfigFile;
+import org.zeith.hammerlib.util.configured.io.UnsafeHax;
 import org.zeith.hammerlib.util.java.ReflectionUtil;
 
 import java.lang.reflect.Modifier;
@@ -83,7 +83,7 @@ public interface IConfigRoot
 
 					if(struct == null)
 					{
-						struct = UnsafeHacks.newInstance(type.asSubclass(IConfigStructure.class));
+						struct = UnsafeHax.unitializedInstance(type.asSubclass(IConfigStructure.class));
 						field.set(this, struct);
 					}
 
@@ -129,7 +129,7 @@ public interface IConfigRoot
 
 					if(struct == null)
 					{
-						struct = UnsafeHacks.newInstance(type.asSubclass(IConfigStructure.class));
+						struct = UnsafeHax.unitializedInstance(type.asSubclass(IConfigStructure.class));
 						field.set(this, struct);
 					}
 

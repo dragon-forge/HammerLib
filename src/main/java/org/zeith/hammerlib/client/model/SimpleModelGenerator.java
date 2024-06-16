@@ -1,7 +1,6 @@
 package org.zeith.hammerlib.client.model;
 
 import com.google.gson.*;
-import net.minecraftforge.fml.unsafe.UnsafeHacks;
 import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.javafmlmod.FMLModContainer;
 import net.neoforged.neoforge.client.event.ModelEvent;
@@ -11,6 +10,7 @@ import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.annotations.OnlyIf;
 import org.zeith.hammerlib.core.adapter.OnlyIfAdapter;
 import org.zeith.hammerlib.proxy.HLConstants;
+import org.zeith.hammerlib.util.configured.io.UnsafeHax;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.mcf.Resources;
 import org.zeith.hammerlib.util.mcf.ScanDataHelper;
@@ -46,7 +46,7 @@ public class SimpleModelGenerator<T extends org.zeith.hammerlib.client.model.IUn
 				var c = cTmp.asSubclass(org.zeith.hammerlib.client.model.IUnbakedGeometry.class);
 				var path = data.getProperty("path").map(String.class::cast).orElseThrow();
 				
-				BiFunction<JsonObject, JsonDeserializationContext, org.zeith.hammerlib.client.model.IUnbakedGeometry> factory = (json, context) -> Cast.cast(UnsafeHacks.newInstance(c));
+				BiFunction<JsonObject, JsonDeserializationContext, org.zeith.hammerlib.client.model.IUnbakedGeometry> factory = (json, context) -> Cast.cast(UnsafeHax.unitializedInstance(c));
 				
 				var loaderId = Resources.location(data.getOwnerMod().map(FMLModContainer::getModId).orElse(HLConstants.MOD_ID), path);
 				
@@ -72,7 +72,7 @@ public class SimpleModelGenerator<T extends org.zeith.hammerlib.client.model.IUn
 							{
 								err.printStackTrace();
 							}
-							return Cast.cast(UnsafeHacks.newInstance(c));
+							return Cast.cast(UnsafeHax.unitializedInstance(c));
 						};
 						break;
 					} else if(ctor.getParameterCount() == 1 && ctor.getParameterTypes()[0].isAssignableFrom(JsonObject.class))
@@ -88,7 +88,7 @@ public class SimpleModelGenerator<T extends org.zeith.hammerlib.client.model.IUn
 							{
 								err.printStackTrace();
 							}
-							return Cast.cast(UnsafeHacks.newInstance(c));
+							return Cast.cast(UnsafeHax.unitializedInstance(c));
 						};
 						break;
 					} else if(ctor.getParameterCount() == 1 && ctor.getParameterTypes()[0].isAssignableFrom(JsonDeserializationContext.class))
@@ -104,7 +104,7 @@ public class SimpleModelGenerator<T extends org.zeith.hammerlib.client.model.IUn
 							{
 								err.printStackTrace();
 							}
-							return Cast.cast(UnsafeHacks.newInstance(c));
+							return Cast.cast(UnsafeHax.unitializedInstance(c));
 						};
 						break;
 					}
