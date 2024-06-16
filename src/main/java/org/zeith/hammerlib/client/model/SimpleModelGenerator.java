@@ -29,7 +29,8 @@ public class SimpleModelGenerator<T extends org.zeith.hammerlib.client.model.IUn
 	}
 	
 	@Override
-	public T read(JsonObject jsonObject, JsonDeserializationContext deserializationContext) throws JsonParseException
+	public T read(JsonObject jsonObject, JsonDeserializationContext deserializationContext)
+			throws JsonParseException
 	{
 		return factory.apply(jsonObject, deserializationContext);
 	}
@@ -38,101 +39,98 @@ public class SimpleModelGenerator<T extends org.zeith.hammerlib.client.model.IUn
 	@SuppressWarnings("rawtypes")
 	public static void setup()
 	{
-		ScanDataHelper.lookupAnnotatedObjects(LoadUnbakedGeometry.class).forEach(data ->
+		for(ScanDataHelper.ModAwareAnnotationData data : ScanDataHelper.lookupAnnotatedObjects(LoadUnbakedGeometry.class))
 		{
 			var cTmp = data.getOwnerClass();
-			if(org.zeith.hammerlib.client.model.IUnbakedGeometry.class.isAssignableFrom(cTmp))
+			if(!IUnbakedGeometry.class.isAssignableFrom(cTmp)) continue;
+			
+			var c = cTmp.asSubclass(IUnbakedGeometry.class);
+			var path = data.getProperty("path").map(String.class::cast).orElseThrow();
+			
+			BiFunction<JsonObject, JsonDeserializationContext, IUnbakedGeometry> factory = (json, context) -> Cast.cast(UnsafeHax.unitializedInstance(c));
+			
+			var loaderId = Resources.location(data.getOwnerMod().map(FMLModContainer::getModId).orElse(HLConstants.MOD_ID), path);
+			
+			OnlyIf condition = null;
+			
+			for(var ctor : c.getDeclaredConstructors())
 			{
-				var c = cTmp.asSubclass(org.zeith.hammerlib.client.model.IUnbakedGeometry.class);
-				var path = data.getProperty("path").map(String.class::cast).orElseThrow();
+				condition = ctor.getDeclaredAnnotation(OnlyIf.class);
+				if(!OnlyIfAdapter.checkCondition(condition, c.toString(), "UnbakedModel", null, loaderId))
+					continue;
 				
-				BiFunction<JsonObject, JsonDeserializationContext, org.zeith.hammerlib.client.model.IUnbakedGeometry> factory = (json, context) -> Cast.cast(UnsafeHax.unitializedInstance(c));
-				
-				var loaderId = Resources.location(data.getOwnerMod().map(FMLModContainer::getModId).orElse(HLConstants.MOD_ID), path);
-				
-				OnlyIf condition = null;
-				
-				for(var ctor : c.getDeclaredConstructors())
+				if(ctor.getParameterCount() == 2 && ((ctor.getParameterTypes()[0].isAssignableFrom(JsonObject.class) && ctor.getParameterTypes()[1].isAssignableFrom(JsonDeserializationContext.class)) || (ctor.getParameterTypes()[0].isAssignableFrom(JsonDeserializationContext.class) && ctor.getParameterTypes()[1].isAssignableFrom(JsonObject.class))))
 				{
-					condition = ctor.getDeclaredAnnotation(OnlyIf.class);
-					if(!OnlyIfAdapter.checkCondition(condition, c.toString(), "UnbakedModel", null, loaderId))
-						continue;
-					
-					if(ctor.getParameterCount() == 2 && ((ctor.getParameterTypes()[0].isAssignableFrom(JsonObject.class) && ctor.getParameterTypes()[1].isAssignableFrom(JsonDeserializationContext.class)) || (ctor.getParameterTypes()[0].isAssignableFrom(JsonDeserializationContext.class) && ctor.getParameterTypes()[1].isAssignableFrom(JsonObject.class))))
+					var flip = ctor.getParameterTypes()[0].isAssignableFrom(JsonDeserializationContext.class);
+					final var ctxCtor = ctor;
+					factory = (json, context) ->
 					{
-						var flip = ctor.getParameterTypes()[0].isAssignableFrom(JsonDeserializationContext.class);
-						final var ctxCtor = ctor;
-						factory = (json, context) ->
+						try
 						{
-							try
-							{
-								ctxCtor.setAccessible(true);
-								return Cast.cast(flip ? ctxCtor.newInstance(context, json) : ctxCtor.newInstance(json, context));
-							} catch(Throwable err)
-							{
-								err.printStackTrace();
-							}
-							return Cast.cast(UnsafeHax.unitializedInstance(c));
-						};
-						break;
-					} else if(ctor.getParameterCount() == 1 && ctor.getParameterTypes()[0].isAssignableFrom(JsonObject.class))
-					{
-						final var ctxCtor = ctor;
-						factory = (json, context) ->
+							ctxCtor.setAccessible(true);
+							return Cast.cast(flip ? ctxCtor.newInstance(context, json) : ctxCtor.newInstance(json, context));
+						} catch(Throwable err)
 						{
-							try
-							{
-								ctxCtor.setAccessible(true);
-								return Cast.cast(ctxCtor.newInstance(json));
-							} catch(Throwable err)
-							{
-								err.printStackTrace();
-							}
-							return Cast.cast(UnsafeHax.unitializedInstance(c));
-						};
-						break;
-					} else if(ctor.getParameterCount() == 1 && ctor.getParameterTypes()[0].isAssignableFrom(JsonDeserializationContext.class))
-					{
-						final var ctxCtor = ctor;
-						factory = (json, context) ->
-						{
-							try
-							{
-								ctxCtor.setAccessible(true);
-								return Cast.cast(ctxCtor.newInstance(context));
-							} catch(Throwable err)
-							{
-								err.printStackTrace();
-							}
-							return Cast.cast(UnsafeHax.unitializedInstance(c));
-						};
-						break;
-					}
-				}
-				
-				if(condition == null)
+							err.printStackTrace();
+						}
+						return Cast.cast(UnsafeHax.unitializedInstance(c));
+					};
+					break;
+				} else if(ctor.getParameterCount() == 1 && ctor.getParameterTypes()[0].isAssignableFrom(JsonObject.class))
 				{
-					try
+					final var ctxCtor = ctor;
+					factory = (json, context) ->
 					{
-						condition = c.getDeclaredConstructor().getDeclaredAnnotation(OnlyIf.class);
-					} catch(NoSuchMethodException ignored)
+						try
+						{
+							ctxCtor.setAccessible(true);
+							return Cast.cast(ctxCtor.newInstance(json));
+						} catch(Throwable err)
+						{
+							err.printStackTrace();
+						}
+						return Cast.cast(UnsafeHax.unitializedInstance(c));
+					};
+					break;
+				} else if(ctor.getParameterCount() == 1 && ctor.getParameterTypes()[0].isAssignableFrom(JsonDeserializationContext.class))
+				{
+					final var ctxCtor = ctor;
+					factory = (json, context) ->
 					{
-					}
+						try
+						{
+							ctxCtor.setAccessible(true);
+							return Cast.cast(ctxCtor.newInstance(context));
+						} catch(Throwable err)
+						{
+							err.printStackTrace();
+						}
+						return Cast.cast(UnsafeHax.unitializedInstance(c));
+					};
+					break;
 				}
-				
-				final var factoryFinal = factory;
-				
-				if(OnlyIfAdapter.checkCondition(condition, c.toString(), "UnbakedModel", null, loaderId))
-					data.getOwnerMod()
-							.ifPresent(mc ->
-									mc.getEventBus().addListener((Consumer<ModelEvent.RegisterGeometryLoaders>) evt ->
-											{
-												evt.register(Resources.location(mc.getNamespace(), path), new SimpleModelGenerator<>(factoryFinal));
-												HammerLib.LOG.info("Registered a new model with loader " + JSONObject.quote(ModLoadingContext.get().getActiveNamespace() + ":" + path));
-											}
-									)
-							);
 			}
-		});
+			
+			if(condition == null)
+			{
+				try
+				{
+					condition = c.getDeclaredConstructor().getDeclaredAnnotation(OnlyIf.class);
+				} catch(NoSuchMethodException ignored)
+				{
+				}
+			}
+			
+			final var factoryFinal = factory;
+			
+			if(OnlyIfAdapter.checkCondition(condition, c.toString(), "UnbakedModel", null, loaderId))
+				data.getOwnerMod().ifPresent(mc ->
+						mc.getEventBus().addListener((Consumer<ModelEvent.RegisterGeometryLoaders>) evt ->
+						{
+							evt.register(Resources.location(mc.getNamespace(), path), new SimpleModelGenerator<>(factoryFinal));
+							HammerLib.LOG.info("Registered a new model with loader {} of type {}", JSONObject.quote(mc.getNamespace() + ":" + path), c.getName());
+						})
+				);
+		}
 	}
 }
