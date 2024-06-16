@@ -16,7 +16,10 @@ import org.zeith.hammerlib.api.forge.StreamCodecs;
 import org.zeith.hammerlib.api.items.IColoredFoilItem;
 import org.zeith.hammerlib.api.items.glint.IGlintProviderType;
 import org.zeith.hammerlib.core.RegistriesHL;
+import org.zeith.hammerlib.core.glints.GradientGlintData;
 import org.zeith.hammerlib.core.init.GlintProviderTypesHL;
+
+import java.util.stream.IntStream;
 
 public record CustomGlintComponent<T>(Holder<IGlintProviderType<T>> type, T data)
 		implements IColoredFoilItem
@@ -66,6 +69,11 @@ public record CustomGlintComponent<T>(Holder<IGlintProviderType<T>> type, T data
 	public static CustomGlintComponent<?> rainbow(long fullCycleMS)
 	{
 		return new CustomGlintComponent<>(GlintProviderTypesHL.RAINBOW, fullCycleMS);
+	}
+	
+	public static CustomGlintComponent<?> gradient(long fullCycleMS, int... colors)
+	{
+		return new CustomGlintComponent<>(GlintProviderTypesHL.GRADIENT, new GradientGlintData(IntStream.of(colors).boxed().toList(), fullCycleMS));
 	}
 	
 	public static CustomGlintComponent<?> create(Holder<IGlintProviderType<?>> holder, JsonElement data)
