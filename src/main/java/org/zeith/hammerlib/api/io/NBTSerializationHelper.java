@@ -4,9 +4,9 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import net.minecraft.nbt.*;
 import net.minecraftforge.common.util.INBTSerializable;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zeith.hammerlib.api.io.serializers.*;
 import org.zeith.hammerlib.api.io.serializers.codec.CodecSerializer;
 import org.zeith.hammerlib.api.io.serializers.codec.ICodecSerializer;
@@ -23,14 +23,15 @@ import java.util.List;
 
 public class NBTSerializationHelper
 {
-	public static final Logger LOG = LogManager.getLogger("HammerLib");
+	public static final Logger LOG = LoggerFactory.getLogger("HammerLib");
 	
 	private static final BiMap<Class<?>, INBTSerializer<?>> SERIALIZER_MAP = HashBiMap.create();
-	private static final BiMap<Class<?>, INBTSerializer<?>> ENUM_SERIALIZER_MAP = HashBiMap.create();
+	private static final BiMap<Class<? extends Enum<?>>, INBTSerializer<?>> ENUM_SERIALIZER_MAP = HashBiMap.create();
+	private static final BiMap<Class<? extends Record>, INBTSerializer<?>> RECORD_SERIALIZER_MAP = HashBiMap.create();
 	
-	public static <T extends Enum<T>> INBTSerializer<T> forEnum(Class<T> type)
+	public static <T> void registerCodecSerializer(ICodecSerializer<T> serializer)
 	{
-		return Cast.cast(ENUM_SERIALIZER_MAP.computeIfAbsent(type, t -> new EnumNBTSerializer<>(type)));
+		registerSerializer(serializer.type(), serializer.asSerializer());
 	}
 	
 	public static <T> void registerSerializer(Class<T> type, INBTSerializer<T> serializer)
@@ -66,10 +67,10 @@ public class NBTSerializationHelper
 			{
 				try
 				{
-					List<Type> types = ts;
+					List<Type> types = Cast.cast(ts);
 					var ctor = data.getOwnerClass().getDeclaredConstructor();
 					ctor.setAccessible(true);
-					INBTSerializer ser = Cast.cast(ctor.newInstance());
+					INBTSerializer<?> ser = Cast.cast(ctor.newInstance());
 					for(Type type : types)
 					{
 						Class<?> c = ReflectionUtil.fetchClassAny(type);
@@ -108,7 +109,7 @@ public class NBTSerializationHelper
 				return;
 			}
 			
-			ICodecSerializer codecSer = ReflectionUtil.fetchValue(field, null, ICodecSerializer.class).orElse(null);
+			ICodecSerializer<?> codecSer = ReflectionUtil.fetchValue(field, null, ICodecSerializer.class).orElse(null);
 			if(codecSer == null)
 			{
 				LOG.error("@CodecSerializer field at {} {} is not ICodecSerializer. (unable to obtain value that implements ICodecSerializer)", data.clazz(), data.getMemberName());
@@ -117,18 +118,25 @@ public class NBTSerializationHelper
 			
 			var c = codecSer.type();
 			var ser = codecSer.asSerializer();
-			registerSerializer(c, ser);
+			registerCodecSerializer(codecSer);
 			LOG.debug("Registered NBT serializer for type {}: {}", c, ser);
 		});
+	}
+	
+	public static <T> INBTSerializer<T> getSerializer(Class<T> type)
+	{
+		if(type.isRecord())
+			return Cast.cast(RECORD_SERIALIZER_MAP.computeIfAbsent(Cast.cast(type), RecordNBTSerializer::new));
+		if(type.isEnum())
+			return Cast.cast(ENUM_SERIALIZER_MAP.computeIfAbsent(Cast.cast(type), EnumNBTSerializer::create));
+		return Cast.cast(SERIALIZER_MAP.get(type));
 	}
 	
 	public static void serializeField(Class<?> type, Object instance, CompoundTag nbt, String key)
 	{
 		if(instance == null) return;
 		
-		INBTSerializer<?> serializer;
-		if(type.isEnum()) serializer = forEnum(Cast.cast(type));
-		else serializer = SERIALIZER_MAP.get(type);
+		INBTSerializer<?> serializer = getSerializer(type);
 		
 		if(serializer != null)
 		{
@@ -153,9 +161,7 @@ public class NBTSerializationHelper
 	
 	public static Object deserializeField(Class<?> type, CompoundTag nbt, String key)
 	{
-		INBTSerializer<?> serializer;
-		if(type.isEnum()) serializer = forEnum(Cast.cast(type));
-		else serializer = SERIALIZER_MAP.get(type);
+		INBTSerializer<?> serializer = getSerializer(type);
 		
 		if(serializer != null)
 		{

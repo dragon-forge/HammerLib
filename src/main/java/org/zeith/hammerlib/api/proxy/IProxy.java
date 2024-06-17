@@ -28,4 +28,24 @@ public interface IProxy
 			default -> throw new IllegalArgumentException("UNSIDED?");
 		};
 	}
+	
+	static <T> T createSided(Supplier<Supplier<T>> clientTarget, Supplier<Supplier<T>> serverTarget)
+	{
+		return switch(FMLEnvironment.dist)
+		{
+			case CLIENT -> Cast.cast(((Supplier) clientTarget.get()).get());
+			case DEDICATED_SERVER -> Cast.cast(((Supplier) serverTarget.get()).get());
+			default -> throw new IllegalArgumentException("UNSIDED?");
+		};
+	}
+	
+	static void runSided(Supplier<Runnable> clientTarget, Supplier<Runnable> serverTarget)
+	{
+		switch(FMLEnvironment.dist)
+		{
+			case CLIENT -> clientTarget.get().run();
+			case DEDICATED_SERVER -> serverTarget.get().run();
+			default -> throw new IllegalArgumentException("UNSIDED?");
+		};
+	}
 }
