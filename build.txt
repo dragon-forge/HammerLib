@@ -1,5 +1,5 @@
 # Mod Info
-mod_version=21.0.8
+mod_version=21.0.9
 build_candidate=false
 
 # Mod dependencies

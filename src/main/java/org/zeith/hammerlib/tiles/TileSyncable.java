@@ -1,7 +1,6 @@
 package org.zeith.hammerlib.tiles;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.*;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -32,6 +31,11 @@ public class TileSyncable
 	public PropertyDispatcher getProperties()
 	{
 		return dispatcher;
+	}
+	
+	public RegistryAccess registryAccess()
+	{
+		return level.registryAccess();
 	}
 	
 	public Random getRNG()
