@@ -1,5 +1,5 @@
 # Mod Info
-mod_version=20.1.29
+mod_version=20.1.30
 build_candidate=false
 
 # Mod dependencies
@@ -21,7 +21,7 @@ shimmer_version=0.1.15
 
 # MC Info
 mc_version=1.20.1
-mc_range=[1.20.1,1.21)
+mc_range=[1.20.1,1.20.2)
 forge_version=47.1.58
 forge_range=[47,)
 fmljava_range=[47,)
