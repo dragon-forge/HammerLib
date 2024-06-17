@@ -4,26 +4,32 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import org.jetbrains.annotations.NotNull;
+import org.zeith.hammerlib.util.java.Cast;
 
 public class EnumNBTSerializer<ET extends Enum<ET>>
 		implements INBTSerializer<ET>
 {
 	final Class<ET> type;
 	final ET[] constants;
-
+	
 	public EnumNBTSerializer(Class<ET> type)
 	{
 		this.type = type;
 		this.constants = type.getEnumConstants();
 	}
-
+	
+	public static EnumNBTSerializer<?> create(Class<? extends Enum<?>> type)
+	{
+		return new EnumNBTSerializer<>(Cast.cast(type));
+	}
+	
 	@Override
 	public void serialize(HolderLookup.Provider provider, String key, @NotNull ET value, CompoundTag nbt)
 	{
 		if(value != null)
 			nbt.putInt(key, value.ordinal());
 	}
-
+	
 	@Override
 	public ET deserialize(HolderLookup.Provider provider, String key, CompoundTag nbt)
 	{
