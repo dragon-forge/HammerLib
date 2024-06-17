@@ -40,7 +40,7 @@ public class ConfigAdapter
 	{
 		var map = new HashMap<>(STRUCTURES.get(LogicalSide.SERVER));
 		map.values().removeIf(IConfigRoot::avoidSync);
-		NetTransport.wrap(new PacketSyncConfigs(map)).sendTo(event.getEntity());
+		NetTransport.wrap(new PacketSyncConfigs(map), event.getEntity().registryAccess()).sendTo(event.getEntity());
 	}
 	
 	public static void handleClientsideSync(PacketSyncConfigs packet)

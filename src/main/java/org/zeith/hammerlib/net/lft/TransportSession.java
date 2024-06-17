@@ -1,6 +1,7 @@
 package org.zeith.hammerlib.net.lft;
 
 import com.google.common.base.Predicates;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -30,6 +31,8 @@ public class TransportSession
 
 	final int length;
 	final LogicalSide createSide;
+	
+	RegistryAccess registryAccess;
 
 	private Thread readThread;
 
@@ -63,7 +66,7 @@ public class TransportSession
 		if(ai != null)
 		{
 			SidedThreadGroup stg = createSide == LogicalSide.SERVER ? SidedThreadGroups.SERVER : SidedThreadGroups.CLIENT;
-			readThread = stg.newThread(() -> ai.read(this.pis, length));
+			readThread = stg.newThread(() -> ai.read(this.pis, length, ()->registryAccess));
 			readThread.start();
 
 			NetTransport.indexSession(this);
@@ -124,7 +127,7 @@ public class TransportSession
 			sendTo(players[i]);
 	}
 
-	void accept(byte[] data)
+	void accept(RegistryAccess registry, byte[] data)
 	{
 		if(pos != null)
 			try

@@ -2,6 +2,7 @@ package org.zeith.hammerlib.net;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 
 public interface INBTPacket
 		extends IPacket
@@ -15,7 +16,7 @@ public interface INBTPacket
 	}
 
 	@Override
-	default void write(FriendlyByteBuf buf)
+	default void write(RegistryFriendlyByteBuf buf)
 	{
 		CompoundTag comp = new CompoundTag();
 		write(comp);
@@ -23,7 +24,7 @@ public interface INBTPacket
 	}
 
 	@Override
-	default void read(FriendlyByteBuf buf)
+	default void read(RegistryFriendlyByteBuf buf)
 	{
 		read(buf.readNbt());
 	}

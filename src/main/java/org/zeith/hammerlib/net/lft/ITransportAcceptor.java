@@ -1,9 +1,11 @@
 package org.zeith.hammerlib.net.lft;
 
+import net.minecraft.core.RegistryAccess;
 import org.zeith.hammerlib.net.PacketContext;
 import org.zeith.hammerlib.util.java.Threading;
 
 import java.io.InputStream;
+import java.util.function.Supplier;
 
 public interface ITransportAcceptor
 {
@@ -11,7 +13,7 @@ public interface ITransportAcceptor
 	 * Reads from the stream. The data accepted by transporter will not come all
 	 * at once, so don't check available bytes or you can cause serious lags!
 	 */
-	void read(InputStream readable, int length);
+	void read(InputStream readable, int length, Supplier<RegistryAccess> registryAccess);
 
 	/**
 	 * Sets the context of this session. Used to get side on wich the packet is

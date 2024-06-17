@@ -35,7 +35,7 @@ public class Network
 		var reg = event.registrar(HLConstants.MOD_ID)
 				.versioned(ModHelper.getModVersion(HLConstants.MOD_ID));
 		
-		reg.commonBidirectional(MAIN_CHANNEL, StreamCodec.ofMember(PlainHLMessage::write, PlainHLMessage::new), PlainHLMessage::handle);
+		reg.playBidirectional(MAIN_CHANNEL, StreamCodec.ofMember(PlainHLMessage::write, PlainHLMessage::new), PlainHLMessage::handle);
 	}
 	
 	///

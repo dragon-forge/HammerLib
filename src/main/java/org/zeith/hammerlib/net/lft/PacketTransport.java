@@ -1,45 +1,45 @@
 package org.zeith.hammerlib.net.lft;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import org.zeith.hammerlib.net.INBTPacket;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import org.zeith.hammerlib.net.IPacket;
 import org.zeith.hammerlib.net.PacketContext;
 
 public class PacketTransport
-		implements INBTPacket
+		implements IPacket
 {
 	public String id;
 	public byte[] data;
-
+	public RegistryAccess registry;
+	
 	public PacketTransport(String id, byte[] data)
 	{
 		this.id = id;
 		this.data = data;
 	}
-
+	
 	@Override
-	public void write(CompoundTag nbt)
+	public void write(RegistryFriendlyByteBuf buf)
 	{
-		nbt.putString("i", id);
-		if(data != null)
-			nbt.putByteArray("r", data);
+		buf.writeUtf(id);
+		buf.writeByteArray(data);
 	}
-
+	
 	@Override
-	public void read(CompoundTag nbt)
+	public void read(RegistryFriendlyByteBuf buf)
 	{
-		id = nbt.getString("i");
-		if(nbt.contains("r", Tag.TAG_BYTE_ARRAY))
-			data = nbt.getByteArray("r");
+		id = buf.readUtf();
+		data = buf.readByteArray();
+		this.registry = buf.registryAccess();
 	}
-
+	
 	@Override
 	public void execute(PacketContext ctx)
 	{
 		TransportSession s = NetTransport.getSession(ctx.getSide(), id);
 		if(s != null && s.pos != null && data != null)
 		{
-			s.accept(data);
+			s.accept(registry, data);
 			ctx.withReply(new PacketRequestFurther(id, true));
 		} else
 			ctx.withReply(new PacketRequestFurther(id, false));

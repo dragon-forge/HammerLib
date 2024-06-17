@@ -1,8 +1,8 @@
 package org.zeith.hammerlib.net;
 
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import java.util.concurrent.CompletableFuture;
@@ -11,24 +11,26 @@ public class PlainHLMessage
 		implements CustomPacketPayload
 {
 	IPacket packet;
-
+	RegistryAccess registry;
+	
 	public PlainHLMessage()
 	{
 	}
-
+	
 	public PlainHLMessage(IPacket packet)
 	{
 		this.packet = packet;
 	}
-
-	public PlainHLMessage(FriendlyByteBuf buf)
+	
+	public PlainHLMessage(RegistryFriendlyByteBuf buf)
 	{
 		packet = PacketFactory.createEmpty(buf.readUtf(256));
 		if(packet != null)
 			packet.read(buf);
+		this.registry = buf.registryAccess();
 	}
-
-	public void write(FriendlyByteBuf buf)
+	
+	public void write(RegistryFriendlyByteBuf buf)
 	{
 		buf.writeUtf(PacketFactory.getPacketId(packet));
 		if(packet != null)
@@ -39,15 +41,15 @@ public class PlainHLMessage
 	{
 		return packet != null;
 	}
-
+	
 	public IPacket unwrap()
 	{
 		return packet;
 	}
-
+	
 	public void handle(IPayloadContext ctx)
 	{
-		PacketContext pctx = new PacketContext(ctx);
+		PacketContext pctx = new PacketContext(ctx, registry);
 		if(packet != null)
 		{
 			CompletableFuture<Void> exec;
@@ -59,7 +61,7 @@ public class PlainHLMessage
 				packet.execute(pctx);
 				exec = CompletableFuture.completedFuture(null);
 			}
-
+			
 			exec.thenRun(() ->
 			{
 				IPacket reply = pctx.getReply();

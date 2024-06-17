@@ -1,5 +1,6 @@
 package org.zeith.hammerlib.abstractions.recipes.layout;
 
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -19,5 +20,5 @@ public interface IIngredientReceiver<THIS extends IIngredientReceiver<THIS>>
 	
 	THIS addFluidStack(Fluid fluid, long amount);
 	
-	THIS addFluidStack(Fluid fluid, long amount, CompoundTag data);
+	THIS addFluidStack(Fluid fluid, long amount, DataComponentPatch data);
 }
