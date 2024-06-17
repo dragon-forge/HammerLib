@@ -119,6 +119,11 @@ import java.nio.file.StandardOpenOption
 dependencies {
     minecraft "net.neoforged:forge:${config.mc_version}-${config.forge_version}"
 
+    ////// UTILITY STUFF //////
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+    ///////////////////////////
+
     if (hasConfig("jei_version") && !config.jei_version.isEmpty()) {
         compileOnly fg.deobf("mezz.jei:jei-${config.mc_version}-common-api:${config.jei_version}")
         compileOnly fg.deobf("mezz.jei:jei-${config.mc_version}-forge-api:${config.jei_version}")
