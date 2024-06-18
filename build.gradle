@@ -26,7 +26,7 @@ configFile.withReader {
 version = config.mod_version
 group = config.maven_group
 base {
-    archivesName = "${config.archive_name}-${config.mc_version}"
+    archivesName = "${config.archive_name}-${mc_version}"
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
@@ -47,26 +47,22 @@ runs {
     }
 
     client {
-        workingDirectory project.file('run/client')
-        systemProperty 'forge.enabledGameTestNamespaces', config.mod_id
-		def args = new ArrayList()
-		
-		if (hasConfig("mc_user") && !config.mc_user.isEmpty()) {
-			def userId = config.mc_user.split(',', 2)
-			args.add "--username"
-			args.add userId[0]
+        def args = new ArrayList()
 
-			args.add "--uuid"
-			if (userId.length > 1) args.add userId[1]
-			else args.add "00000000000000000000000000000001" // this is a default
-		}
-		
-		programArguments(args)
+        if (hasConfig("mc_user") && !config.mc_user.isEmpty()) {
+            def userId = config.mc_user.split(',', 2)
+            args.add "--username"
+            args.add userId[0]
+
+            args.add "--uuid"
+            if (userId.length > 1) args.add userId[1]
+            else args.add "00000000000000000000000000000001" // this is a default
+        }
+
+        programArguments(args)
     }
 
     server {
-        workingDirectory project.file('run/server')
-        systemProperty 'forge.enabledGameTestNamespaces', config.mod_id
         programArgument '--nogui'
     }
 }
@@ -88,14 +84,14 @@ repositories {
             includeGroupByRegex "mezz\\.jei.*"
         }
     }
-    flatDir { dirs "libraries/${config.mc_version}/all" }
-    flatDir { dirs "libraries/${config.mc_version}/classpathOnly" }
-    flatDir { dirs "libraries/${config.mc_version}/runtimeOnly" }
+    flatDir { dirs "libraries/${mc_version}/all" }
+    flatDir { dirs "libraries/${mc_version}/classpathOnly" }
+    flatDir { dirs "libraries/${mc_version}/runtimeOnly" }
     flatDir { dirs "libraries/embedded" }
 }
 
 dependencies {
-    implementation "net.neoforged:neoforge:${config.forge_version}"
+    implementation "net.neoforged:neoforge:${forge_version}"
 
     ////// UTILITY STUFF //////
     compileOnly 'org.projectlombok:lombok:1.18.32'
@@ -103,20 +99,20 @@ dependencies {
     ///////////////////////////
 
     if (hasConfig("hl_version") && !config.hl_version.isEmpty()) {
-        implementation "org.zeith.hammerlib:HammerLib-${config.mc_version}:${config.hl_version}"
+        implementation "org.zeith.hammerlib:HammerLib-${mc_version}:${config.hl_version}"
     }
 
     if (hasConfig("hammeranims_version") && !config.hammeranims_version.isEmpty()) {
-        implementation "org.zeith.hammeranims:HammerAnimations-${config.mc_version}:${config.hammeranims_version}"
+        implementation "org.zeith.hammeranims:HammerAnimations-${mc_version}:${config.hammeranims_version}"
     }
 
     if (hasConfig("jei_version") && !config.jei_version.isEmpty()) {
-        compileOnly "mezz.jei:jei-${config.mc_version}-common-api:${config.jei_version}"
-        compileOnly "mezz.jei:jei-${config.mc_version}-neoforge-api:${config.jei_version}"
-        runtimeOnly "mezz.jei:jei-${config.mc_version}-neoforge:${config.jei_version}"
+        compileOnly "mezz.jei:jei-${mc_version}-common-api:${config.jei_version}"
+        compileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${config.jei_version}"
+        runtimeOnly "mezz.jei:jei-${mc_version}-neoforge:${config.jei_version}"
     }
 
-    def libraries = new File(file("libraries"), "${config.mc_version}")
+    def libraries = new File(file("libraries"), "${mc_version}")
     if (!libraries.isDirectory()) libraries.mkdirs()
 
     def libDir = new File(libraries, "all");
@@ -180,8 +176,8 @@ dependencies {
 
 def resourceTargets = ['META-INF/neoforge.mods.toml', 'pack.mcmeta']
 def replaceProperties = [
-        minecraft_version: config.mc_version, minecraft_version_range: config.mc_range,
-        forge_version    : "${config.mc_version}-${config.forge_version}", forge_version_range: config.forge_range, javafml_range: config.javafml_range,
+        minecraft_version: mc_version, minecraft_version_range: mc_range,
+        forge_version    : "${mc_version}-${forge_version}", forge_version_range: forge_range, javafml_range: javafml_range,
         mod_id           : config.mod_id, mod_name: config.mod_name, mod_license: config.mod_license, mod_version: config.mod_version,
         mod_authors      : config.mod_authors, mod_description: config.mod_description,
         hl_version       : config.hl_version, modrinth_project: config.modrinth_project,
@@ -240,7 +236,7 @@ modrinth {
     versionNumber = config.mod_version
     versionType = config.release_type
     uploadFile = jar
-    gameVersions = [config.mc_version]
+    gameVersions = [mc_version]
     dependencies {
         def mods = config.required_mods.split(";")
         if (mods.length > 0 && (mods.length > 1 || !mods[0].isEmpty()))
@@ -303,10 +299,10 @@ curseforge {
         changelogType = 'html'
         changelog = ""
         releaseType = config.release_type
-        addGameVersion config.mc_version
+        addGameVersion mc_version
         addGameVersion "NeoForge"
         mainArtifact(jar) {
-            displayName = "[${config.mc_version}] ${config.mod_name} - ${config.mod_version}"
+            displayName = "[${mc_version}] ${config.mod_name} - ${config.mod_version}"
         }
 
         def reqDeps = new ArrayList()
@@ -440,7 +436,7 @@ publishing {
     publications {
         register('mavenJava', MavenPublication) {
             from components.java
-            it.artifactId = config.archive_name + "-" + config.mc_version
+            it.artifactId = config.archive_name + "-" + mc_version
             it.artifact srcJar
         }
     }

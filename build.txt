@@ -20,11 +20,6 @@ maven_group=org.zeith.hammerlib
 maven_url=file:///R:/
 
 # MC Info
-mc_version=1.21
-mc_range=[1.21,1.22)
-forge_version=21.0.16-beta
-forge_range=[21.0.16-beta,)
-javafml_range=[2.0,)
 mc_user=Zeitheron,63fa4c485b5640809727d5d59663e603
 
 # Misc Info
