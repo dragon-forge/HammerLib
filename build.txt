@@ -22,9 +22,6 @@ maven_url=file:///R:/
 # MC Info
 mc_user=Zeitheron,63fa4c485b5640809727d5d59663e603
 
-# Misc Info
-java=21
-
 # Project ID on CurseForge
 cf_project=247401
 modrinth_project=PlkSuVtM
