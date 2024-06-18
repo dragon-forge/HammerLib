@@ -5,14 +5,13 @@ buildscript {
 }
 
 plugins {
-    id 'java-library'
     id "com.modrinth.minotaur" version "2.+"
-    id 'net.neoforged.gradle.userdev' version '7.0.142'
+    id 'net.neoforged.gradle.userdev' version '7.0.145'
 }
 
 apply plugin: 'idea'
 apply plugin: 'maven-publish'
-apply plugin: "com.matthewprenger.cursegradle"
+apply plugin: 'com.matthewprenger.cursegradle'
 
 ext.configFile = file("build.txt")
 configFile.withReader {
@@ -26,7 +25,6 @@ configFile.withReader {
 
 version = config.mod_version
 group = config.maven_group
-
 base {
     archivesName = "${config.archive_name}-${config.mc_version}"
 }
@@ -45,14 +43,25 @@ runs {
         systemProperty 'forge.logging.console.level', 'debug'
         systemProperty 'forge.enabledGameTestNamespaces', config.mod_id
 
-        programArguments(Arrays.asList("--mixin mixins.${config.mod_id}.json --username ${config.mc_user.split(',')[0]} --uuid ${config.mc_user.split(',')[1]}".split(' ')))
-
         modSource project.sourceSets.main
     }
 
     client {
         workingDirectory project.file('run/client')
         systemProperty 'forge.enabledGameTestNamespaces', config.mod_id
+		def args = new ArrayList()
+		
+		if (hasConfig("mc_user") && !config.mc_user.isEmpty()) {
+			def userId = config.mc_user.split(',', 2)
+			args.add "--username"
+			args.add userId[0]
+
+			args.add "--uuid"
+			if (userId.length > 1) args.add userId[1]
+			else args.add "00000000000000000000000000000001" // this is a default
+		}
+		
+		programArguments(args)
     }
 
     server {
@@ -64,57 +73,48 @@ runs {
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
-configurations {
-    runtimeClasspath.extendsFrom localRuntime
-}
-
 repositories {
     maven {
         name = "Zeitheron Maven"
-        url = "https://maven.zeith.org"
+        url = "https://maven.zeith.org/"
+        content {
+            includeGroupByRegex "org\\.zeith.*"
+        }
     }
     maven {
         name = "Jared's maven"
         url = "https://maven.blamejared.com/" // location of the maven that hosts JEI files since January 2023
+        content {
+            includeGroupByRegex "mezz\\.jei.*"
+        }
     }
-    maven { setUrl("https://oss.sonatype.org/content/repositories/public/") }
     flatDir { dirs "libraries/${config.mc_version}/all" }
     flatDir { dirs "libraries/${config.mc_version}/classpathOnly" }
     flatDir { dirs "libraries/${config.mc_version}/runtimeOnly" }
     flatDir { dirs "libraries/embedded" }
-
-    maven {
-        url "https://maven.firstdarkdev.xyz/snapshots"
-        content {
-            includeGroupByRegex "com\\.lowdragmc.*"
-        }
-    }
-    maven {
-        url = "https://jitpack.io"
-        content {
-            includeGroupByRegex "com\\.github\\.LlamaLad7.*"
-        }
-    }
 }
-
-import java.nio.file.Files
-import java.nio.file.StandardOpenOption
 
 dependencies {
     implementation "net.neoforged:neoforge:${config.forge_version}"
 
     ////// UTILITY STUFF //////
-    compileOnly 'org.projectlombok:lombok:1.18.30'
-    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+    compileOnly 'org.projectlombok:lombok:1.18.32'
+    annotationProcessor 'org.projectlombok:lombok:1.18.32'
     ///////////////////////////
 
-    if (hasConfig("jei_version") && !config.jei_version.isEmpty()) {
-        compileOnly "mezz.jei:jei-${config.jei_mc_version}-common-api:${config.jei_version}"
-        compileOnly "mezz.jei:jei-${config.jei_mc_version}-neoforge-api:${config.jei_version}"
-        runtimeOnly "mezz.jei:jei-${config.jei_mc_version}-neoforge:${config.jei_version}"
+    if (hasConfig("hl_version") && !config.hl_version.isEmpty()) {
+        implementation "org.zeith.hammerlib:HammerLib-${config.mc_version}:${config.hl_version}"
     }
 
-    compileOnly "com.lowdragmc.shimmer:Shimmer-forge:1.20-${config.shimmer_version}"
+    if (hasConfig("hammeranims_version") && !config.hammeranims_version.isEmpty()) {
+        implementation "org.zeith.hammeranims:HammerAnimations-${config.mc_version}:${config.hammeranims_version}"
+    }
+
+    if (hasConfig("jei_version") && !config.jei_version.isEmpty()) {
+        compileOnly "mezz.jei:jei-${config.mc_version}-common-api:${config.jei_version}"
+        compileOnly "mezz.jei:jei-${config.mc_version}-neoforge-api:${config.jei_version}"
+        runtimeOnly "mezz.jei:jei-${config.mc_version}-neoforge:${config.jei_version}"
+    }
 
     def libraries = new File(file("libraries"), "${config.mc_version}")
     if (!libraries.isDirectory()) libraries.mkdirs()
@@ -154,7 +154,7 @@ dependencies {
             def modartifact = file.name.substring(0, splitPos)
             def modversion = file.name.substring(splitPos + 1, file.name.length() - 4)
             dependencies {
-                localRuntime(project.dependencies.create("_runtime:$modartifact:$modversion") {
+                runtimeOnly(project.dependencies.create("_runtime:$modartifact:$modversion") {
                     transitive = false
                 })
             }
@@ -170,11 +170,9 @@ dependencies {
             def modreference = "lib:$modartifact:$modversion"
 
             dependencies {
-                def dep = project.dependencies.create(modreference) {
+                implementation project.dependencies.create(modreference) {
                     transitive = false
                 }
-                implementation dep
-                shadow dep
             }
         }
     } else libDir.mkdir();
@@ -183,13 +181,13 @@ dependencies {
 def resourceTargets = ['META-INF/neoforge.mods.toml', 'pack.mcmeta']
 def replaceProperties = [
         minecraft_version: config.mc_version, minecraft_version_range: config.mc_range,
-        forge_version    : "${config.mc_version}-${config.forge_version}", forge_version_range: config.forge_range,
-        fmljava_range    : config.fmljava_range,
+        forge_version    : "${config.mc_version}-${config.forge_version}", forge_version_range: config.forge_range, javafml_range: config.javafml_range,
         mod_id           : config.mod_id, mod_name: config.mod_name, mod_license: config.mod_license, mod_version: config.mod_version,
-        issue_tracker    : config.issue_tracker, modrinth_project: config.modrinth_project,
-        mod_authors      : config.mod_authors, mod_description: config.mod_description
+        mod_authors      : config.mod_authors, mod_description: config.mod_description,
+        hl_version       : config.hl_version, modrinth_project: config.modrinth_project,
+        issue_tracker_url: config.issue_tracker_url, mod_credits: config.mod_credits
 ]
-tasks.withType(ProcessResources).configureEach {
+processResources {
     inputs.properties replaceProperties
 
     filesMatching(resourceTargets) {
@@ -201,7 +199,7 @@ jar {
     manifest {
         attributes([
                 "Specification-Title"     : config.mod_id,
-                "Specification-Vendor"    : config.mod_authors,
+                "Specification-Vendor"    : "Zeitheron",
                 "Specification-Version"   : "1",
                 "Implementation-Title"    : project.name,
                 "Implementation-Version"  : archiveVersion,
@@ -215,14 +213,13 @@ task deobfJar(type: Jar) {
     archiveClassifier = 'deobf'
     from sourceSets.main.output
     manifest {
-        attributes([
-                "Specification-Title"     : config.mod_id,
-                "Specification-Vendor"    : config.mod_authors,
-                "Specification-Version"   : "1",
-                "Implementation-Title"    : project.name,
-                "Implementation-Version"  : archiveVersion,
-                "Implementation-Vendor"   : config.mod_authors,
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        attributes(["Specification-Title"     : config.mod_id,
+                    "Specification-Vendor"    : "Zeitheron",
+                    "Specification-Version"   : "1",
+                    "Implementation-Title"    : project.name,
+                    "Implementation-Version"  : archiveVersion,
+                    "Implementation-Vendor"   : config.mod_authors,
+                    "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }
 }
@@ -239,29 +236,156 @@ artifacts {
 
 modrinth {
     token = System.env.MODRINTH_TOKEN != null ? System.env.MODRINTH_TOKEN : "NONE"
-    projectId = config.modrinth_project as String
-    versionNumber = config.mod_version as String
-    versionType = config.release_type as String
+    projectId = config.modrinth_project
+    versionNumber = config.mod_version
+    versionType = config.release_type
     uploadFile = jar
-    gameVersions = [config.mc_version as String]
+    gameVersions = [config.mc_version]
+    dependencies {
+        def mods = config.required_mods.split(";")
+        if (mods.length > 0 && (mods.length > 1 || !mods[0].isEmpty()))
+            for (final def one in mods) {
+                if (one.isBlank()) continue
+                if (one.startsWith("@")) {
+                    def pars = one.substring(1).split(":", 2)
+                    if (pars[0].equalsIgnoreCase("m")) {
+                        required.project pars[1].trim()
+                    }
+                } else
+                    required.project one.trim()
+            }
+
+        mods = config.optional_mods.split(";")
+        if (mods.length > 0 && (mods.length > 1 || !mods[0].isEmpty()))
+            for (final def one in mods) {
+                if (one.isBlank()) continue
+                if (one.startsWith("@")) {
+                    def pars = one.substring(1).split(":", 2)
+                    if (pars[0].equalsIgnoreCase("m")) {
+                        optional.project pars[1].trim()
+                    }
+                } else
+                    optional.project one.trim()
+            }
+
+        mods = config.incompatible_mods.split(";")
+        if (mods.length > 0 && (mods.length > 1 || !mods[0].isEmpty()))
+            for (final def one in mods) {
+                if (one.isBlank()) continue
+                if (one.startsWith("@")) {
+                    def pars = one.substring(1).split(":", 2)
+                    if (pars[0].equalsIgnoreCase("m")) {
+                        incompatible.project pars[1].trim()
+                    }
+                } else
+                    incompatible.project one.trim()
+            }
+
+        mods = config.embedded_mods.split(";")
+        if (mods.length > 0 && (mods.length > 1 || !mods[0].isEmpty()))
+            for (final def one in mods) {
+                if (one.isBlank()) continue
+                if (one.startsWith("@")) {
+                    def pars = one.substring(1).split(":", 2)
+                    if (pars[0].equalsIgnoreCase("m")) {
+                        embedded.project pars[1].trim()
+                    }
+                } else
+                    embedded.project one.trim()
+            }
+    }
 }
 
 curseforge {
-    apiKey = System.env.CURSEFORGE_API_KEY != null ? System.env.CURSEFORGE_API_KEY : "NONE"
+    apiKey = System.env.CURSEFORGE_TOKEN != null ? System.env.CURSEFORGE_TOKEN : "NONE"
     project {
-        id = config.cf_project as String
+        id = config.cf_project
         changelogType = 'html'
         changelog = ""
-        releaseType = config.release_type as String
-        addGameVersion config.mc_version as String
+        releaseType = config.release_type
+        addGameVersion config.mc_version
         addGameVersion "NeoForge"
         mainArtifact(jar) {
             displayName = "[${config.mc_version}] ${config.mod_name} - ${config.mod_version}"
         }
+
+        def reqDeps = new ArrayList()
+        def optDeps = new ArrayList()
+        def incompat = new ArrayList()
+        def embLibs = new ArrayList()
+
+        def mods = config.required_mods.split(";")
+        if (mods.length > 0 && (mods.length > 1 || !mods[0].isEmpty()))
+            for (final def one in mods) {
+                if (one.isBlank()) continue
+                if (one.startsWith("@")) {
+                    def pars = one.substring(1).split(":", 2)
+                    if (pars[0].equalsIgnoreCase("c")) {
+                        reqDeps.add pars[1].trim()
+                    }
+                } else
+                    reqDeps.add one.trim()
+            }
+
+        mods = config.optional_mods.split(";")
+        if (mods.length > 0 && (mods.length > 1 || !mods[0].isEmpty()))
+            for (final def one in mods) {
+                if (one.isBlank()) continue
+                if (one.startsWith("@")) {
+                    def pars = one.substring(1).split(":", 2)
+                    if (pars[0].equalsIgnoreCase("c")) {
+                        optDeps.add pars[1].trim()
+                    }
+                } else
+                    optDeps.add one.trim()
+            }
+
+        mods = config.incompatible_mods.split(";")
+        if (mods.length > 0 && (mods.length > 1 || !mods[0].isEmpty()))
+            for (final def one in mods) {
+                if (one.isBlank()) continue
+                if (one.startsWith("@")) {
+                    def pars = one.substring(1).split(":", 2)
+                    if (pars[0].equalsIgnoreCase("c")) {
+                        incompat.add pars[1].trim()
+                    }
+                } else
+                    incompat.add one.trim()
+            }
+
+        mods = config.embedded_mods.split(";")
+        if (mods.length > 0 && (mods.length > 1 || !mods[0].isEmpty()))
+            for (final def one in mods) {
+                if (one.isBlank()) continue
+                if (one.startsWith("@")) {
+                    def pars = one.substring(1).split(":", 2)
+                    if (pars[0].equalsIgnoreCase("c")) {
+                        embLibs.add pars[1].trim()
+                    }
+                } else
+                    embLibs.add one.trim()
+            }
+
+        if (reqDeps.size() > 0 || optDeps.size() > 0 || incompat.size() > 0 || embLibs.size() > 0) {
+            relations {
+                reqDeps.each { dep ->
+                    requiredDependency dep
+                }
+                optDeps.each { dep ->
+                    optionalDependency dep
+                }
+                incompat.each { dep ->
+                    incompatible dep
+                }
+                embLibs.each { dep ->
+                    embeddedLibrary dep
+                }
+            }
+        }
     }
 }
 
-import net.neoforged.gradle.common.tasks.PotentiallySignJar;
+import net.neoforged.gradle.common.tasks.PotentiallySignJar
 
 task signJar(type: PotentiallySignJar, dependsOn: jar) {
     onlyIf {
@@ -306,8 +430,10 @@ tasks.register('buildAndUploadMod') {
 }
 
 afterEvaluate {
-    tasks["curseforge${config.cf_project}"].dependsOn.add(publish)
-    tasks["modrinth"].dependsOn.add(publish)
+    if (!config.maven_url.isEmpty()) {
+        tasks["curseforge${config.cf_project}"].dependsOn.add(publish)
+        tasks["modrinth"].dependsOn.add(publish)
+    }
 }
 
 publishing {
@@ -320,33 +446,43 @@ publishing {
     }
     repositories {
         maven {
-            url "file:///R:/"
+            url config.maven_url
         }
     }
-}
-
-// This piece of garbage will ensure that the build number is updated after build is executed.
-tasks.build.doLast {
-    if (!hasConfig("build_candidate") || !Boolean.parseBoolean(config.build_candidate)) {
-        def buildTxt = configFile.toPath();
-        List<String> lines = Files.readAllLines buildTxt;
-        lines.replaceAll { String ln ->
-            if (ln.startsWith("mod_version")) {
-                def version = ln.split("=")[1];
-                def dot = version.lastIndexOf('.') + 1;
-                def newVersion = version.substring(0, dot);
-                def lastOne = Integer.parseInt(version.substring(dot)) + 1;
-                return "mod_version=" + newVersion + lastOne;
-            }
-            return ln;
-        }
-        Files.write buildTxt, lines, StandardOpenOption.CREATE;
-    } else println "Build candidate enabled, we are not increasing build number after this."
 }
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
 }
+
+import java.nio.file.Files
+
+def incrementBuild = {
+    if (!hasConfig("build_candidate") || !Boolean.parseBoolean(config.build_candidate)) {
+        def buildTxt = configFile.toPath()
+        List<String> lines = Files.readAllLines buildTxt
+        lines.replaceAll { String ln ->
+            if (ln.startsWith("mod_version")) {
+                def version = ln.split("=")[1]
+                def dot = version.lastIndexOf('.') + 1
+                def newVersion = version.substring(0, dot)
+                def lastOne = Integer.parseInt(version.substring(dot)) + 1
+                return "mod_version=" + newVersion + lastOne
+            }
+            return ln
+        }
+        Files.write buildTxt, lines, java.nio.file.StandardOpenOption.CREATE
+    } else println "Build candidate enabled, we are not increasing build number after this."
+}
+
+tasks.register("incrementBuildVersionProperty") {
+    group "upload"
+    doLast incrementBuild
+}
+
+// This piece of garbage will ensure that the build number is updated after build is executed.
+tasks.build.doLast incrementBuild
+tasks.buildAndUploadMod.doLast incrementBuild
 
 idea {
     module {

@@ -18,7 +18,7 @@ public class FMLFingerprintCheckEvent
 		extends ModLifecycleEvent
 {
 	@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-	private final Optional<String> gotFingerprint;
+	private final Optional<String> gotFingerprint, trustData;
 	protected final ModContainer ctr;
 	
 	protected final Supplier<Set<String>> filesViolated;
@@ -48,8 +48,18 @@ public class FMLFingerprintCheckEvent
 			}
 		});
 		
-		gotFingerprint = ((ModFileInfo) container.getModInfo().getOwningFile())
-				.getCodeSigningFingerprint();
+		ModFileInfo mfi = (ModFileInfo) container.getModInfo().getOwningFile();
+		
+		gotFingerprint = mfi.getCodeSigningFingerprint();
+		
+		Optional<String> trustData = Optional.empty();
+		try
+		{
+			trustData = mfi.getTrustData();
+		} catch(Exception e)
+		{
+		}
+		this.trustData = trustData;
 	}
 	
 	public ModContainer getModContainer()
@@ -60,6 +70,11 @@ public class FMLFingerprintCheckEvent
 	public Optional<String> fingerprint()
 	{
 		return gotFingerprint;
+	}
+	
+	public Optional<String> trustData()
+	{
+		return trustData;
 	}
 	
 	public Set<String> getInvalidSignedFiles()

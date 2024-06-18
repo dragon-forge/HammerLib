@@ -4,6 +4,7 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import lombok.Locked;
 import net.minecraft.advancements.CriterionTrigger;
 import net.minecraft.advancements.critereon.ItemSubPredicate;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
@@ -140,7 +141,8 @@ public class RegistryMapping
 	/**
 	 * Allows marking any registry as non-intrusive, allowing @{@link org.zeith.hammerlib.annotations.OnlyIf} to be applicable on constant fields of a registry.
 	 */
-	public static synchronized <T> void markRegistryAsNonIntrusive(ResourceKey<? extends Registry<T>> registryKey)
+	@Locked
+	public static <T> void markRegistryAsNonIntrusive(ResourceKey<? extends Registry<T>> registryKey)
 	{
 		NON_INTRUSIVE_REGISTRIES.add(registryKey);
 	}
@@ -155,12 +157,14 @@ public class RegistryMapping
 	 * @param <T>
 	 * 		type of registry
 	 */
+	@Locked
 	public static synchronized <T> void report(Class<? super T> base, Registry<T> registry)
 	{
 		REG_BY_TYPE.put(base, registry);
 		TYPE_BY_REG.put(registry.key(), base);
 	}
 	
+	@Locked
 	public static synchronized <T> void report(Class<T> base, Registry<T> registry, boolean intrusive)
 	{
 		REG_BY_TYPE.put(base, registry);
@@ -168,12 +172,14 @@ public class RegistryMapping
 		if(!intrusive) markRegistryAsNonIntrusive(registry.key());
 	}
 	
+	@Locked
 	public static synchronized void reportRaw(Class base, Registry registry)
 	{
 		REG_BY_TYPE.put(base, registry);
 		TYPE_BY_REG.put(registry.key(), base);
 	}
 	
+	@Locked
 	public static synchronized void reportRaw(Class base, Registry registry, boolean intrusive)
 	{
 		REG_BY_TYPE.put(base, registry);

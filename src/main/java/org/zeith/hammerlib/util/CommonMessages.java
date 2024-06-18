@@ -2,6 +2,7 @@ package org.zeith.hammerlib.util;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.*;
+import net.neoforged.fml.loading.FMLEnvironment;
 import org.apache.logging.log4j.Logger;
 import org.zeith.hammerlib.client.adapter.ChatMessageAdapter;
 import org.zeith.hammerlib.core.adapter.ModSourceAdapter;
@@ -35,17 +36,20 @@ public class CommonMessages
 	
 	public static CheckResult printMessageOnIllegalRedistribution(Class<?> modClass, AbstractLogger log, String modName, String downloadUrl)
 	{
+		if(!FMLEnvironment.production)
+			return CheckResult.DEV_ENV;
+		
 		var illegalSourceNotice = ModSourceAdapter.getModSource(modClass)
 				.filter(ModSourceAdapter.ModSource::wasDownloadedIllegally)
 				.orElse(null);
 		
 		if(illegalSourceNotice != null)
 		{
-			log.error("====================================================");
+			log.error("=".repeat(52));
 			log.error("== WARNING: " + modName + " was downloaded from " + illegalSourceNotice.referrerDomain() +
 					  ", which has been marked as illegal site over at stopmodreposts.org.");
 			log.error("== Please download the mod from " + downloadUrl);
-			log.error("====================================================");
+			log.error("=".repeat(52));
 			
 			var illegalUri = Component.literal(illegalSourceNotice.referrerDomain())
 					.withStyle(s -> s.withColor(ChatFormatting.RED));
@@ -86,17 +90,22 @@ public class CommonMessages
 	
 	public static CheckResult printMessageOnFingerprintViolation(FMLFingerprintCheckEvent event, String expectFingerprint, AbstractLogger log, String modName, String downloadUrl)
 	{
-		var modFile = event.getModContainer().getModInfo().getOwningFile().getFile().getFileName();
+		if(!FMLEnvironment.production)
+			return CheckResult.DEV_ENV;
 		
-		if(event.isViolated(expectFingerprint))
+		var modFile = event.getModContainer().getModInfo().getOwningFile().getFile().getFileName();
+		var trustData = event.trustData().map(s -> "Trust[" + s + "]").orElse("[No Trust Data]");
+		
+		if(!event.isViolated(expectFingerprint))
 		{
-			log.info("{} ({}) has passed the jar integrity check.", modName, modFile);
+			log.info("{} ({}) has passed the jar integrity check. {}", modName, modFile, trustData);
 			return CheckResult.OK;
 		}
 		
-		log.error("====================================================");
+		log.error("=".repeat(52));
 		log.error("== WARNING: Somebody has been tampering with " + modName + "'s jar! (" + modFile + ")");
 		log.error("== It is highly recommended that you re-download it from " + downloadUrl);
+		log.error("== Expected fingerprint {}, but got {}. {}", expectFingerprint, event.fingerprint().map(s -> s.replace(":", "")).orElse(null), trustData);
 		var set = event.getInvalidSignedFiles();
 		if(!set.isEmpty())
 		{
@@ -104,7 +113,7 @@ public class CommonMessages
 			for(var e : set)
 				log.error("== " + e);
 		}
-		log.error("====================================================");
+		log.error("=".repeat(52));
 		
 		String host = downloadUrl;
 		try
@@ -131,6 +140,7 @@ public class CommonMessages
 	public enum CheckResult
 	{
 		OK,
+		DEV_ENV,
 		VIOLATION_FOUND;
 	}
 	

@@ -206,13 +206,14 @@ public class HammerLib
 		PROXY.clientSetup();
 	}
 	
-	@SubscribeEvent
-	public void checkFingerprint(FMLFingerprintCheckEvent e)
-	{
-		CommonMessages.printMessageOnFingerprintViolation(e, "97e852e9b3f01b83574e8315f7e77651c6605f2b455919a7319e9869564f013c",
-				LOG, "HammerLib", "https://www.curseforge.com/minecraft/mc-mods/hammer-lib"
-		);
-	}
+	// Fixme: Need to figure out why jar signing results in a null fingerprint (corrupted jdks?!)
+//	@SubscribeEvent
+//	public void checkFingerprint(FMLFingerprintCheckEvent e)
+//	{
+//		CommonMessages.printMessageOnFingerprintViolation(e, "97e852e9b3f01b83574e8315f7e77651c6605f2b455919a7319e9869564f013c",
+//				LOG, "HammerLib", "https://www.curseforge.com/minecraft/mc-mods/hammer-lib"
+//		);
+//	}
 	
 	@SubscribeEvent
 	@OnlyIn(Dist.CLIENT)
