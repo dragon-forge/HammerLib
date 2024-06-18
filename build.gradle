@@ -285,11 +285,11 @@ task placeSignedJar {
 
 signJar.finalizedBy('placeSignedJar')
 
-//def reobfFile = jar.archiveFile.get().asFile
-//def reobfArtifact = artifacts.add('default', reobfFile) {
-//    type 'jar'
-//    builtBy 'signJar'
-//}
+def reobfFile = jar.archiveFile.get().asFile
+def reobfArtifact = artifacts.add('default', reobfFile) {
+    type 'jar'
+    builtBy 'signJar'
+}
 
 jar.finalizedBy('signJar')
 publish.dependsOn('signJar')

@@ -124,7 +124,7 @@ public class ConfigAdapter
 				});
 			} catch(ReflectiveOperationException e)
 			{
-				HammerLib.LOG.fatal("Failed to create new config instance for " + ad.getOwnerClass(), e);
+				HammerLib.LOG.error("Failed to create new config instance for " + ad.getOwnerClass(), e);
 			} catch(ConfigException e)
 			{
 				HammerLib.LOG.error("Failed to load config file in " + ad.getOwnerClass() + " correctly.", e);

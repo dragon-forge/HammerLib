@@ -24,9 +24,7 @@ public record CustomGlintComponent<T>(IGlintProviderType<T> type, T data)
 {
 	public static final Codec<CustomGlintComponent<?>> CODEC = RecordCodecBuilder.create(inst ->
 			inst.group(
-					Codec.lazyInitialized(() -> RegistriesHL.glintProviders().byNameCodec())
-							.fieldOf("type")
-							.forGetter(CustomGlintComponent::type),
+					RegistriesHL.GLINT_PROVIDERS.byNameCodec().fieldOf("type").forGetter(CustomGlintComponent::type),
 					ExtraCodecs.JSON.fieldOf("data").forGetter(CustomGlintComponent::serializeData)
 			).apply(inst, CustomGlintComponent::new)
 	);

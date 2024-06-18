@@ -15,8 +15,8 @@ import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zeith.hammerlib.annotations.*;
 import org.zeith.hammerlib.annotations.client.ClientSetup;
 import org.zeith.hammerlib.api.IRecipeProvider;
@@ -49,7 +49,7 @@ import java.util.stream.Stream;
 @Mod(HLConstants.MOD_ID)
 public class HammerLib
 {
-	public static final Logger LOG = LogManager.getLogger("HammerLib");
+	public static final Logger LOG = LoggerFactory.getLogger(HammerLib.class);
 	public static final HLCommonProxy PROXY = IProxy.create(() -> HLClientProxy::new, () -> HLCommonProxy::new);
 	public static final IEventBus EVENT_BUS = BusBuilder.builder().build();
 	

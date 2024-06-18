@@ -18,7 +18,7 @@ public interface ILevelActionType
 	
 	default ResourceLocation getRegistryKey()
 	{
-		return RegistriesHL.levelActions().getKey(this);
+		return RegistriesHL.LEVEL_ACTIONS.getKey(this);
 	}
 	
 	static ILevelActionType simple(Function3<ILevelActionType, Level, CompoundTag, LevelAction> factory)

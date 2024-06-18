@@ -37,14 +37,14 @@ public interface IRemainingItemReplacer
 	
 	static void toNetwork(List<IRemainingItemReplacer> lst, FriendlyByteBuf buf)
 	{
-		var replacers = lst.stream().map(RegistriesHL.remainingReplacer()::getKey).filter(Objects::nonNull).toList();
+		var replacers = lst.stream().map(RegistriesHL.REMAINING_REPLACER::getKey).filter(Objects::nonNull).toList();
 		buf.writeShort(replacers.size());
 		for(var r : replacers) buf.writeResourceLocation(r);
 	}
 	
 	static List<IRemainingItemReplacer> fromNetwork(FriendlyByteBuf buf)
 	{
-		var g = RegistriesHL.remainingReplacer();
+		var g = RegistriesHL.REMAINING_REPLACER;
 		List<IRemainingItemReplacer> lst = new ArrayList<>();
 		short size = buf.readShort();
 		for(int i = 0; i < size; i++)

@@ -52,6 +52,7 @@ import net.minecraft.world.level.levelgen.structure.pools.StructurePoolElementTy
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.saveddata.maps.MapDecorationType;
+import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.common.crafting.IngredientType;
 import net.neoforged.neoforge.fluids.FluidType;
@@ -79,60 +80,61 @@ public class RegistryMapping
 		report(Block.class, BuiltInRegistries.BLOCK);
 		report(Fluid.class, BuiltInRegistries.FLUID);
 		report(Item.class, BuiltInRegistries.ITEM);
-		report(MobEffect.class, BuiltInRegistries.MOB_EFFECT);
-		report(SoundEvent.class, BuiltInRegistries.SOUND_EVENT);
-		report(Potion.class, BuiltInRegistries.POTION);
-		report(Attribute.class, BuiltInRegistries.ATTRIBUTE);
-		report(VillagerType.class, BuiltInRegistries.VILLAGER_TYPE);
-		report(VillagerProfession.class, BuiltInRegistries.VILLAGER_PROFESSION);
-		report(PoiType.class, BuiltInRegistries.POINT_OF_INTEREST_TYPE);
-		report(Schedule.class, BuiltInRegistries.SCHEDULE);
-		report(Activity.class, BuiltInRegistries.ACTIVITY);
-		report(ChunkStatus.class, BuiltInRegistries.CHUNK_STATUS);
-		report(ArmorMaterial.class, BuiltInRegistries.ARMOR_MATERIAL);
-		report(Instrument.class, BuiltInRegistries.INSTRUMENT);
-		report(CatVariant.class, BuiltInRegistries.CAT_VARIANT);
-		report(FrogVariant.class, BuiltInRegistries.FROG_VARIANT);
+		report(MobEffect.class, BuiltInRegistries.MOB_EFFECT, false);
+		report(SoundEvent.class, BuiltInRegistries.SOUND_EVENT, false);
+		report(Potion.class, BuiltInRegistries.POTION, false);
+		report(Attribute.class, BuiltInRegistries.ATTRIBUTE, false);
+		report(VillagerType.class, BuiltInRegistries.VILLAGER_TYPE, false);
+		report(VillagerProfession.class, BuiltInRegistries.VILLAGER_PROFESSION, false);
+		report(PoiType.class, BuiltInRegistries.POINT_OF_INTEREST_TYPE, false);
+		report(Schedule.class, BuiltInRegistries.SCHEDULE, false);
+		report(Activity.class, BuiltInRegistries.ACTIVITY, false);
+		report(ChunkStatus.class, BuiltInRegistries.CHUNK_STATUS, false);
+		report(ArmorMaterial.class, BuiltInRegistries.ARMOR_MATERIAL, false);
+		report(Instrument.class, BuiltInRegistries.INSTRUMENT, false);
+		report(CatVariant.class, BuiltInRegistries.CAT_VARIANT, false);
+		report(FrogVariant.class, BuiltInRegistries.FROG_VARIANT, false);
 		reportRaw(MapDecorationType.class, BuiltInRegistries.MAP_DECORATION_TYPE);
 		reportRaw(StructurePieceType.class, BuiltInRegistries.STRUCTURE_PIECE);
+		report(LootItemConditionType.class, BuiltInRegistries.LOOT_CONDITION_TYPE, false);
 		
 		// NeoForge stuff here.
-		report(FluidType.class, NeoForgeRegistries.FLUID_TYPES);
-		report(HolderSetType.class, NeoForgeRegistries.HOLDER_SET_TYPES);
+		report(FluidType.class, NeoForgeRegistries.FLUID_TYPES, false);
+		report(HolderSetType.class, NeoForgeRegistries.HOLDER_SET_TYPES, false);
 		
 		// NF generics
-		reportRaw(AttachmentType.class, NeoForgeRegistries.ATTACHMENT_TYPES);
-		reportRaw(FluidIngredientType.class, NeoForgeRegistries.FLUID_INGREDIENT_TYPES);
-		reportRaw(IngredientType.class, NeoForgeRegistries.INGREDIENT_TYPES);
-		reportRaw(EntityDataSerializer.class, NeoForgeRegistries.ENTITY_DATA_SERIALIZERS);
+		reportRaw(AttachmentType.class, NeoForgeRegistries.ATTACHMENT_TYPES, false);
+		reportRaw(FluidIngredientType.class, NeoForgeRegistries.FLUID_INGREDIENT_TYPES, false);
+		reportRaw(IngredientType.class, NeoForgeRegistries.INGREDIENT_TYPES, false);
+		reportRaw(EntityDataSerializer.class, NeoForgeRegistries.ENTITY_DATA_SERIALIZERS, false);
 		
 		// Generics.
 		reportRaw(EntityType.class, BuiltInRegistries.ENTITY_TYPE);
 		reportRaw(BlockEntityType.class, BuiltInRegistries.BLOCK_ENTITY_TYPE);
-		reportRaw(ParticleType.class, BuiltInRegistries.PARTICLE_TYPE);
-		reportRaw(MenuType.class, BuiltInRegistries.MENU);
-		reportRaw(RecipeType.class, BuiltInRegistries.RECIPE_TYPE);
-		reportRaw(RecipeSerializer.class, BuiltInRegistries.RECIPE_SERIALIZER);
-		reportRaw(StatType.class, BuiltInRegistries.STAT_TYPE);
-		reportRaw(MemoryModuleType.class, BuiltInRegistries.MEMORY_MODULE_TYPE);
-		reportRaw(SensorType.class, BuiltInRegistries.SENSOR_TYPE);
-		reportRaw(WorldCarver.class, BuiltInRegistries.CARVER);
-		reportRaw(Feature.class, BuiltInRegistries.FEATURE);
-		reportRaw(StructureType.class, BuiltInRegistries.STRUCTURE_TYPE);
-		reportRaw(BlockStateProviderType.class, BuiltInRegistries.BLOCKSTATE_PROVIDER_TYPE);
-		reportRaw(PlacementModifierType.class, BuiltInRegistries.PLACEMENT_MODIFIER_TYPE);
-		reportRaw(FoliagePlacerType.class, BuiltInRegistries.FOLIAGE_PLACER_TYPE);
-		reportRaw(TrunkPlacerType.class, BuiltInRegistries.TRUNK_PLACER_TYPE);
-		reportRaw(TreeDecoratorType.class, BuiltInRegistries.TREE_DECORATOR_TYPE);
-		reportRaw(RootPlacerType.class, BuiltInRegistries.ROOT_PLACER_TYPE);
-		reportRaw(FeatureSizeType.class, BuiltInRegistries.FEATURE_SIZE_TYPE);
-		reportRaw(ArgumentTypeInfo.class, BuiltInRegistries.COMMAND_ARGUMENT_TYPE);
-		reportRaw(CriterionTrigger.class, BuiltInRegistries.TRIGGER_TYPES);
-		reportRaw(NumberFormatType.class, BuiltInRegistries.NUMBER_FORMAT_TYPE);
-		reportRaw(StructureProcessorType.class, BuiltInRegistries.STRUCTURE_PROCESSOR);
-		reportRaw(StructurePoolElementType.class, BuiltInRegistries.STRUCTURE_POOL_ELEMENT);
-		reportRaw(StructurePlacementType.class, BuiltInRegistries.STRUCTURE_PLACEMENT);
-		reportRaw(ItemSubPredicate.Type.class, BuiltInRegistries.ITEM_SUB_PREDICATE_TYPE);
+		reportRaw(ParticleType.class, BuiltInRegistries.PARTICLE_TYPE, false);
+		reportRaw(MenuType.class, BuiltInRegistries.MENU, false);
+		reportRaw(RecipeType.class, BuiltInRegistries.RECIPE_TYPE, false);
+		reportRaw(RecipeSerializer.class, BuiltInRegistries.RECIPE_SERIALIZER, false);
+		reportRaw(StatType.class, BuiltInRegistries.STAT_TYPE, false);
+		reportRaw(MemoryModuleType.class, BuiltInRegistries.MEMORY_MODULE_TYPE, false);
+		reportRaw(SensorType.class, BuiltInRegistries.SENSOR_TYPE, false);
+		reportRaw(WorldCarver.class, BuiltInRegistries.CARVER, false);
+		reportRaw(Feature.class, BuiltInRegistries.FEATURE, false);
+		reportRaw(StructureType.class, BuiltInRegistries.STRUCTURE_TYPE, false);
+		reportRaw(BlockStateProviderType.class, BuiltInRegistries.BLOCKSTATE_PROVIDER_TYPE, false);
+		reportRaw(PlacementModifierType.class, BuiltInRegistries.PLACEMENT_MODIFIER_TYPE, false);
+		reportRaw(FoliagePlacerType.class, BuiltInRegistries.FOLIAGE_PLACER_TYPE, false);
+		reportRaw(TrunkPlacerType.class, BuiltInRegistries.TRUNK_PLACER_TYPE, false);
+		reportRaw(TreeDecoratorType.class, BuiltInRegistries.TREE_DECORATOR_TYPE, false);
+		reportRaw(RootPlacerType.class, BuiltInRegistries.ROOT_PLACER_TYPE, false);
+		reportRaw(FeatureSizeType.class, BuiltInRegistries.FEATURE_SIZE_TYPE, false);
+		reportRaw(ArgumentTypeInfo.class, BuiltInRegistries.COMMAND_ARGUMENT_TYPE, false);
+		reportRaw(CriterionTrigger.class, BuiltInRegistries.TRIGGER_TYPES, false);
+		reportRaw(NumberFormatType.class, BuiltInRegistries.NUMBER_FORMAT_TYPE, false);
+		reportRaw(StructureProcessorType.class, BuiltInRegistries.STRUCTURE_PROCESSOR, false);
+		reportRaw(StructurePoolElementType.class, BuiltInRegistries.STRUCTURE_POOL_ELEMENT, false);
+		reportRaw(StructurePlacementType.class, BuiltInRegistries.STRUCTURE_PLACEMENT, false);
+		reportRaw(ItemSubPredicate.Type.class, BuiltInRegistries.ITEM_SUB_PREDICATE_TYPE, false);
 	}
 	
 	/**
@@ -153,12 +155,11 @@ public class RegistryMapping
 	 * @param <T>
 	 * 		type of registry
 	 */
-	public static synchronized <T> void report(Class<T> base, Registry<T> registry)
+	public static synchronized <T> void report(Class<? super T> base, Registry<T> registry)
 	{
 		REG_BY_TYPE.put(base, registry);
 		TYPE_BY_REG.put(registry.key(), base);
 	}
-	
 	
 	public static synchronized <T> void report(Class<T> base, Registry<T> registry, boolean intrusive)
 	{
@@ -171,6 +172,13 @@ public class RegistryMapping
 	{
 		REG_BY_TYPE.put(base, registry);
 		TYPE_BY_REG.put(registry.key(), base);
+	}
+	
+	public static synchronized void reportRaw(Class base, Registry registry, boolean intrusive)
+	{
+		REG_BY_TYPE.put(base, registry);
+		TYPE_BY_REG.put(registry.key(), base);
+		if(!intrusive) markRegistryAsNonIntrusive(registry.key());
 	}
 	
 	/**

@@ -5,8 +5,7 @@ import net.minecraft.resources.ResourceKey;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
-import net.neoforged.neoforge.registries.RegistryBuilder;
-import org.zeith.api.registry.RegistryMapping;
+import org.zeith.api.registry.MappedRegistryBuilder;
 import org.zeith.hammerlib.abstractions.actions.ILevelActionType;
 import org.zeith.hammerlib.abstractions.sources.IObjectSourceType;
 import org.zeith.hammerlib.api.items.glint.IGlintProviderType;
@@ -16,42 +15,41 @@ import org.zeith.hammerlib.proxy.HLConstants;
 @EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD)
 public class RegistriesHL
 {
-	private static Registry<IObjectSourceType> OBJECT_SOURCES;
-	private static Registry<IRemainingItemReplacer> REMAINING_REPLACER;
-	private static Registry<ILevelActionType> LEVEL_ACTIONS;
-	private static Registry<IGlintProviderType<?>> GLINT_PROVIDERS;
+	public static final Registry<IObjectSourceType> OBJECT_SOURCES = new MappedRegistryBuilder<>(IObjectSourceType.class, Keys.OBJECT_SOURCES).sync(false).create();
+	public static final Registry<IRemainingItemReplacer> REMAINING_REPLACER = new MappedRegistryBuilder<>(IRemainingItemReplacer.class, Keys.REMAINING_ITEM_REPLACER).sync(false).defaultKey(HLConstants.id("none")).create();
+	public static final Registry<ILevelActionType> LEVEL_ACTIONS = new MappedRegistryBuilder<>(ILevelActionType.class, Keys.LEVEL_ACTIONS).sync(false).create();
+	public static final Registry<IGlintProviderType<?>> GLINT_PROVIDERS = new MappedRegistryBuilder<>(IGlintProviderType.class, Keys.GLINT_PROVIDERS).sync(false).create();
 	
 	@SubscribeEvent
 	public static void newRegistries(NewRegistryEvent e)
 	{
-		OBJECT_SOURCES = e.create(new RegistryBuilder<>(Keys.OBJECT_SOURCES).sync(false));
-		RegistryMapping.report(IObjectSourceType.class, OBJECT_SOURCES, false);
-		
-		REMAINING_REPLACER = e.create(new RegistryBuilder<>(Keys.REMAINING_ITEM_REPLACER).sync(false).defaultKey(HLConstants.id("none")));
-		RegistryMapping.report(IRemainingItemReplacer.class, REMAINING_REPLACER, false);
-		
-		LEVEL_ACTIONS = e.create(new RegistryBuilder<>(Keys.LEVEL_ACTIONS).sync(false));
-		RegistryMapping.report(ILevelActionType.class, LEVEL_ACTIONS, false);
-		
-		GLINT_PROVIDERS = e.create(new RegistryBuilder<>(Keys.GLINT_PROVIDERS).sync(false));
-		RegistryMapping.reportRaw(IGlintProviderType.class, GLINT_PROVIDERS);
+		e.register(OBJECT_SOURCES);
+		e.register(REMAINING_REPLACER);
+		e.register(LEVEL_ACTIONS);
+		e.register(GLINT_PROVIDERS);
 	}
 	
+	// TODO: Remove these methods in 1.22
+	
+	@Deprecated(forRemoval = true)
 	public static Registry<IObjectSourceType> objectSources()
 	{
 		return OBJECT_SOURCES;
 	}
 	
+	@Deprecated(forRemoval = true)
 	public static Registry<IRemainingItemReplacer> remainingReplacer()
 	{
 		return REMAINING_REPLACER;
 	}
 	
+	@Deprecated(forRemoval = true)
 	public static Registry<ILevelActionType> levelActions()
 	{
 		return LEVEL_ACTIONS;
 	}
 	
+	@Deprecated(forRemoval = true)
 	public static Registry<IGlintProviderType<?>> glintProviders()
 	{
 		return GLINT_PROVIDERS;

@@ -37,7 +37,7 @@ public class HLShapedRecipe
 	
 	public HLShapedRecipe addReplacer(ResourceLocation id)
 	{
-		var m = RegistriesHL.remainingReplacer().get(id);
+		var m = RegistriesHL.REMAINING_REPLACER.get(id);
 		if(m != null)
 			inputModifier.add(m);
 		return this;
@@ -45,14 +45,14 @@ public class HLShapedRecipe
 	
 	public HLShapedRecipe addReplacers(ResourceLocation... id)
 	{
-		for(var i : id) inputModifier.add(RegistriesHL.remainingReplacer().get(i));
+		for(var i : id) inputModifier.add(RegistriesHL.REMAINING_REPLACER.get(i));
 		inputModifier.removeIf(Objects::isNull);
 		return this;
 	}
 	
 	public HLShapedRecipe addReplacers(Iterable<ResourceLocation> id)
 	{
-		for(var i : id) inputModifier.add(RegistriesHL.remainingReplacer().get(i));
+		for(var i : id) inputModifier.add(RegistriesHL.REMAINING_REPLACER.get(i));
 		inputModifier.removeIf(Objects::isNull);
 		return this;
 	}

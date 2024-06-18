@@ -3,7 +3,7 @@ package org.zeith.hammerlib.proxy;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTabs;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.api.items.CreativeTab;
 import org.zeith.hammerlib.core.init.ItemsHL;

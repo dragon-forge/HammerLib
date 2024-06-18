@@ -25,7 +25,7 @@ public class ShapelessRecipeBuilder
 	
 	public ShapelessRecipeBuilder replacers(IRemainingItemReplacer... replacers)
 	{
-		Stream.of(replacers).map(RegistriesHL.remainingReplacer()::getKey).filter(Objects::nonNull).forEach(this.replacers::add);
+		Stream.of(replacers).map(RegistriesHL.REMAINING_REPLACER::getKey).filter(Objects::nonNull).forEach(this.replacers::add);
 		return this;
 	}
 	

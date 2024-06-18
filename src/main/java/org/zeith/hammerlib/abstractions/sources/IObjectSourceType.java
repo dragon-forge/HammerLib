@@ -10,6 +10,6 @@ public interface IObjectSourceType
 	
 	default ResourceLocation getRegistryKey()
 	{
-		return RegistriesHL.objectSources().getKey(this);
+		return RegistriesHL.OBJECT_SOURCES.getKey(this);
 	}
 }
