@@ -239,7 +239,7 @@ modrinth {
     versionType = config.release_type
     uploadFile = jar
     gameVersions = [mc_version]
-    changelog = Files.readString(file("CHANGELOG.md").toPath())
+    setChangelog(providers.fileContents(layout.projectDirectory.file("CHANGELOG.md")).asText)
     dependencies {
         def mods = config.required_mods.split(";")
         if (mods.length > 0 && (mods.length > 1 || !mods[0].isEmpty()))
@@ -419,7 +419,7 @@ publish.dependsOn('signJar')
 
 build.dependsOn signJar
 
-task gitChangelogTask(type: se.bjurr.gitchangelog.plugin.gradle.GitChangelogTask) {
+task generateChangelog(type: se.bjurr.gitchangelog.plugin.gradle.GitChangelogTask) {
     group = "git changelog"
     fromRevision = "6cf9a308a480cc2"
     templateContent = """
@@ -443,6 +443,9 @@ tasks.register('buildAndUploadMod') {
 }
 
 afterEvaluate {
+    tasks["curseforge${config.cf_project}"].dependsOn.add(generateChangelog)
+    tasks["modrinth"].dependsOn.add(generateChangelog)
+
     if (!config.maven_url.isEmpty()) {
         tasks["curseforge${config.cf_project}"].dependsOn.add(publish)
         tasks["modrinth"].dependsOn.add(publish)
@@ -482,12 +485,12 @@ def incrementBuild = {
                 def lastOne = Integer.parseInt(version.substring(dot)) + 1
                 return "mod_version=" + newVersion + lastOne
             }
-            if(ln.startsWith("last_git_commit")) {
+            if (ln.startsWith("last_git_commit")) {
                 def lastCommit = ln.split("=", 2)[1]
                 def truncated = se.bjurr.gitchangelog.api.GitChangelogApi.gitChangelogApiBuilder()
-                    .withFromRevision(lastCommit)
-                    .withFromRepo(projectDir)
-                    .withTemplateContent("""
+                        .withFromRevision(lastCommit)
+                        .withFromRepo(projectDir)
+                        .withTemplateContent("""
 {{#tags}}
 {{#commits}}
 [START]{{hash}}[END]
@@ -497,7 +500,7 @@ def incrementBuild = {
 
                 def found = truncated.indexOf("[START]")
                 def endIdx = truncated.indexOf("[END]", found)
-                if(found == -1 || endIdx == -1) return ln
+                if (found == -1 || endIdx == -1) return ln
                 return "last_git_commit=" + truncated.substring(found + 7, endIdx)
             }
             return ln

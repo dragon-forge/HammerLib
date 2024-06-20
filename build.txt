@@ -1,5 +1,5 @@
 # Mod Info
-mod_version=21.0.11
+mod_version=21.0.12
 build_candidate=false
 
 # Mod dependencies
@@ -30,7 +30,7 @@ modrinth_project=PlkSuVtM
 release_type=release
 
 # Keeping track of latest git commit for changelog generation!
-last_git_commit=020246d85df9bcc6ad9e98e0e02c80bd150a58ef
+last_git_commit=fab857ad133edef
 
 # List of mods separated by ;
 # If a specific mod for one platform is needed, @m: or @c: prefixes are used.
@@ -40,4 +40,6 @@ last_git_commit=020246d85df9bcc6ad9e98e0e02c80bd150a58ef
 required_mods=hammer-lib;
 optional_mods=
 incompatible_mods=
+embedded_mods=
+e_mods=
 embedded_mods=
