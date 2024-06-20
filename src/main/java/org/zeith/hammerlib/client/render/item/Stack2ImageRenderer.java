@@ -1,22 +1,21 @@
 package org.zeith.hammerlib.client.render.item;
 
-import com.mojang.blaze3d.pipeline.MainTarget;
-import com.mojang.blaze3d.platform.*;
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexSorting;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.*;
 import net.neoforged.api.distmarker.Dist;
@@ -26,7 +25,8 @@ import net.neoforged.fml.LogicalSide;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.common.CreativeModeTabRegistry;
-import org.joml.Matrix4fStack;
+import org.joml.Matrix4f;
+import org.lwjgl.opengl.GL11;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.compat.jei.IJeiPluginHL;
 import org.zeith.hammerlib.core.ConfigHL;
@@ -47,7 +47,7 @@ public class Stack2ImageRenderer
 {
 	private static final List<RenderQueueItem> QUEUE = new ArrayList<>();
 	
-	private record RenderQueueItem(Component work, int width, int height, ItemStack stack, Consumer<NativeImage> finishCallback)
+	private record RenderQueueItem(Component work, int resolution, ItemStack stack, Consumer<NativeImage> finishCallback)
 	{
 	}
 	
@@ -77,7 +77,7 @@ public class Stack2ImageRenderer
 		
 		final File target = targetIn;
 		
-		renderItemStack(type, size, size, stack, image ->
+		renderItemStack(type, size, stack, image ->
 		{
 			Util.ioPool().execute(() ->
 			{
@@ -141,8 +141,28 @@ public class Stack2ImageRenderer
 				.forEach(s ->
 				{
 					ResourceLocation rl = BuiltInRegistries.ITEM.getKey(s.item());
-					var fl = new File(faild, rl.getNamespace() + File.separator + (rl.getPath() + ".png").replaceAll("[^a-zA-Z0-9\\.\\-]", "_"));
+					var suf = "";
+					if(s.data() != null && !s.data().isEmpty()) suf = s.data().toString();
+					var fl = new File(faild, rl.getNamespace() + File.separator + (rl.getPath() + suf + ".png").replaceAll("[^a-zA-Z0-9\\.\\-]", "_"));
 					queueRenderer(Component.literal("Everything"), s.stack(), size, fl);
+				});
+	}
+	
+	public static void renderTab(ResourceLocation tabId, CreativeModeTab tab, int size)
+	{
+		SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy-hh.mm.ss");
+		File faild = new File(HLConstants.MOD_ID, "renderers" + File.separator + tabId.getNamespace() + "_" + tabId.getPath() + "-" + sdf.format(Date.from(Instant.now())));
+		tab.getDisplayItems()
+				.stream()
+				.distinct()
+				.map(stack -> new ItemWithData(stack.getItem(), stack.getComponentsPatch()))
+				.forEach(s ->
+				{
+					ResourceLocation rl = BuiltInRegistries.ITEM.getKey(s.item());
+					var suf = "";
+					if(s.data() != null && !s.data().isEmpty()) suf = s.data().toString();
+					var fl = new File(faild, (rl.getPath() + suf + ".png").replaceAll("[^a-zA-Z0-9\\.\\-]", "_"));
+					queueRenderer(Component.literal("Tab " + tabId), s.stack(), size, fl);
 				});
 	}
 	
@@ -160,15 +180,20 @@ public class Stack2ImageRenderer
 				.forEach(s ->
 				{
 					ResourceLocation rl = BuiltInRegistries.ITEM.getKey(s.item());
-					var fl = new File(faild, (rl.getPath() + ".png").replaceAll("[^a-zA-Z0-9\\.\\-]", "_"));
+					var suf = "";
+					if(s.data() != null && !s.data().isEmpty()) suf = s.data().toString();
+					var fl = new File(faild, (rl.getPath() + suf + ".png").replaceAll("[^a-zA-Z0-9\\.\\-]", "_"));
 					queueRenderer(Component.literal("Mod " + modid), s.stack(), size, fl);
 				});
 	}
 	
-	public static synchronized void renderItemStack(Component type, int width, int height, ItemStack stack, Consumer<NativeImage> finishCallback)
+	public static synchronized void renderItemStack(Component type, int resolution, ItemStack stack, Consumer<NativeImage> finishCallback)
 	{
-		QUEUE.add(new RenderQueueItem(type, width, height, stack, finishCallback));
+		QUEUE.add(new RenderQueueItem(type, resolution, stack, finishCallback));
 	}
+	
+	static RenderTarget target;
+	static long lastTargetUse;
 	
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public static void onFrameStart(ClientTickEvent.Pre eventThatWeDoNotCareMuchAbout)
@@ -188,73 +213,73 @@ public class Stack2ImageRenderer
 					});
 		}
 		
-		if(!QUEUE.isEmpty())
+		if(QUEUE.isEmpty())
 		{
-			var mc = Minecraft.getInstance();
-			var ir = mc.getItemRenderer();
-			
-			var elem = QUEUE.remove(0);
-			
-			var a = elem.work;
-			
-			MainTarget renderTarget = new MainTarget(elem.width(), elem.height());
-			renderTarget.setClearColor(0.0F, 0.0F, 0.0F, 0.0F);
-			renderTarget.clear(Minecraft.ON_OSX);
-			renderTarget.bindWrite(true);
-			
-			var stack = elem.stack();
-			
-			var model = ir.getModel(stack, null, null, 0);
+			if(target != null && System.currentTimeMillis() - lastTargetUse > 500L)
 			{
-				mc.textureManager.getTexture(InventoryMenu.BLOCK_ATLAS).setFilter(false, false);
-				RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS);
-				RenderSystem.enableBlend();
-				RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-				RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-				Matrix4fStack mview = RenderSystem.getModelViewStack();
-				mview.pushMatrix();
-				mview.scale(16, 16, 16);
-				mview.translate(0, 0, 0.0F);
-				mview.translate(13.333333333333F, 7.5F, 0.0F);
-				mview.scale(1.783549783549338F, -1.0F, 1.0F);
-				mview.scale(15.0F, 15.0F, 15.0F);
-				RenderSystem.applyModelViewMatrix();
-				
-				PoseStack pose = new PoseStack();
-				
-				MultiBufferSource.BufferSource buffers = Minecraft.getInstance().renderBuffers().bufferSource();
-				boolean flat = !model.usesBlockLight();
-				if(flat) Lighting.setupForFlatItems();
-				else Lighting.setupFor3DItems();
-				
-				ir.render(stack, ItemDisplayContext.GUI, false, pose, buffers, 15728880, OverlayTexture.NO_OVERLAY, model);
-				buffers.endBatch();
-				RenderSystem.enableDepthTest();
-				if(flat) Lighting.setupFor3DItems();
-				
-				mview.popMatrix();
-				RenderSystem.applyModelViewMatrix();
+				target.destroyBuffers();
+				target = null;
 			}
 			
-			try
-			{
-				NativeImage img = new NativeImage(NativeImage.Format.RGBA, renderTarget.width, renderTarget.height, false);
-				RenderSystem.bindTexture(renderTarget.getColorTextureId());
-				img.downloadTexture(0, false);
-				img.flipY();
-				elem.finishCallback.accept(img);
-				
-				if(a != null)
-					SystemToast.addOrUpdate(mc.toast, SystemToast.SystemToastId.NARRATOR_TOGGLE, a.copy().append(Component.literal(": Rendered!").withStyle(ChatFormatting.GREEN)), elem.stack.getDisplayName());
-			} catch(Throwable e)
-			{
-				e.printStackTrace();
-				
-				if(a != null)
-					SystemToast.addOrUpdate(mc.toast, SystemToast.SystemToastId.NARRATOR_TOGGLE, a.copy().append(Component.literal(": Failed!").withStyle(ChatFormatting.RED)), elem.stack.getDisplayName());
-			}
-			
-			renderTarget.destroyBuffers();
+			return;
 		}
+		
+		var mc = Minecraft.getInstance();
+		
+		var elem = QUEUE.removeFirst();
+		
+		var a = elem.work;
+		
+		var stack = elem.stack();
+		
+		var resolution = elem.resolution();
+		
+		{
+			var pStack = RenderSystem.getModelViewStack();
+			GuiGraphics guiGraphics = new GuiGraphics(mc, mc.renderBuffers().bufferSource());
+			
+			if(target == null) target = new RenderTarget(true) {};
+			if(target.width < resolution || target.height < resolution)
+				target.resize(resolution, resolution, Minecraft.ON_OSX);
+			
+			float max = resolution * 16F / resolution;
+			Matrix4f proj = new Matrix4f()
+					.setOrtho(0, max,
+							max, 0,
+							-3000, 3000
+					);
+			RenderSystem.setProjectionMatrix(proj, VertexSorting.ORTHOGRAPHIC_Z);
+			
+			pStack.pushMatrix();
+			pStack.identity();
+			RenderSystem.applyModelViewMatrix();
+			target.bindWrite(true);
+			
+			RenderSystem.clearColor(0, 0, 0, 0);
+			RenderSystem.clearDepth(1);
+			RenderSystem.clear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT, Minecraft.ON_OSX);
+			
+			Lighting.setupFor3DItems();
+			RenderSystem.enableCull();
+			
+			guiGraphics.renderItem(stack, 0, 0);
+			
+			NativeImage img = new NativeImage(resolution, resolution, false);
+			target.bindRead();
+			img.downloadTexture(0, false);
+			img.flipY();
+			
+			pStack.popMatrix();
+			RenderSystem.applyModelViewMatrix();
+			
+			target.unbindWrite();
+			
+			elem.finishCallback.accept(img);
+			
+			if(a != null)
+				SystemToast.addOrUpdate(mc.toast, SystemToast.SystemToastId.NARRATOR_TOGGLE, a.copy().append(Component.literal(": Rendered!").withStyle(ChatFormatting.GREEN)), elem.stack.getDisplayName());
+		}
+		
+		lastTargetUse = System.currentTimeMillis();
 	}
 }

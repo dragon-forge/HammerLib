@@ -1,6 +1,7 @@
 buildscript {
     dependencies {
         classpath "gradle.plugin.com.matthewprenger:CurseGradle:1.4.+"
+        classpath "se.bjurr.gitchangelog:git-changelog-gradle-plugin:+"
     }
 }
 
@@ -12,6 +13,7 @@ plugins {
 apply plugin: 'idea'
 apply plugin: 'maven-publish'
 apply plugin: 'com.matthewprenger.cursegradle'
+apply plugin: 'se.bjurr.gitchangelog.git-changelog-gradle-plugin'
 
 ext.configFile = file("build.txt")
 configFile.withReader {
@@ -237,6 +239,7 @@ modrinth {
     versionType = config.release_type
     uploadFile = jar
     gameVersions = [mc_version]
+    changelog = Files.readString(file("CHANGELOG.md").toPath())
     dependencies {
         def mods = config.required_mods.split(";")
         if (mods.length > 0 && (mods.length > 1 || !mods[0].isEmpty()))
@@ -296,8 +299,8 @@ curseforge {
     apiKey = System.env.CURSEFORGE_TOKEN != null ? System.env.CURSEFORGE_TOKEN : "NONE"
     project {
         id = config.cf_project
-        changelogType = 'html'
-        changelog = ""
+        changelogType = 'markdown'
+        changelog = file("CHANGELOG.md")
         releaseType = config.release_type
         addGameVersion mc_version
         addGameVersion "NeoForge"
@@ -416,6 +419,20 @@ publish.dependsOn('signJar')
 
 build.dependsOn signJar
 
+task gitChangelogTask(type: se.bjurr.gitchangelog.plugin.gradle.GitChangelogTask) {
+    group = "git changelog"
+    fromRevision = "6cf9a308a480cc2"
+    templateContent = """
+Changelog:
+
+{{#tags}}
+  {{#commits}}
+- {{messageTitle}} ([{{hash}}](https://github.com/{{ownerName}}/{{repoName}}/commit/{{hash}})) by {{authorName}}
+  {{/commits}}
+{{/tags}}
+"""
+}
+
 tasks.register('buildAndUploadMod') {
     group = "upload"
     dependsOn "curseforge${config.cf_project}", 'modrinth'
@@ -464,6 +481,24 @@ def incrementBuild = {
                 def newVersion = version.substring(0, dot)
                 def lastOne = Integer.parseInt(version.substring(dot)) + 1
                 return "mod_version=" + newVersion + lastOne
+            }
+            if(ln.startsWith("last_git_commit")) {
+                def lastCommit = ln.split("=", 2)[1]
+                def truncated = se.bjurr.gitchangelog.api.GitChangelogApi.gitChangelogApiBuilder()
+                    .withFromRevision(lastCommit)
+                    .withFromRepo(projectDir)
+                    .withTemplateContent("""
+{{#tags}}
+{{#commits}}
+[START]{{hash}}[END]
+{{/commits}}
+{{/tags}}
+""").render()
+
+                def found = truncated.indexOf("[START]")
+                def endIdx = truncated.indexOf("[END]", found)
+                if(found == -1 || endIdx == -1) return ln
+                return "last_git_commit=" + truncated.substring(found + 7, endIdx)
             }
             return ln
         }

@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 public record TESRBase<T extends BlockEntity>(IBESR<T> wrap)
@@ -25,6 +26,12 @@ public record TESRBase<T extends BlockEntity>(IBESR<T> wrap)
 	public int getViewDistance()
 	{
 		return wrap.getViewDistance();
+	}
+	
+	@Override
+	public AABB getRenderBoundingBox(T blockEntity)
+	{
+		return wrap.getRenderBoundingBox(blockEntity);
 	}
 	
 	@Override

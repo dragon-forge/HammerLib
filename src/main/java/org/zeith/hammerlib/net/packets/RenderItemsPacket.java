@@ -1,11 +1,15 @@
 package org.zeith.hammerlib.net.packets;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.neoforged.api.distmarker.*;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.zeith.hammerlib.client.render.item.Stack2ImageRenderer;
-import org.zeith.hammerlib.net.*;
+import org.zeith.hammerlib.net.IPacket;
+import org.zeith.hammerlib.net.PacketContext;
+import org.zeith.hammerlib.util.mcf.Resources;
 
 public class RenderItemsPacket
 		implements IPacket
@@ -44,11 +48,14 @@ public class RenderItemsPacket
 	@OnlyIn(Dist.CLIENT)
 	public void clientExecute(PacketContext ctx)
 	{
-		if(mode == 0)
-			Stack2ImageRenderer.renderItem(Component.literal("Main hand"), Minecraft.getInstance().player.getMainHandItem(), size);
-		if(mode == 1)
-			Stack2ImageRenderer.renderMod(data, size);
-		if(mode == 2)
-			Stack2ImageRenderer.renderAll(size);
+		switch(mode)
+		{
+			case 0 -> Stack2ImageRenderer.renderItem(Component.literal("Main hand"), Minecraft.getInstance().player.getMainHandItem(), size);
+			case 1 -> Stack2ImageRenderer.renderMod(data, size);
+			case 2 -> Stack2ImageRenderer.renderAll(size);
+			case 3 -> ctx.registryAccess().registry(Registries.CREATIVE_MODE_TAB).map(r -> r.get(Resources.location(data))).ifPresent(tab ->
+					Stack2ImageRenderer.renderTab(Resources.location(data), tab, size)
+			);
+		}
 	}
 }

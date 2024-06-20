@@ -3,7 +3,7 @@ mod_version=21.0.11
 build_candidate=false
 
 # Mod dependencies
-jei_version=19.0.0.1
+jei_version=19.0.0.3
 shimmer_version=0.1.15
 
 # Persistent mod info
@@ -28,6 +28,9 @@ modrinth_project=PlkSuVtM
 
 # alpha, beta, release
 release_type=release
+
+# Keeping track of latest git commit for changelog generation!
+last_git_commit=020246d85df9bcc6ad9e98e0e02c80bd150a58ef
 
 # List of mods separated by ;
 # If a specific mod for one platform is needed, @m: or @c: prefixes are used.

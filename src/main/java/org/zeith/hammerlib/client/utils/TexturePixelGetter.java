@@ -35,41 +35,26 @@ public class TexturePixelGetter
 	
 	private static CompletableFuture<int[]> getRenderedColors(ItemStack stack)
 	{
-		return cachedRenderedColors.computeIfAbsent(stack.toString() + "_" + stack.getComponents(), ignore ->
+		var key = stack.toString() + "_" + stack.getComponentsPatch();
+		
+		var ct = cachedRenderedColorsCompletionTimes.get(key);
+		if(ct != null && System.currentTimeMillis() - ct > 100L)
 		{
-			AtomicReference<NativeImage> colors = new AtomicReference<>();
-			AtomicBoolean complete = new AtomicBoolean(false);
+			cachedRenderedColors.remove(key);
+			cachedRenderedColorsCompletionTimes.remove(key);
+		}
+		
+		return cachedRenderedColors.computeIfAbsent(key, ignore ->
+		{
+			CompletableFuture<int[]> colorsFuture = new CompletableFuture<>();
 			
-			Stack2ImageRenderer.renderItemStack(null, 64, 64, stack, image ->
+			Stack2ImageRenderer.renderItemStack(null, 64, stack, image ->
 			{
-				synchronized(colors)
-				{
-					colors.set(image);
-					complete.set(true);
-					colors.notifyAll();
-				}
-			});
-			
-			return CompletableFuture.supplyAsync(() ->
-			{
-				synchronized(colors)
-				{
-					try
-					{
-						if(!complete.get())
-							colors.wait(1000L);
-					} catch(InterruptedException e)
-					{
-						e.printStackTrace();
-					}
-				}
-				
-				return decompose(colors.get(), 0);
-			}).thenApply(i ->
-			{
+				colorsFuture.complete(decompose(image, 0));
 				cachedRenderedColorsCompletionTimes.put(ignore, System.currentTimeMillis());
-				return i;
 			});
+			
+			return colorsFuture;
 		});
 	}
 	
