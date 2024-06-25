@@ -49,19 +49,19 @@ runs {
     }
 
     client {
-        def args = new ArrayList()
+		def args = new ArrayList()
+		
+		if (hasConfig("mc_user") && !config.mc_user.isEmpty()) {
+			def userId = config.mc_user.split(',', 2)
+			args.add "--username"
+			args.add userId[0]
 
-        if (hasConfig("mc_user") && !config.mc_user.isEmpty()) {
-            def userId = config.mc_user.split(',', 2)
-            args.add "--username"
-            args.add userId[0]
-
-            args.add "--uuid"
-            if (userId.length > 1) args.add userId[1]
-            else args.add "00000000000000000000000000000001" // this is a default
-        }
-
-        programArguments(args)
+			args.add "--uuid"
+			if (userId.length > 1) args.add userId[1]
+			else args.add "00000000000000000000000000000001" // this is a default
+		}
+		
+		programArguments(args)
     }
 
     server {
@@ -96,8 +96,8 @@ dependencies {
     implementation "net.neoforged:neoforge:${forge_version}"
 
     ////// UTILITY STUFF //////
-    compileOnly 'org.projectlombok:lombok:1.18.32'
-    annotationProcessor 'org.projectlombok:lombok:1.18.32'
+    compileOnly "org.projectlombok:lombok:${lombok}"
+    annotationProcessor "org.projectlombok:lombok:${lombok}"
     ///////////////////////////
 
     if (hasConfig("hl_version") && !config.hl_version.isEmpty()) {
@@ -421,7 +421,7 @@ build.dependsOn signJar
 
 task generateChangelog(type: se.bjurr.gitchangelog.plugin.gradle.GitChangelogTask) {
     group = "git changelog"
-    fromRevision = "6cf9a308a480cc2"
+    if (config.last_git_commit != null && !config.last_git_commit.isEmpty()) fromRevision = config.last_git_commit
     templateContent = """
 Changelog:
 
