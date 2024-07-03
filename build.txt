@@ -41,5 +41,3 @@ required_mods=
 optional_mods=
 incompatible_mods=
 embedded_mods=
-e_mods=
-embedded_mods=
