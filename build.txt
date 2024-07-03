@@ -1,5 +1,5 @@
 # Mod Info
-mod_version=21.0.12
+mod_version=21.0.13
 build_candidate=false
 
 # Mod dependencies
@@ -30,14 +30,14 @@ modrinth_project=PlkSuVtM
 release_type=release
 
 # Keeping track of latest git commit for changelog generation!
-last_git_commit=fab857ad133edef
+last_git_commit=2685a5b7aec8799
 
 # List of mods separated by ;
 # If a specific mod for one platform is needed, @m: or @c: prefixes are used.
 # Example for adding Hammer Lib for both Modrinth & CurseForge: 
 # @m:PlkSuVtM;@c:hammer-lib;
 # Which can be simplified to be just "hammer-lib" since the slug is the same on both platforms.
-required_mods=hammer-lib;
+required_mods=
 optional_mods=
 incompatible_mods=
 embedded_mods=
