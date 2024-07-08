@@ -2,7 +2,6 @@ package org.zeith.hammerlib.core.adapter;
 
 import com.google.common.base.Suppliers;
 import net.minecraft.Util;
-import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
@@ -74,6 +73,15 @@ public class CreativeTabAdapter
 	public static List<CreativeTab> getCustomTabs()
 	{
 		return CUSTOM_TABS;
+	}
+	
+	public static void register(CreativeTab tab)
+	{
+		synchronized(CUSTOM_TABS)
+		{
+			if(!CUSTOM_TABS.contains(tab))
+				CUSTOM_TABS.add(tab);
+		}
 	}
 	
 	/**

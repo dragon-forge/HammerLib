@@ -35,7 +35,7 @@ public class CreativeTab
 			b.withTabsBefore(tabsBefore.toArray(ResourceLocation[]::new)).withTabsAfter(tabsAfter.toArray(ResourceLocation[]::new));
 		};
 		this.factory = factory0.andThen(factory);
-		CreativeTabAdapter.getCustomTabs().add(this);
+		CreativeTabAdapter.register(this);
 	}
 	
 	public <T extends ItemLike> T add(T item)
