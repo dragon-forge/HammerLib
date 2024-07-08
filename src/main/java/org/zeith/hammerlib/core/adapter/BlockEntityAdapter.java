@@ -2,7 +2,7 @@ package org.zeith.hammerlib.core.adapter;
 
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import org.zeith.hammerlib.mixins.BlockEntityTypeAccessor;
+import net.neoforged.neoforge.mixins.BlockEntityTypeAccessor;
 import org.zeith.hammerlib.util.java.Cast;
 
 import java.util.*;
@@ -11,7 +11,7 @@ public class BlockEntityAdapter
 {
 	public static Set<Block> getValidBlocks(BlockEntityType<?> type)
 	{
-		return ((BlockEntityTypeAccessor) type).getValidBlocks();
+		return type.getValidBlocks();
 	}
 	
 	public static synchronized void addBlocksToEntityType(BlockEntityType<?> type, Block... blocks)
@@ -21,12 +21,12 @@ public class BlockEntityAdapter
 		if(ac == null)
 			throw new UnsupportedOperationException("The BlockEntityType mixin accessor failed to apply...");
 		
-		var valid = ac.getValidBlocks();
+		var valid = getValidBlocks(type);
 		if(!tryAdd(valid, blocks))
 		{
 			valid = new HashSet<>(valid);
 			valid.addAll(List.of(blocks));
-			ac.setValidBlocks(valid);
+			ac.neoforge$setValidBlocks(valid);
 		}
 	}
 	

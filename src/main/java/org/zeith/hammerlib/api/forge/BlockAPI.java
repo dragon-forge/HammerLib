@@ -128,6 +128,8 @@ public class BlockAPI
 	
 	/**
 	 * Adds a list of blocks to the internal set of valid blocks for a given BlockEntityType.
+	 *
+	 * @deprecated use {@link net.neoforged.neoforge.event.BlockEntityTypeAddBlocksEvent} when possible.
 	 */
 	public static synchronized void addBlocksToEntityType(BlockEntityType<?> type, Block... blocks)
 	{

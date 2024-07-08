@@ -21,9 +21,7 @@ public class ComputerBundleProvider
 	@Override
 	public boolean isConnected()
 	{
-		if(computer.getBlockState().getBlock() instanceof IBundledRedstoneBlock blk)
-			return blk.getBundledRedstoneConnectivity(computer.getLevel(), computer.getBlockPos(), side);
-		return false;
+		return computer.getBlockState().getBlock() instanceof IBundledRedstoneBlock blk;
 	}
 	
 	@Override
