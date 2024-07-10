@@ -25,20 +25,24 @@ import java.util.*;
 })
 public abstract class PlayerInfoMixin
 {
-	private boolean pendingEmissiveTextures;
+	@Unique
+	private boolean hl$pendingEmissiveTextures;
 	
 	@Shadow
 	@Final
 	private GameProfile profile;
-	private final Map<MinecraftProfileTexture.Type, ResourceLocation> emissiveTextureLocations = Maps.newEnumMap(MinecraftProfileTexture.Type.class);
 	
-	private void registerEmissiveTextures()
+	@Unique
+	private final Map<MinecraftProfileTexture.Type, ResourceLocation> hl$emissiveTextureLocations = Maps.newEnumMap(MinecraftProfileTexture.Type.class);
+	
+	@Unique
+	private void hl$registerEmissiveTextures()
 	{
 		synchronized(this)
 		{
-			if(!pendingEmissiveTextures)
+			if(!hl$pendingEmissiveTextures)
 			{
-				pendingEmissiveTextures = true;
+				hl$pendingEmissiveTextures = true;
 				
 				Util.backgroundExecutor().execute(() ->
 				{
@@ -65,9 +69,9 @@ public abstract class PlayerInfoMixin
 							
 							HttpTextureDownloader.create(texture, entry.getValue(), () ->
 							{
-								synchronized(emissiveTextureLocations)
+								synchronized(hl$emissiveTextureLocations)
 								{
-									emissiveTextureLocations.put(type, texture);
+									hl$emissiveTextureLocations.put(type, texture);
 								}
 							});
 						}
@@ -80,21 +84,21 @@ public abstract class PlayerInfoMixin
 	@NotNull
 	public ResourceLocation IEPI$getEmissiveSkinLocation()
 	{
-		this.registerEmissiveTextures();
-		return MoreObjects.firstNonNull(this.emissiveTextureLocations.get(MinecraftProfileTexture.Type.SKIN), FXUtils.EMPTY_TEXTURE);
+		this.hl$registerEmissiveTextures();
+		return MoreObjects.firstNonNull(this.hl$emissiveTextureLocations.get(MinecraftProfileTexture.Type.SKIN), FXUtils.EMPTY_TEXTURE);
 	}
 	
 	@Nullable
 	public ResourceLocation IEPI$getEmissiveCapeLocation()
 	{
-		this.registerEmissiveTextures();
-		return this.emissiveTextureLocations.get(MinecraftProfileTexture.Type.CAPE);
+		this.hl$registerEmissiveTextures();
+		return this.hl$emissiveTextureLocations.get(MinecraftProfileTexture.Type.CAPE);
 	}
 	
 	@Nullable
 	public ResourceLocation IEPI$getEmissiveElytraLocation()
 	{
-		this.registerEmissiveTextures();
-		return this.emissiveTextureLocations.get(MinecraftProfileTexture.Type.ELYTRA);
+		this.hl$registerEmissiveTextures();
+		return this.hl$emissiveTextureLocations.get(MinecraftProfileTexture.Type.ELYTRA);
 	}
 }
