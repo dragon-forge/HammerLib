@@ -36,6 +36,6 @@ class CrashUtil
 	@Override
 	public String getLabel()
 	{
-		return "HammerCore Debug Information";
+		return "HammerLib Debug Information";
 	}
 }

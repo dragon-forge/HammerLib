@@ -3,23 +3,23 @@ package com.zeitheron.hammercore.net.internal;
 import com.zeitheron.hammercore.net.IPacket;
 import com.zeitheron.hammercore.net.MainThreaded;
 import com.zeitheron.hammercore.net.PacketContext;
-import com.zeitheron.hammercore.utils.WritablePos;
-import com.zeitheron.hammercore.utils.WorldUtil;
 
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
+
+import java.io.IOException;
 
 /**
  * Syncs ANY tile entity to client.
  */
 @MainThreaded
-public class PacketSyncAnyTile implements IPacket
+public class PacketSyncAnyTile
+		implements IPacket
 {
-	private String pos;
-	private int world;
+	private BlockPos pos;
 	private NBTTagCompound nbt;
 	
 	private String clazz;
@@ -36,34 +36,30 @@ public class PacketSyncAnyTile implements IPacket
 	public PacketSyncAnyTile(TileEntity tile)
 	{
 		nbt = tile.getUpdateTag();
-		pos = WritablePos.toStr(tile.getPos());
-		world = tile.getWorld().provider.getDimension();
+		pos = tile.getPos().toImmutable();
 		clazz = tile.getClass().getName();
 	}
 	
 	@Override
-	public void writeToNBT(NBTTagCompound nbt)
+	public void write(PacketBuffer buf)
 	{
-		nbt.setTag("data", this.nbt);
-		nbt.setString("pos", pos);
-		nbt.setInteger("dim", world);
+		buf.writeCompoundTag(nbt);
+		buf.writeBlockPos(pos);
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagCompound nbt)
+	public void read(PacketBuffer buf)
+			throws IOException
 	{
-		this.nbt = nbt.getCompoundTag("data");
-		pos = nbt.getString("pos");
-		world = nbt.getInteger("dim");
+		nbt = buf.readCompoundTag();
+		pos = buf.readBlockPos();
 	}
 	
 	@Override
-	public IPacket execute(Side side, PacketContext net)
+	public void executeOnClient2(PacketContext net)
 	{
-		World world = WorldUtil.getWorld(net, this.world);
-		BlockPos pos = WritablePos.fromStr(this.pos);
-		if(world != null && world.isAreaLoaded(pos, pos) /* prevent
-		                                                  * crashing... */)
+		World world = net.getPlayer().world;
+		if(world != null && world.isAreaLoaded(pos, pos) /* prevent crashing... */)
 		{
 			TileEntity tile = world.getTileEntity(pos);
 			
@@ -73,14 +69,12 @@ public class PacketSyncAnyTile implements IPacket
 				try
 				{
 					tile = (TileEntity) Class.forName(clazz).newInstance();
-				} catch(Throwable err)
+				} catch(Throwable ignored)
 				{
 				}
 			
 			if(tile != null)
 				tile.handleUpdateTag(nbt);
 		}
-		
-		return null;
 	}
 }

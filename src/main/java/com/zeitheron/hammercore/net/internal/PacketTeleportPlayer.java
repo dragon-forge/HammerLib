@@ -53,7 +53,7 @@ public class PacketTeleportPlayer implements IPacket
 	public void executeOnServer2(PacketContext net)
 	{
 		EntityPlayerMP mp = net.getSender();
-		if(mp == null)
+		if(mp == null || !mp.canUseCommand(2, ""))
 			return;
 		WorldUtil.teleportPlayer(mp, dimension != null ? dimension : mp.world.provider.getDimension(), target.x, target.y, target.z);
 		return;

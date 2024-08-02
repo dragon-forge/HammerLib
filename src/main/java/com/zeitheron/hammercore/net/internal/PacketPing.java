@@ -11,12 +11,16 @@ public class PacketPing
 {
 	static
 	{
-		IPacket.handle(PacketPing.class, () -> new PacketPing(0L));
+		IPacket.handle(PacketPing.class, PacketPing::new);
 	}
 	
 	public PacketPing(long start)
 	{
 		create = start;
+	}
+	
+	public PacketPing()
+	{
 	}
 	
 	public long create;

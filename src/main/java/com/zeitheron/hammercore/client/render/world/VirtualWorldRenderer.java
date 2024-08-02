@@ -1,14 +1,13 @@
 package com.zeitheron.hammercore.client.render.world;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.EnumBlockRenderType;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLContext;
 import org.lwjgl.util.Rectangle;
-import org.lwjgl.util.glu.GLU;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
@@ -19,9 +18,7 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec2f;
 
 public class VirtualWorldRenderer
 {
@@ -47,12 +44,28 @@ public class VirtualWorldRenderer
 		GlStateManager.translate(-.5D, -.5D, -.5D);
 		
 		BlockRendererDispatcher brd = mc.getBlockRendererDispatcher();
-		Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-		BufferBuilder vb = Tessellator.getInstance().getBuffer();
+		mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+		Tessellator tess = Tessellator.getInstance();
+		BufferBuilder vb = tess.getBuffer();
 		vb.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
 		
-		for(BlockPos pos : world.getAllPlacedStatePositions())
-			brd.renderBlock(world.getBlockState(pos), pos, world, vb);
+		for(BlockRenderLayer layer : BlockRenderLayer.values())
+		{
+			for(BlockPos pos : world.tiles.VALUES.keySet())
+			{
+				IBlockState iblockstate = world.getBlockState(pos);
+				Block block = iblockstate.getBlock();
+				
+				if(!block.canRenderInLayer(iblockstate, layer)) continue;
+				net.minecraftforge.client.ForgeHooksClient.setRenderLayer(layer);
+				
+				if(block.getDefaultState().getRenderType() != EnumBlockRenderType.INVISIBLE)
+				{
+					brd.renderBlock(iblockstate, pos, world, vb);
+				}
+			}
+		}
+		net.minecraftforge.client.ForgeHooksClient.setRenderLayer(null);
 		
 		if(scissorAvailable && shouldCut)
 		{
@@ -61,11 +74,15 @@ public class VirtualWorldRenderer
 			GL11.glScissor((guiLeft + panel.getX()) * sr.getScaleFactor(), mc.displayHeight - (guiTop + panel.getY() + panel.getHeight()) * sr.getScaleFactor(), panel.getWidth() * sr.getScaleFactor(), panel.getHeight() * sr.getScaleFactor());
 		}
 		
-		Tessellator.getInstance().draw();
+		tess.draw();
 		
-		float p = Minecraft.getMinecraft().getRenderPartialTicks();
-		for(BlockPos pos : world.tiles.toKeyArray())
-			TileEntityRendererDispatcher.instance.render(world.getTileEntity(pos), pos.getX(), pos.getY(), pos.getZ(), p);
+		float p = mc.getRenderPartialTicks();
+		for(BlockPos pos : world.tiles.VALUES.keySet())
+		{
+			TileEntity te = world.getTileEntity(pos);
+			if(te == null) continue;
+			TileEntityRendererDispatcher.instance.render(te, pos.getX(), pos.getY(), pos.getZ(), p);
+		}
 		
 		if(scissorAvailable && shouldCut)
 			GL11.glDisable(GL11.GL_SCISSOR_TEST);

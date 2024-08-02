@@ -1,36 +1,41 @@
 package com.zeitheron.hammercore.utils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import it.unimi.dsi.fastutil.longs.Long2ObjectArrayMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import net.minecraft.util.math.BlockPos;
+
+import java.util.*;
 
 public class XYZMap<T>
 {
-	public final Long2ObjectMap<T> VALUES = new Long2ObjectArrayMap<>();
+	public final Map<BlockPos, T> VALUES;
+	
+	public XYZMap(Map<BlockPos, T> values)
+	{
+		this.VALUES = values;
+	}
+	
+	public XYZMap()
+	{
+		this(new HashMap<>());
+	}
 	
 	public T getOnPos(int x, int y, int z)
 	{
-		return VALUES.get(new BlockPos(x, y, z).toLong());
+		return getOnPos(new BlockPos(x, y, z));
 	}
 	
 	public T getOnPos(BlockPos pos)
 	{
-		return getOnPos(pos.getX(), pos.getY(), pos.getZ());
+		return VALUES.get(pos.toImmutable());
 	}
 	
 	public T setOnPos(int x, int y, int z, T v)
 	{
-		return VALUES.put(new BlockPos(x, y, z).toLong(), v);
+		return setOnPos(new BlockPos(x, y, z), v);
 	}
 	
-	public void setOnPos(BlockPos pos, T v)
+	public T setOnPos(BlockPos pos, T v)
 	{
-		setOnPos(pos.getX(), pos.getY(), pos.getZ(), v);
+		return VALUES.put(pos.toImmutable(), v);
 	}
 	
 	public BlockPos[] toKeyArray()
@@ -39,10 +44,7 @@ public class XYZMap<T>
 		{
 			try
 			{
-				List<BlockPos> decoded = new ArrayList<BlockPos>();
-				for(long l : VALUES.keySet())
-					decoded.add(BlockPos.fromLong(l));
-				return decoded.toArray(new BlockPos[0]);
+				return VALUES.keySet().toArray(new BlockPos[0]);
 			} catch(Throwable err)
 			{
 				err.printStackTrace();

@@ -450,10 +450,10 @@ public class HammerCore
 		
 		for(IRayRegistry reg : raytracePlugins)
 		{
-			LOG.info("Registering raytrace plugin: " + reg.getClass().getName() + " ...");
+			LOG.info("Registering raycast plugin: " + reg.getClass().getName() + " ...");
 			long start = System.currentTimeMillis();
 			reg.registerCubes(RayCubeRegistry.instance);
-			LOG.info("Registered raytrace  plugin: " + reg.getClass().getName() + " in " +
+			LOG.info("Registered raycast  plugin: " + reg.getClass().getName() + " in " +
 					 (System.currentTimeMillis() - start) + " ms");
 		}
 	}

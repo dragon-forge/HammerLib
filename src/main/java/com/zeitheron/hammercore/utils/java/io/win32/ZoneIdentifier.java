@@ -1,9 +1,12 @@
 package com.zeitheron.hammercore.utils.java.io.win32;
 
+import com.zeitheron.hammercore.HammerCore;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,7 +22,8 @@ public class ZoneIdentifier
 		return "ZoneIdentifier{\"ZoneId\":" + zoneId + ",\"ReferrerUrl\":\"" + referrerUrl + "\",\"HostUrl\":\"" + hostUrl + "\"}";
 	}
 	
-	public void read(BufferedReader reader) throws IOException
+	public void read(BufferedReader reader)
+			throws IOException
 	{
 		Map<String, String> strs = new HashMap<>(3);
 		
@@ -43,7 +47,8 @@ public class ZoneIdentifier
 		hostUrl = strs.get("HostUrl");
 	}
 	
-	public void write(BufferedWriter writer) throws IOException
+	public void write(BufferedWriter writer)
+			throws IOException
 	{
 		Map<String, String> strs = new HashMap<>(3);
 		strs.put("ZoneId", Integer.toString(zoneId));
@@ -71,7 +76,8 @@ public class ZoneIdentifier
 		return new ZoneIdentifierFile(file, f + ":Zone.Identifier");
 	}
 	
-	public static boolean createInternetDownloadFor(File file, String referrerUrl, String hostUrl) throws IOException
+	public static boolean createInternetDownloadFor(File file, String referrerUrl, String hostUrl)
+			throws IOException
 	{
 		if(file.isFile())
 		{
@@ -85,7 +91,8 @@ public class ZoneIdentifier
 		return false;
 	}
 	
-	public static Optional<ZoneIdentifier> forFile(File file) throws IOException
+	public static Optional<ZoneIdentifier> forFile(File file)
+			throws IOException
 	{
 		ZoneIdentifierFile zif = getZoneIdentifierFile(file);
 		if(zif.isFile())
@@ -134,17 +141,19 @@ public class ZoneIdentifier
 	{
 		ArrayList<String> parsedADS = new ArrayList<>();
 		
+		Process process = null;
 		try
 		{
-			Process process = Runtime.getRuntime().exec(new String[] {
+			process = Runtime.getRuntime().exec(new String[] {
 					"cmd.exe",
 					"/c",
 					"more",
 					"<",
-					toParse.toFile() + ":" + ads
+					toParse.toFile().getAbsolutePath() + ":" + ads
 			});
 			
-			process.waitFor();
+			process.waitFor(10L, TimeUnit.SECONDS);
+			
 			try(BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream())))
 			{
 				String line;
@@ -153,6 +162,21 @@ public class ZoneIdentifier
 			}
 		} catch(IOException | InterruptedException e)
 		{
+			if(process != null && process.isAlive())
+			{
+				try(InputStream in = process.getInputStream())
+				{
+					byte[] data = new byte[in.available()];
+					int read = in.read(data);
+					HammerCore.LOG.error("Failed to readADS within a reasonable amount of time, but we got {} bytes. Here are they: '{}'", read,
+							Base64.getMimeEncoder().encodeToString(Arrays.copyOf(data, read))
+					);
+				} catch(IOException err)
+				{
+				}
+				process.destroyForcibly();
+			}
+			
 			e.printStackTrace();
 		}
 		
@@ -166,10 +190,10 @@ public class ZoneIdentifier
 		final String command = "cmd.exe /c dir " + path + " /r"; // listing of given Path.
 		final Pattern pattern = Pattern.compile(
 				"\\s*"                 // any amount of whitespace
-						+ "[0123456789,]+\\s*"   // digits (with possible comma), whitespace
-						+ "([^:]+:"    // group 1 = file name, then colon,
-						+ "[^:]+:"     // then ADS, then colon,
-						+ ".+)");      // then everything else.
+				+ "[0123456789,]+\\s*"   // digits (with possible comma), whitespace
+				+ "([^:]+:"    // group 1 = file name, then colon,
+				+ "[^:]+:"     // then ADS, then colon,
+				+ ".+)");      // then everything else.
 		
 		try
 		{
@@ -180,7 +204,7 @@ public class ZoneIdentifier
 					path,
 					"/r"
 			});
-			process.waitFor();
+			process.waitFor(10L, TimeUnit.SECONDS);
 			try(BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream())))
 			{
 				String line;

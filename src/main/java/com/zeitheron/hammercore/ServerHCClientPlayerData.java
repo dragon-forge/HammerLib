@@ -4,6 +4,7 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.zeitheron.hammercore.api.lighting.ColoredLightManager;
 import com.zeitheron.hammercore.client.HCClientOptions;
 import com.zeitheron.hammercore.net.HCNet;
 import com.zeitheron.hammercore.net.internal.opts.PacketCHCOpts;
@@ -61,6 +62,8 @@ public class ServerHCClientPlayerData
 	
 	public HCClientOptions getOptionsForPlayer(EntityPlayer player)
 	{
+		if(player.world.isRemote && player == ColoredLightManager.getClientPlayer())
+			return HCClientOptions.options; // self-return
 		return opts(player.getGameProfile().getId().toString());
 	}
 }
