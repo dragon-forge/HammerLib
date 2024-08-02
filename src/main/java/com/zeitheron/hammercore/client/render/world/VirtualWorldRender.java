@@ -67,18 +67,16 @@ public class VirtualWorldRender
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder buffer = tessellator.getBuffer();
 		buffer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
-		for(long l : world.states.VALUES.keySet())
+		for(BlockPos pos : world.states.VALUES.keySet())
 		{
-			BlockPos pos = BlockPos.fromLong(l);
 			if(renderFilter != null && !renderFilter.test(pos))
 				continue;
 			IBlockState blockState = world.getBlockState(pos);
 			dispatcher.renderBlock(blockState, pos, world, buffer);
 		}
 		tessellator.draw();
-		for(long l : world.tiles.VALUES.keySet())
+		for(BlockPos pos : world.tiles.VALUES.keySet())
 		{
-			BlockPos pos = BlockPos.fromLong(l);
 			if(renderFilter != null && !renderFilter.test(pos))
 				continue;
 			TileEntity tile = world.getTileEntity(pos);
