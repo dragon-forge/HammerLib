@@ -11,10 +11,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.IGuiHandler;
 import net.minecraftforge.fml.common.network.internal.FMLNetworkHandler;
+import org.zeith.hammerlib.api.tiles.IContainerTile;
 
 import java.util.*;
 
-public class GuiManager implements IGuiHandler
+public class GuiManager
+		implements IGuiHandler
 {
 	private static final List<IGuiCallback> callbacks = new ArrayList<>(64);
 	private static final int lastUsedBuiltintId = 2;
@@ -25,9 +27,9 @@ public class GuiManager implements IGuiHandler
 		if(ID == 0)
 		{
 			TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
-			TileSyncable syncable = Cast.cast(te, TileSyncable.class);
+			IContainerTile syncable = Cast.cast(te, IContainerTile.class);
 			
-			if(syncable != null)
+			if(syncable != null && syncable.hasGui())
 				return syncable.getServerGuiElement(player);
 		}
 		
@@ -63,6 +65,20 @@ public class GuiManager implements IGuiHandler
 		return null;
 	}
 	
+	public static boolean openTile(EntityPlayer player, BlockPos pos)
+	{
+		if(player == null || pos == null) return false;
+		TileEntity te = player.world.getTileEntity(pos);
+		if(te instanceof IContainerTile && ((IContainerTile) te).hasGui())
+		{
+			if(!player.world.isRemote)
+				FMLNetworkHandler.openGui(player, HammerCore.instance, 0, player.world, pos.getX(), pos.getY(), pos.getZ());
+			return true;
+		}
+		return false;
+	}
+	
+	@Deprecated
 	public static void openGui(EntityPlayer player, TileSyncable tile)
 	{
 		if(player != null && tile != null && !player.world.isRemote && tile.hasGui())

@@ -13,7 +13,7 @@ import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
 import net.minecraftforge.fml.common.network.internal.FMLNetworkHandler;
 import org.zeith.hammerlib.abstractions.sources.IObjectSource;
-import org.zeith.hammerlib.api.tiles.ISyncableTile;
+import org.zeith.hammerlib.api.tiles.*;
 import org.zeith.hammerlib.net.properties.IPropertyTile;
 import org.zeith.hammerlib.net.properties.PropertyDispatcher;
 
@@ -21,7 +21,7 @@ import java.util.Random;
 
 public abstract class TileSyncable
 		extends TileEntity
-		implements ISyncableTile, IPropertyTile
+		implements ISyncableTile, IPropertyTile, IContainerTile
 {
 	protected World readNBT_world;
 	protected final PropertyDispatcher dispatcher = new PropertyDispatcher(IObjectSource.ofTile(this), this::syncProperties);
@@ -134,16 +134,19 @@ public abstract class TileSyncable
 	
 	/** NEW GUI API */
 	
+	@Override
 	public boolean hasGui()
 	{
 		return false;
 	}
 	
+	@Override
 	public Object getServerGuiElement(EntityPlayer player)
 	{
 		return null;
 	}
 	
+	@Override
 	public Object getClientGuiElement(EntityPlayer player)
 	{
 		return null;

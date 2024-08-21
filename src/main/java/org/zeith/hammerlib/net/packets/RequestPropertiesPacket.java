@@ -21,6 +21,10 @@ public class RequestPropertiesPacket
 		this.source = source;
 	}
 	
+	public RequestPropertiesPacket()
+	{
+	}
+	
 	@Override
 	public void write(PacketBuffer buf)
 	{

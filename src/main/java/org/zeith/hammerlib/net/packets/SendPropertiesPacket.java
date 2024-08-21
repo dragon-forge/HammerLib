@@ -29,6 +29,10 @@ public class SendPropertiesPacket
 		this.data = data;
 	}
 	
+	public SendPropertiesPacket()
+	{
+	}
+	
 	@Override
 	public void write(PacketBuffer buf)
 	{

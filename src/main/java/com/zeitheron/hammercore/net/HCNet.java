@@ -31,6 +31,7 @@ import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
 import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import org.zeith.hammerlib.util.java.UnsafeHelper;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Constructor;
@@ -129,11 +130,10 @@ public enum HCNet
 			return (T) sup.get();
 		try
 		{
-			Constructor<T> c = t.getDeclaredConstructor();
-			c.setAccessible(true);
-			return c.newInstance();
+			return UnsafeHelper.newInstance(t);
 		} catch(Throwable err)
 		{
+			HammerCore.LOG.warn("Unable to create an instance of packet {}. This is bad!", t);
 		}
 		return null;
 	}
