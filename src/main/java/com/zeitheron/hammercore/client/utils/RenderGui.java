@@ -19,6 +19,7 @@ import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.*;
+import org.zeith.hammerlib.tiles.ITileWithCustomData;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -47,20 +48,19 @@ public class RenderGui
 		if(renderF3)
 		{
 			List<String> tip = f3.getLeft();
-			tip.add(TextFormatting.GOLD + "[HammerCore]" + TextFormatting.RESET + " Approx. Ping: " + HammerCoreClient.ping + " ms.");
+			tip.add(TextFormatting.GOLD + "[HammerLib]" + TextFormatting.RESET + " Approx. Ping: " + HammerCoreClient.ping + " ms.");
 			
 			tip = f3.getRight();
 			if(world != null && omon != null && omon.typeOfHit == Type.BLOCK)
 			{
-				TileSyncable ts = Cast.cast(world.getTileEntity(omon.getBlockPos()), TileSyncable.class);
+				ITileWithCustomData ts = Cast.cast(world.getTileEntity(omon.getBlockPos()), ITileWithCustomData.class);
 				if(ts != null)
 				{
 					String f3r = ts.getF3Registry();
 					if(f3r != null)
 					{
 						int reg = tip.indexOf(world.getBlockState(omon.getBlockPos()).getBlock().getRegistryName().toString());
-						if(reg != -1)
-							tip.set(reg, f3r);
+						if(reg != -1) tip.set(reg, f3r);
 					}
 					
 					f3Right.clear();

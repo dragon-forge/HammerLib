@@ -36,8 +36,12 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import net.minecraftforge.items.wrapper.SidedInvWrapper;
+import org.zeith.hammerlib.tiles.ITileWithCustomData;
 
-public abstract class TileSyncable extends TileEntity implements IPropertyChangeHandler
+@Deprecated
+public abstract class TileSyncable
+		extends TileEntity
+		implements IPropertyChangeHandler, ITileWithCustomData
 {
 	protected World readNBT_world;
 	private final List<NetPropertyAbstract> properties = new ArrayList<>();
@@ -91,12 +95,12 @@ public abstract class TileSyncable extends TileEntity implements IPropertyChange
 		if(world != null && !world.isRemote) // Apply sync only if server
 			HCNet.INSTANCE.sendToAllAround(new PacketSyncSyncableTile(this), getSyncPoint(260));
 	}
-
+	
 	@SideOnly(Side.CLIENT)
 	public void onPreSync(NBTTagCompound nbt)
 	{
 	}
-
+	
 	@SideOnly(Side.CLIENT)
 	public void onSynced()
 	{
@@ -213,7 +217,7 @@ public abstract class TileSyncable extends TileEntity implements IPropertyChange
 	/**
 	 * Was previously "new {@link SidedInvWrapper}[6]", which could give
 	 * {@link ArrayStoreException} Now "new {@link IItemHandler}[6]"
-	 * 
+	 *
 	 * @since 1.7.1
 	 */
 	protected IItemHandler[] itemHandlers = new IItemHandler[6];
@@ -313,15 +317,17 @@ public abstract class TileSyncable extends TileEntity implements IPropertyChange
 		sync();
 	}
 	
+	@Override
 	@SideOnly(Side.CLIENT)
 	public String getF3Registry()
 	{
 		return null;
 	}
 	
+	@Override
 	@SideOnly(Side.CLIENT)
 	public void addProperties(Map<String, Object> properties, RayTraceResult trace)
 	{
-		
+	
 	}
 }

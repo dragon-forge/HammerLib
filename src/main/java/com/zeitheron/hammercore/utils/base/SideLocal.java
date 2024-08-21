@@ -1,10 +1,12 @@
 package com.zeitheron.hammercore.utils.base;
 
+import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
+import org.zeith.hammerlib.util.mcf.LogicalSidePredictor;
 
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.Objects;
+import java.util.function.*;
 
 public class SideLocal<T>
 {
@@ -71,29 +73,83 @@ public class SideLocal<T>
 	{
 		return getAndSet(getCurrentSide(), data);
 	}
-
+	
+	public void apply(UnaryOperator<T> op)
+	{
+		apply(side(), op);
+	}
+	
+	public boolean equalsTo(T value)
+	{
+		return Objects.equals(get(), value);
+	}
+	
+	// With level
+	
+	public T get(World level)
+	{
+		return get(LogicalSidePredictor.getCurrentLogicalSide(level));
+	}
+	
+	public void set(World level, T data)
+	{
+		set(LogicalSidePredictor.getCurrentLogicalSide(level), data);
+	}
+	
+	public T getAndSet(World level, T data)
+	{
+		return getAndSet(LogicalSidePredictor.getCurrentLogicalSide(level), data);
+	}
+	
+	public void apply(World level, UnaryOperator<T> op)
+	{
+		apply(LogicalSidePredictor.getCurrentLogicalSide(level), op);
+	}
+	
+	public boolean equalsTo(World level, T value)
+	{
+		return Objects.equals(get(level), value);
+	}
+	
 	// With side
-
+	
 	public T get(Side side)
 	{
 		if(side.isClient()) return client;
 		return server;
 	}
-
+	
 	public void set(Side side, T data)
 	{
 		if(side.isClient()) client = data;
 		else server = data;
 	}
-
+	
 	public T getAndSet(Side side, T data)
 	{
 		T prev = get(side);
 		set(side, data);
 		return prev;
 	}
+	
+	public void apply(Side side, UnaryOperator<T> op)
+	{
+		set(side, op.apply(get(side)));
+	}
+	
+	public boolean equalsTo(Side side, T value)
+	{
+		return Objects.equals(get(side), value);
+	}
+	
+	// Misc
 
 	public Side getCurrentSide()
+	{
+		return FMLCommonHandler.instance().getEffectiveSide();
+	}
+
+	public static Side side()
 	{
 		return FMLCommonHandler.instance().getEffectiveSide();
 	}

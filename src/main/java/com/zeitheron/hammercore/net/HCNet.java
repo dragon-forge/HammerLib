@@ -14,8 +14,10 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.server.SPacketAnimation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.FakePlayer;
@@ -154,6 +156,17 @@ public enum HCNet
 	public void sendToAllAroundTracking(IPacket packet, TargetPoint point)
 	{
 		channel.sendToAllTracking(wrap(new PacketHolder(packet), null), point);
+	}
+	
+	public void sendToAllAroundTracking(IPacket packet, World world, BlockPos pos)
+	{
+		channel.sendToAllTracking(wrap(new PacketHolder(packet), null), point(world, new Vec3d(pos), 128));
+	}
+	
+	public void sendToAllAroundTracking(IPacket packet, TileEntity tile)
+	{
+		if(tile == null) return;
+		sendToAllAroundTracking(packet, tile.getWorld(), tile.getPos());
 	}
 	
 	public void sendToAllAroundTracking(IPacket packet, Entity point)
