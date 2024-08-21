@@ -13,7 +13,8 @@ import net.minecraftforge.fml.common.network.IGuiHandler;
 import net.minecraftforge.fml.common.network.internal.FMLNetworkHandler;
 import org.zeith.hammerlib.api.tiles.IContainerTile;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GuiManager
 		implements IGuiHandler
@@ -49,7 +50,7 @@ public class GuiManager
 		if(ID == 0)
 		{
 			TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
-			TileSyncable syncable = Cast.cast(te, TileSyncable.class);
+			IContainerTile syncable = Cast.cast(te, IContainerTile.class);
 			
 			if(syncable != null)
 				return syncable.getClientGuiElement(player);
