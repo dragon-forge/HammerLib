@@ -1,5 +1,6 @@
 package com.zeitheron.hammercore.utils.java.io.win32;
 
+import com.zeitheron.hammercore.HammerCore;
 import com.zeitheron.hammercore.lib.zlib.json.*;
 import com.zeitheron.hammercore.lib.zlib.web.HttpRequest;
 import com.zeitheron.hammercore.utils.java.StreamHelper;
@@ -61,10 +62,10 @@ public class ModSourceAdapter
 			if(modFile == null)
 				modFile = new File(modClass.getProtectionDomain().getCodeSource().getLocation().toURI());
 			
-			return ZoneIdentifier.forFile(modFile).map(ModSource::new);
+			return ZoneIdentifier.forFileSafe(modFile).map(ModSource::new);
 		} catch(Throwable err)
 		{
-			err.printStackTrace();
+			HammerCore.LOG.error(err);
 		}
 		
 		return Optional.empty();

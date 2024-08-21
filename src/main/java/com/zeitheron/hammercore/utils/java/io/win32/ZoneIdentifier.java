@@ -6,6 +6,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -122,11 +123,28 @@ public class ZoneIdentifier
 	
 	public static Optional<ZoneIdentifier> forFileSafe(File file)
 	{
+		CompletableFuture<Optional<ZoneIdentifier>> f = CompletableFuture.supplyAsync(() ->
+		{
+			try
+			{
+				return forFile(file);
+			} catch(Throwable ignored)
+			{
+				return Optional.empty();
+			}
+		}, task ->
+		{
+			Thread t = new Thread(task);
+			t.setDaemon(true);
+			t.start();
+		});
+		
 		try
 		{
-			return forFile(file);
-		} catch(Throwable ignored)
+			return f.get(11L, TimeUnit.SECONDS);
+		} catch(Throwable e)
 		{
+			HammerCore.LOG.error(e);
 		}
 		
 		return Optional.empty();

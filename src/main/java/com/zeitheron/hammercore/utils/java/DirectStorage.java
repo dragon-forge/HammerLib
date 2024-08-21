@@ -1,8 +1,7 @@
 package com.zeitheron.hammercore.utils.java;
 
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
+import java.util.function.*;
 
 /**
  * A reference to a variable that may be get(required) or set(optional)
@@ -27,6 +26,13 @@ public class DirectStorage<T>
 	public T get()
 	{
 		return get.get();
+	}
+	
+	public T apply(UnaryOperator<T> operator)
+	{
+		T v = operator.apply(get());
+		set(v);
+		return v;
 	}
 	
 	public static <T> DirectStorage<T> create(Consumer<T> set, Supplier<T> get)
