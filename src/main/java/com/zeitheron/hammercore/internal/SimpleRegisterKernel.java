@@ -235,12 +235,14 @@ public class SimpleRegisterKernel
 							if(block instanceof INoBlockstate)
 								HammerCore.renderProxy.noModel(block);
 							
-							if(block instanceof ITileBlock)
+							if(block instanceof IDontWantToRegisterTileEntity) ;
+							else if(block instanceof ITileBlock)
 							{
 								Class<? extends TileEntity> c = ((ITileBlock) block).getTileClass();
 								
 								// Better registration of tiles. Maybe this will fix tile disappearing?
-								TileEntity.register(modid + ":" + c.getSimpleName().toLowerCase(), c);
+								if(TileEntity.getKey(c) == null)
+									TileEntity.register(modid + ":" + c.getSimpleName().toLowerCase(), c);
 							} else if(block instanceof ITileEntityProvider)
 							{
 								try
@@ -250,7 +252,8 @@ public class SimpleRegisterKernel
 									if(t != null)
 									{
 										Class<? extends TileEntity> c = t.getClass();
-										TileEntity.register(modid + ":" + c.getSimpleName().toLowerCase(), c);
+										if(TileEntity.getKey(c) == null)
+											TileEntity.register(modid + ":" + c.getSimpleName().toLowerCase(), c);
 									}
 								} catch(Throwable e)
 								{

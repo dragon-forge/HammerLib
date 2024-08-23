@@ -3,8 +3,7 @@ package com.zeitheron.hammercore.internal;
 import com.google.common.collect.Maps;
 import com.zeitheron.hammercore.HammerCore;
 import com.zeitheron.hammercore.annotations.*;
-import com.zeitheron.hammercore.api.INoItemBlock;
-import com.zeitheron.hammercore.api.ITileBlock;
+import com.zeitheron.hammercore.api.*;
 import com.zeitheron.hammercore.api.blocks.IBlockItemRegisterListener;
 import com.zeitheron.hammercore.api.blocks.INoBlockstate;
 import com.zeitheron.hammercore.api.multipart.BlockMultipartProvider;
@@ -164,7 +163,7 @@ public class SimpleRegistration
 	{
 		for(Method m : owner.getDeclaredMethods())
 			if(m.getAnnotation(PreRegisterHook.class) != null && m.getParameterCount() == 0 &&
-					Modifier.isStatic(m.getModifiers()))
+			   Modifier.isStatic(m.getModifiers()))
 			{
 				m.setAccessible(true);
 				try
@@ -206,7 +205,7 @@ public class SimpleRegistration
 	{
 		for(Method m : owner.getDeclaredMethods())
 			if(m.getAnnotation(PreRegisterHook.class) != null && m.getParameterCount() == 0 &&
-					Modifier.isStatic(m.getModifiers()))
+			   Modifier.isStatic(m.getModifiers()))
 			{
 				m.setAccessible(true);
 				try
@@ -240,7 +239,7 @@ public class SimpleRegistration
 	{
 		for(Method m : owner.getDeclaredMethods())
 			if(m.getAnnotation(PreRegisterHook.class) != null && m.getParameterCount() == 0 &&
-					Modifier.isStatic(m.getModifiers()))
+			   Modifier.isStatic(m.getModifiers()))
 			{
 				m.setAccessible(true);
 				try
@@ -359,13 +358,15 @@ public class SimpleRegistration
 		if(block instanceof INoBlockstate)
 			HammerCore.renderProxy.noModel(block);
 		
-		if(block instanceof ITileBlock)
+		if(block instanceof IDontWantToRegisterTileEntity) ;
+		else if(block instanceof ITileBlock)
 		{
 			Class c = ((ITileBlock) block).getTileClass();
 			
 			// Better registration of tiles. Maybe this will fix tile
 			// disappearing?
-			TileEntity.register(modid + ":" + c.getName().substring(c.getName().lastIndexOf(".") + 1).toLowerCase(), c);
+			if(TileEntity.getKey(c) == null)
+				TileEntity.register(modid + ":" + c.getName().substring(c.getName().lastIndexOf(".") + 1).toLowerCase(), c);
 		} else if(block instanceof ITileEntityProvider)
 		{
 			ITileEntityProvider te = (ITileEntityProvider) block;
@@ -373,8 +374,9 @@ public class SimpleRegistration
 			if(t != null)
 			{
 				Class c = t.getClass();
-				TileEntity.register(
-						modid + ":" + c.getName().substring(c.getName().lastIndexOf(".") + 1).toLowerCase(), c);
+				if(TileEntity.getKey(c) == null)
+					TileEntity.register(
+							modid + ":" + c.getName().substring(c.getName().lastIndexOf(".") + 1).toLowerCase(), c);
 			}
 		}
 		
@@ -400,14 +402,14 @@ public class SimpleRegistration
 		{
 			int mod = m.getModifiers();
 			if(Modifier.isStatic(mod) && m.getAnnotation(RecipeRegister.class) != null &&
-					m.getParameterTypes().length == 1 && List.class.isAssignableFrom(m.getParameterTypes()[0]))
+			   m.getParameterTypes().length == 1 && List.class.isAssignableFrom(m.getParameterTypes()[0]))
 			{
 				Type type = m.getParameters()[0].getParameterizedType();
 				if(type instanceof ParameterizedType)
 				{
 					type = ((ParameterizedType) type).getActualTypeArguments()[0];
 					if(Class.class.isAssignableFrom(type.getClass()) &&
-							IRecipe.class.getName().equals(type.getTypeName()))
+					   IRecipe.class.getName().equals(type.getTypeName()))
 					{
 						m.setAccessible(true);
 						final Method $ = m;
