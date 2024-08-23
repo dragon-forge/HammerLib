@@ -13,17 +13,20 @@ import net.minecraft.world.World;
  * {@link TileEntity}. Note: only applies when block is registered through
  * {@link SimpleRegistration} class.
  */
-public interface ITileBlock<T extends TileEntity> extends ITileEntityProvider
+public interface ITileBlock<T extends TileEntity>
+		extends ITileEntityProvider
 {
 	/**
 	 * @return The class of {@link TileEntity} that will be registered.
 	 */
-	public Class<T> getTileClass();
+	Class<T> getTileClass();
 	
 	@Override
 	default TileEntity createNewTileEntity(World worldIn, int meta)
 	{
-		return newTile();
+		T t = newTile();
+		if(t != null) t.setWorld(worldIn);
+		return t;
 	}
 	
 	default T newTile()
