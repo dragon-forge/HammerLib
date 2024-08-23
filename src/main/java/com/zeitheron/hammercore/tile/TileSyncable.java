@@ -1,19 +1,12 @@
 package com.zeitheron.hammercore.tile;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
-import javax.annotation.Nullable;
-
 import com.zeitheron.hammercore.HammerCore;
+import com.zeitheron.hammercore.internal.GuiManager;
 import com.zeitheron.hammercore.net.HCNet;
 import com.zeitheron.hammercore.net.internal.PacketSyncSyncableTile;
 import com.zeitheron.hammercore.net.props.IPropertyChangeHandler;
 import com.zeitheron.hammercore.net.props.NetPropertyAbstract;
 import com.zeitheron.hammercore.utils.WorldLocation;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
@@ -29,19 +22,22 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
-import net.minecraftforge.fml.common.network.internal.FMLNetworkHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import net.minecraftforge.items.wrapper.SidedInvWrapper;
+import org.zeith.hammerlib.api.tiles.IContainerTile;
 import org.zeith.hammerlib.tiles.ITileWithCustomData;
+
+import javax.annotation.Nullable;
+import java.util.*;
 
 @Deprecated
 public abstract class TileSyncable
 		extends TileEntity
-		implements IPropertyChangeHandler, ITileWithCustomData
+		implements IPropertyChangeHandler, ITileWithCustomData, IContainerTile
 {
 	protected World readNBT_world;
 	private final List<NetPropertyAbstract> properties = new ArrayList<>();
@@ -262,8 +258,7 @@ public abstract class TileSyncable
 	
 	public final void tryOpenGui(EntityPlayer player, World world)
 	{
-		if(!world.isRemote)
-			FMLNetworkHandler.openGui(player, HammerCore.instance, 0, world, pos.getX(), pos.getY(), pos.getZ());
+		GuiManager.openTile(player, getPos());
 	}
 	
 	public void onPlacedBy(EntityPlayer player, EnumHand hand)
@@ -273,16 +268,19 @@ public abstract class TileSyncable
 	
 	/** NEW GUI API */
 	
+	@Override
 	public boolean hasGui()
 	{
 		return false;
 	}
 	
+	@Override
 	public Object getServerGuiElement(EntityPlayer player)
 	{
 		return null;
 	}
 	
+	@Override
 	public Object getClientGuiElement(EntityPlayer player)
 	{
 		return null;
