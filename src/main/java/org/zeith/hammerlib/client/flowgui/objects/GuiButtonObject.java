@@ -10,8 +10,10 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.sounds.SoundManager;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.neoforged.api.distmarker.Dist;
@@ -30,6 +32,7 @@ public class GuiButtonObject
 	public boolean enabled;
 	public Component message;
 	public OnPress callback;
+	public Holder<SoundEvent> pressSound;
 	
 	protected static final WidgetSprites SPRITES = new WidgetSprites(
 			ResourceLocation.withDefaultNamespace("widget/button"),
@@ -43,7 +46,8 @@ public class GuiButtonObject
 						   int packedFGColor,
 						   boolean enabled,
 						   @NotNull Component message,
-						   @NotNull OnPress callback
+						   @NotNull OnPress callback,
+						   Holder<SoundEvent> pressSound
 	)
 	{
 		super(name);
@@ -52,6 +56,7 @@ public class GuiButtonObject
 		this.enabled = enabled;
 		this.message = message;
 		this.callback = callback;
+		this.pressSound = pressSound;
 	}
 	
 	public GuiButtonObject setAlpha(float alpha)
@@ -86,7 +91,8 @@ public class GuiButtonObject
 				.packedFGColor(UNSET_FG_COLOR)
 				.enabled(true)
 				.message(Component.empty())
-				.callback(OnPress.NONE);
+				.callback(OnPress.NONE)
+				.pressSound(SoundEvents.UI_BUTTON_CLICK);
 	}
 	
 	@Override
@@ -125,7 +131,8 @@ public class GuiButtonObject
 	
 	public void playDownSound(SoundManager pHandler)
 	{
-		pHandler.play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+		if(pressSound != null)
+			pHandler.play(SimpleSoundInstance.forUI(pressSound, 1.0F));
 	}
 	
 	private int getTextureY(boolean hovered)
