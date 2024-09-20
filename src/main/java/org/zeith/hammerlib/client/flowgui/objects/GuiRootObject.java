@@ -148,7 +148,7 @@ public class GuiRootObject
 		float y = (float) (mc.mouseHandler.ypos() * mc.getWindow().getGuiScaledHeight() / mc.getWindow().getScreenHeight());
 		
 		var g = Graphics.builder()
-				.d(gfx)
+				.gfx(gfx)
 				.game(Minecraft.getInstance())
 				.partialTime(partialTick)
 				.debugBounds(debugBoundaries)
