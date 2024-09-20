@@ -1,5 +1,5 @@
 # Mod Info
-mod_version=20.1.32
+mod_version=20.1.34
 build_candidate=false
 
 # Mod dependencies
@@ -31,7 +31,7 @@ mc_user=Zeitheron,63fa4c485b5640809727d5d59663e603
 java=17
 
 # Keeping track of latest git commit for changelog generation!
-last_git_commit=66ef8d13bc0db51
+last_git_commit=9e29b8d0e07a9c9
 
 # Project ID on CurseForge
 cf_project=247401
