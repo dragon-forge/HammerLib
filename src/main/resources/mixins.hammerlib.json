@@ -1,45 +1,47 @@
 {
-  "required": true,
-  "minVersion": "0.8.5",
-  "package": "org.zeith.hammerlib.mixins",
-  "refmap": "mixins.hammerlib.refmap.json",
-  "target": "@env(DEFAULT)",
-  "compatibilityLevel": "JAVA_17",
-  "injectors": {
-    "maxShiftBy": 5
-  },
-  "mixins": [
-    "AbstractContainerMenuAccessor",
-    "BlockEntityAccessor",
-    "BlockHitResultAccessor",
-    "ContextAwareReloadListenerAccessor",
-    "EntityMixin",
-    "HTTPUtilMixin",
-    "IngredientAccessor",
-    "ItemStackMixin",
-    "LevelChunkMixin",
-    "LevelMixin",
-    "LootTableAccessor",
-    "RecipeManagerMixin",
-    "ServerLevelMixin",
-    "TagLoaderMixin",
-    "bs.kubejs.RecipeEventJSMixin",
-    "data.RegistryDataLoaderMixin",
-    "data.ReloadableServerRegistriesMixin",
-    "languages.ServerLanguageMixin"
-  ],
-  "client": [
-    "client.ClientLevelMixin",
-    "client.MinecraftMixin",
-    "client.ParticleEngineAccessor",
-    "client.PlayerInfoMixin",
-    "client.render.HumanoidArmorLayerMixin",
-    "client.render.ItemRendererMixin",
-    "client.render.LivingEntityRendererMixin",
-    "client.render.PlayerRendererMixin",
-    "client.render.RenderBuffersMixin",
-    "languages.ClientLanguageMixin"
-  ],
-  "server": [
-  ]
+	"required": true,
+	"minVersion": "0.8.5",
+	"package": "org.zeith.hammerlib.mixins",
+	"refmap": "mixins.hammerlib.refmap.json",
+	"target": "@env(DEFAULT)",
+	"compatibilityLevel": "JAVA_17",
+	"injectors": {
+		"maxShiftBy": 5
+	},
+	"mixins": [
+		"AbstractContainerMenuAccessor",
+		"BlockEntityAccessor",
+		"BlockHitResultAccessor",
+		"ContextAwareReloadListenerAccessor",
+		"EntityMixin",
+		"HTTPUtilMixin",
+		"IngredientAccessor",
+		"ItemStackMixin",
+		"LevelChunkMixin",
+		"LevelMixin",
+		"LootTableAccessor",
+		"RecipeManagerMixin",
+		"ServerLevelMixin",
+		"TagLoaderMixin",
+		"bs.kubejs.RecipeEventJSMixin",
+		"data.RegistryDataLoaderMixin",
+		"data.ReloadableServerRegistriesMixin",
+		"languages.ServerLanguageMixin"
+	],
+	"client": [
+		"client.AbstractContainerScreenMixin",
+		"client.ClientLevelMixin",
+		"client.MinecraftMixin",
+		"client.ParticleEngineAccessor",
+		"client.PlayerInfoMixin",
+		"client.render.HumanoidArmorLayerMixin",
+		"client.render.ItemRendererMixin",
+		"client.render.LivingEntityRendererMixin",
+		"client.render.PlayerRendererMixin",
+		"client.render.RenderBuffersMixin",
+		"languages.ClientLanguageMixin",
+		"client.SlotMixin"
+	],
+	"server": [
+	]
 }

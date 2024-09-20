@@ -13,12 +13,15 @@ import java.util.List;
 @SuppressWarnings("rawtypes")
 @OnlyIn(Dist.CLIENT)
 public interface IAdvancedGui<G extends AbstractContainerScreen & IAdvancedGui<G>>
+	extends IAdvancedComponent
 {
+	@Override
 	default List<Rect2i> getExtraAreas()
 	{
 		return List.of();
 	}
 	
+	@Override
 	default Object getIngredientUnderMouse(double mouseX, double mouseY)
 	{
 		return null;

@@ -6,7 +6,7 @@ import java.util.function.*;
 /**
  * A reference to a variable that may be get(required) or set(optional)
  */
-public class DirectStorage<T>
+public class DirectStorage<T> implements Consumer<T>, Supplier<T>
 {
 	final Consumer<T> set;
 	final Supplier<T> get;
@@ -23,6 +23,7 @@ public class DirectStorage<T>
 			set.accept(val);
 	}
 	
+	@Override
 	public T get()
 	{
 		return get.get();
@@ -33,6 +34,11 @@ public class DirectStorage<T>
 		T v = operator.apply(get());
 		set(v);
 		return v;
+	}
+	
+	public static <T> DirectStorage<T> delegate(Supplier<DirectStorage<T>> to)
+	{
+		return create(v -> to.get().set(v), () -> to.get().get());
 	}
 	
 	public static <T> DirectStorage<T> create(Consumer<T> set, Supplier<T> get)
@@ -66,5 +72,11 @@ public class DirectStorage<T>
 	public String toString()
 	{
 		return "DirectStorage{" + get() + "}";
+	}
+	
+	@Override
+	public void accept(T t)
+	{
+		set(t);
 	}
 }
