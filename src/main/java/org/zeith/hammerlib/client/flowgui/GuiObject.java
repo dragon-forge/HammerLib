@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.zeith.hammerlib.client.flowgui.objects.GuiRootObject;
+import org.zeith.hammerlib.client.flowgui.util.ScrollData;
 import org.zeith.hammerlib.util.math.Point;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.java.DirectStorage;
@@ -297,7 +298,7 @@ public class GuiObject
 		return false;
 	}
 	
-	protected boolean onMouseScrolled(Point globalMousePos, MousePos pos, double delta)
+	protected boolean onMouseScrolled(Point globalMousePos, MousePos pos, ScrollData delta)
 	{
 		return false;
 	}
@@ -469,7 +470,7 @@ public class GuiObject
 		return false;
 	}
 	
-	public final boolean sendMouseScroll(PoseStack ps, Point globalMousePos, double delta)
+	public final boolean sendMouseScroll(PoseStack ps, Point globalMousePos, ScrollData delta)
 	{
 		if(!enabled) return false;
 		ps.pushPose();

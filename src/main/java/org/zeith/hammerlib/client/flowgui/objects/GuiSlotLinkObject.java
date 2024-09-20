@@ -58,7 +58,7 @@ public class GuiSlotLinkObject
 			return;
 		}
 		
-		pose.mulPoseMatrix(transform);
+		pose.mulPose(transform);
 		
 		// Translate back a bit to avoid tooltip being rendered below the item & count
 		pose.translate(0, 0, -75 * width / 16);

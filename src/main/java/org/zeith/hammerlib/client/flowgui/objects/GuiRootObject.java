@@ -11,6 +11,7 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.renderer.Rect2i;
 import org.zeith.hammerlib.client.flowgui.*;
 import org.zeith.hammerlib.client.flowgui.util.GuiObjectHelper;
+import org.zeith.hammerlib.client.flowgui.util.ScrollData;
 import org.zeith.hammerlib.util.math.Point;
 
 public class GuiRootObject
@@ -99,9 +100,9 @@ public class GuiRootObject
 	}
 	
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta)
+	public boolean mouseScrolled(double pMouseX, double pMouseY, double pScrollX, double pScrollY)
 	{
-		return sendMouseScroll(myPose(), new Point(mouseX, mouseY), delta);
+		return sendMouseScroll(myPose(), new Point(pMouseX, pMouseY), new ScrollData(pScrollX, pScrollY));
 	}
 	
 	@Override
