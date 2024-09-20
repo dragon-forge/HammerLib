@@ -7,6 +7,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.LivingEntity;
@@ -54,69 +55,69 @@ public record Graphics(GuiGraphics gfx, Minecraft game, float partialTime, boole
 		gfx.disableScissor();
 	}
 	
-	public int drawString(Font font, Component arg1, int arg2, int arg3, int arg4, boolean arg5)
+	public int drawString(Font font, Component text, int x, int y, int color, boolean shadow)
 	{
-		return gfx.drawString(font, arg1, arg2, arg3, arg4, arg5);
+		return gfx.drawString(font, text, x, y, color, shadow);
 	}
 	
-	public int drawString(Font font, FormattedCharSequence arg1, int arg2, int arg3, int arg4)
+	public int drawString(Font font, FormattedCharSequence text, int x, int y, int color)
 	{
-		return gfx.drawString(font, arg1, arg2, arg3, arg4);
+		return gfx.drawString(font, text, x, y, color);
 	}
 	
-	public int drawString(Font font, String arg1, float arg2, float arg3, int arg4, boolean arg5)
+	public int drawString(Font font, String text, float x, float y, int color, boolean shadow)
 	{
-		return gfx.drawString(font, arg1, arg2, arg3, arg4, arg5);
+		return gfx.drawString(font, text, x, y, color, shadow);
 	}
 	
-	public int drawString(Font font, String arg1, int arg2, int arg3, int arg4, boolean arg5)
+	public int drawString(Font font, String text, int x, int y, int color, boolean shadow)
 	{
-		return gfx.drawString(font, arg1, arg2, arg3, arg4, arg5);
+		return gfx.drawString(font, text, x, y, color, shadow);
 	}
 	
-	public int drawString(Font font, String arg1, int arg2, int arg3, int arg4)
+	public int drawString(Font font, String text, int x, int y, int color)
 	{
-		return gfx.drawString(font, arg1, arg2, arg3, arg4);
+		return gfx.drawString(font, text, x, y, color);
 	}
 	
-	public int drawString(Font font, Component arg1, int arg2, int arg3, int arg4)
+	public int drawString(Font font, Component text, int x, int y, int color)
 	{
-		return gfx.drawString(font, arg1, arg2, arg3, arg4);
+		return gfx.drawString(font, text, x, y, color);
 	}
 	
-	public int drawString(Font font, FormattedCharSequence arg1, float arg2, float arg3, int arg4, boolean arg5)
+	public int drawString(Font font, FormattedCharSequence text, float x, float y, int color, boolean shadow)
 	{
-		return gfx.drawString(font, arg1, arg2, arg3, arg4, arg5);
+		return gfx.drawString(font, text, x, y, color, shadow);
 	}
 	
-	public int drawString(Font font, FormattedCharSequence arg1, int arg2, int arg3, int arg4, boolean arg5)
+	public int drawString(Font font, FormattedCharSequence text, int x, int y, int color, boolean shadow)
 	{
-		return gfx.drawString(font, arg1, arg2, arg3, arg4, arg5);
+		return gfx.drawString(font, text, x, y, color, shadow);
 	}
 	
-	public void blit(ResourceLocation texture, int x, int y, int blitOffset, float uOffset, float vOffset, int uWidth, int vHeight, int txWidth, int txHeight)
+	public void blit(ResourceLocation tex, int x, int y, int blitOffset, float uOffset, float vOffset, int uWidth, int vHeight, int txWidth, int txHeight)
 	{
-		gfx.blit(texture, x, y, blitOffset, uOffset, vOffset, uWidth, vHeight, txWidth, txHeight);
+		gfx.blit(tex, x, y, blitOffset, uOffset, vOffset, uWidth, vHeight, txWidth, txHeight);
 	}
 	
-	public void blit(ResourceLocation texture, int x, int y, int uOffset, int vOffset, int uWidth, int vHeight)
+	public void blit(ResourceLocation tex, int x, int y, int uOffset, int vOffset, int uWidth, int vHeight)
 	{
-		gfx.blit(texture, x, y, uOffset, vOffset, uWidth, vHeight);
+		gfx.blit(tex, x, y, uOffset, vOffset, uWidth, vHeight);
 	}
 	
-	public void blit(int arg0, int arg1, int arg2, int arg3, int arg4, TextureAtlasSprite sprite)
+	public void blit(int x, int y, int z, int width, int height, TextureAtlasSprite sprite)
 	{
-		gfx.blit(arg0, arg1, arg2, arg3, arg4, sprite);
+		gfx.blit(x, y, z, width, height, sprite);
 	}
 	
-	public void blit(int arg0, int arg1, int arg2, int arg3, int arg4, TextureAtlasSprite arg5, float arg6, float arg7, float arg8, float arg9)
+	public void blit(int x, int y, int z, int width, int height, TextureAtlasSprite sprite, float red, float green, float blue, float alpha)
 	{
-		gfx.blit(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+		gfx.blit(x, y, z, width, height, sprite, red, green, blue, alpha);
 	}
 	
-	public void blit(ResourceLocation arg0, int arg1, int arg2, int arg3, int arg4, float arg5, float arg6, int arg7, int arg8, int arg9, int arg10)
+	public void blit(ResourceLocation tex, int x, int y, int width, int height, float uOffset, float vOffset, int uWidth, int vHeight, int texWidth, int texHeight)
 	{
-		gfx.blit(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
+		gfx.blit(tex, x, y, width, height, uOffset, vOffset, uWidth, vHeight, texWidth, texHeight);
 	}
 	
 	public void blit(ResourceLocation tex, int x, int y, float uOffset, float vOffset, int width, int height, int txWidth, int txHeight)
@@ -124,49 +125,49 @@ public record Graphics(GuiGraphics gfx, Minecraft game, float partialTime, boole
 		gfx.blit(tex, x, y, uOffset, vOffset, width, height, txWidth, txHeight);
 	}
 	
-	public void blitNineSliced(ResourceLocation arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9)
+	public void blitNineSliced(ResourceLocation tex, int x, int y, int width, int height, int sliceSize, int uOffset, int vOffset, int texWidth, int texHeight)
 	{
-		gfx.blitNineSliced(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+		gfx.blitNineSliced(tex, x, y, width, height, sliceSize, uOffset, vOffset, texWidth, texHeight);
 	}
 	
-	public void blitNineSliced(ResourceLocation arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10)
+	public void blitNineSliced(ResourceLocation tex, int x, int y, int width, int height, int sliceWidth, int sliceHeight, int uWidth, int vHeight, int texX, int texY)
 	{
-		gfx.blitNineSliced(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
+		gfx.blitNineSliced(tex, x, y, width, height, sliceWidth, sliceHeight, uWidth, vHeight, texX, texY);
 	}
 	
-	public void blitNineSliced(ResourceLocation arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11, int arg12)
+	public void blitNineSliced(ResourceLocation tex, int x, int y, int width, int height, int leftSliceWidth, int topSliceHeight, int rightSliceWidth, int bottomSliceHeight, int uWidth, int vHeight, int texX, int texY)
 	{
-		gfx.blitNineSliced(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12);
+		gfx.blitNineSliced(tex, x, y, width, height, leftSliceWidth, topSliceHeight, rightSliceWidth, bottomSliceHeight, uWidth, vHeight, texX, texY);
 	}
 	
-	public void blitRepeating(ResourceLocation arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10)
+	public void blitRepeating(ResourceLocation tex, int x, int y, int width, int height, int uOffset, int vOffset, int sourceWidth, int sourceHeight, int texWidth, int texHeight)
 	{
-		gfx.blitRepeating(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
+		gfx.blitRepeating(tex, x, y, width, height, uOffset, vOffset, sourceWidth, sourceHeight, texWidth, texHeight);
 	}
 	
-	public void blitRepeating(ResourceLocation arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8)
+	public void blitRepeating(ResourceLocation tex, int x, int y, int width, int height, int uOffset, int vOffset, int sourceWidth, int sourceHeight)
 	{
-		gfx.blitRepeating(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+		gfx.blitRepeating(tex, x, y, width, height, uOffset, vOffset, sourceWidth, sourceHeight);
 	}
 	
-	public void renderItem(ItemStack arg0, int arg1, int arg2)
+	public void renderItem(ItemStack stack, int x, int y)
 	{
-		gfx.renderItem(arg0, arg1, arg2);
+		gfx.renderItem(stack, x, y);
 	}
 	
-	public void renderItem(ItemStack arg0, int arg1, int arg2, int arg3, int arg4)
+	public void renderItem(ItemStack stack, int x, int y, int seed, int z)
 	{
-		gfx.renderItem(arg0, arg1, arg2, arg3, arg4);
+		gfx.renderItem(stack, x, y, seed, z);
 	}
 	
-	public void renderItem(ItemStack arg0, int arg1, int arg2, int arg3)
+	public void renderItem(ItemStack stack, int x, int y, int seed)
 	{
-		gfx.renderItem(arg0, arg1, arg2, arg3);
+		gfx.renderItem(stack, x, y, seed);
 	}
 	
-	public void renderItem(LivingEntity arg0, ItemStack arg1, int arg2, int arg3, int arg4)
+	public void renderItem(LivingEntity entity, ItemStack stack, int x, int y, int seed)
 	{
-		gfx.renderItem(arg0, arg1, arg2, arg3, arg4);
+		gfx.renderItem(entity, stack, x, y, seed);
 	}
 	
 	public int guiWidth()
@@ -179,108 +180,108 @@ public record Graphics(GuiGraphics gfx, Minecraft game, float partialTime, boole
 		return gfx.guiHeight();
 	}
 	
-	public void drawManaged(Runnable arg0)
+	public void drawManaged(Runnable command)
 	{
-		gfx.drawManaged(arg0);
+		gfx.drawManaged(command);
 	}
 	
-	public void renderTooltip(Font arg0, List<Component> arg1, Optional<TooltipComponent> arg2, ItemStack arg3, int arg4, int arg5)
+	public void renderTooltip(Font font, List<Component> tooltip, Optional<TooltipComponent> tooltipComponent, ItemStack stack, int mouseX, int mouseY)
 	{
-		gfx.renderTooltip(arg0, arg1, arg2, arg3, arg4, arg5);
+		gfx.renderTooltip(font, tooltip, tooltipComponent, stack, mouseX, mouseY);
 	}
 	
-	public void renderTooltip(Font arg0, List<? extends FormattedCharSequence> arg1, int arg2, int arg3)
+	public void renderTooltip(Font font, List<? extends FormattedCharSequence> tooltip, int mouseX, int mouseY)
 	{
-		gfx.renderTooltip(arg0, arg1, arg2, arg3);
+		gfx.renderTooltip(font, tooltip, mouseX, mouseY);
 	}
 	
-	public void renderTooltip(Font arg0, List<FormattedCharSequence> arg1, ClientTooltipPositioner arg2, int arg3, int arg4)
+	public void renderTooltip(Font font, List<FormattedCharSequence> tooltip, ClientTooltipPositioner tooltipPositioner, int mouseX, int mouseY)
 	{
-		gfx.renderTooltip(arg0, arg1, arg2, arg3, arg4);
+		gfx.renderTooltip(font, tooltip, tooltipPositioner, mouseX, mouseY);
 	}
 	
-	public void renderTooltip(Font arg0, ItemStack arg1, int arg2, int arg3)
+	public void renderTooltip(Font font, ItemStack stack, int mouseX, int mouseY)
 	{
-		gfx.renderTooltip(arg0, arg1, arg2, arg3);
+		gfx.renderTooltip(font, stack, mouseX, mouseY);
 	}
 	
-	public void renderTooltip(Font arg0, Component arg1, int arg2, int arg3)
+	public void renderTooltip(Font font, Component tooltip, int mouseX, int mouseY)
 	{
-		gfx.renderTooltip(arg0, arg1, arg2, arg3);
+		gfx.renderTooltip(font, tooltip, mouseX, mouseY);
 	}
 	
-	public void renderTooltip(Font arg0, List<Component> arg1, Optional<TooltipComponent> arg2, int arg3, int arg4)
+	public void renderTooltip(Font font, List<Component> tooltip, Optional<TooltipComponent> visualTooltipComponent, int mouseX, int mouseY)
 	{
-		gfx.renderTooltip(arg0, arg1, arg2, arg3, arg4);
+		gfx.renderTooltip(font, tooltip, visualTooltipComponent, mouseX, mouseY);
 	}
 	
-	public void drawCenteredString(Font arg0, Component arg1, int arg2, int arg3, int arg4)
+	public void drawCenteredString(Font font, Component text, int x, int y, int color)
 	{
-		gfx.drawCenteredString(arg0, arg1, arg2, arg3, arg4);
+		gfx.drawCenteredString(font, text, x, y, color);
 	}
 	
-	public void drawCenteredString(Font arg0, String arg1, int arg2, int arg3, int arg4)
+	public void drawCenteredString(Font font, String text, int x, int y, int color)
 	{
-		gfx.drawCenteredString(arg0, arg1, arg2, arg3, arg4);
+		gfx.drawCenteredString(font, text, x, y, color);
 	}
 	
-	public void drawCenteredString(Font arg0, FormattedCharSequence arg1, int arg2, int arg3, int arg4)
+	public void drawCenteredString(Font font, FormattedCharSequence text, int x, int y, int color)
 	{
-		gfx.drawCenteredString(arg0, arg1, arg2, arg3, arg4);
+		gfx.drawCenteredString(font, text, x, y, color);
 	}
 	
-	public void drawWordWrap(Font arg0, net.minecraft.network.chat.FormattedText arg1, int arg2, int arg3, int arg4, int arg5)
+	public void drawWordWrap(Font font, FormattedText text, int x, int y, int lineWidth, int color)
 	{
-		gfx.drawWordWrap(arg0, arg1, arg2, arg3, arg4, arg5);
+		gfx.drawWordWrap(font, text, x, y, lineWidth, color);
 	}
 	
-	public void renderOutline(int arg0, int arg1, int arg2, int arg3, int arg4)
+	public void renderOutline(int x, int y, int width, int height, int color)
 	{
-		gfx.renderOutline(arg0, arg1, arg2, arg3, arg4);
+		gfx.renderOutline(x, y, width, height, color);
 	}
 	
-	public void renderFakeItem(ItemStack arg0, int arg1, int arg2)
+	public void renderFakeItem(ItemStack stack, int x, int y)
 	{
-		gfx.renderFakeItem(arg0, arg1, arg2);
+		gfx.renderFakeItem(stack, x, y);
 	}
 	
-	public int getColorFromFormattingCharacter(char arg0, boolean arg1)
+	public int getColorFromFormattingCharacter(char c, boolean isLighter)
 	{
-		return gfx.getColorFromFormattingCharacter(arg0, arg1);
+		return gfx.getColorFromFormattingCharacter(c, isLighter);
 	}
 	
-	public void blitNineSlicedSized(ResourceLocation arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11, int arg12)
+	public void blitNineSlicedSized(ResourceLocation tex, int x, int y, int width, int height, int sliceWidth, int sliceHeight, int uWidth, int vHeight, int uOffset, int vOffset, int texWidth, int texHeight)
 	{
-		gfx.blitNineSlicedSized(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12);
+		gfx.blitNineSlicedSized(tex, x, y, width, height, sliceWidth, sliceHeight, uWidth, vHeight, uOffset, vOffset, texWidth, texHeight);
 	}
 	
-	public void blitNineSlicedSized(ResourceLocation arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11, int arg12, int arg13, int arg14)
+	public void blitNineSlicedSized(ResourceLocation tex, int x, int y, int width, int height, int cornerWidth, int cornerHeight, int edgeWidth, int edgeHeight, int uWidth, int vHeight, int uOffset, int vOffset, int texWidth, int texHeight)
 	{
-		gfx.blitNineSlicedSized(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14);
+		gfx.blitNineSlicedSized(tex, x, y, width, height, cornerWidth, cornerHeight, edgeWidth, edgeHeight, uWidth, vHeight, uOffset, vOffset, texWidth, texHeight);
 	}
 	
-	public void blitNineSlicedSized(ResourceLocation arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11)
+	public void blitNineSlicedSized(ResourceLocation tex, int x, int y, int width, int height, int sliceSize, int uWidth, int vHeight, int uOffset, int vOffset, int texWidth, int texHeight)
 	{
-		gfx.blitNineSlicedSized(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11);
+		gfx.blitNineSlicedSized(tex, x, y, width, height, sliceSize, uWidth, vHeight, uOffset, vOffset, texWidth, texHeight);
 	}
 	
-	public void blitWithBorder(ResourceLocation arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9)
+	public void blitWithBorder(ResourceLocation tex, int x, int y, int u, int v, int width, int height, int texWidth, int texHeight, int borderSize)
 	{
-		gfx.blitWithBorder(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+		gfx.blitWithBorder(tex, x, y, u, v, width, height, texWidth, texHeight, borderSize);
 	}
 	
-	public void blitWithBorder(ResourceLocation arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7, int arg8, int arg9, int arg10, int arg11, int arg12)
+	public void blitWithBorder(ResourceLocation tex, int x, int y, int u, int v, int width, int height, int texWidth, int texHeight, int topBorder, int bottomBorder, int leftBorder, int rightBorder)
 	{
-		gfx.blitWithBorder(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12);
+		gfx.blitWithBorder(tex, x, y, u, v, width, height, texWidth, texHeight, topBorder, bottomBorder, leftBorder, rightBorder);
 	}
 	
-	public void blitInscribed(ResourceLocation arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6)
+	public void blitInscribed(ResourceLocation tex, int x, int y, int boundsWidth, int boundsHeight, int rectWidth, int rectHeight)
 	{
-		gfx.blitInscribed(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
+		gfx.blitInscribed(tex, x, y, boundsWidth, boundsHeight, rectWidth, rectHeight);
 	}
 	
-	public void blitInscribed(ResourceLocation arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, boolean arg7, boolean arg8)
+	public void blitInscribed(ResourceLocation tex, int x, int y, int boundsWidth, int boundsHeight, int rectWidth, int rectHeight, boolean centerX, boolean centerY)
 	{
-		gfx.blitInscribed(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+		gfx.blitInscribed(tex, x, y, boundsWidth, boundsHeight, rectWidth, rectHeight, centerX, centerY);
 	}
 }
