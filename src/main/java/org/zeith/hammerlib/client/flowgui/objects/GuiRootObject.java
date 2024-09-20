@@ -164,17 +164,8 @@ public class GuiRootObject
 		if(g.debugBounds())
 		{
 			var color = debugBoundaryColor;
-			var gfx = g.gfx();
 			for(Rect2i rect : GuiObjectHelper.getAllAreas(this))
-			{
-				int x1 = rect.getX() - 1, x2 = x1 + rect.getWidth() + 1;
-				int y1 = rect.getY() - 1, y2 = y1 + rect.getHeight() + 1;
-				
-				gfx.hLine(x1, x2, y1, color);
-				gfx.hLine(x1, x2, y2, color);
-				gfx.vLine(x1, y1, y2, color);
-				gfx.vLine(x2, y1, y2, color);
-			}
+				g.renderOutline(rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight(), color);
 		}
 	}
 	
