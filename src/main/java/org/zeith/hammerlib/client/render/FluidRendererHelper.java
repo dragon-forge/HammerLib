@@ -3,6 +3,7 @@ package org.zeith.hammerlib.client.render;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
@@ -32,7 +33,7 @@ public class FluidRendererHelper
 			
 			if(heightF > 0)
 			{
-				FXUtils.bindTexture(InventoryMenu.BLOCK_ATLAS);
+				FXUtils.bindTexture(TextureAtlas.LOCATION_BLOCKS);
 				
 				Tesselator tess = Tesselator.getInstance();
 				BufferBuilder bb = tess.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
@@ -98,7 +99,7 @@ public class FluidRendererHelper
 	public static TextureAtlasSprite getSprite(ResourceLocation spriteLocation)
 	{
 		return Minecraft.getInstance()
-				.getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
+				.getTextureAtlas(TextureAtlas.LOCATION_BLOCKS)
 				.apply(spriteLocation);
 	}
 	

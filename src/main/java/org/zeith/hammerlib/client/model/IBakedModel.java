@@ -8,7 +8,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.model.data.ModelData;
-import org.jetbrains.annotations.*;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
 import java.util.List;
@@ -46,12 +47,6 @@ public interface IBakedModel
 	@Override
 	default ItemTransforms getTransforms()
 	{
-		return useBlockTransforms() ? BLOCK_TRANSFORMS : BakedModel.super.getTransforms();
-	}
-	
-	@Override
-	default ItemOverrides getOverrides()
-	{
-		return ItemOverrides.EMPTY;
+		return useBlockTransforms() ? BLOCK_TRANSFORMS : ItemTransforms.NO_TRANSFORMS;
 	}
 }

@@ -1,6 +1,8 @@
 package org.zeith.hammerlib.core.adapter.recipe;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
@@ -19,9 +21,12 @@ public abstract class RecipeBuilder<R extends RecipeBuilder<R, RT>, RT>
 	protected String group = "";
 	protected ItemStack result = ItemStack.EMPTY;
 	
+	protected final HolderLookup.RegistryLookup<Item> itemRegistry;
+	
 	public RecipeBuilder(IRecipeRegistrationEvent<RT> event)
 	{
 		this.event = event;
+		this.itemRegistry = event.getItemLookup();
 	}
 	
 	/**
@@ -117,11 +122,11 @@ public abstract class RecipeBuilder<R extends RecipeBuilder<R, RT>, RT>
 	
 	protected Ingredient parseIngredient(Object obj)
 	{
-		return RecipeHelper.fromComponent(obj);
+		return RecipeHelper.fromComponent(itemRegistry, obj);
 	}
 	
 	protected IngredientWithCount parseIngredient(Object obj, int count)
 	{
-		return new IngredientWithCount(RecipeHelper.fromComponent(obj), count);
+		return new IngredientWithCount(RecipeHelper.fromComponent(itemRegistry, obj), count);
 	}
 }

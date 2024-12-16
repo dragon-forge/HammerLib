@@ -32,7 +32,7 @@ public class IC2HLCompat
 	{
 		if(e.is(Registries.ITEM))
 		{
-			Function<ResourceLocation, Item> its = BuiltInRegistries.ITEM::get;
+			Function<ResourceLocation, Item> its = BuiltInRegistries.ITEM::getValue;
 			
 			var wrench = its.apply(Resources.location("ic2", "wrench"));
 			if(!new ItemStack(wrench).isEmpty())

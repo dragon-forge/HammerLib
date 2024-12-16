@@ -2,12 +2,14 @@ package org.zeith.hammerlib.client.utils;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.texture.*;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.FastColor;
-import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.util.ARGB;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.event.TextureAtlasStitchedEvent;
 import net.neoforged.neoforge.client.model.data.ModelData;
@@ -16,8 +18,8 @@ import org.zeith.hammerlib.util.colors.ColorHelper;
 import org.zeith.hammerlib.util.mcf.Resources;
 
 import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class TexturePixelGetter
 {
@@ -74,10 +76,23 @@ public class TexturePixelGetter
 			return cachedRenderedColorsRaw.get(key);
 		
 		var mc = Minecraft.getInstance();
-		BakedModel model = Minecraft.getInstance().getItemRenderer().getModel(stack, mc.level, mc.player, 0);
-		TextureAtlasSprite spr = model.getParticleIcon(ModelData.EMPTY);
-		if(spr == null) spr = mc.getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(MissingTextureAtlasSprite.getLocation());
-		return getAllColors(getResourceLocation(spr.contents().name()));
+		
+		ItemStackRenderState state = new ItemStackRenderState();
+		Minecraft.getInstance()
+				.getItemModelResolver()
+				.updateForTopItem(state, stack, ItemDisplayContext.GUI, false, mc.level, mc.player, 0);
+		
+		IntSet ints = new IntOpenHashSet();
+		for(int i = 0; i < state.activeLayerCount; i++)
+		{
+			ItemStackRenderState.LayerRenderState l = state.layers[i];
+			BakedModel model = l.model;
+			TextureAtlasSprite spr = model.getParticleIcon(ModelData.EMPTY);
+			if(spr == null) spr = mc.getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(MissingTextureAtlasSprite.getLocation());
+			ints.addAll(IntSet.of(getAllColors(getResourceLocation(spr.contents().name()))));
+		}
+		
+		return ints.toIntArray();
 	}
 	
 	public static int[] getAllColors(ResourceLocation texture)
@@ -147,18 +162,18 @@ public class TexturePixelGetter
 		for(int x = 0; x < img.getWidth(); ++x)
 			for(int y = 0; y < img.getHeight(); ++y)
 			{
-				int rgba = img.getPixelRGBA(x, y);
+				int rgba = img.getPixel(x, y);
 				
-				int a = FastColor.ABGR32.alpha(rgba);
+				int a = ARGB.alpha(rgba);
 				
 				if(a <= alphaThreshold)
 					continue;
 				
 				int rgb = ColorHelper.packARGBi(
 						a,
-						FastColor.ABGR32.red(rgba),
-						FastColor.ABGR32.green(rgba),
-						FastColor.ABGR32.blue(rgba)
+						ARGB.red(rgba),
+						ARGB.green(rgba),
+						ARGB.blue(rgba)
 				);
 				
 				ints.add(rgb);

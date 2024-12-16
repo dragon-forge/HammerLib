@@ -1,10 +1,9 @@
 package org.zeith.hammerlib.client.model;
 
 import com.google.gson.*;
-import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.javafmlmod.FMLModContainer;
 import net.neoforged.neoforge.client.event.ModelEvent;
-import net.neoforged.neoforge.client.model.geometry.IGeometryLoader;
+import net.neoforged.neoforge.client.model.UnbakedModelLoader;
 import org.jetbrains.annotations.ApiStatus;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.annotations.OnlyIf;
@@ -16,10 +15,11 @@ import org.zeith.hammerlib.util.mcf.Resources;
 import org.zeith.hammerlib.util.mcf.ScanDataHelper;
 import org.zeith.hammerlib.util.shaded.json.JSONObject;
 
-import java.util.function.*;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
 
-public class SimpleModelGenerator<T extends org.zeith.hammerlib.client.model.IUnbakedGeometry<T>>
-		implements IGeometryLoader<T>
+public class SimpleModelGenerator<T extends IUnbakedGeometry>
+		implements UnbakedModelLoader<T>
 {
 	private final BiFunction<JsonObject, JsonDeserializationContext, T> factory;
 	
@@ -125,7 +125,7 @@ public class SimpleModelGenerator<T extends org.zeith.hammerlib.client.model.IUn
 			
 			if(OnlyIfAdapter.checkCondition(condition, c.toString(), "UnbakedModel", null, loaderId))
 				data.getOwnerMod().ifPresent(mc ->
-						mc.getEventBus().addListener((Consumer<ModelEvent.RegisterGeometryLoaders>) evt ->
+						mc.getEventBus().addListener((Consumer<ModelEvent.RegisterLoaders>) evt ->
 						{
 							evt.register(Resources.location(mc.getNamespace(), path), new SimpleModelGenerator<>(factoryFinal));
 							HammerLib.LOG.info("Registered a new model with loader {} of type {}", JSONObject.quote(mc.getNamespace() + ":" + path), c.getName());

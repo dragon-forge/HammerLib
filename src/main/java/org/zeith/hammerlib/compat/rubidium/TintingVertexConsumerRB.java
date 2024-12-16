@@ -1,10 +1,8 @@
 package org.zeith.hammerlib.compat.rubidium;
 
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.caffeinemc.mods.sodium.api.vertex.attributes.CommonVertexAttribute;
+import com.mojang.blaze3d.vertex.*;
 import net.caffeinemc.mods.sodium.api.vertex.attributes.common.ColorAttribute;
 import net.caffeinemc.mods.sodium.api.vertex.buffer.VertexBufferWriter;
-import net.caffeinemc.mods.sodium.api.vertex.format.VertexFormatDescription;
 import org.lwjgl.system.MemoryStack;
 import org.zeith.hammerlib.client.render.TintingVertexConsumer;
 
@@ -27,16 +25,16 @@ public class TintingVertexConsumerRB
 	}
 	
 	@Override
-	public void push(MemoryStack stack, long ptr, int count, VertexFormatDescription format)
+	public void push(MemoryStack stack, long ptr, int count, VertexFormat format)
 	{
 		transform(ptr, count, format, r, g, b, a);
 		writer.push(stack, ptr, count, format);
 	}
 	
-	private static void transform(long ptr, int count, VertexFormatDescription format, float r, float g, float b, float a)
+	private static void transform(long ptr, int count, VertexFormat format, float r, float g, float b, float a)
 	{
-		long stride = format.stride();
-		long offsetColor = format.getElementOffset(CommonVertexAttribute.COLOR);
+		long stride = format.getVertexSize();
+		long offsetColor = format.getOffset(VertexFormatElement.COLOR);
 		
 		for(int vertexIndex = 0; vertexIndex < count; ++vertexIndex)
 		{

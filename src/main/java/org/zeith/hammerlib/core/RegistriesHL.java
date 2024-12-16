@@ -29,32 +29,6 @@ public class RegistriesHL
 		e.register(GLINT_PROVIDERS);
 	}
 	
-	// TODO: Remove these methods in 1.22
-	
-	@Deprecated(forRemoval = true)
-	public static Registry<IObjectSourceType> objectSources()
-	{
-		return OBJECT_SOURCES;
-	}
-	
-	@Deprecated(forRemoval = true)
-	public static Registry<IRemainingItemReplacer> remainingReplacer()
-	{
-		return REMAINING_REPLACER;
-	}
-	
-	@Deprecated(forRemoval = true)
-	public static Registry<ILevelActionType> levelActions()
-	{
-		return LEVEL_ACTIONS;
-	}
-	
-	@Deprecated(forRemoval = true)
-	public static Registry<IGlintProviderType<?>> glintProviders()
-	{
-		return GLINT_PROVIDERS;
-	}
-	
 	public static class Keys
 	{
 		public static final ResourceKey<Registry<IObjectSourceType>> OBJECT_SOURCES = key("obj_sources");

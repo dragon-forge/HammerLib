@@ -1,9 +1,10 @@
 package org.zeith.hammerlib.client.utils;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.CoreShaders;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 import org.zeith.hammerlib.client.texture.HttpTextureDownloader;
 import org.zeith.hammerlib.proxy.HLConstants;
 import org.zeith.hammerlib.util.java.Hashers;
@@ -24,6 +25,7 @@ public class FXUtils
 		return Resources.location(HLConstants.MOD_ID, protocol + "/" + Hashers.SHA1.hashify(withoutHTTP));
 	}
 	
+	@NotNull
 	public static AbstractTexture downloadTexture(ResourceLocation texture, String url)
 	{
 		return HttpTextureDownloader.create(texture, url);
@@ -65,12 +67,12 @@ public class FXUtils
 	
 	public static void setPositionTexShader()
 	{
-		RenderSystem.setShader(GameRenderer::getPositionTexShader);
+		RenderSystem.setShader(CoreShaders.POSITION_TEX);
 	}
 	
 	public static void setPositionTexColorShader()
 	{
-		RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+		RenderSystem.setShader(CoreShaders.POSITION_TEX_COLOR);
 	}
 	
 	public static void setColor(float red, float green, float blue, float alpha)

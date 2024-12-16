@@ -53,7 +53,7 @@ public class RenderItemsPacket
 			case 0 -> Stack2ImageRenderer.renderItem(Component.literal("Main hand"), Minecraft.getInstance().player.getMainHandItem(), size);
 			case 1 -> Stack2ImageRenderer.renderMod(data, size);
 			case 2 -> Stack2ImageRenderer.renderAll(size);
-			case 3 -> ctx.registryAccess().registry(Registries.CREATIVE_MODE_TAB).map(r -> r.get(Resources.location(data))).ifPresent(tab ->
+			case 3 -> ctx.registryAccess().lookup(Registries.CREATIVE_MODE_TAB).map(r -> r.getValue(Resources.location(data))).ifPresent(tab ->
 					Stack2ImageRenderer.renderTab(Resources.location(data), tab, size)
 			);
 		}

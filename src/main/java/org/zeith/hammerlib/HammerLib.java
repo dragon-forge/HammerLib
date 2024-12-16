@@ -80,7 +80,7 @@ public class HammerLib
 			var ow = data.getOwnerMod().orElse(null);
 			if(ow == null)
 			{
-				LOG.info("Skipping mod-less @ProvideRecipes annotation in " + data.getOwnerClass());
+				LOG.info("Skipping mod-less @ProvideRecipes annotation in {}", data.getOwnerClass());
 				return;
 			}
 			

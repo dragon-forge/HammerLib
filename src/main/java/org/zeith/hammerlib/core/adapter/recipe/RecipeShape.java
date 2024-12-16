@@ -1,17 +1,22 @@
 package org.zeith.hammerlib.core.adapter.recipe;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.*;
 
 import java.util.*;
 
 public class RecipeShape
 {
+	public final HolderLookup.RegistryLookup<Item> itemRegistry;
 	public final int width, height;
 	public final List<String> shape;
 	
-	public RecipeShape(int width, int height, String... shape)
+	public RecipeShape(HolderLookup.RegistryLookup<Item> itemRegistry, int width, int height, String... shape)
 	{
+		this.itemRegistry = itemRegistry;
+		
 		if(height != shape.length)
 			throw new IllegalArgumentException("Invalid height passed for shapeKeys; Expected " + height + ", got " + shape.length);
 		
@@ -27,8 +32,10 @@ public class RecipeShape
 		this.shape = Arrays.asList(shape);
 	}
 	
-	public RecipeShape(String... shape)
+	public RecipeShape(HolderLookup.RegistryLookup<Item> itemRegistry, String... shape)
 	{
+		this.itemRegistry = itemRegistry;
+		
 		this.width = shape[0].length();
 		this.height = shape.length;
 		this.shape = Arrays.asList(shape);
@@ -40,15 +47,16 @@ public class RecipeShape
 		}
 	}
 	
-	public NonNullList<Ingredient> createIngredientMap(Map<Character, Ingredient> dictionary)
+	public List<Optional<Ingredient>> createIngredientMap(Map<Character, Ingredient> dictionary)
 	{
 		StringBuilder s = new StringBuilder();
 		for(String s2 : shape) s.append(s2);
-		NonNullList<Ingredient> grid = NonNullList.withSize(width * height, Ingredient.EMPTY);
+		List<Optional<Ingredient>> grid = NonNullList.withSize(width * height, Optional.empty());
 		for(int l = 0; l < width * height; ++l)
 		{
 			char c0 = s.charAt(l);
-			if(dictionary.containsKey(c0)) grid.set(l, dictionary.get(c0));
+			if(dictionary.containsKey(c0)) grid.set(l, Optional.ofNullable(dictionary.get(c0)));
+			else grid.set(l, Optional.empty());
 		}
 		return grid;
 	}

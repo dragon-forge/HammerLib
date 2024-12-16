@@ -1,16 +1,10 @@
 package org.zeith.hammerlib.core.items.tooltip;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.entity.ItemRenderer;
-import org.joml.Matrix4f;
 import org.zeith.hammerlib.api.items.tooltip.TooltipColoredLine;
 import org.zeith.hammerlib.client.utils.RenderUtils;
-
 
 public class ClientTooltipColoredLine
 		implements ClientTooltipComponent
@@ -23,7 +17,7 @@ public class ClientTooltipColoredLine
 	}
 	
 	@Override
-	public int getHeight()
+	public int getHeight(Font pFont)
 	{
 		return 1;
 	}
@@ -35,18 +29,16 @@ public class ClientTooltipColoredLine
 	}
 	
 	@Override
-	public void renderImage(Font font, int x, int y, GuiGraphics gfx)
+	public void renderImage(Font font, int x, int y, int width, int height, GuiGraphics gfx)
 	{
 		var pose = gfx.pose();
 		
 		pose.pushPose();
-		RenderSystem.setShader(GameRenderer::getPositionColorShader);
 		for(int color : colors.getColors())
 		{
 			RenderUtils.drawColoredModalRect(gfx, x, y, 0.5F, 1, color);
 			pose.translate(0.5F, 0, 0);
 		}
 		pose.popPose();
-		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 	}
 }

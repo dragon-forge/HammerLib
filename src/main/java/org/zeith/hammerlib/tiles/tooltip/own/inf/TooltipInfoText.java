@@ -1,5 +1,7 @@
 package org.zeith.hammerlib.tiles.tooltip.own.inf;
 
+import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
@@ -10,24 +12,19 @@ import org.zeith.hammerlib.tiles.tooltip.own.IRenderableInfo;
 public class TooltipInfoText
 		implements IRenderableInfo
 {
+	@Getter
+	@Setter
 	protected MutableComponent text;
+	
 	public Font fontRenderer;
+	
+	@Setter
 	public boolean dropShadow = true;
 	
 	public TooltipInfoText(Component text)
 	{
 		this.text = text instanceof MutableComponent mc ? mc : text.copy();
 		this.fontRenderer = Minecraft.getInstance().font;
-	}
-	
-	public void setDropShadow(boolean dropShadow)
-	{
-		this.dropShadow = dropShadow;
-	}
-	
-	public void setText(MutableComponent text)
-	{
-		this.text = text;
 	}
 	
 	@Override
@@ -47,10 +44,5 @@ public class TooltipInfoText
 	public void render(GuiGraphics gfx, float x, float y, DeltaTracker partialTime)
 	{
 		gfx.drawString(fontRenderer, getText().getVisualOrderText(), x, y, 0xFFFFFFFF, dropShadow);
-	}
-	
-	public MutableComponent getText()
-	{
-		return text;
 	}
 }

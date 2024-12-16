@@ -51,7 +51,7 @@ public interface IObjectSource<T>
 	static Optional<IObjectSource<?>> readSource(@Nullable CompoundTag tag)
 	{
 		if(tag == null) return Optional.empty();
-		IObjectSourceType type = RegistriesHL.OBJECT_SOURCES.get(ResourceLocation.tryParse(tag.getString("Type")));
+		IObjectSourceType type = RegistriesHL.OBJECT_SOURCES.getValue(ResourceLocation.tryParse(tag.getString("Type")));
 		if(type == null) return Optional.empty();
 		return Optional.ofNullable(type.readSource(tag.getCompound("Src")));
 	}
@@ -68,7 +68,7 @@ public interface IObjectSource<T>
 			throws IOException
 	{
 		if(!buf.readBoolean()) return Optional.empty();
-		IObjectSourceType type = RegistriesHL.OBJECT_SOURCES.get(buf.readResourceLocation());
+		IObjectSourceType type = RegistriesHL.OBJECT_SOURCES.getValue(buf.readResourceLocation());
 		var src = buf.readNbt();
 		if(type == null) return Optional.empty();
 		return Optional.ofNullable(type.readSource(src));

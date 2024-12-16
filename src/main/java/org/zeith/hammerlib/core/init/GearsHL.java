@@ -62,9 +62,9 @@ public interface GearsHL
 		{
 			var id = BuiltInRegistries.ITEM.getKey(NETHERITE_GEAR);
 			e.register(id, new SmithingTransformRecipe(
-					Ingredient.of(Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE),
-					Ingredient.of(DIAMOND_GEAR),
-					RecipeHelper.fromTag(Tags.Items.INGOTS_NETHERITE),
+					e.optionalIngredient(Items.NETHERITE_UPGRADE_SMITHING_TEMPLATE),
+					e.optionalIngredient(DIAMOND_GEAR),
+					e.optionalIngredient(Tags.Items.INGOTS_NETHERITE),
 					new ItemStack(NETHERITE_GEAR)
 			));
 		}

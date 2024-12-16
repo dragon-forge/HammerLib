@@ -3,25 +3,40 @@ package org.zeith.hammerlib.client.texture;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
+import org.zeith.hammerlib.util.java.Once;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class HttpTextureDownloader
 {
+	@NotNull
 	public static AbstractTexture create(ResourceLocation texturePath, String url)
 	{
 		return create(texturePath, url, null);
 	}
 	
+	@NotNull
 	public static AbstractTexture create(ResourceLocation texturePath, String url, Runnable onDownloadComplete)
 	{
-		var tex = Minecraft.getInstance().textureManager.getTexture(texturePath, null);
-		if(tex != null)
+		Once completion = Once.run(onDownloadComplete);
+		
+		var reg = Minecraft.getInstance().textureManager.byPath.get(texturePath);
+		if(reg instanceof FutureTexture ft)
 		{
-			if(onDownloadComplete != null)
-				onDownloadComplete.run();
-			return tex;
+			completion.call();
+			return ft;
 		}
-		tex = new HttpTextureWithHeaders(null, url, texturePath, false, onDownloadComplete);
-		Minecraft.getInstance().textureManager.register(texturePath, tex);
-		return tex;
+		
+		FutureTexture ft = new FutureTexture();
+		Minecraft.getInstance().textureManager.register(texturePath, ft);
+		
+		HttpTextureWithHeaders.readImage(null, url, image ->
+				{
+					ft.updateImage(image);
+					completion.call();
+				}
+		);
+		return ft;
 	}
 }

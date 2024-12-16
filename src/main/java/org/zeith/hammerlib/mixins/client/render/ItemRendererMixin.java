@@ -5,8 +5,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -20,26 +22,27 @@ import org.zeith.hammerlib.client.render.TintingVertexConsumer;
 @Mixin(ItemRenderer.class)
 public class ItemRendererMixin
 {
-	@Unique
-	private static ItemStack hl$contextStack = ItemStack.EMPTY;
 	
+	//<editor-fold desc="renderStatic">
 	@Inject(
-			method = "render",
+			method = "renderStatic(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;ZLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/world/level/Level;III)V",
 			at = @At("HEAD")
 	)
-	private void preRenderHook(ItemStack pItemStack, ItemDisplayContext pDisplayContext, boolean pLeftHand, PoseStack pPoseStack, MultiBufferSource pBuffer, int pCombinedLight, int pCombinedOverlay, BakedModel pModel, CallbackInfo ci)
+	private void preRenderHook(LivingEntity pEntity, ItemStack pItemStack, ItemDisplayContext pDiplayContext, boolean pLeftHand, PoseStack pPoseStack, MultiBufferSource pBufferSource, Level pLevel, int pCombinedLight, int pCombinedOverlay, int pSeed, CallbackInfo ci)
 	{
-		hl$contextStack = pItemStack;
+		IColoredFoilItem.Binds.pushContextStack(pItemStack);
 	}
 	
 	@Inject(
-			method = "render",
+			method = "renderStatic(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;ZLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/world/level/Level;III)V",
 			at = @At("TAIL")
 	)
-	private void postRenderHook(ItemStack pItemStack, ItemDisplayContext pDisplayContext, boolean pLeftHand, PoseStack pPoseStack, MultiBufferSource pBuffer, int pCombinedLight, int pCombinedOverlay, BakedModel pModel, CallbackInfo ci)
+	private void postRenderHook(LivingEntity pEntity, ItemStack pItemStack, ItemDisplayContext pDiplayContext, boolean pLeftHand, PoseStack pPoseStack, MultiBufferSource pBufferSource, Level pLevel, int pCombinedLight, int pCombinedOverlay, int pSeed, CallbackInfo ci)
 	{
-		hl$contextStack = ItemStack.EMPTY;
+		IColoredFoilItem.Binds.popContextStack();
 	}
+	//</editor-fold>
+	
 	
 	@Inject(
 			method = "getArmorFoilBuffer",
@@ -48,6 +51,8 @@ public class ItemRendererMixin
 	)
 	private static void getArmorFoilBufferHook(MultiBufferSource pBuffer, RenderType pRenderType, boolean pWithGlint, CallbackInfoReturnable<VertexConsumer> cir)
 	{
+		var hl$contextStack = IColoredFoilItem.Binds.getContextStack();
+		
 		IColoredFoilItem icgi;
 		if(pWithGlint && TintingVertexConsumer.tintingEnabled && !hl$contextStack.isEmpty() && (icgi = IColoredFoilItem.get(hl$contextStack)) != null)
 		{
@@ -70,6 +75,8 @@ public class ItemRendererMixin
 	)
 	private static void getCompassFoilBufferHook(MultiBufferSource pBuffer, RenderType pRenderType, PoseStack.Pose pMatrixEntry, CallbackInfoReturnable<VertexConsumer> cir)
 	{
+		var hl$contextStack = IColoredFoilItem.Binds.getContextStack();
+		
 		IColoredFoilItem icgi;
 		if(TintingVertexConsumer.tintingEnabled && !hl$contextStack.isEmpty() && (icgi = IColoredFoilItem.get(hl$contextStack)) != null)
 		{
@@ -96,6 +103,8 @@ public class ItemRendererMixin
 	)
 	private static void getCompassFoilBufferDirectHook(MultiBufferSource pBuffer, RenderType pRenderType, PoseStack.Pose pMatrixEntry, CallbackInfoReturnable<VertexConsumer> cir)
 	{
+		var hl$contextStack = IColoredFoilItem.Binds.getContextStack();
+		
 		IColoredFoilItem icgi;
 		if(TintingVertexConsumer.tintingEnabled && !hl$contextStack.isEmpty() && (icgi = IColoredFoilItem.get(hl$contextStack)) != null)
 		{
@@ -122,6 +131,8 @@ public class ItemRendererMixin
 	)
 	private static void getFoilBufferHook(MultiBufferSource pBuffer, RenderType pRenderType, boolean pIsItem, boolean pGlint, CallbackInfoReturnable<VertexConsumer> cir)
 	{
+		var hl$contextStack = IColoredFoilItem.Binds.getContextStack();
+		
 		IColoredFoilItem icgi;
 		if(pGlint && TintingVertexConsumer.tintingEnabled && !hl$contextStack.isEmpty() && (icgi = IColoredFoilItem.get(hl$contextStack)) != null)
 		{
@@ -145,30 +156,6 @@ public class ItemRendererMixin
 									   ),
 									   pBuffer.getBuffer(pRenderType)
 							   )
-			);
-		}
-	}
-	
-	@Inject(
-			method = "getFoilBufferDirect",
-			at = @At("HEAD"),
-			cancellable = true
-	)
-	private static void getFoilBufferDirectHook(MultiBufferSource pBuffer, RenderType pRenderType, boolean pNoEntity, boolean pWithGlint, CallbackInfoReturnable<VertexConsumer> cir)
-	{
-		IColoredFoilItem icgi;
-		if(pWithGlint && TintingVertexConsumer.tintingEnabled && !hl$contextStack.isEmpty() && (icgi = IColoredFoilItem.get(hl$contextStack)) != null)
-		{
-			int color = icgi.getFoilColor(hl$contextStack);
-			cir.setReturnValue(VertexMultiConsumer.create(
-							TintingVertexConsumer.wrap(
-									pBuffer.getBuffer(pNoEntity
-													  ? RenderCustomGlint.glintDirect()
-													  : RenderCustomGlint.entityGlintDirect()),
-									color
-							),
-							pBuffer.getBuffer(pRenderType)
-					)
 			);
 		}
 	}

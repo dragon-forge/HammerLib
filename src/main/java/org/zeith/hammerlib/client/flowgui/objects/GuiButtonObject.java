@@ -6,8 +6,8 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.WidgetSprites;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.core.Holder;
@@ -15,10 +15,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.zeith.hammerlib.client.flowgui.*;
 import org.zeith.hammerlib.util.math.Point;
 
@@ -27,27 +29,29 @@ public class GuiButtonObject
 {
 	public static final int UNSET_FG_COLOR = -1;
 	
-	public float alpha;
-	protected int packedFGColor;
-	public boolean enabled;
-	public Component message;
-	public OnPress callback;
-	public Holder<SoundEvent> pressSound;
-	
 	protected static final WidgetSprites SPRITES = new WidgetSprites(
 			ResourceLocation.withDefaultNamespace("widget/button"),
 			ResourceLocation.withDefaultNamespace("widget/button_disabled"),
 			ResourceLocation.withDefaultNamespace("widget/button_highlighted")
 	);
 	
-	@Builder
+	public float alpha;
+	protected int packedFGColor;
+	public boolean enabled;
+	public Component message;
+	public OnPress callback;
+	public Holder<SoundEvent> pressSound;
+	public WidgetSprites sprites = SPRITES;
+	
+	@Builder(builderClassName = "ButtonBuilder")
 	public GuiButtonObject(@NotNull String name,
 						   float alpha,
 						   int packedFGColor,
 						   boolean enabled,
 						   @NotNull Component message,
 						   @NotNull OnPress callback,
-						   Holder<SoundEvent> pressSound
+						   Holder<SoundEvent> pressSound,
+						   @Nullable WidgetSprites sprites
 	)
 	{
 		super(name);
@@ -57,6 +61,7 @@ public class GuiButtonObject
 		this.message = message;
 		this.callback = callback;
 		this.pressSound = pressSound;
+		if(sprites != null) this.sprites = sprites;
 	}
 	
 	public GuiButtonObject setAlpha(float alpha)
@@ -83,9 +88,9 @@ public class GuiButtonObject
 		return this;
 	}
 	
-	public static GuiButtonObjectBuilder builder(String name)
+	public static ButtonBuilder builder(String name)
 	{
-		return new GuiButtonObjectBuilder()
+		return new ButtonBuilder()
 				.name(name)
 				.alpha(1F)
 				.packedFGColor(UNSET_FG_COLOR)
@@ -100,15 +105,26 @@ public class GuiButtonObject
 	{
 		Minecraft minecraft = Minecraft.getInstance();
 		
-		var pGuiGraphics = gfx.gfx();
-		
-		pGuiGraphics.setColor(1.0F, 1.0F, 1.0F, this.alpha);
 		RenderSystem.enableBlend();
 		RenderSystem.enableDepthTest();
-		pGuiGraphics.blitSprite(SPRITES.get(enabled, pos.isMouseWithin(this)), 0, 0, (int) width, (int) height);
-		pGuiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
+		
+		renderButtonBg(gfx, pos);
+		
 		int i = getFGColor();
-		this.renderString(pGuiGraphics, minecraft.font, i | Mth.ceil(this.alpha * 255.0F) << 24);
+		this.renderString(gfx.gfx(), minecraft.font, i | Mth.ceil(this.alpha * 255.0F) << 24);
+	}
+	
+	protected void renderButtonBg(Graphics gfx, MousePos pos)
+	{
+		gfx.blitFull(
+				RenderType::guiTexturedOverlay,
+				sprites.get(enabled, pos.isMouseWithin(this)),
+				0,
+				0,
+				width,
+				height,
+				ARGB.white(this.alpha)
+		);
 	}
 	
 	public void onPress()
@@ -135,7 +151,7 @@ public class GuiButtonObject
 			pHandler.play(SimpleSoundInstance.forUI(pressSound, 1.0F));
 	}
 	
-	private int getTextureY(boolean hovered)
+	protected int getTextureY(boolean hovered)
 	{
 		int i = 1;
 		if(!this.enabled)
@@ -188,9 +204,9 @@ public class GuiButtonObject
 		}
 	}
 	
-	public static class GuiButtonObjectBuilder
+	public static class ButtonBuilder
 	{
-		private GuiButtonObjectBuilder name(String name)
+		private ButtonBuilder name(String name)
 		{
 			this.name = name;
 			return this;

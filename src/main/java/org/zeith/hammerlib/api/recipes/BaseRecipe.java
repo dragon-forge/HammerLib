@@ -12,40 +12,20 @@ public abstract class BaseRecipe<R extends BaseRecipe<R, INPUT>, INPUT extends R
 {
 	protected final SerializableRecipeType<R> type = getRecipeType();
 	
-	protected String group = "";
 	protected boolean isHidden;
 	protected NonNullList<Ingredient> vanillaIngredients = NonNullList.create();
 	protected ItemStack vanillaResult = ItemStack.EMPTY;
 	
-	public BaseRecipe( String group)
+	public BaseRecipe()
 	{
-		this.group = group == null ? "" : group;
 	}
 	
 	protected abstract SerializableRecipeType<R> getRecipeType();
 	
 	@Override
-	public NonNullList<Ingredient> getIngredients()
-	{
-		return vanillaIngredients;
-	}
-	
-	@Override
 	public boolean isSpecial()
 	{
 		return isHidden;
-	}
-	
-	@Override
-	public String getGroup()
-	{
-		return group;
-	}
-	
-	@Override
-	public ItemStack getToastSymbol()
-	{
-		return type.getToastSymbol(this);
 	}
 	
 	@Override
@@ -61,26 +41,20 @@ public abstract class BaseRecipe<R extends BaseRecipe<R, INPUT>, INPUT extends R
 	}
 	
 	@Override
-	public boolean canCraftInDimensions(int width, int height)
-	{
-		return false;
-	}
-	
-	@Override
-	public ItemStack getResultItem(HolderLookup.Provider provider)
-	{
-		return vanillaResult.copy();
-	}
-	
-	@Override
-	public RecipeSerializer<?> getSerializer()
+	public RecipeSerializer<R> getSerializer()
 	{
 		return type;
 	}
 	
 	@Override
-	public RecipeType<?> getType()
+	public RecipeType<R> getType()
 	{
 		return type;
+	}
+	
+	@Override
+	public PlacementInfo placementInfo()
+	{
+		return PlacementInfo.NOT_PLACEABLE;
 	}
 }

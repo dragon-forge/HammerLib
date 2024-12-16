@@ -1,12 +1,10 @@
 package org.zeith.hammerlib.tiles.tooltip.own.inf;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.api.distmarker.*;
-import org.zeith.hammerlib.client.utils.RenderUtils;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.zeith.hammerlib.tiles.tooltip.own.IRenderableInfo;
 
 public record TooltipInfoStack(ItemStack stack, float width, float height)
@@ -28,14 +26,12 @@ public record TooltipInfoStack(ItemStack stack, float width, float height)
 	@OnlyIn(Dist.CLIENT)
 	public void render(GuiGraphics matrix, float x, float y, DeltaTracker partialTime)
 	{
-		RenderSystem.setShader(GameRenderer::getPositionTexShader);
-		
 		var pose = matrix.pose();
 		
 		pose.pushPose();
 		pose.translate(x, y, 0);
 		pose.scale(width / 16F, height / 16F, 1);
-		RenderUtils.renderItemIntoGui(pose, stack, 0F, 0F);
+		matrix.renderItem(stack, 0, 0);
 		pose.popPose();
 	}
 }

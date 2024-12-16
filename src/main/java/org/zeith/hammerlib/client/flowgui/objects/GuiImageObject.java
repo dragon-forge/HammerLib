@@ -1,6 +1,7 @@
 package org.zeith.hammerlib.client.flowgui.objects;
 
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ARGB;
 import org.zeith.hammerlib.client.flowgui.*;
 
 public class GuiImageObject
@@ -9,6 +10,8 @@ public class GuiImageObject
 	public ResourceLocation tex;
 	public float uOffset, vOffset;
 	public int width, height, txWidth, txHeight;
+	
+	public float alpha = 1F;
 	
 	public GuiImageObject(
 			String name,
@@ -32,6 +35,6 @@ public class GuiImageObject
 	@Override
 	protected void render(Graphics gfx, MousePos pos)
 	{
-		gfx.blit(tex, 0, 0, uOffset, vOffset, width, height, txWidth, txHeight);
+		gfx.blit(tex, 0, 0, uOffset, vOffset, width, height, txWidth, txHeight, ARGB.white(alpha));
 	}
 }

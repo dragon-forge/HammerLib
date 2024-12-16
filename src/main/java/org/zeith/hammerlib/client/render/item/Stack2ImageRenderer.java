@@ -1,10 +1,10 @@
 package org.zeith.hammerlib.client.render.item;
 
+import com.mojang.blaze3d.ProjectionType;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.VertexSorting;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -240,7 +240,7 @@ public class Stack2ImageRenderer
 			
 			if(target == null) target = new RenderTarget(true) {};
 			if(target.width < resolution || target.height < resolution)
-				target.resize(resolution, resolution, Minecraft.ON_OSX);
+				target.resize(resolution, resolution);
 			
 			float max = resolution * 16F / resolution;
 			Matrix4f proj = new Matrix4f()
@@ -248,16 +248,15 @@ public class Stack2ImageRenderer
 							max, 0,
 							-3000, 3000
 					);
-			RenderSystem.setProjectionMatrix(proj, VertexSorting.ORTHOGRAPHIC_Z);
+			RenderSystem.setProjectionMatrix(proj, ProjectionType.ORTHOGRAPHIC);
 			
 			pStack.pushMatrix();
 			pStack.identity();
-			RenderSystem.applyModelViewMatrix();
 			target.bindWrite(true);
 			
 			RenderSystem.clearColor(0, 0, 0, 0);
 			RenderSystem.clearDepth(1);
-			RenderSystem.clear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT, Minecraft.ON_OSX);
+			RenderSystem.clear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 			
 			Lighting.setupFor3DItems();
 			RenderSystem.enableCull();
@@ -270,14 +269,13 @@ public class Stack2ImageRenderer
 			img.flipY();
 			
 			pStack.popMatrix();
-			RenderSystem.applyModelViewMatrix();
 			
 			target.unbindWrite();
 			
 			elem.finishCallback.accept(img);
 			
 			if(a != null)
-				SystemToast.addOrUpdate(mc.toast, SystemToast.SystemToastId.NARRATOR_TOGGLE, a.copy().append(Component.literal(": Rendered!").withStyle(ChatFormatting.GREEN)), elem.stack.getDisplayName());
+				SystemToast.addOrUpdate(mc.toastManager, SystemToast.SystemToastId.NARRATOR_TOGGLE, a.copy().append(Component.literal(": Rendered!").withStyle(ChatFormatting.GREEN)), elem.stack.getDisplayName());
 		}
 		
 		lastTargetUse = System.currentTimeMillis();

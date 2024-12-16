@@ -5,12 +5,9 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import lombok.Getter;
 import net.minecraft.core.NonNullList;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.ExtraCodecs;
-import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import org.zeith.hammerlib.core.RegistriesHL;
@@ -30,14 +27,32 @@ public class HLShapedRecipe
 		super(group, category, pattern, result, showNotification);
 	}
 	
+	public HLShapedRecipe(String group, CraftingBookCategory category, ShapedRecipePattern pattern, ItemStack result, boolean showNotification, List<IRemainingItemReplacer> replacers)
+	{
+		super(group, category, pattern, result, showNotification);
+		inputModifier.addAll(replacers);
+	}
+	
 	public HLShapedRecipe(String group, CraftingBookCategory category, ShapedRecipePattern pattern, ItemStack result)
 	{
 		super(group, category, pattern, result);
 	}
 	
+	public HLShapedRecipe(ShapedRecipe base, List<IRemainingItemReplacer> replacers)
+	{
+		this(
+				base.group,
+				base.category,
+				base.pattern,
+				base.result,
+				base.showNotification
+		);
+		inputModifier.addAll(replacers);
+	}
+	
 	public HLShapedRecipe addReplacer(ResourceLocation id)
 	{
-		var m = RegistriesHL.REMAINING_REPLACER.get(id);
+		var m = RegistriesHL.REMAINING_REPLACER.getValue(id);
 		if(m != null)
 			inputModifier.add(m);
 		return this;
@@ -45,20 +60,20 @@ public class HLShapedRecipe
 	
 	public HLShapedRecipe addReplacers(ResourceLocation... id)
 	{
-		for(var i : id) inputModifier.add(RegistriesHL.REMAINING_REPLACER.get(i));
+		for(var i : id) inputModifier.add(RegistriesHL.REMAINING_REPLACER.getValue(i));
 		inputModifier.removeIf(Objects::isNull);
 		return this;
 	}
 	
 	public HLShapedRecipe addReplacers(Iterable<ResourceLocation> id)
 	{
-		for(var i : id) inputModifier.add(RegistriesHL.REMAINING_REPLACER.get(i));
+		for(var i : id) inputModifier.add(RegistriesHL.REMAINING_REPLACER.getValue(i));
 		inputModifier.removeIf(Objects::isNull);
 		return this;
 	}
 	
 	@Override
-	public RecipeSerializer<?> getSerializer()
+	public RecipeSerializer<? extends ShapedRecipe> getSerializer()
 	{
 		return RecipesHL.SHAPED_HL_SERIALIZER;
 	}
@@ -130,16 +145,19 @@ public class HLShapedRecipe
 	{
 		public static final MapCodec<HLShapedRecipe> CODEC = RecordCodecBuilder.mapCodec(inst ->
 				inst.group(
-						Codec.STRING.optionalFieldOf("group", "").forGetter(ShapedRecipe::getGroup),
+						Codec.STRING.optionalFieldOf("group", "").forGetter(HLShapedRecipe::group),
 						CraftingBookCategory.CODEC.fieldOf("category").orElse(CraftingBookCategory.MISC).forGetter(i -> i.category),
 						ShapedRecipePattern.MAP_CODEC.forGetter(i -> i.pattern),
 						ItemStack.CODEC.fieldOf("result").forGetter(i -> i.result),
-						Codec.BOOL.optionalFieldOf("show_notification", true).forGetter(ShapedRecipe::showNotification)
+						Codec.BOOL.optionalFieldOf("show_notification", true).forGetter(HLShapedRecipe::showNotification),
+						IRemainingItemReplacer.LIST_CODEC.fieldOf("input_modifiers").forGetter(HLShapedRecipe::getInputModifier)
 				).apply(inst, HLShapedRecipe::new)
 		);
 		
-		public static final StreamCodec<RegistryFriendlyByteBuf, HLShapedRecipe> STREAM_CODEC = StreamCodec.of(
-				HLShapedRecipe.HLSerializer::toNetwork, HLShapedRecipe.HLSerializer::fromNetwork
+		public static final StreamCodec<RegistryFriendlyByteBuf, HLShapedRecipe> STREAM_CODEC = StreamCodec.composite(
+				ShapedRecipe.Serializer.STREAM_CODEC, r -> r,
+				IRemainingItemReplacer.STREAM_CODEC, HLShapedRecipe::getInputModifier,
+				HLShapedRecipe::new
 		);
 		
 		public HLSerializer()
@@ -156,29 +174,6 @@ public class HLShapedRecipe
 		public StreamCodec<RegistryFriendlyByteBuf, HLShapedRecipe> streamCodec()
 		{
 			return STREAM_CODEC;
-		}
-		
-		public static HLShapedRecipe fromNetwork(RegistryFriendlyByteBuf buf)
-		{
-			var base = RecipeSerializer.SHAPED_RECIPE.streamCodec().decode(buf);
-			
-			var mod = new HLShapedRecipe(
-					base.group,
-					base.category,
-					base.pattern,
-					base.result,
-					base.showNotification
-			);
-			
-			mod.inputModifier.addAll(IRemainingItemReplacer.fromNetwork(buf));
-			
-			return mod;
-		}
-		
-		public static void toNetwork(RegistryFriendlyByteBuf buf, HLShapedRecipe r)
-		{
-			RecipeSerializer.SHAPED_RECIPE.streamCodec().encode(buf, r);
-			IRemainingItemReplacer.toNetwork(r.inputModifier, buf);
 		}
 	}
 }

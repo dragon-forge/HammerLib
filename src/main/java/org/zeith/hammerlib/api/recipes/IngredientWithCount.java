@@ -26,15 +26,16 @@ public record IngredientWithCount(Ingredient input, int count)
 			IngredientWithCount::new
 	);
 	
-	public static final IngredientWithCount EMPTY = new IngredientWithCount(Ingredient.EMPTY, 0);
+	public static final IngredientWithCount EMPTY = new IngredientWithCount(null, 0);
 	
 	public boolean isEmpty()
 	{
-		return input.isEmpty() || count <= 0;
+		return input == null || count <= 0;
 	}
 	
 	public NonNullList<Ingredient> applyCount()
 	{
+		if(input == null) return NonNullList.create();
 		return NonNullList.withSize(count, input);
 	}
 	

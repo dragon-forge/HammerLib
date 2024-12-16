@@ -48,7 +48,7 @@ public class DataPackRegistryLoadEvent
 	{
 		return getRegistry(key).map(wr ->
 		{
-			var t = wr.get(id);
+			var t = wr.getValue(id);
 			if(t != null) inspector.accept(t);
 			return t != null;
 		}).orElse(false);

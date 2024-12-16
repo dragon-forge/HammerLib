@@ -6,8 +6,7 @@ import lombok.Getter;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -18,14 +17,14 @@ import org.zeith.hammerlib.abstractions.recipes.layout.ISlotBuilder;
 import org.zeith.hammerlib.abstractions.recipes.layout.IVisualizerBuilder;
 import org.zeith.hammerlib.annotations.RegistryName;
 import org.zeith.hammerlib.annotations.SimplyRegister;
-import org.zeith.hammerlib.api.recipes.*;
+import org.zeith.hammerlib.api.recipes.BaseCustomRecipe;
+import org.zeith.hammerlib.api.recipes.IngredientWithCount;
 import org.zeith.hammerlib.api.registrars.SerializableRecipeType;
 import org.zeith.hammerlib.client.render.IGuiDrawable;
 import org.zeith.hammerlib.core.adapter.recipe.RecipeBuilder;
 import org.zeith.hammerlib.util.mcf.itf.IRecipeRegistrationEvent;
 
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 @SimplyRegister
 public class RecipeTestMachine
@@ -34,16 +33,17 @@ public class RecipeTestMachine
 	@RegistryName("test_machine")
 	public static final TestMachineRecipeType TYPE = new TestMachineRecipeType();
 	
+	@RegistryName("test_machine")
+	public static final RecipeBookCategory CATEGORY = new RecipeBookCategory();
+	
 	public final IngredientWithCount inputA, inputB;
 	public final ItemStack output;
 	@Getter
 	public final int time;
 	
-	public RecipeTestMachine(String group,
-							 int time, ItemStack output,
+	public RecipeTestMachine(int time, ItemStack output,
 							 IngredientWithCount inputA, IngredientWithCount inputB)
 	{
-		super(group);
 		this.vanillaResult = output;
 		if(!inputA.isEmpty()) this.vanillaIngredients.addAll(inputA.applyCount());
 		if(!inputB.isEmpty()) this.vanillaIngredients.addAll(inputB.applyCount());
@@ -64,12 +64,17 @@ public class RecipeTestMachine
 		return output.copy();
 	}
 	
+	@Override
+	public RecipeBookCategory recipeBookCategory()
+	{
+		return CATEGORY;
+	}
+	
 	public static class TestMachineRecipeType
 			extends SerializableRecipeType<RecipeTestMachine>
 	{
 		private static final MapCodec<RecipeTestMachine> CODEC = RecordCodecBuilder.mapCodec(
 				inst -> inst.group(
-						ExtraCodecs.ESCAPED_STRING.optionalFieldOf("group", "").forGetter(RecipeTestMachine::getGroup),
 						ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("time", 200).forGetter(RecipeTestMachine::getTime),
 						ItemStack.OPTIONAL_CODEC.fieldOf("result").forGetter(o -> o.output),
 						IngredientWithCount.CODEC.fieldOf("a").forGetter(o -> o.inputA),
@@ -90,7 +95,6 @@ public class RecipeTestMachine
 			recipe.inputB.toNetwork(buf);
 			buf.writeVarInt(recipe.time);
 			ItemStack.OPTIONAL_STREAM_CODEC.encode(buf, recipe.output);
-			buf.writeUtf(recipe.group);
 		}
 		
 		@Override
@@ -100,8 +104,7 @@ public class RecipeTestMachine
 			var ingrB = IngredientWithCount.fromNetwork(buf);
 			int time = buf.readVarInt();
 			var res = ItemStack.OPTIONAL_STREAM_CODEC.decode(buf);
-			var group = buf.readUtf();
-			return new RecipeTestMachine(group, time, res, ingrA, ingrB);
+			return new RecipeTestMachine(time, res, ingrA, ingrB);
 		}
 		
 		@Override
@@ -185,7 +188,7 @@ public class RecipeTestMachine
 			validate();
 			
 			var id = getIdentifier();
-			event.register(id, new RecipeTestMachine(group, time, result, inputA, inputB));
+			event.register(id, new RecipeTestMachine(time, result, inputA, inputB));
 		}
 	}
 	
@@ -212,11 +215,11 @@ public class RecipeTestMachine
 			var recipe = this.recipe.value();
 			
 			builder.addSlot(ISlotBuilder.SlotRole.INPUT, 0, 0)
-					.addItemStacks(Stream.of(recipe.inputA.input().getItems()).peek(s -> s.setCount(recipe.inputA.count())).toList())
+					.addIngredient(recipe.inputA)
 					.build();
 			
 			builder.addSlot(ISlotBuilder.SlotRole.INPUT, 0, 18)
-					.addItemStacks(Stream.of(recipe.inputB.input().getItems()).peek(s -> s.setCount(recipe.inputB.count())).toList())
+					.addIngredient(recipe.inputB)
 					.build();
 			
 			builder.addSlot(ISlotBuilder.SlotRole.OUTPUT, 36, 9)

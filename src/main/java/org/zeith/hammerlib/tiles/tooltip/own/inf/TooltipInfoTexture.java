@@ -3,10 +3,12 @@ package org.zeith.hammerlib.tiles.tooltip.own.inf;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.CoreShaders;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.api.distmarker.*;
-import org.zeith.hammerlib.client.utils.*;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import org.zeith.hammerlib.client.utils.FXUtils;
+import org.zeith.hammerlib.client.utils.RenderUtils;
 import org.zeith.hammerlib.tiles.tooltip.own.IRenderableInfo;
 import org.zeith.hammerlib.util.colors.ColorHelper;
 
@@ -47,7 +49,7 @@ public class TooltipInfoTexture
 	public void render(GuiGraphics matrix, float x, float y, DeltaTracker partialTime)
 	{
 		RenderSystem.enableBlend();
-		RenderSystem.setShader(GameRenderer::getPositionTexShader);
+		RenderSystem.setShader(CoreShaders.POSITION_TEX);
 		RenderSystem.setShaderColor(red, green, blue, alpha);
 		FXUtils.bindTexture(texture);
 		RenderUtils.drawTexturedModalRect(matrix.pose(), x, y, null, width, height);

@@ -7,7 +7,7 @@ import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Tiers;
+import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
@@ -47,7 +47,7 @@ public class BlockTestMachine
 	{
 		super(props);
 		
-		BlockHarvestAdapter.bindTool(BlockHarvestAdapter.MineableType.PICKAXE, Tiers.IRON, this);
+		BlockHarvestAdapter.bindTool(BlockHarvestAdapter.MineableType.PICKAXE, ToolMaterial.IRON, this);
 	}
 	
 	@Override

@@ -7,7 +7,7 @@ import org.zeith.hammerlib.util.mcf.itf.IRecipeRegistrationEvent;
 public abstract class SingleItemRecipeBuilder<R extends SingleItemRecipeBuilder<R>>
 		extends RecipeBuilderMC<R>
 {
-	protected Ingredient input = Ingredient.EMPTY;
+	protected Ingredient input;
 	
 	public SingleItemRecipeBuilder(IRecipeRegistrationEvent<Recipe<?>> event)
 	{
@@ -16,7 +16,7 @@ public abstract class SingleItemRecipeBuilder<R extends SingleItemRecipeBuilder<
 	
 	public R input(Object in)
 	{
-		this.input = RecipeHelper.fromComponent(in);
+		this.input = RecipeHelper.fromComponent(itemRegistry, in);
 		return (R) this;
 	}
 	
@@ -24,7 +24,7 @@ public abstract class SingleItemRecipeBuilder<R extends SingleItemRecipeBuilder<
 	protected void validate()
 	{
 		super.validate();
-		if(input == Ingredient.EMPTY)
+		if(input == null)
 			throw new IllegalStateException(getClass().getSimpleName() + " does not have a defined input!");
 	}
 }

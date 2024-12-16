@@ -1,13 +1,14 @@
 package org.zeith.api.level;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 
 import java.util.*;
 
 public interface ISpoofedRecipeManager
 {
-	Optional<? extends Recipe<?>> findFirstRecipeHL(Collection<ResourceLocation> ids);
+	Optional<? extends RecipeHolder<?>> findFirstRecipeHL(Collection<ResourceKey<Recipe<?>>> ids);
 	
-	Map<ResourceLocation, List<ResourceLocation>> getSpoofedRecipesHL();
+	Map<ResourceKey<Recipe<?>>, List<ResourceKey<Recipe<?>>>> getSpoofedRecipesHL();
 }

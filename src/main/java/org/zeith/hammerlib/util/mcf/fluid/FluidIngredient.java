@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public record FluidIngredient(CompareMode mode, List<FluidStack> asFluidStack, List<TagKey<Fluid>> asTags)
 		implements Predicate<FluidStack>
@@ -106,16 +107,16 @@ public record FluidIngredient(CompareMode mode, List<FluidStack> asFluidStack, L
 		return switch(mode)
 		{
 			case BOTH -> asFluidStack.stream().anyMatch(fs -> FluidStack.isSameFluidSameComponents(fluidStack, fs))
-						 || asTags.stream().map(BuiltInRegistries.FLUID::getOrCreateTag)
-								 .flatMap(HolderSet.ListBacked::stream)
+						 || asTags.stream().map(BuiltInRegistries.FLUID::getTagOrEmpty)
+								 .flatMap(holders -> StreamSupport.stream(holders.spliterator(), false))
 								 .filter(Holder::isBound)
 								 .map(Holder::value)
 								 .anyMatch(fluidStack.getFluid()::equals);
 			
 			case VALUES -> asFluidStack.stream().anyMatch(fs -> FluidStack.isSameFluidSameComponents(fluidStack, fs));
 			
-			case TAGS -> asTags.stream().map(BuiltInRegistries.FLUID::getOrCreateTag)
-					.flatMap(HolderSet.ListBacked::stream)
+			case TAGS -> asTags.stream().map(BuiltInRegistries.FLUID::getTagOrEmpty)
+					.flatMap(holders -> StreamSupport.stream(holders.spliterator(), false))
 					.filter(Holder::isBound)
 					.map(Holder::value)
 					.anyMatch(fluidStack.getFluid()::equals);
@@ -132,14 +133,18 @@ public record FluidIngredient(CompareMode mode, List<FluidStack> asFluidStack, L
 		return switch(mode)
 		{
 			case BOTH -> Stream.concat(
-					asTags.stream().map(BuiltInRegistries.FLUID::getOrCreateTag)
-							.flatMap(tag -> tag.stream().map(f -> new FluidStack(f, amount))),
+					asTags.stream().map(BuiltInRegistries.FLUID::getTagOrEmpty)
+							.flatMap(holders -> StreamSupport.stream(holders.spliterator(), false))
+							.map(Holder::value)
+							.map(f -> new FluidStack(f, amount)),
 					asFluidStack.stream()
 							.map(fs -> FluidHelper.withAmount(fs, amount))
 			).toArray(FluidStack[]::new);
 			
-			case TAGS -> asTags.stream().map(BuiltInRegistries.FLUID::getOrCreateTag)
-					.flatMap(tag -> tag.stream().map(f -> new FluidStack(f, amount)))
+			case TAGS -> asTags.stream().map(BuiltInRegistries.FLUID::getTagOrEmpty)
+					.flatMap(holders -> StreamSupport.stream(holders.spliterator(), false))
+					.map(Holder::value)
+					.map(f -> new FluidStack(f, amount))
 					.toArray(FluidStack[]::new);
 			
 			case VALUES -> asFluidStack.stream()

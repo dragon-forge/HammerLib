@@ -1,8 +1,8 @@
 package org.zeith.hammerlib.compat.jei;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.vertex.PoseStack;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
+import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.recipe.IFocusGroup;
@@ -15,8 +15,6 @@ import org.jetbrains.annotations.Nullable;
 import org.zeith.hammerlib.abstractions.recipes.IRecipeVisualizer;
 import org.zeith.hammerlib.abstractions.recipes.IVisualizedRecipe;
 import org.zeith.hammerlib.compat.jei.absimpl.VisualizerBuilderJEI;
-
-import java.util.List;
 
 public class VisualizedRecipeCategory<T extends IVisualizedRecipe<?>>
 		implements IRecipeCategory<T>
@@ -109,9 +107,9 @@ public class VisualizedRecipeCategory<T extends IVisualizedRecipe<?>>
 	}
 	
 	@Override
-	public List<Component> getTooltipStrings(T recipe, IRecipeSlotsView recipeSlotsView, double mouseX, double mouseY)
+	public void getTooltip(ITooltipBuilder tooltip, T recipe, IRecipeSlotsView recipeSlotsView, double mouseX, double mouseY)
 	{
-		return recipe.getTooltipStrings(mouseX, mouseY);
+		tooltip.addAll(recipe.getTooltipStrings(mouseX, mouseY));
 	}
 	
 	@Override
@@ -123,6 +121,6 @@ public class VisualizedRecipeCategory<T extends IVisualizedRecipe<?>>
 	@Override
 	public @Nullable ResourceLocation getRegistryName(T recipe)
 	{
-		return recipe.getRecipe().id();
+		return recipe.getRecipe().id().location();
 	}
 }

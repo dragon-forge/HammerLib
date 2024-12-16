@@ -2,14 +2,20 @@ package org.zeith.hammerlib.core.test.machine;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
+import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.*;
+import net.minecraft.world.item.crafting.display.SlotDisplayContext;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -23,8 +29,7 @@ import org.zeith.hammerlib.api.io.NBTSerializable;
 import org.zeith.hammerlib.api.tiles.IContainerTile;
 import org.zeith.hammerlib.core.RecipeHelper;
 import org.zeith.hammerlib.core.init.GearsHL;
-import org.zeith.hammerlib.net.properties.PropertyInt;
-import org.zeith.hammerlib.net.properties.PropertyResourceLocation;
+import org.zeith.hammerlib.net.properties.*;
 import org.zeith.hammerlib.tiles.TileSyncableTickable;
 import org.zeith.hammerlib.tiles.tooltip.*;
 import org.zeith.hammerlib.tiles.tooltip.own.ITooltip;
@@ -52,11 +57,11 @@ public class TileTestMachine
 	public final SimpleInventory inventory = new SimpleInventory(3);
 	
 	@NBTSerializable
-	private ResourceLocation _activeRecipeId;
+	private ResourceKey<Recipe<?>> _activeRecipeId;
 	
 	public final PropertyInt progress = new PropertyInt(DirectStorage.create(i -> _progress = i, () -> _progress));
 	public final PropertyInt maxProgress = new PropertyInt(DirectStorage.create(i -> _maxProgress = i, () -> _maxProgress));
-	public final PropertyResourceLocation activeRecipeId = new PropertyResourceLocation(DirectStorage.create(r -> _activeRecipeId = r, () -> _activeRecipeId));
+	public final PropertyResourceKey<Recipe<?>> activeRecipeId = new PropertyResourceKey<>(Registries.RECIPE, DirectStorage.create(r -> _activeRecipeId = r, () -> _activeRecipeId));
 	
 	public TileTestMachine(BlockPos pos, BlockState state)
 	{
@@ -109,7 +114,7 @@ public class TileTestMachine
 		
 		if(r == null && atTickRate(10))
 		{
-			var recipe = RecipeHelper.getRecipeHolders(level, RecipeTestMachine.TYPE).filter(this::isValidRecipe).findFirst().orElse(null);
+			var recipe = RecipeHelper.getRecipeHolders((ServerLevel) level, RecipeTestMachine.TYPE).filter(this::isValidRecipe).findFirst().orElse(null);
 			if(recipe != null)
 			{
 				var rec = recipe.value();
@@ -140,10 +145,13 @@ public class TileTestMachine
 	
 	public RecipeTestMachine getActiveRecipe()
 	{
-		return level.getRecipeManager().byKey(_activeRecipeId)
-				.map(RecipeHolder::value)
-				.map(Cast.convertTo(RecipeTestMachine.class))
-				.orElse(null);
+		if(_activeRecipeId != null)
+			return Cast.cast(level.registryAccess()
+							.lookupOrThrow(Registries.RECIPE)
+							.getValue(_activeRecipeId),
+					RecipeTestMachine.class
+			);
+		return null;
 	}
 	
 	private boolean output(ItemStack stack)
@@ -239,17 +247,19 @@ public class TileTestMachine
 			var stored0 = inventory.getItem(0);
 			var stored1 = inventory.getItem(1);
 			
+			var ctx = SlotDisplayContext.fromLevel(level);
+			
 			ItemStack inA;
 			if(ingA.test(stored0))
 				inA = stored0.copy();
 			else
-				inA = RecipeHelper.cycleIngredientStack(ingA.input(), 1000L);
+				inA = RecipeHelper.cycleIngredientStack(ctx, ingA.input(), 1000L);
 			
 			ItemStack inB;
 			if(ingB.test(stored1))
 				inB = stored1.copy();
 			else
-				inB = RecipeHelper.cycleIngredientStack(ingB.input(), 1000L);
+				inB = RecipeHelper.cycleIngredientStack(ctx, ingB.input(), 1000L);
 			
 			if(!inA.isEmpty()) inA.setCount(recipe.inputA.count());
 			if(!inB.isEmpty()) inB.setCount(recipe.inputB.count());
@@ -276,7 +286,7 @@ public class TileTestMachine
 			tip.addText(Component.literal("Progress: ")).addProgressBar(bar);
 		}
 	}
-	
+
 //	@Override
 //	public void addTooltip(ITooltipConsumer consumer, Player player)
 //	{

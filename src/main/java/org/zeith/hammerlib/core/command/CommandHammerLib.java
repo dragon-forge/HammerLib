@@ -7,8 +7,7 @@ import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
+import net.minecraft.commands.*;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
@@ -92,15 +91,12 @@ public class CommandHammerLib
 												.then(renderer("mod", 1, ModIdArgument.modIdArgument(), (cs, name) -> cs.getArgument(name, String.class), UnaryOperator.identity()))
 												.then(renderer("creative_mode_tab", 3,
 																ResourceLocationArgument.id(), ResourceLocationArgument::getId, ResourceLocation::toString,
-																(context, builder) ->
-																{
-																	context.getSource().registryAccess().registry(Registries.CREATIVE_MODE_TAB)
-																			.stream()
-																			.flatMap(reg -> reg.keySet().stream())
-																			.map(ResourceLocation::toString)
-																			.forEach(builder::suggest);
-																	return builder.buildFuture();
-																}
+																(context, builder) -> SharedSuggestionProvider.suggestResource(
+																		context.getSource().registryAccess().lookup(Registries.CREATIVE_MODE_TAB)
+																				.stream()
+																				.flatMap(reg -> reg.keySet().stream()),
+																		builder
+																)
 														)
 												)
 										)

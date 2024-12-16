@@ -4,7 +4,10 @@ import com.google.common.collect.*;
 import lombok.Getter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.*;
@@ -15,6 +18,7 @@ import net.neoforged.neoforge.common.conditions.ICondition;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.zeith.hammerlib.api.recipes.RecipeBuilderExtension;
+import org.zeith.hammerlib.core.RecipeHelper;
 import org.zeith.hammerlib.core.adapter.recipe.*;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.mcf.RecipeRegistrationContext;
@@ -32,7 +36,8 @@ public class RegisterRecipesEvent
 		extends Event
 		implements IRecipeRegistrationEvent<Recipe<?>>, IModBusEvent
 {
-	protected final @Getter HolderLookup.Provider registries;
+	protected final HolderLookup.Provider registries;
+	private final HolderLookup.RegistryLookup<Item> itemRegistry;
 	protected final @Getter ICondition.IContext context;
 	private final List<RecipeHolder<?>> recipes = Lists.newArrayList();
 	private final Set<ResourceLocation> removeRecipes = Sets.newHashSet();
@@ -48,6 +53,7 @@ public class RegisterRecipesEvent
 		this.context = context;
 		this.idInUse = idInUse;
 		this.extensions = RecipeBuilderExtension.attach(this);
+		this.itemRegistry = registries.lookupOrThrow(Registries.ITEM);
 	}
 	
 	/**
@@ -86,7 +92,7 @@ public class RegisterRecipesEvent
 	 */
 	public boolean register(RecipeHolder<?> recipe)
 	{
-		if(recipe != null && enableRecipe(recipe.value().getType(), recipe.id()))
+		if(recipe != null && enableRecipe(recipe.value().getType(), recipe.id().location()))
 		{
 			recipes.add(recipe);
 			return true;
@@ -175,12 +181,24 @@ public class RegisterRecipesEvent
 	@Override
 	public void register(ResourceLocation id, Recipe<?> entry)
 	{
-		add(new RecipeHolder<>(id, entry));
+		add(new RecipeHolder<>(ResourceKey.create(Registries.RECIPE, id), entry));
 	}
 	
 	public Stream<RecipeHolder<?>> getRecipes()
 	{
 		return recipes.stream();
+	}
+	
+	@Override
+	public HolderLookup.Provider registryAccess()
+	{
+		return registries;
+	}
+	
+	@Override
+	public HolderLookup.RegistryLookup<Item> getItemLookup()
+	{
+		return itemRegistry;
 	}
 	
 	@Override
@@ -191,7 +209,7 @@ public class RegisterRecipesEvent
 	
 	public boolean enableRecipe(RecipeHolder<?> recipe)
 	{
-		return enableRecipe(recipe.value().getType(), recipe.id());
+		return enableRecipe(recipe.value().getType(), recipe.id().location());
 	}
 	
 	public RecipeRegistrationContext getContext(String modid)
@@ -205,5 +223,20 @@ public class RegisterRecipesEvent
 		for(RecipeRegistrationContext value : contextMap.values())
 			value.save();
 		contextMap.clear();
+	}
+	
+	public static ResourceKey<Recipe<?>> key(ResourceLocation location)
+	{
+		return ResourceKey.create(Registries.RECIPE, location);
+	}
+	
+	public Optional<Ingredient> optionalIngredient(Object tag)
+	{
+		return Optional.ofNullable(ingredient(tag));
+	}
+	
+	public Ingredient ingredient(Object tag)
+	{
+		return RecipeHelper.fromComponent(itemRegistry, tag);
 	}
 }

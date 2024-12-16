@@ -73,7 +73,7 @@ public class BlockAPI
 	 */
 	public static <T extends BlockEntity> BlockEntityType<T> createBlockEntityType(BlockEntityType.BlockEntitySupplier<T> generator, Block... blocks)
 	{
-		return BlockEntityType.Builder.of(generator, blocks).build(null);
+		return new BlockEntityType<>(generator, blocks);
 	}
 	
 	/**
@@ -92,8 +92,7 @@ public class BlockAPI
 	public static <T extends BlockEntity> BlockEntityType<T> createBlockEntityType(DynamicBlockEntitySupplier<T> generator, Block... blocks)
 	{
 		AtomicReference<BlockEntityType<T>> typeRef = new AtomicReference<>();
-		typeRef.set(BlockEntityType.Builder.of((pos, state) -> generator.create(typeRef.get(), pos, state), blocks)
-				.build(null));
+		typeRef.set(new BlockEntityType<>((pos, state) -> generator.create(typeRef.get(), pos, state), blocks));
 		return typeRef.get();
 	}
 	

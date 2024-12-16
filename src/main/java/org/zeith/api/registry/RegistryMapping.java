@@ -8,6 +8,7 @@ import lombok.Locked;
 import net.minecraft.advancements.CriterionTrigger;
 import net.minecraft.advancements.critereon.ItemSubPredicate;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -32,8 +33,7 @@ import net.minecraft.world.entity.schedule.Schedule;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.alchemy.Potion;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
@@ -91,13 +91,12 @@ public class RegistryMapping
 		report(Schedule.class, BuiltInRegistries.SCHEDULE, false);
 		report(Activity.class, BuiltInRegistries.ACTIVITY, false);
 		report(ChunkStatus.class, BuiltInRegistries.CHUNK_STATUS, false);
-		report(ArmorMaterial.class, BuiltInRegistries.ARMOR_MATERIAL, false);
-		report(Instrument.class, BuiltInRegistries.INSTRUMENT, false);
 		report(CatVariant.class, BuiltInRegistries.CAT_VARIANT, false);
 		report(FrogVariant.class, BuiltInRegistries.FROG_VARIANT, false);
 		reportRaw(MapDecorationType.class, BuiltInRegistries.MAP_DECORATION_TYPE);
 		reportRaw(StructurePieceType.class, BuiltInRegistries.STRUCTURE_PIECE);
 		report(LootItemConditionType.class, BuiltInRegistries.LOOT_CONDITION_TYPE, false);
+		report(RecipeBookCategory.class, BuiltInRegistries.RECIPE_BOOK_CATEGORY, false);
 		
 		// NeoForge stuff here.
 		report(FluidType.class, NeoForgeRegistries.FLUID_TYPES, false);
@@ -241,17 +240,18 @@ public class RegistryMapping
 	private static <T> Codec<T> createRegistryCodec(ResourceKey<? extends Registry<T>> key)
 	{
 		return ResourceLocation.CODEC
-				.flatXmap(
+				.<T>flatXmap(
 						id ->
 						{
-							Registry<T> registry = BuiltInRegistries.REGISTRY.get((ResourceKey) key);
-							return Optional.ofNullable(registry.get(id))
+							Registry<T> registry = BuiltInRegistries.REGISTRY.getValue((ResourceKey) key);
+							return registry.get(id)
+									.map(Holder.Reference::value)
 									.map(DataResult::success)
 									.orElseGet(() -> DataResult.error(() -> "Unknown registry key in " + key + ": " + id));
 						},
 						obj ->
 						{
-							Registry<T> registry = BuiltInRegistries.REGISTRY.get((ResourceKey) key);
+							Registry<T> registry = BuiltInRegistries.REGISTRY.getValue((ResourceKey) key);
 							return registry.getResourceKey(obj)
 									.map(ResourceKey::location)
 									.map(DataResult::success)

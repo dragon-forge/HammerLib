@@ -1,26 +1,22 @@
 package org.zeith.hammerlib.client.utils;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.*;
-import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix4f;
 import org.zeith.hammerlib.util.colors.ColorHelper;
-import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.java.itf.IntToIntFunction;
 
 import javax.annotation.Nullable;
@@ -32,13 +28,13 @@ public class RenderUtils
 	
 	public static TextureAtlasSprite getMainSprite(ResourceLocation tex)
 	{
-		return Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(tex);
+		return Minecraft.getInstance().getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(tex);
 	}
 	
 	/**
 	 * This renders the item into the GUI, with {@link PoseStack}, which is missing in vanilla render code for some reason...
 	 */
-	public static void renderItemIntoGui(PoseStack pose, ItemStack stack, int x, int y)
+	public static void renderItemIntoGui(GuiGraphics pose, ItemStack stack, int x, int y)
 	{
 		renderItemIntoGui(pose, stack, (float) x, y);
 	}
@@ -46,49 +42,15 @@ public class RenderUtils
 	/**
 	 * This renders the item into the GUI, with {@link PoseStack}, which is missing in vanilla render code for some reason...
 	 */
-	public static void renderItemIntoGui(PoseStack pose, ItemStack stack, float x, float y)
+	public static void renderItemIntoGui(GuiGraphics gfx, ItemStack stack, float x, float y)
 	{
-		var mc = Minecraft.getInstance();
-		var ir = mc.getItemRenderer();
-		var tm = mc.getTextureManager();
+		int xi = (int) x, yi = (int) y;
 		
-		var p_115131_ = ir.getModel(stack, null, null, 0);
-		
-		tm.getTexture(InventoryMenu.BLOCK_ATLAS).setFilter(false, false);
-		RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS);
-		RenderSystem.enableBlend();
-		RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-		var posestack = RenderSystem.getModelViewStack();
-		posestack.pushMatrix();
-		
-		// copy the given pose over to the model view.
-		posestack.mul(pose.last().pose());
-		
-		posestack.translate(x, y, 100.0F);
-		posestack.translate(8.0F, 8.0F, 0.0F);
-		posestack.scale(1.0F, -1.0F, 1.0F);
-		posestack.scale(16.0F, 16.0F, 16.0F);
-		
-		RenderSystem.applyModelViewMatrix();
-		PoseStack posestack1 = new PoseStack();
-		MultiBufferSource.BufferSource multibuffersource$buffersource = Minecraft.getInstance().renderBuffers().bufferSource();
-		boolean flag = !p_115131_.usesBlockLight();
-		if(flag)
-		{
-			Lighting.setupForFlatItems();
-		}
-		
-		ir.render(stack, ItemDisplayContext.GUI, false, posestack1, multibuffersource$buffersource, 15728880, OverlayTexture.NO_OVERLAY, p_115131_);
-		multibuffersource$buffersource.endBatch();
-		RenderSystem.enableDepthTest();
-		if(flag)
-		{
-			Lighting.setupFor3DItems();
-		}
-		
-		posestack.popMatrix();
-		RenderSystem.applyModelViewMatrix();
+		var pose = gfx.pose();
+		pose.pushPose();
+		pose.translate(x - xi, y - yi, 0);
+		gfx.renderItem(stack, xi, yi);
+		pose.popPose();
 	}
 	
 	public static void drawTexturedModalRect(GuiGraphics pose, float x, float y, float texX, float texY, float width, float height)
@@ -109,29 +71,24 @@ public class RenderUtils
 		BufferUploader.drawWithShader(vb.buildOrThrow());
 	}
 	
-	public static void drawFullTexturedModalRect(GuiGraphics pose, float x, float y, float width, float height)
+	public static void drawFullTexturedModalRect(GuiGraphics gfx, ResourceLocation tex, float x, float y, float width, float height)
 	{
-		Matrix4f pose4f = pose.pose().last().pose();
-		Tesselator tess = Tesselator.getInstance();
-		BufferBuilder vb = tess.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-		vb.addVertex(pose4f, x, y + height, zLevel).setUv(0, 1);
-		vb.addVertex(pose4f, x + width, y + height, zLevel).setUv(1, 1);
-		vb.addVertex(pose4f, x + width, y, zLevel).setUv(1, 0);
-		vb.addVertex(pose4f, x, y, zLevel).setUv(0, 0);
-		BufferUploader.drawWithShader(vb.buildOrThrow());
+		var pose = gfx.pose();
+		pose.pushPose();
+		pose.translate(x, y, 0);
+		pose.scale(width, height, 1);
+		gfx.blit(RenderType::guiTextured, tex, 0, 0, 1, 1, 1, 1, 1, 1);
+		pose.popPose();
 	}
 	
-	public static void drawColoredModalRect(GuiGraphics pose, float x, float y, float width, float height, int rgb)
+	public static void drawColoredModalRect(GuiGraphics gfx, float x, float y, float width, float height, int rgb)
 	{
-		Matrix4f pose4f = pose.pose().last().pose();
-		float r = ColorHelper.getRed(rgb), g = ColorHelper.getGreen(rgb), b = ColorHelper.getBlue(rgb), a = ColorHelper.getAlpha(rgb);
-		Tesselator tess = Tesselator.getInstance();
-		BufferBuilder vb = tess.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-		vb.addVertex(pose4f, x, y + height, zLevel).setColor(r, g, b, a);
-		vb.addVertex(pose4f, x + width, y + height, zLevel).setColor(r, g, b, a);
-		vb.addVertex(pose4f, x + width, y, zLevel).setColor(r, g, b, a);
-		vb.addVertex(pose4f, x, y, zLevel).setColor(r, g, b, a);
-		BufferUploader.drawWithShader(vb.buildOrThrow());
+		PoseStack pose = gfx.pose();
+		pose.pushPose();
+		pose.translate(x, y, 0);
+		pose.scale(width, height, 1);
+		gfx.fill(0, 0, 1, 1, rgb);
+		pose.popPose();
 	}
 	
 	public static void drawTexturedModalRect(PoseStack pose, float xCoord, float yCoord, @Nullable TextureAtlasSprite textureSprite, float widthIn, float heightIn)
@@ -304,10 +261,7 @@ public class RenderUtils
 	
 	public static void drawRect(GuiGraphics pose, int x, int y, int width, int height, int color)
 	{
-		var sdr = RenderSystem.getShader();
-		RenderSystem.setShader(GameRenderer::getPositionTexShader);
-		drawColoredModalRect(pose, x, y, width, height, color);
-		RenderSystem.setShader(Cast.constant(sdr));
+		pose.fill(x, y, x + width, y + height, color);
 	}
 	
 	public static class PlayerRenderUtil

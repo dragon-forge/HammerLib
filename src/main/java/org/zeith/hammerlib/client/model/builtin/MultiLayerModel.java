@@ -11,20 +11,17 @@ import net.minecraft.client.resources.model.*;
 import net.minecraft.core.Direction;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.ChunkRenderTypeSet;
 import net.neoforged.neoforge.client.RenderTypeGroup;
+import net.neoforged.neoforge.client.model.NeoForgeModelProperties;
 import net.neoforged.neoforge.client.model.data.ModelData;
-import net.neoforged.neoforge.client.model.geometry.IGeometryBakingContext;
-import net.neoforged.neoforge.client.model.geometry.UnbakedGeometryHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.zeith.hammerlib.client.model.*;
 import org.zeith.hammerlib.util.java.tuples.Tuple2;
 import org.zeith.hammerlib.util.java.tuples.Tuples;
-import org.zeith.hammerlib.util.mcf.Resources;
 
 import java.util.*;
 import java.util.function.Function;
@@ -33,7 +30,7 @@ import java.util.stream.Stream;
 
 @LoadUnbakedGeometry(path = "multi_layer")
 public class MultiLayerModel
-		implements IUnbakedGeometry<MultiLayerModel>
+		implements IUnbakedGeometry
 {
 	private static final IntList EG = IntList.of();
 	protected final List<BlockElement> elements;
@@ -114,17 +111,24 @@ public class MultiLayerModel
 	}
 	
 	@Override
-	public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides)
+	public BakedModel bake(TextureSlots slots, ModelBaker baker, ModelState modelState, boolean useAmbientOcclusion, boolean usesBlockLight, ItemTransforms itemTransforms, ContextMap additionalProperties)
 	{
+		var spriteGetter = baker.sprites();
+		
+		boolean isGui3d = true;
+		
 		try
 		{
 			List<BakedQuad> quads = Lists.newArrayList();
 			Int2ObjectArrayMap<String> toGroup = new Int2ObjectArrayMap<>();
 			int[][] quadOffsetsAndCounts = new int[elements.size()][];
 			
+			var renderTypes = additionalProperties.getOrDefault(NeoForgeModelProperties.RENDER_TYPE, RenderTypeGroup.EMPTY);
+			TextureAtlasSprite particle = IUnbakedGeometry.findSprite(spriteGetter, slots, textures.getOrDefault("particle", "particle"));
+			
 			for(int i = 0; i < elements.size(); i++)
 			{
-				var baked = UnbakedGeometryHelper.bakeElements(List.of(elements.get(i)), spriteGetter, modelState);
+				var baked = IUnbakedGeometry.bakeFace(elements.get(i), spriteGetter, slots, modelState);
 				for(int j = quads.size(); j < quads.size() + baked.size(); j++)
 				{
 					String group = null;
@@ -138,17 +142,12 @@ public class MultiLayerModel
 					}
 					toGroup.put(j, group);
 				}
-				quadOffsetsAndCounts[i] = new int[] {quads.size(), quads.size() + baked.size()};
+				quadOffsetsAndCounts[i] = new int[] { quads.size(), quads.size() + baked.size() };
 				quads.addAll(baked);
 			}
 			
-			TextureAtlasSprite particle = spriteGetter.apply(new Material(InventoryMenu.BLOCK_ATLAS, Resources.location(textures.getOrDefault("particle", "particle"))));
-			
-			var renderTypeHint = context.getRenderTypeHint();
-			var renderTypes = renderTypeHint != null ? context.getRenderType(renderTypeHint) : RenderTypeGroup.EMPTY;
-			
 			return new MultiLayerBakedModel(
-					quads, context.useAmbientOcclusion(), context.useBlockLight(), context.isGui3d(), particle, context.getTransforms(), overrides, renderTypes,
+					quads, useAmbientOcclusion, usesBlockLight, isGui3d, particle, itemTransforms, renderTypes,
 					this::getGroup, quadOffsetsAndCounts, toGroup
 			);
 		} catch(Throwable e)
@@ -167,6 +166,11 @@ public class MultiLayerModel
 		return list;
 	}
 	
+	@Override
+	public void resolveDependencies(Resolver resolver)
+	{
+	}
+	
 	public static class MultiLayerBakedModel
 			extends SimpleBakedModel
 			implements IGroupedQuadModel
@@ -175,29 +179,34 @@ public class MultiLayerModel
 		protected final Int2ObjectArrayMap<String> toGroup;
 		protected final Function<String, IntList> quadIndices;
 		
+		protected final List<BakedQuad> unculledFaces;
 		protected final MultiLayerItemBakedModel itemModel;
 		
 		public static final Function<RenderType, String> RT_KEYS = Util.make(new HashMap<RenderType, String>(), map ->
-		{
-			map.put(RenderType.solid(), "solid");
-			map.put(RenderType.cutoutMipped(), "cutout_mipped");
-			map.put(RenderType.cutout(), "cutout");
-			map.put(RenderType.translucent(), "translucent");
-			map.put(RenderType.tripwire(), "tripwire");
-		})::get;
+				{
+					map.put(RenderType.solid(), "solid");
+					map.put(RenderType.cutoutMipped(), "cutout_mipped");
+					map.put(RenderType.cutout(), "cutout");
+					map.put(RenderType.translucent(), "translucent");
+					map.put(RenderType.tripwire(), "tripwire");
+				}
+		)::get;
 		
 		public MultiLayerBakedModel(List<BakedQuad> unculledFaces,
 									boolean hasAmbientOcclusion, boolean usesBlockLight, boolean isGui3d,
-									TextureAtlasSprite particleIcon, ItemTransforms transforms, ItemOverrides overrides,
+									TextureAtlasSprite particleIcon, ItemTransforms transforms,
 									RenderTypeGroup renderTypes,
 									Function<String, IntList> quadIndices, int[][] quadOffsetsAndCounts, Int2ObjectArrayMap<String> toGroup)
 		{
-			super(unculledFaces, GroupedModel.CULLED_QUADS, hasAmbientOcclusion, usesBlockLight, isGui3d, particleIcon, transforms, overrides, renderTypes);
+			super(unculledFaces, GroupedModel.CULLED_QUADS, hasAmbientOcclusion, usesBlockLight, isGui3d, particleIcon, transforms, renderTypes);
+			this.unculledFaces = unculledFaces;
 			this.quadIndices = quadIndices;
 			this.quadOffsetsAndCounts = quadOffsetsAndCounts;
 			this.toGroup = toGroup;
 			
-			this.itemModel = new MultiLayerItemBakedModel(unculledFaces, GroupedModel.CULLED_QUADS, hasAmbientOcclusion, usesBlockLight, isGui3d, particleIcon, transforms, overrides, renderTypes);
+			this.itemModel = new MultiLayerItemBakedModel(
+					unculledFaces, GroupedModel.CULLED_QUADS, hasAmbientOcclusion, usesBlockLight, isGui3d, particleIcon, transforms, renderTypes
+			);
 		}
 		
 		@Override
@@ -221,12 +230,6 @@ public class MultiLayerModel
 		}
 		
 		@Override
-		public List<BakedModel> getRenderPasses(ItemStack itemStack, boolean fabulous)
-		{
-			return List.of(this);
-		}
-		
-		@Override
 		public ChunkRenderTypeSet getRenderTypes(@NotNull BlockState state, @NotNull RandomSource rand, @NotNull ModelData data)
 		{
 			return ChunkRenderTypeSet.all();
@@ -236,9 +239,9 @@ public class MultiLayerModel
 	public static class MultiLayerItemBakedModel
 			extends SimpleBakedModel
 	{
-		public MultiLayerItemBakedModel(List<BakedQuad> p_119489_, Map<Direction, List<BakedQuad>> p_119490_, boolean p_119491_, boolean p_119492_, boolean p_119493_, TextureAtlasSprite p_119494_, ItemTransforms p_119495_, ItemOverrides p_119496_, RenderTypeGroup renderTypes)
+		public MultiLayerItemBakedModel(List<BakedQuad> unculled, Map<Direction, List<BakedQuad>> culled, boolean ao, boolean bl, boolean g3d, TextureAtlasSprite sprite, ItemTransforms tf, RenderTypeGroup renderTypes)
 		{
-			super(p_119489_, p_119490_, p_119491_, p_119492_, p_119493_, p_119494_, p_119495_, p_119496_, renderTypes);
+			super(unculled, culled, ao, bl, g3d, sprite, tf, renderTypes);
 		}
 	}
 }

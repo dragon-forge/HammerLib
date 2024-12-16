@@ -12,6 +12,7 @@ import mezz.jei.api.runtime.IJeiRuntime;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
@@ -140,8 +141,9 @@ public class JeiHammerLib
 			RecipeType<R> recipeType, mezz.jei.api.recipe.RecipeType<T> type,
 			IRecipeVisualizer<R, T> visualizer)
 	{
-		var lst = getRecipes(recipeType).map(visualizer::visualize).toList();
-		reg.addRecipes(type, lst);
+		// FIXME
+//		var lst = getRecipes(recipeType).map(visualizer::visualize).toList();
+//		reg.addRecipes(type, lst);
 	}
 	
 	@Override
@@ -234,9 +236,10 @@ public class JeiHammerLib
 				.map(ing -> Cast.cast(ing.getIngredient()));
 	}
 	
-	public static <T extends Recipe<C>, C extends RecipeInput> Stream<RecipeHolder<T>> getRecipes(RecipeType<T> type)
-	{
-		var lvl = Minecraft.getInstance().level;
-		return lvl != null ? RecipeHelper.getRecipeHolders(lvl, type) : Stream.of();
-	}
+	// FIXME
+//	public static <T extends Recipe<C>, C extends RecipeInput> Stream<RecipeHolder<T>> getRecipes(RecipeType<T> type)
+//	{
+//		var lvl = Minecraft.getInstance().level;
+//		return lvl != null ? RecipeHelper.getRecipeHolders(lvl, type) : Stream.of();
+//	}
 }

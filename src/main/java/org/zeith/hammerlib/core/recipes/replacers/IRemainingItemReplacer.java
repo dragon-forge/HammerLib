@@ -1,8 +1,12 @@
 package org.zeith.hammerlib.core.recipes.replacers;
 
+import com.mojang.serialization.Codec;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.ShapedRecipe;
 import org.zeith.hammerlib.core.RegistriesHL;
 
 import java.util.*;
@@ -16,6 +20,10 @@ import java.util.*;
 @FunctionalInterface
 public interface IRemainingItemReplacer
 {
+	Codec<IRemainingItemReplacer> CODEC = RegistriesHL.REMAINING_REPLACER.byNameCodec();
+	Codec<List<IRemainingItemReplacer>> LIST_CODEC = CODEC.listOf();
+	StreamCodec<RegistryFriendlyByteBuf, List<IRemainingItemReplacer>> STREAM_CODEC = StreamCodec.of(IRemainingItemReplacer::toNetwork, IRemainingItemReplacer::fromNetwork);
+	
 	/**
 	 * Returns the remaining item based on what is currently stored in the container's slot.
 	 * If no modifications happen, the method should return the prevItem.
@@ -35,7 +43,7 @@ public interface IRemainingItemReplacer
 	 */
 	ItemStack replace(CraftingInput container, int slot, ItemStack prevItem);
 	
-	static void toNetwork(List<IRemainingItemReplacer> lst, FriendlyByteBuf buf)
+	static void toNetwork(FriendlyByteBuf buf, List<IRemainingItemReplacer> lst)
 	{
 		var replacers = lst.stream().map(RegistriesHL.REMAINING_REPLACER::getKey).filter(Objects::nonNull).toList();
 		buf.writeShort(replacers.size());
@@ -49,7 +57,7 @@ public interface IRemainingItemReplacer
 		short size = buf.readShort();
 		for(int i = 0; i < size; i++)
 		{
-			var r = g.get(buf.readResourceLocation());
+			var r = g.getValue(buf.readResourceLocation());
 			if(r != null) lst.add(r);
 		}
 		return lst;

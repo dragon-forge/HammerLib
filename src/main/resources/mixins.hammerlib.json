@@ -15,7 +15,6 @@
 		"ContextAwareReloadListenerAccessor",
 		"EntityMixin",
 		"HTTPUtilMixin",
-		"IngredientAccessor",
 		"ItemStackMixin",
 		"LevelChunkMixin",
 		"LevelMixin",
@@ -34,13 +33,15 @@
 		"client.MinecraftMixin",
 		"client.ParticleEngineAccessor",
 		"client.PlayerInfoMixin",
-		"client.render.HumanoidArmorLayerMixin",
+		"client.SlotMixin",
+		"client.gui.GuiGraphicsMixin",
+		"client.render.EquipmentLayerRendererMixin",
 		"client.render.ItemRendererMixin",
 		"client.render.LivingEntityRendererMixin",
 		"client.render.PlayerRendererMixin",
+		"client.render.PlayerRenderStateMixin",
 		"client.render.RenderBuffersMixin",
-		"languages.ClientLanguageMixin",
-		"client.SlotMixin"
+		"languages.ClientLanguageMixin"
 	],
 	"server": [
 	]

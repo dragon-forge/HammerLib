@@ -14,6 +14,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -23,9 +24,12 @@ import net.neoforged.fml.LogicalSide;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.neoforged.neoforge.client.event.*;
+import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.settings.KeyConflictContext;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.zeith.hammerlib.HammerLib;
+import org.zeith.hammerlib.api.client.ext.*;
 import org.zeith.hammerlib.api.forge.ContainerAPI;
 import org.zeith.hammerlib.api.inv.IScreenContainer;
 import org.zeith.hammerlib.api.items.tooltip.TooltipColoredLine;
@@ -88,10 +92,30 @@ public class HLClientProxy
 		modBus.addListener(this::registerClientTooltips);
 		modBus.addListener(this::loadComplete);
 		modBus.addListener(this::registerGuis);
+		modBus.addListener(this::registerClientExtensions);
 		modBus.addListener(TexturePixelGetter::reloadTexture);
 		SimpleModelGenerator.setup();
-
+		
 		NeoForge.EVENT_BUS.register(this);
+	}
+	
+	private void registerClientExtensions(RegisterClientExtensionsEvent e)
+	{
+		for(var c : BuiltInRegistries.BLOCK)
+			if(c instanceof IClientBlockExtensionHolder h)
+				h.initializeClient(ext -> e.registerBlock(ext, c));
+		
+		for(var c : NeoForgeRegistries.FLUID_TYPES)
+			if(c instanceof IClientFluidExtensionHolder h)
+				h.initializeClient(ext -> e.registerFluidType(ext, c));
+		
+		for(var c : BuiltInRegistries.ITEM)
+			if(c instanceof IClientItemExtensionHolder h)
+				h.initializeClient(ext -> e.registerItem(ext, c));
+		
+		for(var c : BuiltInRegistries.MOB_EFFECT)
+			if(c instanceof IClientMobEffectExtensionHolder h)
+				h.initializeClient(ext -> e.registerMobEffect(ext, c));
 	}
 	
 	private void loadComplete(FMLLoadCompleteEvent e)
@@ -128,7 +152,8 @@ public class HLClientProxy
 		e.register(ContainerAPI.TILE_CONTAINER, (MenuScreens.ScreenConstructor) (ctr, inv, txt) -> Cast
 				.optionally(ctr, IScreenContainer.class)
 				.map(c -> c.openScreen(inv, txt))
-				.orElse(null));
+				.orElse(null)
+		);
 	}
 	
 	@Override
@@ -210,7 +235,8 @@ public class HLClientProxy
 								{
 									throw new ReportedException(new CrashReport(
 											"Unable to create BlockEntityRenderer(no-args) for BlockEntityType " +
-											name, err));
+											name, err
+									));
 								}
 							};
 						}
@@ -218,7 +244,8 @@ public class HLClientProxy
 					{
 						throw new ReportedException(new CrashReport(
 								"Unable to create BlockEntityRenderer(no-args) for BlockEntityType " +
-								name, err));
+								name, err
+						));
 					}
 				}
 			}
@@ -260,7 +287,8 @@ public class HLClientProxy
 				{
 					throw new ReportedException(new CrashReport(
 							"Unable to create ParticleProvider.Sprite(no-args) for ParticleType " +
-							name, ex));
+							name, ex
+					));
 				}
 			}
 			
@@ -277,7 +305,8 @@ public class HLClientProxy
 				{
 					throw new ReportedException(new CrashReport(
 							"Unable to create ParticleProvider.Sprite(no-args) for ParticleType " +
-							name, ex));
+							name, ex
+					));
 				}
 			}
 			
@@ -302,17 +331,19 @@ public class HLClientProxy
 					{
 						ctor.setAccessible(true);
 						e.registerSpriteSet(type, set ->
-						{
-							try
-							{
-								return Cast.cast(ctor.newInstance(set));
-							} catch(ReflectiveOperationException ex)
-							{
-								throw new ReportedException(new CrashReport(
-										"Unable to create ParticleProvider(no-args) for ParticleType " +
-										name, ex));
-							}
-						});
+								{
+									try
+									{
+										return Cast.cast(ctor.newInstance(set));
+									} catch(ReflectiveOperationException ex)
+									{
+										throw new ReportedException(new CrashReport(
+												"Unable to create ParticleProvider(no-args) for ParticleType " +
+												name, ex
+										));
+									}
+								}
+						);
 						return;
 					}
 				}

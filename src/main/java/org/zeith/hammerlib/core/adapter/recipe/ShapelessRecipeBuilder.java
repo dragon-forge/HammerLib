@@ -37,19 +37,19 @@ public class ShapelessRecipeBuilder
 	
 	public ShapelessRecipeBuilder add(Object ingredient)
 	{
-		this.ingredients.add(RecipeHelper.fromComponent(ingredient));
+		this.ingredients.add(RecipeHelper.fromComponent(itemRegistry, ingredient));
 		return this;
 	}
 	
 	public ShapelessRecipeBuilder addAll(Object... ingredients)
 	{
-		for(Object ingredient : ingredients) this.ingredients.add(RecipeHelper.fromComponent(ingredient));
+		for(Object ingredient : ingredients) this.ingredients.add(RecipeHelper.fromComponent(itemRegistry, ingredient));
 		return this;
 	}
 	
 	public ShapelessRecipeBuilder addAll(Iterable<Object> ingredients)
 	{
-		for(Object ingredient : ingredients) this.ingredients.add(RecipeHelper.fromComponent(ingredient));
+		for(Object ingredient : ingredients) this.ingredients.add(RecipeHelper.fromComponent(itemRegistry, ingredient));
 		return this;
 	}
 	
@@ -61,7 +61,7 @@ public class ShapelessRecipeBuilder
 		if(ingredients.isEmpty())
 			throw new IllegalStateException(getClass().getSimpleName() + " does not have any defined ingredients!");
 		var id = getIdentifier();
-		var rec = new HLShapelessRecipe(group, category, ingredients, result);
+		var rec = new HLShapelessRecipe(group, category, result, ingredients);
 		rec.addReplacers(replacers);
 		event.register(id, rec);
 	}

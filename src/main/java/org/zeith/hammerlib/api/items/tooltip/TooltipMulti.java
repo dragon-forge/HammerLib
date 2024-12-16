@@ -6,22 +6,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public record TooltipMulti(List<TooltipComponent> children)
+public record TooltipMulti(AlignAxis axis, int padding, List<TooltipComponent> children)
 		implements TooltipComponent
 {
-	public TooltipMulti(TooltipComponent... children)
+	public TooltipMulti(AlignAxis axis, int padding, TooltipComponent... children)
 	{
-		this(Stream.of(children).flatMap(TooltipMulti::unwrap).toList());
+		this(axis, padding, List.of(children));
 	}
 	
-	public static Optional<TooltipComponent> create(Stream<TooltipComponent> stream)
+	public static Optional<TooltipComponent> create(AlignAxis axis, int padding, Stream<TooltipComponent> stream)
 	{
-		var comp = stream.flatMap(TooltipMulti::unwrap).toList();
-		return comp.isEmpty() ? Optional.empty() : Optional.of(comp.size() == 1 ? comp.get(0) : new TooltipMulti(comp));
-	}
-	
-	public static Stream<TooltipComponent> unwrap(TooltipComponent comp)
-	{
-		return comp instanceof TooltipMulti multi ? multi.children.stream() : Stream.of(comp);
+		var comp = stream.toList();
+		return comp.isEmpty() ? Optional.empty() : Optional.of(comp.size() == 1 ? comp.get(0) : new TooltipMulti(axis, padding, comp));
 	}
 }

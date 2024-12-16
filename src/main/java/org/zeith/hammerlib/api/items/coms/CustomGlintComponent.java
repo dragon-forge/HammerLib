@@ -65,13 +65,13 @@ public record CustomGlintComponent<T>(IGlintProviderType<T> type, T data)
 	public static <T> void toNetwork(RegistryFriendlyByteBuf buf, CustomGlintComponent<T> com)
 	{
 		IGlintProviderType<T> h = com.type();
-		buf.writeResourceLocation(buf.registryAccess().registryOrThrow(RegistriesHL.Keys.GLINT_PROVIDERS).getKey(h));
+		buf.writeResourceLocation(buf.registryAccess().lookupOrThrow(RegistriesHL.Keys.GLINT_PROVIDERS).getKey(h));
 		h.streamCodec().encode(Cast.cast(buf), com.data());
 	}
 	
 	public static CustomGlintComponent<?> fromNetwork(RegistryFriendlyByteBuf buf)
 	{
-		IGlintProviderType<?> type = buf.registryAccess().registryOrThrow(RegistriesHL.Keys.GLINT_PROVIDERS).getOrThrow(buf.readResourceKey(RegistriesHL.Keys.GLINT_PROVIDERS));
+		IGlintProviderType<?> type = buf.registryAccess().lookupOrThrow(RegistriesHL.Keys.GLINT_PROVIDERS).getValue(buf.readResourceKey(RegistriesHL.Keys.GLINT_PROVIDERS));
 		Object decode = type.streamCodec().decode(Cast.cast(buf));
 		return new CustomGlintComponent(type, decode);
 	}

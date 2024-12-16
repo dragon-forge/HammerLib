@@ -2,9 +2,11 @@ package org.zeith.hammerlib.core.recipes;
 
 import com.mojang.serialization.*;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import lombok.Getter;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -19,25 +21,35 @@ import java.util.*;
 public class HLShapelessRecipe
 		extends ShapelessRecipe
 {
-	protected final List<IRemainingItemReplacer> inputModifier = new ArrayList<>();
+	protected final @Getter List<IRemainingItemReplacer> inputModifier = new ArrayList<>();
 	
 	protected final ItemStack result;
 	
-	public HLShapelessRecipe(String group, CraftingBookCategory category, NonNullList<Ingredient> ingredients, ItemStack result)
+	public HLShapelessRecipe(String group, CraftingBookCategory category, ItemStack result, List<Ingredient> ingredients)
 	{
 		super(group, category, result, ingredients);
 		this.result = result;
 	}
 	
-	public HLShapelessRecipe(String group, CraftingBookCategory category, NonNullList<Ingredient> ingredients, ItemStack result, List<IRemainingItemReplacer> replacers)
+	public HLShapelessRecipe(String group, CraftingBookCategory category, ItemStack result, List<Ingredient> ingredients, List<IRemainingItemReplacer> replacers)
 	{
-		this(group, category, ingredients, result);
+		this(group, category, result, ingredients);
 		this.inputModifier.addAll(replacers);
+	}
+	
+	public HLShapelessRecipe(ShapelessRecipe vanilla, List<IRemainingItemReplacer> replacers)
+	{
+		this(vanilla.group(),
+				vanilla.category(),
+				vanilla.result,
+				vanilla.ingredients,
+				replacers
+		);
 	}
 	
 	public HLShapelessRecipe addReplacer(ResourceLocation id)
 	{
-		var m = RegistriesHL.REMAINING_REPLACER.get(id);
+		var m = RegistriesHL.REMAINING_REPLACER.getValue(id);
 		if(m != null)
 			inputModifier.add(m);
 		return this;
@@ -45,20 +57,20 @@ public class HLShapelessRecipe
 	
 	public HLShapelessRecipe addReplacers(ResourceLocation... id)
 	{
-		for(var i : id) inputModifier.add(RegistriesHL.REMAINING_REPLACER.get(i));
+		for(var i : id) inputModifier.add(RegistriesHL.REMAINING_REPLACER.getValue(i));
 		inputModifier.removeIf(Objects::isNull);
 		return this;
 	}
 	
 	public HLShapelessRecipe addReplacers(Iterable<ResourceLocation> id)
 	{
-		for(var i : id) inputModifier.add(RegistriesHL.REMAINING_REPLACER.get(i));
+		for(var i : id) inputModifier.add(RegistriesHL.REMAINING_REPLACER.getValue(i));
 		inputModifier.removeIf(Objects::isNull);
 		return this;
 	}
 	
 	@Override
-	public RecipeSerializer<?> getSerializer()
+	public RecipeSerializer getSerializer()
 	{
 		return RecipesHL.SHAPELESS_HL_SERIALIZER;
 	}
@@ -76,38 +88,21 @@ public class HLShapelessRecipe
 	public static class HLSerializer
 			implements RecipeSerializer<HLShapelessRecipe>
 	{
-		static int MAX_WIDTH = 3;
-		static int MAX_HEIGHT = 3;
-		
 		private static final MapCodec<HLShapelessRecipe> CODEC = RecordCodecBuilder.mapCodec(
 				inst -> inst.group(
-								Codec.STRING.optionalFieldOf("group", "").forGetter(ShapelessRecipe::getGroup),
-								CraftingBookCategory.CODEC.fieldOf("category").orElse(CraftingBookCategory.MISC).forGetter(ShapelessRecipe::category),
-								Ingredient.CODEC_NONEMPTY
-										.listOf()
-										.fieldOf("ingredients")
-										.flatXmap(ingredientList ->
-										{
-											if(ingredientList.isEmpty())
-											{
-												return DataResult.error(() -> "No ingredients for shapeless recipe");
-											} else
-											{
-												Ingredient[] ings = ingredientList.toArray(Ingredient[]::new); //Forge skip the empty check and immediately create the array.
-												return ings.length > MAX_HEIGHT * MAX_WIDTH
-													   ? DataResult.error(() -> "Too many ingredients for shapeless recipe. The maximum is: %s".formatted(MAX_HEIGHT * MAX_WIDTH))
-													   : DataResult.success(NonNullList.of(Ingredient.EMPTY, ings));
-											}
-										}, DataResult::success)
-										.forGetter(ShapelessRecipe::getIngredients),
-								ItemStack.CODEC.fieldOf("result").forGetter(hlr -> hlr.result),
-								RegistriesHL.REMAINING_REPLACER.byNameCodec().listOf().fieldOf("replacers").forGetter(hlr -> hlr.inputModifier)
+								Codec.STRING.optionalFieldOf("group", "").forGetter(HLShapelessRecipe::group),
+								CraftingBookCategory.CODEC.fieldOf("category").orElse(CraftingBookCategory.MISC).forGetter(HLShapelessRecipe::category),
+								ItemStack.STRICT_CODEC.fieldOf("result").forGetter(p_301142_ -> p_301142_.result),
+								Codec.lazyInitialized(() -> Ingredient.CODEC.listOf(1, ShapedRecipePattern.getMaxHeight() * ShapedRecipePattern.getMaxWidth())).fieldOf("ingredients").forGetter(p_360071_ -> p_360071_.ingredients),
+								IRemainingItemReplacer.LIST_CODEC.fieldOf("input_modifiers").forGetter(HLShapelessRecipe::getInputModifier)
 						)
 						.apply(inst, HLShapelessRecipe::new)
 		);
 		
-		public static final StreamCodec<RegistryFriendlyByteBuf, HLShapelessRecipe> STREAM_CODEC = StreamCodec.of(
-				HLShapelessRecipe.HLSerializer::toNetwork, HLShapelessRecipe.HLSerializer::fromNetwork
+		public static final StreamCodec<RegistryFriendlyByteBuf, HLShapelessRecipe> STREAM_CODEC = StreamCodec.composite(
+				ShapelessRecipe.Serializer.STREAM_CODEC, r -> r,
+				IRemainingItemReplacer.STREAM_CODEC, r -> r.inputModifier,
+				HLShapelessRecipe::new
 		);
 		
 		public HLSerializer()
@@ -124,23 +119,6 @@ public class HLShapelessRecipe
 		public StreamCodec<RegistryFriendlyByteBuf, HLShapelessRecipe> streamCodec()
 		{
 			return STREAM_CODEC;
-		}
-		
-		public static HLShapelessRecipe fromNetwork(RegistryFriendlyByteBuf buf)
-		{
-			var base = RecipeSerializer.SHAPELESS_RECIPE.streamCodec().decode(buf);
-			var mod = new HLShapelessRecipe(base.getGroup(), base.category(), base.getIngredients(), base.getResultItem(RegistryAccess.EMPTY));
-			
-			mod.inputModifier.addAll(IRemainingItemReplacer.fromNetwork(buf));
-			
-			return mod;
-		}
-		
-		public static void toNetwork(RegistryFriendlyByteBuf buf, HLShapelessRecipe r)
-		{
-			RecipeSerializer.SHAPELESS_RECIPE.streamCodec().encode(buf, r);
-			
-			IRemainingItemReplacer.toNetwork(r.inputModifier, buf);
 		}
 	}
 }

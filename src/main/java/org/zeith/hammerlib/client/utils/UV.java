@@ -1,18 +1,22 @@
 package org.zeith.hammerlib.client.utils;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.api.distmarker.*;
+import net.minecraft.util.ARGB;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import org.zeith.hammerlib.client.flowgui.Graphics;
 import org.zeith.hammerlib.client.render.IGuiDrawable;
-import org.zeith.hammerlib.util.colors.ColorHelper;
 
 public class UV
 		implements IGuiDrawable
 {
 	public ResourceLocation path;
 	public float posX, posY, width, height;
+	
+	public int txWidth = 256, txHeight = 256;
 	
 	public UV(ResourceLocation resource, float x, float y, float w, float h)
 	{
@@ -24,72 +28,63 @@ public class UV
 	}
 	
 	@OnlyIn(Dist.CLIENT)
-	public void render(PoseStack pose, double x, double y, float width, float height)
+	public void render(GuiGraphics gfx, double x, double y)
 	{
-		pose.pushPose();
-		pose.translate(x, y, 0);
-		pose.scale((1F / this.width) * width, (1F / this.height) * height, 1F);
-		render(pose, 0, 0);
-		pose.popPose();
+		render(gfx, x, y, width, height);
 	}
 	
 	@OnlyIn(Dist.CLIENT)
 	public void render(GuiGraphics gfx, double x, double y, float width, float height)
 	{
-		render(gfx.pose(), x, y, width, height);
-	}
-	
-	@OnlyIn(Dist.CLIENT)
-	public void render(PoseStack pose, float x, float y)
-	{
-		RenderSystem.enableBlend();
-		bindTexture();
-		RenderUtils.drawTexturedModalRect(pose, x, y, posX, posY, width, height);
-	}
-	
-	@OnlyIn(Dist.CLIENT)
-	public void render(GuiGraphics gfx, float x, float y)
-	{
-		render(gfx.pose(), x, y);
-	}
-	
-	@OnlyIn(Dist.CLIENT)
-	public void renderWithColor(PoseStack pose, int color, double x, double y, float width, float height)
-	{
+		var pose = gfx.pose();
 		pose.pushPose();
 		pose.translate(x, y, 0);
 		pose.scale((1F / this.width) * width, (1F / this.height) * height, 1F);
-		renderWithColor(pose, color, 0, 0);
+		doRender(gfx, ARGB.white(1F));
 		pose.popPose();
 	}
 	
 	@OnlyIn(Dist.CLIENT)
-	public void renderWithColor(PoseStack pose, int color, float x, float y)
+	public void renderWithColor(GuiGraphics gfx, int color, double x, double y, float width, float height)
 	{
-		float[] pcol = RenderSystem.getShaderColor().clone();
-		RenderSystem.enableBlend();
-		bindTexture();
-		ColorHelper.glColor1ia(color);
-		RenderUtils.drawTexturedModalRect(pose, x, y, posX, posY, width, height);
-		RenderSystem.setShaderColor(pcol[0], pcol[1], pcol[2], pcol[3]);
+		var pose = gfx.pose();
+		pose.pushPose();
+		pose.translate(x, y, 0);
+		pose.scale((1F / this.width) * width, (1F / this.height) * height, 1F);
+		doRender(gfx, color);
+		pose.popPose();
 	}
 	
 	@OnlyIn(Dist.CLIENT)
-	public void bindTexture()
+	protected void doRender(GuiGraphics gfx, int color)
 	{
-		FXUtils.bindTexture(path);
+		var g = Graphics.builder().gfx(gfx).game(Minecraft.getInstance()).build();
+		g.blit(RenderType::guiTextured, getTexture(),
+				0, 0,
+				posX, posY,
+				width, height,
+				width, height,
+				txWidth, txHeight,
+				color
+		);
+	}
+	
+	@OnlyIn(Dist.CLIENT)
+	public ResourceLocation getTexture()
+	{
+		return path;
 	}
 	
 	@Override
 	public String toString()
 	{
 		return "UV{" +
-				"path=" + path +
-				", posX=" + posX +
-				", posY=" + posY +
-				", width=" + width +
-				", height=" + height +
-				'}';
+			   "path=" + path +
+			   ", posX=" + posX +
+			   ", posY=" + posY +
+			   ", width=" + width +
+			   ", height=" + height +
+			   '}';
 	}
 	
 	@Override

@@ -10,14 +10,12 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.*;
 import net.minecraft.core.Direction;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.util.context.ContextMap;
 import net.neoforged.neoforge.client.RenderTypeGroup;
-import net.neoforged.neoforge.client.model.geometry.IGeometryBakingContext;
-import net.neoforged.neoforge.client.model.geometry.UnbakedGeometryHelper;
+import net.neoforged.neoforge.client.model.NeoForgeModelProperties;
 import org.zeith.hammerlib.client.model.*;
 import org.zeith.hammerlib.util.java.tuples.Tuple2;
 import org.zeith.hammerlib.util.java.tuples.Tuples;
-import org.zeith.hammerlib.util.mcf.Resources;
 
 import java.util.*;
 import java.util.function.Function;
@@ -26,7 +24,7 @@ import java.util.stream.Stream;
 
 @LoadUnbakedGeometry(path = "grouped")
 public class GroupedModel
-		implements IUnbakedGeometry<GroupedModel>
+		implements IUnbakedGeometry
 {
 	private static final IntList EG = IntList.of();
 	protected final List<BlockElement> elements;
@@ -107,27 +105,36 @@ public class GroupedModel
 	}
 	
 	@Override
-	public BakedModel bake(IGeometryBakingContext context, ModelBaker baker, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides)
+	public void resolveDependencies(Resolver resolver)
 	{
+	}
+	
+	@Override
+	public BakedModel bake(TextureSlots slots, ModelBaker baker, ModelState modelState, boolean useAmbientOcclusion, boolean usesBlockLight, ItemTransforms itemTransforms, ContextMap additionalProperties)
+	{
+		var spriteGetter = baker.sprites();
+		
+		boolean isGui3d = true;
+		
 		try
 		{
 			List<BakedQuad> quads = Lists.newArrayList();
 			int[][] quadOffsetsAndCounts = new int[elements.size()][];
 			
+			var renderTypes = additionalProperties.getOrDefault(NeoForgeModelProperties.RENDER_TYPE, RenderTypeGroup.EMPTY);
+			
+			TextureAtlasSprite particle = IUnbakedGeometry.findSprite(spriteGetter, slots, textures.getOrDefault("particle", "particle"));
+			
 			for(int i = 0; i < elements.size(); i++)
 			{
-				var baked = UnbakedGeometryHelper.bakeElements(List.of(elements.get(i)), spriteGetter, modelState);
+				BlockElement el = elements.get(i);
+				var baked = IUnbakedGeometry.bakeFace(el, spriteGetter, slots, modelState);
 				quadOffsetsAndCounts[i] = new int[] { quads.size(), quads.size() + baked.size() };
 				quads.addAll(baked);
 			}
 			
-			TextureAtlasSprite particle = spriteGetter.apply(new Material(InventoryMenu.BLOCK_ATLAS, Resources.location(textures.getOrDefault("particle", "particle"))));
-			
-			var renderTypeHint = context.getRenderTypeHint();
-			var renderTypes = renderTypeHint != null ? context.getRenderType(renderTypeHint) : RenderTypeGroup.EMPTY;
-			
 			return new GroupedBakedModel(
-					quads, context.useAmbientOcclusion(), context.useBlockLight(), context.isGui3d(), particle, context.getTransforms(), overrides, renderTypes,
+					quads, useAmbientOcclusion, usesBlockLight, isGui3d, particle, itemTransforms, renderTypes,
 					this::getGroup, quadOffsetsAndCounts
 			);
 		} catch(Throwable e)
@@ -147,10 +154,11 @@ public class GroupedModel
 	}
 	
 	public static final Map<Direction, List<BakedQuad>> CULLED_QUADS = Util.make(new HashMap<>(), map ->
-	{
-		for(var d : Direction.values())
-			map.put(d, List.of());
-	});
+			{
+				for(var d : Direction.values())
+					map.put(d, List.of());
+			}
+	);
 	
 	public static class GroupedBakedModel
 			extends SimpleBakedModel
@@ -159,13 +167,16 @@ public class GroupedModel
 		protected final int[][] quadOffsetsAndCounts;
 		protected final Function<String, IntList> quadIndices;
 		
+		protected final List<BakedQuad> unculledFaces;
+		
 		public GroupedBakedModel(List<BakedQuad> unculledFaces,
 								 boolean hasAmbientOcclusion, boolean usesBlockLight, boolean isGui3d,
-								 TextureAtlasSprite particleIcon, ItemTransforms transforms, ItemOverrides overrides,
+								 TextureAtlasSprite particleIcon, ItemTransforms transforms,
 								 RenderTypeGroup renderTypes,
 								 Function<String, IntList> quadIndices, int[][] quadOffsetsAndCounts)
 		{
-			super(unculledFaces, CULLED_QUADS, hasAmbientOcclusion, usesBlockLight, isGui3d, particleIcon, transforms, overrides, renderTypes);
+			super(unculledFaces, CULLED_QUADS, hasAmbientOcclusion, usesBlockLight, isGui3d, particleIcon, transforms, renderTypes);
+			this.unculledFaces = unculledFaces;
 			this.quadIndices = quadIndices;
 			this.quadOffsetsAndCounts = quadOffsetsAndCounts;
 		}

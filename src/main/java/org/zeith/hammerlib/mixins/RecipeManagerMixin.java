@@ -1,18 +1,12 @@
 package org.zeith.hammerlib.mixins;
 
-import com.google.common.collect.ImmutableMultimap;
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.llamalad7.mixinextras.sugar.Local;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.crafting.*;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.zeith.api.level.ISpoofedRecipeManager;
 import org.zeith.hammerlib.HammerLib;
@@ -27,26 +21,20 @@ import java.util.*;
 		@Interface(iface = ISpoofedRecipeManager.class, prefix = "isrm$")
 })
 public abstract class RecipeManagerMixin
-		extends SimpleJsonResourceReloadListener
 		implements ISpoofedRecipeManager
 {
 	@Shadow
-	public Map<ResourceLocation, Recipe<?>> byName;
+	public RecipeMap recipes;
 	
 	@Unique
-	private final Map<ResourceLocation, List<ResourceLocation>> hammerLib$SpoofByName = SpoofRecipesEvent.gather();
-	
-	public RecipeManagerMixin(Gson gson, String dir)
-	{
-		super(gson, dir);
-	}
+	private final Map<ResourceKey<Recipe<?>>, List<ResourceKey<Recipe<?>>>> hammerLib$SpoofByName = SpoofRecipesEvent.gather();
 	
 	@Inject(
 			method = "byKey",
 			at = @At("HEAD"),
 			cancellable = true
 	)
-	private void HammerLib_replaceRecipeId(ResourceLocation id, CallbackInfoReturnable<Optional<? extends Recipe<?>>> cir)
+	private void HammerLib_replaceRecipeId(ResourceKey<Recipe<?>> id, CallbackInfoReturnable<Optional<? extends RecipeHolder<?>>> cir)
 	{
 		if(id == null || !hammerLib$SpoofByName.containsKey(id)) return;
 		var recipe = findFirstRecipeHL(hammerLib$SpoofByName.getOrDefault(id, List.of(id)));
@@ -55,47 +43,24 @@ public abstract class RecipeManagerMixin
 	}
 	
 	@Inject(
-			method = "apply(Ljava/util/Map;Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)V",
-			at = @At(
-					value = "INVOKE",
-					target = "Lnet/minecraft/world/item/crafting/RecipeManager;makeConditionalOps()Lnet/neoforged/neoforge/common/conditions/ConditionalOps;"
-			)
+			method = "prepare(Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)Lnet/minecraft/world/item/crafting/RecipeMap;",
+			at = @At(value = "RETURN"),
+			cancellable = true
 	)
-	public void HammerLib_reloadRecipes(Map<ResourceLocation, JsonElement> recipeMap, ResourceManager p_44038_, ProfilerFiller p_44039_, CallbackInfo ci,
-										@Local ImmutableMultimap.Builder<RecipeType<?>, RecipeHolder<?>> builder,
-										@Local com.google.common.collect.ImmutableMap.Builder<ResourceLocation, RecipeHolder<?>> builder1
-	)
+	public void HammerLib_reloadRecipes(ResourceManager resources, ProfilerFiller profiler, CallbackInfoReturnable<RecipeMap> cir)
 	{
-		RecipeManager mgr = Cast.cast(this);
-		
-		Map<ResourceLocation, RecipeHolder<?>> addedRecipes = new HashMap<>();
-		Set<ResourceLocation> removedRecipes = new HashSet<>();
-		
-		RecipeHelper.injectRecipes(mgr, getContext(),
-				id -> recipeMap.containsKey(id) || addedRecipes.containsKey(id),
-				holder -> addedRecipes.put(holder.id(), holder),
-				removedRecipes::add
-		);
-		
-		addedRecipes.keySet().removeAll(removedRecipes);
-		recipeMap.keySet().removeAll(removedRecipes);
-		
-		for(RecipeHolder<?> r : addedRecipes.values())
-		{
-			builder.put(r.value().getType(), r);
-			builder1.put(r.id(), r);
-		}
+		cir.setReturnValue(RecipeHelper.performInjectionWizardry(Cast.cast(this), cir.getReturnValue()));
 	}
 	
-	public Map<ResourceLocation, List<ResourceLocation>> isrm$getSpoofedRecipesHL()
+	public Map<ResourceKey<Recipe<?>>, List<ResourceKey<Recipe<?>>>> isrm$getSpoofedRecipesHL()
 	{
 		return hammerLib$SpoofByName;
 	}
 	
-	public Optional<? extends Recipe<?>> isrm$findFirstRecipeHL(Collection<ResourceLocation> rl)
+	public Optional<? extends RecipeHolder<?>> isrm$findFirstRecipeHL(Collection<ResourceKey<Recipe<?>>> rl)
 	{
 		return rl.stream()
-				.map(byName::get)
+				.map(recipes::byKey)
 				.filter(Objects::nonNull)
 				.findFirst();
 	}

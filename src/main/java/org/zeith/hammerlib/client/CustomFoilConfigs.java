@@ -155,7 +155,7 @@ public class CustomFoilConfigs
 					continue;
 				}
 				
-				var item = BuiltInRegistries.ITEM.get(loc);
+				var item = BuiltInRegistries.ITEM.getValue(loc);
 				if(item == null || item == Items.AIR)
 				{
 					HammerLib.LOG.info("foil_colors.json/constant_colors: Unable to find item " + loc + ". Skipping.");

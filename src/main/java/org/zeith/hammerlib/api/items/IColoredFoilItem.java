@@ -7,6 +7,7 @@ import org.zeith.hammerlib.api.items.coms.CustomGlintComponent;
 import org.zeith.hammerlib.core.init.ComponentTypesHL;
 
 import java.util.Map;
+import java.util.Stack;
 
 /**
  * Provide a custom glint color in format of ARGB (Refer to {@link org.zeith.hammerlib.util.colors.ColorHelper}).
@@ -59,7 +60,29 @@ public interface IColoredFoilItem
 	
 	class Binds
 	{
+		private static final Stack<ItemStack> CONTEXT_STACK = new Stack<>();
 		
 		private static final Map<Item, IColoredFoilItem> OVERRIDES = new Object2ObjectLinkedOpenHashMap<>();
+		
+		public static ItemStack getContextStack()
+		{
+			return CONTEXT_STACK.isEmpty() ? ItemStack.EMPTY : CONTEXT_STACK.peek();
+		}
+		
+		public static void pushContextStack(ItemStack pStack)
+		{
+			CONTEXT_STACK.push(pStack);
+		}
+		
+		public static void popContextStack()
+		{
+			if(!CONTEXT_STACK.isEmpty())
+				CONTEXT_STACK.pop();
+		}
+		
+		public static void clearContextStack()
+		{
+			CONTEXT_STACK.clear();
+		}
 	}
 }

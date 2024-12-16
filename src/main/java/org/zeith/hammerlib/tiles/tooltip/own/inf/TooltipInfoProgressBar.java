@@ -4,8 +4,9 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.GameRenderer;
-import net.neoforged.api.distmarker.*;
+import net.minecraft.client.renderer.CoreShaders;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.zeith.hammerlib.client.utils.RenderUtils;
 import org.zeith.hammerlib.tiles.tooltip.ProgressBar;
 import org.zeith.hammerlib.tiles.tooltip.own.IRenderableInfo;
@@ -29,8 +30,6 @@ public record TooltipInfoProgressBar(ProgressBar bar)
 	@OnlyIn(Dist.CLIENT)
 	public void render(GuiGraphics gfx, float x, float y, DeltaTracker partialTime)
 	{
-		RenderSystem.setShader(GameRenderer::getPositionColorShader);
-		
 		var pose = gfx.pose();
 		
 		pose.pushPose();
@@ -55,7 +54,7 @@ public record TooltipInfoProgressBar(ProgressBar bar)
 		
 		String txt = (bar.prefix != null ? bar.prefix : "") + core + (bar.suffix != null ? bar.suffix : "");
 		
-		RenderSystem.setShader(GameRenderer::getPositionTexShader);
+		RenderSystem.setShader(CoreShaders.POSITION_TEX);
 		gfx.drawString(Minecraft.getInstance().font, txt, 3, 2, 0xFFFFFF);
 		
 		pose.popPose();

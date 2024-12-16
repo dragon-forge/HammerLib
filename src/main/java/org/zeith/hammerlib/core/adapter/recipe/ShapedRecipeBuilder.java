@@ -37,19 +37,19 @@ public class ShapedRecipeBuilder
 	
 	public ShapedRecipeBuilder shape(int width, int height, String... shapeKeys)
 	{
-		this.shape = new RecipeShape(width, height, shapeKeys);
+		this.shape = new RecipeShape(itemRegistry, width, height, shapeKeys);
 		return this;
 	}
 	
 	public ShapedRecipeBuilder shape(String... shapeKeys)
 	{
-		this.shape = new RecipeShape(shapeKeys);
+		this.shape = new RecipeShape(itemRegistry, shapeKeys);
 		return this;
 	}
 	
 	public ShapedRecipeBuilder map(char c, Object ingredient)
 	{
-		dictionary.put(c, RecipeHelper.fromComponent(ingredient));
+		dictionary.put(c, RecipeHelper.fromComponent(itemRegistry, ingredient));
 		return this;
 	}
 	

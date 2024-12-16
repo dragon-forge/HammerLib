@@ -46,6 +46,6 @@ public class PacketAdvancementToast
 		var adv = connection.getAdvancements().get(advancement);
 		if(adv == null) return;
 		
-		mc.getToasts().addToast(new AdvancementToast(adv));
+		mc.getToastManager().addToast(new AdvancementToast(adv));
 	}
 }

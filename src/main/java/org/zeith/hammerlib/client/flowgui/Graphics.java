@@ -5,10 +5,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
@@ -16,15 +19,12 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 @Builder
 public record Graphics(GuiGraphics gfx, Minecraft game, float partialTime, boolean debugBounds)
 {
-	public void setColor(float r, float g, float b, float a)
-	{
-		gfx.setColor(r, g, b, a);
-	}
-	
 	public void fill(int minX, int minY, int maxX, int maxY, int color)
 	{
 		gfx.fill(minX, minY, maxX, maxY, color);
@@ -95,34 +95,131 @@ public record Graphics(GuiGraphics gfx, Minecraft game, float partialTime, boole
 		return gfx.drawString(font, text, x, y, color, shadow);
 	}
 	
-	public void blit(ResourceLocation tex, int x, int y, int blitOffset, float uOffset, float vOffset, int uWidth, int vHeight, int txWidth, int txHeight)
+	public void blit(ResourceLocation tex, int x, int y, float uOffset, float vOffset, int uWidth, int vHeight, int txWidth, int txHeight)
 	{
-		gfx.blit(tex, x, y, blitOffset, uOffset, vOffset, uWidth, vHeight, txWidth, txHeight);
+		gfx.blit(RenderType::guiTexturedOverlay, tex, x, y, uOffset, vOffset, uWidth, vHeight, txWidth, txHeight);
+	}
+	
+	public void blit(ResourceLocation tex, int x, int y, float uOffset, float vOffset, int uWidth, int vHeight, int txWidth, int txHeight, int color)
+	{
+		gfx.blit(RenderType::guiTexturedOverlay, tex, x, y, uOffset, vOffset, uWidth, vHeight, txWidth, txHeight, color);
 	}
 	
 	public void blit(ResourceLocation tex, int x, int y, int uOffset, int vOffset, int uWidth, int vHeight)
 	{
-		gfx.blit(tex, x, y, uOffset, vOffset, uWidth, vHeight);
+		blit(RenderType::guiTexturedOverlay, tex, x, y, uOffset, vOffset, uWidth, vHeight, 256, 256);
+	}
+	
+	public void blitFull(ResourceLocation tex, float x, float y, float width, float height, int color)
+	{
+		blitFull(RenderType::guiTexturedOverlay, tex, x, y, width, height, color);
+	}
+	
+	public void blitFull(Function<ResourceLocation, RenderType> pRenderTypeGetter, ResourceLocation tex, float x, float y, float width, float height, int color)
+	{
+		blit(pRenderTypeGetter, tex, x, y, 0, 0, width, height, width, height, width, height, color);
+	}
+	
+	public void blit(
+			Function<ResourceLocation, RenderType> pRenderTypeGetter,
+			ResourceLocation pAtlasLocation,
+			float pX,
+			float pY,
+			float pUOffset,
+			float pVOffset,
+			float pUWidth,
+			float pVHeight,
+			float pWidth,
+			float pHeight,
+			float pTextureWidth,
+			float pTextureHeight,
+			int pColor
+	)
+	{
+		rawBlit(
+				pRenderTypeGetter,
+				pAtlasLocation,
+				pX,
+				pX + pUWidth,
+				pY,
+				pY + pVHeight,
+				(pUOffset + 0.0F) / pTextureWidth,
+				(pUOffset + pWidth) / pTextureWidth,
+				(pVOffset + 0.0F) / pTextureHeight,
+				(pVOffset + pHeight) / pTextureHeight,
+				pColor
+		);
+	}
+	
+	public void rawBlit(
+			Function<ResourceLocation, RenderType> pRenderTypeGetter,
+			ResourceLocation pAtlasLocation,
+			float pX1,
+			float pX2,
+			float pY1,
+			float pY2,
+			float pMinU,
+			float pMaxU,
+			float pMinV,
+			float pMaxV,
+			int pColor
+	)
+	{
+		drawSpecial(mbs ->
+		{
+			var type = pRenderTypeGetter.apply(pAtlasLocation);
+			var matrix4f = gfx.pose().last().pose();
+			var vertCons = mbs.getBuffer(type);
+			vertCons.addVertex(matrix4f, pX1, pY1, 0.0F).setUv(pMinU, pMinV).setColor(pColor);
+			vertCons.addVertex(matrix4f, pX1, pY2, 0.0F).setUv(pMinU, pMaxV).setColor(pColor);
+			vertCons.addVertex(matrix4f, pX2, pY2, 0.0F).setUv(pMaxU, pMaxV).setColor(pColor);
+			vertCons.addVertex(matrix4f, pX2, pY1, 0.0F).setUv(pMaxU, pMinV).setColor(pColor);
+		});
+	}
+	
+	public void drawSpecial(Consumer<MultiBufferSource> drawer)
+	{
+		gfx.drawSpecial(drawer);
 	}
 	
 	public void blit(int x, int y, int z, int width, int height, TextureAtlasSprite sprite)
 	{
-		gfx.blit(x, y, z, width, height, sprite);
+		gfx.blitSprite(RenderType::guiTexturedOverlay, sprite, x, y, width, height, z);
+	}
+	
+	public void blit(TextureAtlasSprite sprite, int x, int y, int z, int width, int height)
+	{
+		gfx.blitSprite(RenderType::guiTexturedOverlay, sprite, x, y, width, height, z);
+	}
+	
+	public void blit(int x, int y, int width, int height, TextureAtlasSprite sprite)
+	{
+		gfx.blitSprite(RenderType::guiTexturedOverlay, sprite, x, y, width, height);
+	}
+	
+	public void blit(TextureAtlasSprite sprite, int x, int y, int width, int height)
+	{
+		gfx.blitSprite(RenderType::guiTexturedOverlay, sprite, x, y, width, height);
 	}
 	
 	public void blit(int x, int y, int z, int width, int height, TextureAtlasSprite sprite, float red, float green, float blue, float alpha)
 	{
-		gfx.blit(x, y, z, width, height, sprite, red, green, blue, alpha);
+		gfx.blitSprite(RenderType::guiTexturedOverlay, sprite, x, y, z, width, ARGB.colorFromFloat(red, green, blue, alpha));
 	}
 	
-	public void blit(ResourceLocation tex, int x, int y, int width, int height, float uOffset, float vOffset, int uWidth, int vHeight, int texWidth, int texHeight)
+	public void blit(ResourceLocation tex, float x, float y, float width, float height, float uOffset, float vOffset, float uWidth, float vHeight, int texWidth, int texHeight)
 	{
-		gfx.blit(tex, x, y, width, height, uOffset, vOffset, uWidth, vHeight, texWidth, texHeight);
+		blit(RenderType::guiTexturedOverlay, tex, x, y, uOffset, vOffset, uWidth, vHeight, width, height, texWidth, texHeight, ARGB.white(1F));
 	}
 	
-	public void blit(ResourceLocation tex, int x, int y, float uOffset, float vOffset, int width, int height, int txWidth, int txHeight)
+	public void blit(ResourceLocation tex, float x, float y, float width, float height, float uOffset, float vOffset, float uWidth, float vHeight, int texWidth, int texHeight, int color)
 	{
-		gfx.blit(tex, x, y, uOffset, vOffset, width, height, txWidth, txHeight);
+		blit(RenderType::guiTexturedOverlay, tex, x, y, uOffset, vOffset, uWidth, vHeight, width, height, texWidth, texHeight, color);
+	}
+	
+	public void blit(Function<ResourceLocation, RenderType> renderType, ResourceLocation tex, float x, float y, float uOffset, float vOffset, float width, float height, int txWidth, int txHeight)
+	{
+		blit(renderType, tex, x, y, uOffset, vOffset, width, height, width, height, txWidth, txHeight, ARGB.white(1F));
 	}
 	
 	public void renderItem(ItemStack stack, int x, int y)
@@ -153,11 +250,6 @@ public record Graphics(GuiGraphics gfx, Minecraft game, float partialTime, boole
 	public int guiHeight()
 	{
 		return gfx.guiHeight();
-	}
-	
-	public void drawManaged(Runnable command)
-	{
-		gfx.drawManaged(command);
 	}
 	
 	public void renderTooltip(Font font, List<Component> tooltip, Optional<TooltipComponent> tooltipComponent, ItemStack stack, int mouseX, int mouseY)
@@ -223,16 +315,6 @@ public record Graphics(GuiGraphics gfx, Minecraft game, float partialTime, boole
 	public int getColorFromFormattingCharacter(char c, boolean isLighter)
 	{
 		return gfx.getColorFromFormattingCharacter(c, isLighter);
-	}
-	
-	public void blitWithBorder(ResourceLocation tex, int x, int y, int u, int v, int width, int height, int texWidth, int texHeight, int borderSize)
-	{
-		gfx.blitWithBorder(tex, x, y, u, v, width, height, texWidth, texHeight, borderSize);
-	}
-	
-	public void blitWithBorder(ResourceLocation tex, int x, int y, int u, int v, int width, int height, int texWidth, int texHeight, int topBorder, int bottomBorder, int leftBorder, int rightBorder)
-	{
-		gfx.blitWithBorder(tex, x, y, u, v, width, height, texWidth, texHeight, topBorder, bottomBorder, leftBorder, rightBorder);
 	}
 	
 	public void blitInscribed(ResourceLocation tex, int x, int y, int boundsWidth, int boundsHeight, int rectWidth, int rectHeight)
