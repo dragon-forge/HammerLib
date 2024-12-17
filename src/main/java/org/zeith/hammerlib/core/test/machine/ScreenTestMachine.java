@@ -44,8 +44,6 @@ public class ScreenTestMachine
 		
 		float prog = tile.progress.getInt() / maxProgress;
 		
-		prog = (minecraft.level.getDayTime()+partialTime) / 100F % 1F;
-		
 		tex.blitSegment(leftPos + 80, topPos + 35,
 				imageWidth, 14,
 				22 * prog, 16
