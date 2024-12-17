@@ -34,7 +34,7 @@ public class TagLoaderMixin
 		
 		if(reg != null)
 		{
-			HammerLib.postEvent(new BuildTagsEvent(reg, directory, value));
+			HammerLib.postEvent(new BuildTagsEvent(reg, directory, value)).cleanup();
 			HammerLib.LOG.info("Built tags for registry {}", reg.key().location());
 		}
 		else

@@ -1,25 +1,27 @@
 package org.zeith.hammerlib.util.mcf;
 
 import it.unimi.dsi.fastutil.objects.*;
+import lombok.extern.slf4j.Slf4j;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.common.util.Lazy;
-import org.apache.logging.log4j.*;
 import org.jetbrains.annotations.NotNull;
 import org.zeith.hammerlib.core.adapter.recipe.RecipeBuilder;
 import org.zeith.hammerlib.proxy.HLConstants;
-import org.zeith.hammerlib.util.shaded.json.*;
+import org.zeith.hammerlib.util.shaded.json.JSONObject;
+import org.zeith.hammerlib.util.shaded.json.JSONTokener;
 
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Function;
 
+@Slf4j
 public class RecipeRegistrationContext
 {
-	public static final Logger LOG = LogManager.getLogger(RecipeRegistrationContext.class);
 	private final Path file;
 	private boolean changed;
 	
@@ -39,7 +41,7 @@ public class RecipeRegistrationContext
 	
 	protected RecipesData create(String key)
 	{
-		return new RecipesData(key, new Object2BooleanArrayMap<>(), new HashSet<>(), markChanged);
+		return new RecipesData(key, new Object2BooleanOpenHashMap<>(), new HashSet<>(), markChanged);
 	}
 	
 	public boolean enableRecipe(RecipeType<?> type, ResourceLocation id)
@@ -101,7 +103,7 @@ public class RecipeRegistrationContext
 						
 						ctx.markChanged(); // upgrade!
 						
-						LOG.info("Upgrade recipe registration context of {} to v2", recipes.getFileName());
+						log.info("Upgrade recipe registration context of {} to v2", recipes.getFileName());
 						return;
 					}
 					
