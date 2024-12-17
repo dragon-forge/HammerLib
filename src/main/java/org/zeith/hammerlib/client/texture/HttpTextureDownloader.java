@@ -22,13 +22,13 @@ public class HttpTextureDownloader
 		Once completion = Once.run(onDownloadComplete);
 		
 		var reg = Minecraft.getInstance().textureManager.byPath.get(texturePath);
-		if(reg instanceof FutureTexture ft)
+		if(reg instanceof FutureTexture ft && !ft.isStale())
 		{
 			completion.call();
 			return ft;
 		}
 		
-		FutureTexture ft = new FutureTexture();
+		FutureTexture ft = new FutureTexture(texturePath);
 		Minecraft.getInstance().textureManager.register(texturePath, ft);
 		
 		HttpTextureWithHeaders.readImage(null, url, image ->
@@ -37,6 +37,7 @@ public class HttpTextureDownloader
 					completion.call();
 				}
 		);
+		
 		return ft;
 	}
 }

@@ -4,16 +4,33 @@ import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import lombok.extern.slf4j.Slf4j;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.AbstractTexture;
+import net.minecraft.client.renderer.texture.ReloadableTexture;
+import net.minecraft.client.renderer.texture.TextureContents;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Objects;
+import java.util.UUID;
 
 @Slf4j
 public class FutureTexture
-		extends AbstractTexture
+		extends ReloadableTexture
 {
+	public final UUID ogID = UUID.randomUUID();
+	public UUID curID = ogID;
+	
+	public boolean isLoaded;
+	
 	@Nullable
 	protected NativeImage pixels;
+	
+	public FutureTexture(ResourceLocation resourceId)
+	{
+		super(resourceId);
+	}
 	
 	public void updateImage(NativeImage newImage)
 	{
@@ -35,12 +52,23 @@ public class FutureTexture
 	{
 		if(this.pixels != null)
 		{
-			this.bind();
-			this.pixels.upload(0, 0, 0, false);
+			try
+			{
+				apply(loadContents(null));
+				isLoaded = true;
+			} catch(IOException e)
+			{
+				log.error("Failed to load future texture.", e);
+			}
 		} else
 		{
-			log.warn("Trying to upload future texture {} with no ", this.getId());
+			log.warn("Trying to upload future texture {} with no pixel data", this.getId());
 		}
+	}
+	
+	public boolean isStale()
+	{
+		return !Objects.equals(curID, ogID);
 	}
 	
 	public void setPixels(NativeImage pPixels)
@@ -57,5 +85,14 @@ public class FutureTexture
 	public NativeImage getPixels()
 	{
 		return this.pixels;
+	}
+	
+	@Override
+	public TextureContents loadContents(@Nullable ResourceManager resourceManager)
+			throws IOException
+	{
+		curID = UUID.randomUUID();
+		if(pixels == null) throw new FileNotFoundException();
+		return new TextureContents(pixels, null);
 	}
 }

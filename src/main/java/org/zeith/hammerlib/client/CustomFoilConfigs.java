@@ -1,17 +1,20 @@
 package org.zeith.hammerlib.client;
 
+import com.google.common.eventbus.Subscribe;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.ItemLike;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.InterModComms;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.InterModEnqueueEvent;
 import net.neoforged.fml.event.lifecycle.InterModProcessEvent;
 import net.neoforged.fml.loading.FMLPaths;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.api.items.IColoredFoilItem;
 import org.zeith.hammerlib.core.init.ItemsHL;
@@ -48,7 +51,8 @@ public class CustomFoilConfigs
 		// Dynamic color example
 		InterModComms.sendTo("hammerlib", "registerFoil",
 				() -> Map.<ItemLike, ToIntFunction<ItemStack>>entry(BlockTestMachine.TEST_MACHINE, (ItemStack stack) ->
-						0x0F0FFF | IColoredFoilItem.FULL_ALPHA)
+						0x0F0FFF | IColoredFoilItem.FULL_ALPHA
+				)
 		);
 	}
 	
@@ -171,6 +175,16 @@ public class CustomFoilConfigs
 		} catch(IOException | JSONException e)
 		{
 			throw new ReportedException(new CrashReport("", e));
+		}
+	}
+	
+	@EventBusSubscriber(Dist.CLIENT)
+	public static class NeoEvents
+	{
+		@SubscribeEvent
+		public static void postRenderFrame(RenderFrameEvent.Post e)
+		{
+			IColoredFoilItem.Binds.clearContextStack();
 		}
 	}
 }

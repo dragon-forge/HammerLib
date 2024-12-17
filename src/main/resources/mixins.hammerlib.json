@@ -44,7 +44,9 @@
 		"client.render.LivingEntityRendererMixin",
 		"client.render.PlayerRendererMixin",
 		"client.render.PlayerRenderStateMixin",
-		"client.render.RenderBuffersMixin",
+		"client.render.item.BlockModelWrapperMixin",
+		"client.render.item.ItemLayerRenderStateMixin",
+		"client.render.item.SpecialModelWrapperMixin",
 		"languages.ClientLanguageMixin"
 	],
 	"server": [
