@@ -1,5 +1,7 @@
 package org.zeith.hammerlib.mixins.languages;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.resources.language.ClientLanguage;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.spongepowered.asm.mixin.Mixin;
@@ -13,18 +15,20 @@ import java.util.Map;
 @Mixin(ClientLanguage.class)
 public class ClientLanguageMixin
 {
-	@ModifyVariable(
+	@WrapOperation(
 			method = "loadFrom",
 			at = @At(
 					value = "INVOKE",
 					target = "Ljava/util/Map;copyOf(Ljava/util/Map;)Ljava/util/Map;",
 					ordinal = 0
-			),
-			index = 4
+			)
 	)
-	private static Map<String, String> map(Map<String, String> v, ResourceManager resources, List<String> languages)
+	private static Map<String, String> HammerLib_addLangs(
+			Map<String, String> map, Operation<Map<String, String>> original,
+			ResourceManager resourceManager, List<String> filenames, boolean defaultRightToLeft
+	)
 	{
-		LanguageHelper.reloadLanguage(v, resources, languages);
-		return v;
+		LanguageHelper.reloadLanguage(map, resourceManager, filenames);
+		return original.call(map);
 	}
 }

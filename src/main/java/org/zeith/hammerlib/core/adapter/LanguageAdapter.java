@@ -33,7 +33,7 @@ public class LanguageAdapter
 	public static void reloadLangs(LanguageReloadEvent e)
 	{
 		var mgr = e.getResources();
-		HammerLib.LOG.debug("Reloading HammerLib-enabled language namespaces: " + mgr.getNamespaces());
+		HammerLib.LOG.debug("Reloading HammerLib-enabled language namespaces: {}", mgr.getNamespaces());
 		for(String modId : modids)
 			findFirstExisting(mgr,
 					Resources.location(modId, "langs/" + e.getLang().toLowerCase() + "._hl"),
@@ -53,7 +53,7 @@ public class LanguageAdapter
 								{
 									if(!logged)
 									{
-										HammerLib.LOG.debug("Hooking HammerLib language adapter for namespace " + modId + ": " + langFile);
+										HammerLib.LOG.debug("Hooking HammerLib language adapter for namespace {}: {}", modId, langFile);
 										logged = true;
 									}
 									
