@@ -11,9 +11,10 @@ import org.slf4j.LoggerFactory;
 import org.zeith.hammerlib.api.io.serializers.*;
 import org.zeith.hammerlib.api.io.serializers.codec.CodecSerializer;
 import org.zeith.hammerlib.api.io.serializers.codec.ICodecSerializer;
+import org.zeith.hammerlib.core.scans.base.IAnnotationScanListener;
+import org.zeith.hammerlib.core.scans.base.IScanListener;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.java.ReflectionUtil;
-import org.zeith.hammerlib.util.mcf.ScanDataHelper;
 
 import java.lang.annotation.ElementType;
 import java.lang.reflect.*;
@@ -40,7 +41,7 @@ public class NBTSerializationHelper
 		SERIALIZER_MAP.putIfAbsent(type, serializer);
 	}
 	
-	public static void construct()
+	static
 	{
 		registerSerializer(Boolean.class, new BooleanSerializer<>());
 		registerSerializer(Byte.class, new NumberSerializer<>(Tag.TAG_BYTE, ByteTag::valueOf, ByteTag::getAsByte));
@@ -59,69 +60,64 @@ public class NBTSerializationHelper
 		registerSerializer(long.class, new NumberSerializer<>(Tag.TAG_LONG, LongTag::valueOf, LongTag::getAsLong));
 		
 		registerSerializer(BigInteger.class, new NumberSerializer<>(Tag.TAG_BYTE_ARRAY, b -> new ByteArrayTag(b.toByteArray()), (ByteArrayTag nbt) -> new BigInteger(nbt.getAsByteArray())));
-		registerSerializer(BigDecimal.class, new NumberSerializer<>(Tag.TAG_BYTE_ARRAY, b -> new ByteArrayTag(b.toString()
-				.getBytes(StandardCharsets.UTF_8)), (ByteArrayTag nbt) -> new BigDecimal(new String(nbt.getAsByteArray(), StandardCharsets.UTF_8))));
-		
-		ScanDataHelper.lookupAnnotatedObjects(NBTSerializer.class).forEach(data ->
-		{
-			data.getProperty("value").map(List.class::cast).ifPresentOrElse(ts ->
-			{
-				try
-				{
-					List<Type> types = Cast.cast(ts);
-					var ctor = data.getOwnerClass().getDeclaredConstructor();
-					ctor.setAccessible(true);
-					INBTSerializer<?> ser = Cast.cast(ctor.newInstance());
-					for(Type type : types)
-					{
-						Class<?> c = ReflectionUtil.fetchClassAny(type);
-						if(c != null)
+		registerSerializer(BigDecimal.class, new NumberSerializer<>(Tag.TAG_BYTE_ARRAY, b -> new ByteArrayTag(b.toString().getBytes(StandardCharsets.UTF_8)), (ByteArrayTag nbt) -> new BigDecimal(new String(nbt.getAsByteArray(), StandardCharsets.UTF_8))));
+	}
+	
+	public static IScanListener create()
+	{
+		return IAnnotationScanListener.forAnnotation(NBTSerializer.class, ElementType.TYPE, data ->
+				data.getProperty("value").map(List.class::cast).ifPresentOrElse(ts ->
 						{
-							SERIALIZER_MAP.putIfAbsent(c, ser);
-							LOG.debug("Registered NBT serializer for type {}: {}", c, ser);
-						} else
-							LOG.error("Unable to find class {}!", type.getInternalName());
-					}
-				} catch(ReflectiveOperationException roe)
+							try
+							{
+								List<Type> types = Cast.cast(ts);
+								var ctor = data.getOwnerClass().getDeclaredConstructor();
+								ctor.setAccessible(true);
+								INBTSerializer<?> ser = Cast.cast(ctor.newInstance());
+								for(Type type : types)
+								{
+									Class<?> c = ReflectionUtil.fetchClassAny(type);
+									if(c != null)
+									{
+										SERIALIZER_MAP.putIfAbsent(c, ser);
+										LOG.debug("Registered NBT serializer for type {}: {}", c, ser);
+									} else
+										LOG.error("Unable to find class {}!", type.getInternalName());
+								}
+							} catch(ReflectiveOperationException roe)
+							{
+								LOG.error("Failed to create an instance of {}", data.getOwnerClass().getName(), roe);
+							}
+						}, () -> LOG.error("Completely ignored broken @NBTSerializer annotation with data {}", data.parent.annotationData())
+				)
+		).then(IAnnotationScanListener.forAnnotation(CodecSerializer.class, ElementType.FIELD, data ->
 				{
-					LOG.error("Failed to create an instance of {}", data.getOwnerClass().getName(), roe);
+					Field field = ReflectionUtil.lookupField(data.getOwnerClass(), data.getMemberName());
+					if(field == null)
+					{
+						LOG.error("Completely ignored invalid @CodecSerializer at {} {}. (field not found)", data.clazz(), data.getMemberName());
+						return;
+					}
+					
+					if(!Modifier.isStatic(field.getModifiers()))
+					{
+						LOG.error("Completely ignored invalid @CodecSerializer at {} {}. (field is not static)", data.clazz(), data.getMemberName());
+						return;
+					}
+					
+					ICodecSerializer<?> codecSer = ReflectionUtil.fetchValue(field, null, ICodecSerializer.class).orElse(null);
+					if(codecSer == null)
+					{
+						LOG.error("@CodecSerializer field at {} {} is not ICodecSerializer. (unable to obtain value that implements ICodecSerializer)", data.clazz(), data.getMemberName());
+						return;
+					}
+					
+					var c = codecSer.type();
+					var ser = codecSer.asSerializer();
+					registerCodecSerializer(codecSer);
+					LOG.debug("Registered codec NBT serializer for type {}: {}", c, ser);
 				}
-			}, () -> LOG.error("Completely ignored broken @NBTSerializer annotation with data {}", data.parent.annotationData()));
-		});
-		
-		ScanDataHelper.lookupAnnotatedObjects(CodecSerializer.class).forEach(data ->
-		{
-			if(data.getTargetType() != ElementType.FIELD)
-			{
-				LOG.error("Completely ignored invalid targeted @CodecSerializer at {} {}. (targeted at {})", data.clazz(), data.getMemberName(), data.getTargetType().name());
-				return;
-			}
-			
-			Field field = ReflectionUtil.lookupField(data.getOwnerClass(), data.getMemberName());
-			if(field == null)
-			{
-				LOG.error("Completely ignored invalid @CodecSerializer at {} {}. (field not found)", data.clazz(), data.getMemberName());
-				return;
-			}
-			
-			if(!Modifier.isStatic(field.getModifiers()))
-			{
-				LOG.error("Completely ignored invalid @CodecSerializer at {} {}. (field is not static)", data.clazz(), data.getMemberName());
-				return;
-			}
-			
-			ICodecSerializer<?> codecSer = ReflectionUtil.fetchValue(field, null, ICodecSerializer.class).orElse(null);
-			if(codecSer == null)
-			{
-				LOG.error("@CodecSerializer field at {} {} is not ICodecSerializer. (unable to obtain value that implements ICodecSerializer)", data.clazz(), data.getMemberName());
-				return;
-			}
-			
-			var c = codecSer.type();
-			var ser = codecSer.asSerializer();
-			registerCodecSerializer(codecSer);
-			LOG.debug("Registered NBT serializer for type {}: {}", c, ser);
-		});
+		));
 	}
 	
 	public static <T> INBTSerializer<T> getSerializer(Class<T> type)

@@ -20,7 +20,7 @@ public interface IProxy
 		return null;
 	}
 	
-	static <T extends IProxy> T create(Supplier<Supplier<T>> clientTarget, Supplier<Supplier<T>> serverTarget)
+	static <T> T create(Supplier<Supplier<T>> clientTarget, Supplier<Supplier<T>> serverTarget)
 	{
 		return switch(FMLEnvironment.dist)
 		{

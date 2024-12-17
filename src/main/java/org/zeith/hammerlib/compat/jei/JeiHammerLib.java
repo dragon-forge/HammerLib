@@ -186,7 +186,7 @@ public class JeiHammerLib
 					} catch(Throwable e)
 					{
 						// class-cast
-						LOG.error("Failed to staticGet JEI RecipeType from " + jb.type());
+						LOG.error("Failed to staticGet JEI RecipeType from {}", jb.type());
 					}
 				}
 				
@@ -199,7 +199,7 @@ public class JeiHammerLib
 				registration.addRecipeClickArea(unas.menu(), unas.x(), unas.y(), unas.width(), unas.height(), jeiType);
 			} catch(ReflectiveOperationException e)
 			{
-				LOG.error("Failed to read click area " + data.clazz() + "." + data.getMemberName());
+				LOG.error("Failed to read click area {}.{}", data.clazz(), data.getMemberName());
 			}
 		}
 		

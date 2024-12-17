@@ -11,6 +11,8 @@ import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.annotations.OnlyIf;
 import org.zeith.hammerlib.annotations.SetupConfigs;
 import org.zeith.hammerlib.api.config.*;
+import org.zeith.hammerlib.core.scans.base.IAnnotationScanListener;
+import org.zeith.hammerlib.core.scans.base.IScanListener;
 import org.zeith.hammerlib.event.player.PlayerLoadedInEvent;
 import org.zeith.hammerlib.net.lft.NetTransport;
 import org.zeith.hammerlib.net.packets.PacketSyncConfigs;
@@ -82,53 +84,52 @@ public class ConfigAdapter
 			}
 		});
 		
-		HammerLib.LOG.info("Reset " + CLIENT_STATE.size() + " configs to their client-side state.");
+		HammerLib.LOG.info("Reset {} configs to their client-side state.", CLIENT_STATE.size());
 		
 		CLIENT_STATE.clear();
 	}
 	
-	public static void setup()
+	public static IScanListener create()
 	{
-		ScanDataHelper.lookupAnnotatedObjects(SetupConfigs.class).forEach(data ->
+		return IAnnotationScanListener.forAnnotation(SetupConfigs.class, ElementType.METHOD, ConfigAdapter::handleCfgSetup)
+				.then(IAnnotationScanListener.forAnnotation(Config.class, ElementType.TYPE, ConfigAdapter::handleConfigs));
+	}
+	
+	private static void handleCfgSetup(ScanDataHelper.ModAwareAnnotationData data)
+	{
+		Class<?> registerer = data.getOwnerClass();
+		HammerLib.LOG.info("Injecting config setup into {}", registerer);
+		data.getOwnerMod().ifPresent(b -> configSetup(b, registerer, data.getMemberName()));
+	}
+	
+	private static void handleConfigs(ScanDataHelper.ModAwareAnnotationData ad)
+	{
+		if(!IConfigRoot.class.isAssignableFrom(ad.getOwnerClass())) return;
+		try
 		{
-			Class<?> registerer = data.getOwnerClass();
-			if(data.getTargetType() == ElementType.METHOD)
-			{
-				HammerLib.LOG.info("Injecting config setup into " + registerer);
-				data.getOwnerMod()
-						.ifPresent(b -> configSetup(b, registerer, data.getMemberName()));
-			}
-		});
-		
-		for(var ad : ScanDataHelper.lookupAnnotatedObjects(Config.class, e -> IConfigRoot.class.isAssignableFrom(e.getOwnerClass())))
-		{
-			try
-			{
-				var cfg = ad.getOwnerClass().getAnnotation(Config.class);
-				var inst = ad.getOwnerClass().asSubclass(IConfigRoot.class).getDeclaredConstructor().newInstance();
-				var module = cfg.module();
-				
-				ad.getOwnerMod().ifPresentOrElse(mod ->
-				{
-					apply(mod.getModId(), StringUtil.isNullOrEmpty(module) ? Optional.empty() : Optional.of(module), inst::load);
-					inst.updateInstance(LogicalSide.SERVER);
-					inst.updateInstance(LogicalSide.CLIENT);
-					STRUCTURES.applyForAllSides(map ->
+			var cfg = ad.getOwnerClass().getDeclaredAnnotation(Config.class);
+			var inst = ad.getOwnerClass().asSubclass(IConfigRoot.class).getDeclaredConstructor().newInstance();
+			var module = cfg.module();
+			
+			ad.getOwnerMod().ifPresentOrElse(mod ->
 					{
-						map.put(inst.getClass(), inst);
-						return map;
-					});
-				}, () ->
-				{
-					HammerLib.LOG.warn("Failed to find out the mod for " + ad.getOwnerClass() + ". Why though?");
-				});
-			} catch(ReflectiveOperationException e)
-			{
-				HammerLib.LOG.error("Failed to create new config instance for " + ad.getOwnerClass(), e);
-			} catch(ConfigException e)
-			{
-				HammerLib.LOG.error("Failed to load config file in " + ad.getOwnerClass() + " correctly.", e);
-			}
+						apply(mod.getModId(), StringUtil.isNullOrEmpty(module) ? Optional.empty() : Optional.of(module), inst::load);
+						inst.updateInstance(LogicalSide.SERVER);
+						inst.updateInstance(LogicalSide.CLIENT);
+						STRUCTURES.applyForAllSides(map ->
+						{
+							map.put(inst.getClass(), inst);
+							return map;
+						});
+					},
+					() -> HammerLib.LOG.warn("Failed to find out the mod for {}. Why though?", ad.getOwnerClass())
+			);
+		} catch(ReflectiveOperationException e)
+		{
+			HammerLib.LOG.error("Failed to create new config instance for {}", ad.getOwnerClass(), e);
+		} catch(ConfigException e)
+		{
+			HammerLib.LOG.error("Failed to load config file in {} correctly.", ad.getOwnerClass(), e);
 		}
 	}
 	
@@ -144,18 +145,19 @@ public class ConfigAdapter
 				.orElseGet(() -> FMLPaths.CONFIGDIR.get().resolve(mod + ".cfg"));
 		
 		return FILE_HASH.computeIfAbsent(path.toFile().getAbsolutePath(), p ->
-		{
-			try
-			{
-				Files.createDirectories(path.getParent());
-			} catch(IOException e)
-			{
-				e.printStackTrace();
-			}
-			var fl = new ConfigFile(path.toFile());
-			fl.load();
-			return fl;
-		});
+				{
+					try
+					{
+						Files.createDirectories(path.getParent());
+					} catch(IOException e)
+					{
+						e.printStackTrace();
+					}
+					var fl = new ConfigFile(path.toFile());
+					fl.load();
+					return fl;
+				}
+		);
 	}
 	
 	public static void apply(String mod, Optional<String> module, Consumer<ConfigFile> handler)

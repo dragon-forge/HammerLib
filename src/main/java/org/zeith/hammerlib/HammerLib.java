@@ -22,6 +22,7 @@ import org.zeith.hammerlib.core.adapter.*;
 import org.zeith.hammerlib.core.command.CommandHammerLib;
 import org.zeith.hammerlib.core.init.TagsHL;
 import org.zeith.hammerlib.core.scans.*;
+import org.zeith.hammerlib.core.scans.base.DataScanner;
 import org.zeith.hammerlib.event.fml.FMLFingerprintCheckEvent;
 import org.zeith.hammerlib.proxy.*;
 import org.zeith.hammerlib.tiles.tooltip.own.impl.TooltipRenderEngine;
@@ -57,15 +58,15 @@ public class HammerLib
 		TagsHL.init();
 		ZeithLinkRepository.initialize(); // Ask to initialize the link repository offthread somewhere.
 		
-		ItemChargeHelper.setup();
-		ScanRecipes.setup();
-		ScanTabs.setup();
-		ScanRegisters.setup();
-		ScanSetups.setup();
-		ScanSetups.clientSetup();
-		ConfigAdapter.setup(); // Prepare configs
-		
-		NBTSerializationHelper.construct();
+		DataScanner data = DataScanner.start();
+		data.add(ItemChargeHelper.create());
+		data.add(ScanRecipes.create());
+		data.add(ScanTabs.create());
+		data.add(ScanRegisters.create());
+		data.add(ScanSetups.create());
+		data.add(ConfigAdapter.create());
+		data.add(NBTSerializationHelper.create());
+		DataScanner.finish(data);
 	}
 	
 	@SubscribeEvent
