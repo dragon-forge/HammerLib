@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root width="176" height="166" centered="int">
+    <com class="hammerlib:image" id="img-test" texture="hammerlib:textures/gui/test_machine.png"
+        u-coord="0" v-coord="0" image-width="176" image-height="166" file-width="256"
+        file-height="256">
+    </com>
+</root>

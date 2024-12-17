@@ -10,7 +10,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.UUID;
@@ -24,8 +23,8 @@ public class FutureTexture
 	
 	public boolean isLoaded;
 	
-	@Nullable
-	protected NativeImage pixels;
+	protected int[] pixels;
+	protected int w, h;
 	
 	public FutureTexture(ResourceLocation resourceId)
 	{
@@ -66,6 +65,19 @@ public class FutureTexture
 		}
 	}
 	
+	@Override
+	public void apply(TextureContents textureContents)
+	{
+		try
+		{
+			super.apply(textureContents);
+		} catch(IllegalStateException e)
+		{
+			isLoaded = false;
+			return;
+		}
+	}
+	
 	public boolean isStale()
 	{
 		return !Objects.equals(curID, ogID);
@@ -73,18 +85,9 @@ public class FutureTexture
 	
 	public void setPixels(NativeImage pPixels)
 	{
-		if(this.pixels != null)
-		{
-			this.pixels.close();
-		}
-		
-		this.pixels = pPixels;
-	}
-	
-	@Nullable
-	public NativeImage getPixels()
-	{
-		return this.pixels;
+		this.pixels = pPixels.getPixels();
+		this.w = pPixels.getWidth();
+		this.h = pPixels.getHeight();
 	}
 	
 	@Override
@@ -92,7 +95,8 @@ public class FutureTexture
 			throws IOException
 	{
 		curID = UUID.randomUUID();
-		if(pixels == null) throw new FileNotFoundException();
-		return new TextureContents(pixels, null);
+		NativeImage image = new NativeImage(w, h, true);
+		for(int x = 0; x < w; x++) for(int y = 0; y < h; y++) image.setPixel(x, y, pixels[x + y * w]);
+		return new TextureContents(image, null);
 	}
 }

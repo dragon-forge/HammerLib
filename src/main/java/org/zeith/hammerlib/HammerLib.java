@@ -66,6 +66,7 @@ public class HammerLib
 		data.add(ScanSetups.create());
 		data.add(ConfigAdapter.create());
 		data.add(NBTSerializationHelper.create());
+		PROXY.appendScans(data);
 		DataScanner.finish(data);
 	}
 	

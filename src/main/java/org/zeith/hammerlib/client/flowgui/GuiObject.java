@@ -40,7 +40,7 @@ public class GuiObject
 	public final DirectStorage<Point> elementPosition = DirectStorage.create(p -> pos(p.x(), p.y()), () -> pos);
 	public final DirectStorage<Point> elementPivot = DirectStorage.create(p -> pivot(p.x(), p.y()), () -> pivot);
 	public final DirectStorage<Vec3> elementScale = DirectStorage.create(p -> scale = p, () -> scale);
-	public final DirectStorage<Float> elementRotation = DirectStorage.create(p -> rotation = p, () -> rotation);
+	public final DirectStorage<Float> elementRotation = DirectStorage.create(this::rotation, () -> rotation);
 	public final DirectStorage<Float> elementWidth = DirectStorage.create(p -> width = p, () -> width);
 	public final DirectStorage<Float> elementHeight = DirectStorage.create(p -> height = p, () -> height);
 	
@@ -332,20 +332,22 @@ public class GuiObject
 	public final <T> void runForTree(PoseStack pose, Class<T> filter, BiConsumer<T, PoseStack> handler)
 	{
 		runForTree(pose, (obj, ps) ->
-		{
-			T t = Cast.cast(obj, filter);
-			if(t != null) handler.accept(t, ps);
-		});
+				{
+					T t = Cast.cast(obj, filter);
+					if(t != null) handler.accept(t, ps);
+				}
+		);
 	}
 	
 	public final <T, R> Optional<R> findInTree(PoseStack pose, Class<T> filter, BiFunction<T, PoseStack, Optional<R>> handler)
 	{
 		return findInTree(pose, (obj, ps) ->
-		{
-			T t = Cast.cast(obj, filter);
-			if(t != null) return handler.apply(t, ps);
-			return Optional.empty();
-		});
+				{
+					T t = Cast.cast(obj, filter);
+					if(t != null) return handler.apply(t, ps);
+					return Optional.empty();
+				}
+		);
 	}
 	
 	public final void runForTree(PoseStack pose, BiConsumer<GuiObject, PoseStack> handler)

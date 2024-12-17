@@ -9,7 +9,7 @@ import net.minecraft.tags.TagKey;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.common.util.Lazy;
 import org.zeith.hammerlib.proxy.HLConstants;
-import org.zeith.hammerlib.util.java.JSONHelper;
+import org.zeith.hammerlib.util.data.JSONHelper;
 import org.zeith.hammerlib.util.shaded.json.JSONObject;
 import org.zeith.hammerlib.util.shaded.json.JSONTokener;
 

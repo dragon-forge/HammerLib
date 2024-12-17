@@ -7,6 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.inventory.Slot;
 import org.zeith.hammerlib.client.flowgui.objects.*;
+import org.zeith.hammerlib.client.render.texture.GuiTexture;
 
 public class GuiObjectBuilder
 {
@@ -38,11 +39,28 @@ public class GuiObjectBuilder
 			int width, int height,
 			int txWidth, int txHeight)
 	{
-		return new GuiImageObject(name, tex, uOffset, vOffset, width, height, txWidth, txHeight);
+		return new GuiImageObject(name, GuiTexture.of(tex), uOffset, vOffset, width, height, txWidth, txHeight);
 	}
 	
 	public GuiImageObject image(
 			ResourceLocation tex,
+			float uOffset, float vOffset,
+			int width, int height)
+	{
+		return image(tex, uOffset, vOffset, width, height, 256, 256);
+	}
+	
+	public GuiImageObject image(
+			GuiTexture tex,
+			float uOffset, float vOffset,
+			int width, int height,
+			int txWidth, int txHeight)
+	{
+		return new GuiImageObject(name, tex, uOffset, vOffset, width, height, txWidth, txHeight);
+	}
+	
+	public GuiImageObject image(
+			GuiTexture tex,
 			float uOffset, float vOffset,
 			int width, int height)
 	{

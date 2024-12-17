@@ -14,7 +14,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -39,6 +38,7 @@ import org.zeith.hammerlib.api.lighting.HandleLightOverrideEvent;
 import org.zeith.hammerlib.api.lighting.impl.IGlowingEntity;
 import org.zeith.hammerlib.api.proxy.IClientProxy;
 import org.zeith.hammerlib.client.adapter.ChatMessageAdapter;
+import org.zeith.hammerlib.client.flowgui.reader.*;
 import org.zeith.hammerlib.client.model.SimpleModelGenerator;
 import org.zeith.hammerlib.client.render.tile.IBESR;
 import org.zeith.hammerlib.client.render.tile.TESRBase;
@@ -46,6 +46,8 @@ import org.zeith.hammerlib.client.utils.TexturePixelGetter;
 import org.zeith.hammerlib.core.adapter.ConfigAdapter;
 import org.zeith.hammerlib.core.items.tooltip.ClientTooltipColoredLine;
 import org.zeith.hammerlib.core.items.tooltip.ClientTooltipMulti;
+import org.zeith.hammerlib.core.scans.base.DataScanner;
+import org.zeith.hammerlib.core.scans.base.IAnnotationScanListener;
 import org.zeith.hammerlib.event.client.ClientLoadedInEvent;
 import org.zeith.hammerlib.mixins.client.ParticleEngineAccessor;
 import org.zeith.hammerlib.net.Network;
@@ -53,7 +55,9 @@ import org.zeith.hammerlib.net.packets.PacketPlayerReady;
 import org.zeith.hammerlib.net.packets.PingServerPacket;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.mcf.LogicalSidePredictor;
+import org.zeith.hammerlib.util.mcf.RunnableReloader;
 
+import java.lang.annotation.ElementType;
 import java.lang.reflect.Constructor;
 import java.util.*;
 import java.util.function.Consumer;
@@ -85,6 +89,13 @@ public class HLClientProxy
 	}
 	
 	@Override
+	public void appendScans(DataScanner data)
+	{
+		data.add(IAnnotationScanListener.forAnnotation(FlowguiReader.class, ElementType.TYPE, FlowguiRegistry::handleReader));
+		data.add(IAnnotationScanListener.forAnnotation(XmlFlowgui.class, ElementType.TYPE, FlowguiRegistry::handleXml));
+	}
+	
+	@Override
 	public void construct(IEventBus modBus)
 	{
 		modBus.addListener(this::registerKeybinds);
@@ -94,9 +105,15 @@ public class HLClientProxy
 		modBus.addListener(this::registerGuis);
 		modBus.addListener(this::registerClientExtensions);
 		modBus.addListener(TexturePixelGetter::reloadTexture);
+		modBus.addListener(this::registerReloadListeners);
 		SimpleModelGenerator.setup();
 		
 		NeoForge.EVENT_BUS.register(this);
+	}
+	
+	private void registerReloadListeners(RegisterClientReloadListenersEvent e)
+	{
+		e.registerReloadListener(RunnableReloader.of(FlowguiRegistry::reload));
 	}
 	
 	private void registerClientExtensions(RegisterClientExtensionsEvent e)

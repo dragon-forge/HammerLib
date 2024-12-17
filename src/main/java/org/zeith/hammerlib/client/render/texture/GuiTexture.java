@@ -3,6 +3,7 @@ package org.zeith.hammerlib.client.render.texture;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
+import org.zeith.hammerlib.client.flowgui.Graphics;
 
 import java.util.function.Function;
 
@@ -21,6 +22,11 @@ public record GuiTexture(Function<ResourceLocation, RenderType> renderTypeGetter
 	public TextureGraphics with(GuiGraphics gfx)
 	{
 		return new TextureGraphics(this, gfx, new GraphicsState());
+	}
+	
+	public TextureGraphics with(Graphics gfx)
+	{
+		return new TextureGraphics(this, gfx.gfx(), new GraphicsState());
 	}
 	
 	public RenderType type()
