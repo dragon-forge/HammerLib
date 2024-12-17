@@ -76,6 +76,8 @@ neoForge {
 
             // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
             systemProperty 'neoforge.enabledGameTestNamespaces', config.mod_id
+
+            systemProperty 'hammerlib.flowgui.nocache', 'true'
         }
 
         server {

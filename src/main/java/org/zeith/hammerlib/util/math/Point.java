@@ -34,6 +34,16 @@ public class Point
 		return b;
 	}
 	
+	public void setX(float x)
+	{
+		this.a = x;
+	}
+	
+	public void setY(float y)
+	{
+		this.b = y;
+	}
+	
 	@Override
 	public Stream<Float> stream()
 	{

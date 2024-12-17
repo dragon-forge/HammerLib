@@ -1,5 +1,6 @@
 package org.zeith.hammerlib.client.flowgui.reader;
 
+import com.google.common.base.Suppliers;
 import lombok.extern.slf4j.Slf4j;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
@@ -10,10 +11,12 @@ import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.xml.sax.SAXException;
 import org.zeith.hammerlib.HammerLib;
+import org.zeith.hammerlib.abstractions.props.Key;
 import org.zeith.hammerlib.abstractions.props.KeyMap;
 import org.zeith.hammerlib.api.data.IDataNode;
 import org.zeith.hammerlib.client.flowgui.GuiObject;
 import org.zeith.hammerlib.client.flowgui.objects.GuiRootObject;
+import org.zeith.hammerlib.proxy.HLConstants;
 import org.zeith.hammerlib.util.data.XmlHelper;
 import org.zeith.hammerlib.util.mcf.Resources;
 import org.zeith.hammerlib.util.mcf.ScanDataHelper;
@@ -22,6 +25,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.function.Supplier;
 
 @Slf4j
 @OnlyIn(Dist.CLIENT)
@@ -32,12 +36,22 @@ public class FlowguiRegistry
 	
 	private static final Set<ResourceLocation> PRELOADED = new HashSet<>();
 	private static final Set<ResourceLocation> MISSING = new HashSet<>();
-	private static final Map<ResourceLocation, IDataNode> GUI_DATA = new HashMap<>();
+	private static final Map<ResourceLocation, Supplier<IDataNode>> GUI_DATA = new HashMap<>();
+	
+	public static final Key<GuiRootObject> GUI_ROOT = Key.of(HLConstants.id("gui_root"), GuiRootObject.class);
+	
+	public static boolean DISABLE_CACHE = Boolean.parseBoolean(Objects.toString(System.getProperty("hammerlib.flowgui.nocache")));
 	
 	@NotNull
 	public static GuiRootObject readRoot(ResourceLocation location, KeyMap context, float parentWidth, float parentHeight)
 	{
-		var data = GUI_DATA.get(location);
+		var dataProvider = GUI_DATA.get(location);
+		if(dataProvider == null)
+		{
+			if(MISSING.add(location)) log.error("Unknown flowgui file: {}", FILE_TO_ID_CONVERTER.idToFile(location));
+			return GuiRootObject.root();
+		}
+		var data = dataProvider.get();
 		if(data == null)
 		{
 			if(MISSING.add(location)) log.error("Missing flowgui file: {}", FILE_TO_ID_CONVERTER.idToFile(location));
@@ -83,27 +97,43 @@ public class FlowguiRegistry
 		
 		for(ResourceLocation id : PRELOADED)
 		{
-			var file = FILE_TO_ID_CONVERTER.idToFile(id);
-			var res = resources.getResource(file).orElse(null);
-			try(var input = res.open())
+			final var file = FILE_TO_ID_CONVERTER.idToFile(id);
+			
+			Supplier<IDataNode> provider = () ->
 			{
-				var data = XmlHelper.parse(new String(input.readAllBytes(), StandardCharsets.UTF_8));
-				if(data == null)
+				var res = resources.getResource(file).orElse(null);
+				
+				try(var input = res.open())
 				{
-					log.error("Unable to read XML from flowgui file: {}", file);
-					continue;
-				}
-				if(!data.getMyName().equalsIgnoreCase("root"))
+					var data = XmlHelper.parse(new String(input.readAllBytes(), StandardCharsets.UTF_8));
+					if(data == null)
+					{
+						log.error("Unable to read XML from flowgui file: {}", file);
+						return null;
+					}
+					if(!data.getMyName().equalsIgnoreCase("root"))
+					{
+						log.error("Malformed XML from flowgui file {}: First XML node must always be <root>", file);
+						return null;
+					}
+					return data;
+				} catch(IOException | ParserConfigurationException | SAXException e)
 				{
-					log.error("Malformed XML from flowgui file {}: First XML node must always be <root>", file);
-					continue;
+					log.error("Failed to load flowgui file: {}", file, e);
+					return null;
 				}
-				GUI_DATA.put(id, data);
-			} catch(IOException | ParserConfigurationException | SAXException e)
+			};
+			
+			// If cache is not disabled, memoize the result from the resource!
+			if(!DISABLE_CACHE)
 			{
-				log.error("Failed to load flowgui file: {}", file, e);
-				continue;
+				provider = Suppliers.memoize(provider::get);
+				
+				// Instantly query the value to perform immediate preload.
+				provider.get();
 			}
+			
+			GUI_DATA.put(id, provider);
 		}
 	}
 	

@@ -215,6 +215,30 @@ public class GuiObject
 		return this;
 	}
 	
+	public GuiObject centeredX(float width)
+	{
+		pos((width - this.width) / 2, pos.y());
+		return this;
+	}
+	
+	public GuiObject centeredX(int width)
+	{
+		pos((int) ((width - this.width) / 2), pos.y());
+		return this;
+	}
+	
+	public GuiObject centeredY(float height)
+	{
+		pos(pos.x(), (height - this.height) / 2);
+		return this;
+	}
+	
+	public GuiObject centeredY(int height)
+	{
+		pos(pos.x(), (int) ((height - this.height) / 2));
+		return this;
+	}
+	
 	public GuiObject pos(float x, float y)
 	{
 		this.pos = new Point(x, y);
