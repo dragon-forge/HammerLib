@@ -2,14 +2,13 @@ package org.zeith.hammerlib.compat.top;
 
 import net.neoforged.fml.InterModComms;
 import net.neoforged.fml.event.lifecycle.InterModEnqueueEvent;
-import org.zeith.hammerlib.compat.base.BaseCompat;
-import org.zeith.hammerlib.compat.base.CompatContext;
+import org.zeith.hammerlib.compat.base.*;
 import org.zeith.hammerlib.compat.base._hl.BaseHLCompat;
 import org.zeith.hammerlib.proxy.HLConstants;
 
-@BaseCompat.LoadCompat(
+@ModCompat(
 		modid = "theoneprobe",
-		compatType = BaseHLCompat.class
+		type = BaseHLCompat.class
 )
 public class TOPCompat
 		extends BaseHLCompat

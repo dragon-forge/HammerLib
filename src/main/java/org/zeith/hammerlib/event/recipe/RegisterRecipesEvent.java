@@ -7,7 +7,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.*;
@@ -18,6 +17,7 @@ import net.neoforged.neoforge.common.conditions.ICondition;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.zeith.hammerlib.api.recipes.RecipeBuilderExtension;
+import org.zeith.hammerlib.api.recipes.RegisterExt;
 import org.zeith.hammerlib.core.RecipeHelper;
 import org.zeith.hammerlib.core.adapter.recipe.*;
 import org.zeith.hammerlib.util.java.Cast;
@@ -57,17 +57,17 @@ public class RegisterRecipesEvent
 	}
 	
 	/**
-	 * Returns a non-null instance of the provided extension class if the class has the @{@link RecipeBuilderExtension.RegisterExt} annotation.
+	 * Returns a non-null instance of the provided extension class if the class has the @{@link RegisterExt} annotation.
 	 *
 	 * @param type
 	 * 		The class object representing the extension type.
 	 * @param <T>
 	 * 		The type parameter representing the extension class.
 	 *
-	 * @return A non-null instance of the provided extension class if the class has the @{@link RecipeBuilderExtension.RegisterExt} annotation.
+	 * @return A non-null instance of the provided extension class if the class has the @{@link RegisterExt} annotation.
 	 *
 	 * @throws IllegalArgumentException
-	 * 		If the provided extension class does not have the @{@link RecipeBuilderExtension.RegisterExt} annotation.
+	 * 		If the provided extension class does not have the @{@link RegisterExt} annotation.
 	 */
 	@Nullable
 	public <T extends RecipeBuilderExtension> T extension(Class<T> type)

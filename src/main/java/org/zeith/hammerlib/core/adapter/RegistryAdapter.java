@@ -1,6 +1,7 @@
 package org.zeith.hammerlib.core.adapter;
 
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
@@ -23,6 +24,7 @@ import org.zeith.hammerlib.api.blocks.*;
 import org.zeith.hammerlib.api.fml.ICustomRegistrar;
 import org.zeith.hammerlib.api.fml.IRegisterListener;
 import org.zeith.hammerlib.api.items.CreativeTab;
+import org.zeith.hammerlib.core.IdHelper;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.java.ReflectionUtil;
 import org.zeith.hammerlib.util.java.tuples.Tuple2;
@@ -153,22 +155,29 @@ public class RegistryAdapter
 		BiConsumer<ResourceLocation, T> grabber = createRegisterer(registry, prefix).andThen((key, handler) ->
 		{
 			if(handler instanceof Block b)
+			{
 				blockList.add(Tuples.immutable(b, key));
+				IdHelper.hotswap(b, key);
+			}
 			
 			if(handler instanceof ItemLike item && !tabs.isEmpty())
 				CreativeTabAdapter.bindTab(item, tabs.toArray(CreativeTab[]::new));
+			
+			if(handler instanceof Item it)
+				IdHelper.hotswap(it, key);
 		});
 		
 		if(Item.class.equals(superType)) for(var e : blockList)
 		{
+			var key = ResourceKey.create(Registries.ITEM, e.b());
 			Block blk = e.a();
 			if(blk instanceof INoItemBlock) continue;
 			BlockItem item;
 			IItemPropertySupplier gen = Cast.cast(blk, IItemPropertySupplier.class);
-			if(blk instanceof ICustomBlockItem) item = ((ICustomBlockItem) blk).createBlockItem();
+			if(blk instanceof ICustomBlockItem) item = ((ICustomBlockItem) blk).createBlockItem(key);
 			else
 			{
-				Item.Properties def = new Item.Properties();
+				Item.Properties def = new Item.Properties().setId(key);
 				Item.Properties props = gen != null ? gen.createItemProperties(def) : def;
 				item = new BlockItem(blk, props);
 				if(blk instanceof ICreativeTabBlock t)

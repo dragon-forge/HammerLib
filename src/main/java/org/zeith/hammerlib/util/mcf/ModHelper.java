@@ -6,6 +6,10 @@ import net.neoforged.fml.loading.FMLEnvironment;
 
 public class ModHelper
 {
+	public static final boolean CLIENT_SIDE = isClient();
+	public static final boolean SERVER_SIDE = isDedicatedServer();
+	public static final boolean DEV_ENV = inDev();
+	
 	public static boolean inDev()
 	{
 		return !FMLEnvironment.production;

@@ -15,7 +15,6 @@
 		"ContextAwareReloadListenerAccessor",
 		"EntityMixin",
 		"HTTPUtilMixin",
-		"ItemStackMixin",
 		"LevelChunkMixin",
 		"LevelMixin",
 		"LootTableAccessor",
@@ -25,7 +24,12 @@
 		"bs.kubejs.RecipeEventJSMixin",
 		"data.RegistryDataLoaderMixin",
 		"data.ReloadableServerRegistriesMixin",
-		"languages.ServerLanguageMixin"
+		"languages.ServerLanguageMixin",
+		"world.block.state.BlockBehaviourAccessor",
+		"world.block.state.BlockPropertiesMixin",
+		"world.item.ItemAccessor",
+		"world.item.ItemPropertiesMixin",
+		"world.item.ItemStackMixin"
 	],
 	"client": [
 		"client.AbstractContainerScreenMixin",

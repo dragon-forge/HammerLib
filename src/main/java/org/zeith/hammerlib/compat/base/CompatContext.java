@@ -1,9 +1,12 @@
 package org.zeith.hammerlib.compat.base;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.loading.FMLEnvironment;
+import org.zeith.hammerlib.abstractions.props.Key;
+import org.zeith.hammerlib.abstractions.props.KeyMap;
+import org.zeith.hammerlib.api.proxy.IProxy;
 import org.zeith.hammerlib.util.java.Cast;
 
 import java.util.Optional;
@@ -14,23 +17,40 @@ import java.util.function.Supplier;
 public class CompatContext
 {
 	protected final IEventBus modBus;
-	protected final Object data;
+	protected final KeyMap properties;
 	
 	public void runWhenOn(Dist dist, Supplier<Runnable> toRun)
 	{
-		if(dist == FMLEnvironment.dist)
-		{
-			toRun.get().run();
-		}
+		IProxy.runOn(dist, toRun);
 	}
 	
-	public <T> Optional<T> data(Class<T> type)
+	public <T> Optional<T> data(Key<T> type)
 	{
-		return Cast.optionally(data, type);
+		return properties.opt(type);
 	}
 	
 	public static Builder builder(IEventBus bus)
 	{
-		return new Builder().modBus(bus);
+		return new Builder()
+				.modBus(bus);
+	}
+	
+	public static class Builder
+	{
+		public Builder()
+		{
+			this.properties = KeyMap.createHash();
+		}
+		
+		public <T> Builder property(Key<T> key, T value)
+		{
+			this.properties.put(key, value);
+			return this;
+		}
+		
+		private Builder properties(KeyMap properties)
+		{
+			return this;
+		}
 	}
 }

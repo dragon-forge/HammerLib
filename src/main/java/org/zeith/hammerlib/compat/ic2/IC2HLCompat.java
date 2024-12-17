@@ -6,8 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.zeith.hammerlib.HammerLib;
-import org.zeith.hammerlib.compat.base.BaseCompat;
-import org.zeith.hammerlib.compat.base.CompatContext;
+import org.zeith.hammerlib.compat.base.*;
 import org.zeith.hammerlib.compat.base._hl.BaseHLCompat;
 import org.zeith.hammerlib.core.init.TagsHL;
 import org.zeith.hammerlib.event.recipe.BuildTagsEvent;
@@ -15,9 +14,9 @@ import org.zeith.hammerlib.util.mcf.Resources;
 
 import java.util.function.Function;
 
-@BaseCompat.LoadCompat(
+@ModCompat(
 		modid = "ic2",
-		compatType = BaseHLCompat.class
+		type = BaseHLCompat.class
 )
 public class IC2HLCompat
 		extends BaseHLCompat

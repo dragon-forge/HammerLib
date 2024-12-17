@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 public interface BlockHitResultAccessor
 {
 	@Invoker("<init>")
-	static BlockHitResult createBlockHitResult(boolean p_82420_, Vec3 p_82421_, Direction p_82422_, BlockPos p_82423_, boolean p_82424_)
+	static BlockHitResult createBlockHitResult(boolean miss, Vec3 location, Direction direction, BlockPos blockPos, boolean inside, boolean worldBorderHit)
 	{
 		throw new UnsupportedOperationException();
 	}

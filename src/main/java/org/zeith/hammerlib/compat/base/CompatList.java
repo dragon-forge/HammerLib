@@ -17,7 +17,7 @@ import java.util.function.Function;
  * A utility class to manage a list of {@link BaseCompat} instances and their associated abilities.
  *
  * <p>This class allows you to gather a list of {@link BaseCompat} instances that are annotated with the
- * {@link BaseCompat.LoadCompat} annotation and are associated with a specific mod, and then retrieve the
+ * {@link ModCompat} annotation and are associated with a specific mod, and then retrieve the
  * abilities provided by these instances using the {@link #getAbilities(Ability)} method.
  *
  * <p>To use this class, create an instance using the {@link #gather(Class, CompatContext)} method and pass in the base
@@ -52,7 +52,7 @@ public class CompatList<T extends BaseCompat<T>>
 	}
 	
 	/**
-	 * Gathers a list of {@link BaseCompat} instances that are annotated with the {@link BaseCompat.LoadCompat}
+	 * Gathers a list of {@link BaseCompat} instances that are annotated with the {@link ModCompat}
 	 * annotation and are associated with a mod that is currently loaded in the game.
 	 *
 	 * @param base
@@ -68,10 +68,10 @@ public class CompatList<T extends BaseCompat<T>>
 	}
 	
 	/**
-	 * Gathers a custom list of {@link BaseCompat} instances that are annotated with the {@link BaseCompat.LoadCompat}
+	 * Gathers a custom list of {@link BaseCompat} instances that are annotated with the {@link ModCompat}
 	 * annotation and are associated with a mod that is currently loaded in the game.
 	 *
-	 * <p>This method looks for classes annotated with the {@link BaseCompat.LoadCompat} annotation and
+	 * <p>This method looks for classes annotated with the {@link ModCompat} annotation and
 	 * checks the specified mod dependencies and loading conditions to determine which classes should be
 	 * included in the list. The resulting list of compatibility classes is then passed to the provided
 	 * `listFun` function to be transformed into a `CompatList` instance.
@@ -91,7 +91,7 @@ public class CompatList<T extends BaseCompat<T>>
 	public static <T extends BaseCompat<T>, R extends CompatList<T>> R gather(Class<T> base, CompatContext context, Function<List<T>, R> listFun)
 	{
 		return listFun.apply(
-				ScanDataHelper.lookupAnnotatedObjects(BaseCompat.LoadCompat.class)
+				ScanDataHelper.lookupAnnotatedObjects(ModCompat.class)
 						.stream()
 						.filter(data -> ModList.get().isLoaded(Objects.toString(data.getProperty("modid").orElse(""))))
 						.filter(data -> base.isAssignableFrom(ReflectionUtil.fetchClass((Type) data.getProperty("compatType").orElseThrow())))

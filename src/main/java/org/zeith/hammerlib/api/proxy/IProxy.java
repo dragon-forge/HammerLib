@@ -2,6 +2,7 @@ package org.zeith.hammerlib.api.proxy;
 
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLEnvironment;
 import org.zeith.hammerlib.util.java.Cast;
 
@@ -46,6 +47,17 @@ public interface IProxy
 			case CLIENT -> clientTarget.get().run();
 			case DEDICATED_SERVER -> serverTarget.get().run();
 			default -> throw new IllegalArgumentException("UNSIDED?");
-		};
+		}
+	}
+	
+	static <T> T createOn(Dist expect, Supplier<Supplier<T>> clientTarget)
+	{
+		return FMLEnvironment.dist == expect ? Cast.cast(((Supplier) clientTarget.get()).get()) : null;
+	}
+	
+	static void runOn(Dist expect, Supplier<Runnable> clientTarget)
+	{
+		if(FMLEnvironment.dist == expect)
+			clientTarget.get().run();
 	}
 }

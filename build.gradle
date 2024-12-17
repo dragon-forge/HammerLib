@@ -5,8 +5,12 @@ buildscript {
 }
 
 plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'net.neoforged.moddev' version '1.0.23'
+    id 'idea'
+
     id "com.modrinth.minotaur" version "2.+"
-    id 'net.neoforged.gradle.userdev' version '7.0.145'
     id "se.bjurr.gitchangelog.git-changelog-gradle-plugin" version "2.5.2"
 }
 
@@ -24,47 +28,104 @@ configFile.withReader {
     }
 }
 
+tasks.named('wrapper', Wrapper).configure {
+    // Define wrapper values here so as to not have to always do so when updating gradlew.properties.
+    // Switching this to Wrapper.DistributionType.ALL will download the full gradle sources that comes with
+    // documentation attached on cursor hover of gradle classes and methods. However, this comes with increased
+    // file size for Gradle. If you do switch this to ALL, run the Gradle wrapper task twice afterwards.
+    // (Verify by checking gradle/wrapper/gradle-wrapper.properties to see if distributionUrl now points to `-all`)
+    distributionType = Wrapper.DistributionType.BIN
+}
+
 version = config.mod_version
 group = config.maven_group
 base {
     archivesName = "${config.archive_name}-${mc_version}"
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(Integer.parseInt(mc_java))
-println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
+// Mojang ships Java 21 to end users starting in 1.20.5, so mods should target Java 21.
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
-minecraft {
-    accessTransformers {
-        file('src/main/resources/META-INF/accesstransformer.cfg')
-    }
-}
+neoForge {
+    // Specify the version of NeoForge to use.
+    version = neo_version
 
-runs {
-    configureEach {
-        systemProperty 'forge.logging.console.level', 'debug'
-        systemProperty 'forge.enabledGameTestNamespaces', config.mod_id
-
-        modSource project.sourceSets.main
+    parchment {
+        mappingsVersion = parchment_mappings_version
+        minecraftVersion = parchment_minecraft_version
     }
 
-    client {
-		def args = new ArrayList()
-		
-		if (hasConfig("mc_user") && !config.mc_user.isEmpty()) {
-			def userId = config.mc_user.split(',', 2)
-			args.add "--username"
-			args.add userId[0]
+    // This line is optional. Access Transformers are automatically detected
+    accessTransformers = project.files('src/main/resources/META-INF/accesstransformer.cfg')
 
-			args.add "--uuid"
-			if (userId.length > 1) args.add userId[1]
-			else args.add "00000000000000000000000000000001" // this is a default
-		}
-		
-		programArguments(args)
+    // Default run configurations.
+    // These can be tweaked, removed, or duplicated as needed.
+    runs {
+        client {
+            client()
+
+            if (hasConfig("mc_user") && !config.mc_user.isEmpty()) {
+                def userId = config.mc_user.split(',', 2)
+                programArgument "--username"
+                programArgument userId[0]
+
+                programArgument "--uuid"
+                if (userId.length > 1) programArgument userId[1]
+                else programArgument "00000000000000000000000000000001" // this is a default
+            }
+
+            // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
+            systemProperty 'neoforge.enabledGameTestNamespaces', config.mod_id
+        }
+
+        server {
+            server()
+            programArgument '--nogui'
+            systemProperty 'neoforge.enabledGameTestNamespaces', config.mod_id
+        }
+
+        // This run config launches GameTestServer and runs all registered gametests, then exits.
+        // By default, the server will crash when no gametests are provided.
+        // The gametest system is also enabled by default for other run configs under the /test command.
+        gameTestServer {
+            type = "gameTestServer"
+            systemProperty 'neoforge.enabledGameTestNamespaces', config.mod_id
+        }
+
+        clientData {
+            clientData()
+
+            // example of overriding the workingDirectory set in configureEach above, uncomment if you want to use it
+            // gameDirectory = project.file('run-data')
+
+            // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
+            programArguments.addAll '--mod', config.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+        }
+
+        // applies to all the run configs above
+        configureEach {
+            // Recommended logging data for a userdev environment
+            // The markers can be added/remove as needed separated by commas.
+            // "SCAN": For mods scan.
+            // "REGISTRIES": For firing of registry events.
+            // "REGISTRYDUMP": For getting the contents of all registries.
+            systemProperty 'forge.logging.markers', 'REGISTRIES'
+
+            // Recommended logging level for the console
+            // You can set various levels here.
+            // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
+            logLevel = org.slf4j.event.Level.DEBUG
+        }
     }
 
-    server {
-        programArgument '--nogui'
+    mods {
+        // define mod <-> source bindings
+        // these are used to tell the game which sources are for which mod
+        // mostly optional in a single mod project
+        // but multi mod projects should define one per mod
+        "${mod_id}" {
+            sourceSet(sourceSets.main)
+        }
     }
 }
 
@@ -92,8 +153,6 @@ repositories {
 }
 
 dependencies {
-    implementation "net.neoforged:neoforge:${forge_version}"
-
     ////// UTILITY STUFF //////
     compileOnly "org.projectlombok:lombok:${lombok}"
     annotationProcessor "org.projectlombok:lombok:${lombok}"
@@ -175,22 +234,35 @@ dependencies {
     } else libDir.mkdir();
 }
 
-def resourceTargets = ['META-INF/neoforge.mods.toml', 'pack.mcmeta']
-def replaceProperties = [
-        minecraft_version: mc_version, minecraft_version_range: mc_range,
-        forge_version    : "${mc_version}-${forge_version}", forge_version_range: forge_range, javafml_range: javafml_range,
-        mod_id           : config.mod_id, mod_name: config.mod_name, mod_license: config.mod_license, mod_version: config.mod_version,
-        mod_authors      : config.mod_authors, mod_description: config.mod_description,
-        hl_version       : config.hl_version, modrinth_project: config.modrinth_project,
-        issue_tracker_url: config.issue_tracker_url, mod_credits: config.mod_credits
-]
-processResources {
-    inputs.properties replaceProperties
 
-    filesMatching(resourceTargets) {
-        expand replaceProperties
-    }
+var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
+    group "build"
+    var replaceProperties = [
+            minecraft_version      : mc_version,
+            minecraft_version_range: mc_range,
+            neo_version_range      : neo_range,
+            loader_version_range   : loader_version_range,
+            mod_id                 : config.mod_id,
+            mod_name               : config.mod_name,
+            mod_license            : config.mod_license,
+            mod_version            : config.mod_version,
+            mod_authors            : config.mod_authors,
+            mod_description        : config.mod_description,
+            hl_version             : config.hl_version,
+            modrinth_project       : config.modrinth_project,
+            issue_tracker_url      : config.issue_tracker_url,
+            mod_credits            : config.mod_credits
+    ]
+    inputs.properties replaceProperties
+    expand replaceProperties
+    from "src/main/templates"
+    into "build/generated/sources/modMetadata"
 }
+// Include the output of "generateModMetadata" as an input directory for the build
+// this works with both building through Gradle and the IDE.
+sourceSets.main.resources.srcDir generateModMetadata
+// To avoid having to run "generateModMetadata" manually, make it run on every project reload
+neoForge.ideSyncTask generateModMetadata
 
 jar {
     manifest {
@@ -206,28 +278,12 @@ jar {
     }
 }
 
-task deobfJar(type: Jar) {
-    archiveClassifier = 'deobf'
-    from sourceSets.main.output
-    manifest {
-        attributes(["Specification-Title"     : config.mod_id,
-                    "Specification-Vendor"    : "Zeitheron",
-                    "Specification-Version"   : "1",
-                    "Implementation-Title"    : project.name,
-                    "Implementation-Version"  : archiveVersion,
-                    "Implementation-Vendor"   : config.mod_authors,
-                    "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        ])
-    }
-}
-
 task srcJar(type: Jar, dependsOn: classes) {
     from sourceSets.main.allJava
     archiveClassifier = 'sources'
 }
 
 artifacts {
-    archives deobfJar
     archives srcJar
 }
 
@@ -382,41 +438,6 @@ curseforge {
         }
     }
 }
-
-import net.neoforged.gradle.common.tasks.PotentiallySignJar
-
-task signJar(type: PotentiallySignJar, dependsOn: jar) {
-    onlyIf {
-        System.env.MC_KS_PASS != null
-    }
-    keyStore = System.env.MC_KS_PATH
-    alias = System.env.MC_KS_ALIAS
-    storePass = System.env.MC_KS_PASS
-    keyPass = System.env.MC_KS_PASS
-    input = jar.archiveFile
-}
-
-task placeSignedJar {
-    doLast {
-        def resF = signJar.output.get().asFile
-        def af = jar.archiveFile.get().asFile
-        af.delete()
-        resF.renameTo(af)
-    }
-}
-
-signJar.finalizedBy('placeSignedJar')
-
-def reobfFile = jar.archiveFile.get().asFile
-def reobfArtifact = artifacts.add('default', reobfFile) {
-    type 'jar'
-    builtBy 'signJar'
-}
-
-jar.finalizedBy('signJar')
-publish.dependsOn('signJar')
-
-build.dependsOn signJar
 
 task generateChangelog(type: se.bjurr.gitchangelog.plugin.gradle.GitChangelogTask) {
     group = "git changelog"

@@ -1,5 +1,7 @@
 package org.zeith.hammerlib.mixins.client;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.inventory.Slot;
@@ -11,6 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.zeith.hammerlib.api.client.gui.IClientSlotPatch;
 import org.zeith.hammerlib.api.inv.ICustomHoverSlot;
+import org.zeith.hammerlib.client.flowgui.util.ISlotLink;
 import org.zeith.hammerlib.util.java.Cast;
 
 import javax.annotation.Nullable;
@@ -63,41 +66,55 @@ public abstract class AbstractContainerScreenMixin
 		link.patchSlotTransforms(pSlot, pose);
 	}
 	
-	@Inject(
+	@WrapOperation(
 			method = "render",
 			at = @At(
 					value = "INVOKE",
-					target = "Lnet/minecraft/client/gui/screens/inventory/AbstractContainerScreen;renderSlotHighlight(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/world/inventory/Slot;IIF)V",
-					shift = At.Shift.BEFORE
+					target = "Lnet/minecraft/client/gui/screens/inventory/AbstractContainerScreen;renderSlotHighlightBack(Lnet/minecraft/client/gui/GuiGraphics;)V"
 			)
 	)
-	private void HammerLib_preRenderSlotHighlight(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick, CallbackInfo ci)
+	private void HammerLib_renderSlotHighlightBack(AbstractContainerScreen instance, GuiGraphics guiGraphics, Operation<Void> original)
 	{
-		if(!(hoveredSlot instanceof IClientSlotPatch patch)) return;
-		var link = patch.getLinkedHover();
-		if(link == null) return;
+		ISlotLink link;
+		if(!(hoveredSlot instanceof IClientSlotPatch patch) || (link = patch.getLinkedHover()) == null)
+		{
+			original.call(instance, guiGraphics);
+			return;
+		}
 		
-		var pose = pGuiGraphics.pose();
+		var pose = guiGraphics.pose();
 		pose.pushPose();
 		pose.translate(-hoveredSlot.x - leftPos, -hoveredSlot.y - topPos, 0);
 		link.patchSlotTransforms(hoveredSlot, pose);
+		
+		original.call(instance, guiGraphics);
+		
+		pose.popPose();
 	}
 	
-	@Inject(
+	@WrapOperation(
 			method = "render",
 			at = @At(
 					value = "INVOKE",
-					target = "Lnet/minecraft/client/gui/screens/inventory/AbstractContainerScreen;renderSlotHighlight(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/world/inventory/Slot;IIF)V",
-					shift = At.Shift.AFTER
+					target = "Lnet/minecraft/client/gui/screens/inventory/AbstractContainerScreen;renderSlotHighlightFront(Lnet/minecraft/client/gui/GuiGraphics;)V"
 			)
 	)
-	private void HammerLib_postRenderSlotHighlight(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick, CallbackInfo ci)
+	private void HammerLib_renderSlotHighlightFront(AbstractContainerScreen instance, GuiGraphics guiGraphics, Operation<Void> original)
 	{
-		if(!(hoveredSlot instanceof IClientSlotPatch patch)) return;
+		ISlotLink link;
+		if(!(hoveredSlot instanceof IClientSlotPatch patch) || (link = patch.getLinkedHover()) == null)
+		{
+			original.call(instance, guiGraphics);
+			return;
+		}
 		
-		var link = patch.getLinkedHover();
-		if(link == null) return;
+		var pose = guiGraphics.pose();
+		pose.pushPose();
+		pose.translate(-hoveredSlot.x - leftPos, -hoveredSlot.y - topPos, 0);
+		link.patchSlotTransforms(hoveredSlot, pose);
 		
-		pGuiGraphics.pose().popPose();
+		original.call(instance, guiGraphics);
+		
+		pose.popPose();
 	}
 }

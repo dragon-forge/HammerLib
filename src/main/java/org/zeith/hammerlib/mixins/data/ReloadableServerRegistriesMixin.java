@@ -16,7 +16,7 @@ import org.zeith.hammerlib.event.data.DataPackRegistryLoadEvent;
 public class ReloadableServerRegistriesMixin
 {
 	@Inject(
-			method = "lambda$scheduleElementParse$4",
+			method = "lambda$scheduleRegistryLoad$5",
 			at = @At("RETURN")
 	)
 	private static <T> void HammerLib_hookIntoReading(LootDataType<T> p_335741_, ResourceManager p_335893_, RegistryOps<T> p_336173_, CallbackInfoReturnable<WritableRegistry<T>> cir)

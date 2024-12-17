@@ -1,10 +1,11 @@
 package org.zeith.hammerlib.core.test;
 
 import org.zeith.hammerlib.api.recipes.RecipeBuilderExtension;
+import org.zeith.hammerlib.api.recipes.RegisterExt;
 import org.zeith.hammerlib.core.test.machine.RecipeTestMachine;
 import org.zeith.hammerlib.event.recipe.RegisterRecipesEvent;
 
-@RecipeBuilderExtension.RegisterExt
+@RegisterExt
 public class HammerLibRecipeExtension
 		extends RecipeBuilderExtension
 {

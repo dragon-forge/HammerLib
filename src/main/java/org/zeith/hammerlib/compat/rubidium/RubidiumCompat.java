@@ -5,18 +5,18 @@ import net.minecraft.network.chat.*;
 import net.neoforged.api.distmarker.Dist;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.annotations.OnlyIf;
+import org.zeith.hammerlib.annotations.Ref;
 import org.zeith.hammerlib.client.CustomFoilConfigs;
 import org.zeith.hammerlib.client.adapter.ChatMessageAdapter;
 import org.zeith.hammerlib.client.render.TintingVertexConsumer;
-import org.zeith.hammerlib.compat.base.BaseCompat;
-import org.zeith.hammerlib.compat.base.CompatContext;
+import org.zeith.hammerlib.compat.base.*;
 import org.zeith.hammerlib.compat.base._hl.BaseHLCompat;
 import org.zeith.hammerlib.util.mcf.ModHelper;
 
-@BaseCompat.LoadCompat(
+@ModCompat(
 		modid = "rubidium",
-		compatType = BaseHLCompat.class,
-		shouldLoad = @OnlyIf(owner = ModHelper.class, member = "isClient")
+		type = BaseHLCompat.class,
+		shouldLoad = @Ref(value = ModHelper.class, field = "CLIENT_SIDE")
 )
 public class RubidiumCompat
 		extends BaseHLCompat
@@ -32,15 +32,17 @@ public class RubidiumCompat
 		}
 		
 		ctx.runWhenOn(Dist.CLIENT, () -> () ->
-		{
-			CustomFoilConfigs.rubidiumInstaller = this::reload;
-			reload();
-		});
+				{
+					CustomFoilConfigs.rubidiumInstaller = this::reload;
+					reload();
+				}
+		);
 		
 		ctx.runWhenOn(Dist.DEDICATED_SERVER, () -> () ->
-		{
-			HammerLib.LOG.error("You tried to start a dedicated server with Rubidium installed. This is probably not a good idea.");
-		});
+				{
+					HammerLib.LOG.error("You tried to start a dedicated server with Rubidium installed. This is probably not a good idea.");
+				}
+		);
 		
 		var url = "https://www.curseforge.com/minecraft/mc-mods/embeddium";
 		

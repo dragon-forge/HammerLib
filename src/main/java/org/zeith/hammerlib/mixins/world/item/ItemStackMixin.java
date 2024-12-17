@@ -1,4 +1,4 @@
-package org.zeith.hammerlib.mixins;
+package org.zeith.hammerlib.mixins.world.item;
 
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;

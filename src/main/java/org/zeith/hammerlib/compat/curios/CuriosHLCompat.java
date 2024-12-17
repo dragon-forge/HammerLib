@@ -4,9 +4,9 @@ import org.zeith.hammerlib.compat.base.*;
 import org.zeith.hammerlib.compat.base._hl.BaseHLCompat;
 import org.zeith.hammerlib.util.charging.ItemChargeHelper;
 
-@BaseCompat.LoadCompat(
+@ModCompat(
 		modid = "curios",
-		compatType = BaseHLCompat.class
+		type = BaseHLCompat.class
 )
 public class CuriosHLCompat
 		extends BaseHLCompat

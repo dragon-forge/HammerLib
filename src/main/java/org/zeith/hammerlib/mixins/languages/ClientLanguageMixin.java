@@ -17,10 +17,10 @@ public class ClientLanguageMixin
 			method = "loadFrom",
 			at = @At(
 					value = "INVOKE",
-					target = "Lcom/google/common/collect/ImmutableMap;copyOf(Ljava/util/Map;)Lcom/google/common/collect/ImmutableMap;",
+					target = "Ljava/util/Map;copyOf(Ljava/util/Map;)Ljava/util/Map;",
 					ordinal = 0
 			),
-			index = 3
+			index = 4
 	)
 	private static Map<String, String> map(Map<String, String> v, ResourceManager resources, List<String> languages)
 	{

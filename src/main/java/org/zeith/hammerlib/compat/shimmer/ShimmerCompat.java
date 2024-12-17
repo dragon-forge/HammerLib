@@ -16,9 +16,9 @@ import org.zeith.hammerlib.util.java.Cast;
 import java.util.*;
 import java.util.function.*;
 
-@BaseCompat.LoadCompat(
+@ModCompat(
 		modid = "shimmer",
-		compatType = BaseHLCompat.class
+		type = BaseHLCompat.class
 )
 public class ShimmerCompat
 		extends BaseHLCompat

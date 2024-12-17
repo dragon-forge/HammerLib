@@ -14,10 +14,10 @@ import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class FMLFingerprintCheckEvent
 		extends ModLifecycleEvent
 {
-	@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 	private final Optional<String> gotFingerprint, trustData;
 	protected final ModContainer ctr;
 	
@@ -56,7 +56,7 @@ public class FMLFingerprintCheckEvent
 		try
 		{
 			trustData = mfi.getTrustData();
-		} catch(Exception e)
+		} catch(Exception ignored)
 		{
 		}
 		this.trustData = trustData;

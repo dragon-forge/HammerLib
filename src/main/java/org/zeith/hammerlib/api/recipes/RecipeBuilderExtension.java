@@ -8,7 +8,6 @@ import org.zeith.hammerlib.util.java.tuples.Tuple2;
 import org.zeith.hammerlib.util.java.tuples.Tuples;
 import org.zeith.hammerlib.util.mcf.ScanDataHelper;
 
-import java.lang.annotation.*;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -111,11 +110,5 @@ public abstract class RecipeBuilderExtension
 				})
 				.filter(e -> e != null && e.a().isInstance(e.b())) // value instanceof class
 				.collect(Collectors.toMap(Tuple2::a, Tuple2::b));
-	}
-	
-	@Retention(RetentionPolicy.RUNTIME)
-	@Target(ElementType.TYPE)
-	public @interface RegisterExt
-	{
 	}
 }
