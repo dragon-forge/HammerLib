@@ -1,13 +1,11 @@
 package org.zeith.hammerlib.core.test.machine;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
+import org.zeith.hammerlib.client.render.texture.GuiTexture;
 import org.zeith.hammerlib.client.screen.IAdvancedGui;
 import org.zeith.hammerlib.client.screen.ScreenWTFMojang;
-import org.zeith.hammerlib.client.utils.FXUtils;
-import org.zeith.hammerlib.client.utils.RenderUtils;
 import org.zeith.hammerlib.proxy.HLConstants;
 
 @IAdvancedGui.ApplyToJEI
@@ -15,6 +13,8 @@ public class ScreenTestMachine
 		extends ScreenWTFMojang<ContainerTestMachine>
 		implements IAdvancedGui<ScreenTestMachine>
 {
+	public static final GuiTexture TEXTURE = GuiTexture.of(HLConstants.id("textures/gui/test_machine.png"));
+	
 	public TileTestMachine tile;
 	
 	public ScreenTestMachine(ContainerTestMachine container, Inventory inv, Component label)
@@ -32,15 +32,23 @@ public class ScreenTestMachine
 	}
 	
 	@Override
-	protected void renderBackground(GuiGraphics pose, float partialTime, int mouseX, int mouseY)
+	protected void renderBackground(GuiGraphics gfx, float partialTime, int mouseX, int mouseY)
 	{
-		FXUtils.bindTexture(HLConstants.MOD_ID, "textures/gui/test_machine.png");
-		RenderUtils.drawTexturedModalRect(pose, leftPos, topPos, 0, 0, imageWidth, imageHeight);
+		var tex = TEXTURE.with(gfx);
+		
+		tex.blitSegment(leftPos, topPos, 0, 0, imageWidth, imageHeight, 256, 256);
 		
 		float maxProgress = 200F;
 		int mp = tile.maxProgress.getInt();
 		if(mp > 0) maxProgress = mp;
 		
-		RenderUtils.drawTexturedModalRect(pose, leftPos + 80, topPos + 35, imageWidth, 14, 22 * tile.progress.getInt() / maxProgress, 16);
+		float prog = tile.progress.getInt() / maxProgress;
+		
+		prog = (minecraft.level.getDayTime()+partialTime) / 100F % 1F;
+		
+		tex.blitSegment(leftPos + 80, topPos + 35,
+				imageWidth, 14,
+				22 * prog, 16
+		);
 	}
 }

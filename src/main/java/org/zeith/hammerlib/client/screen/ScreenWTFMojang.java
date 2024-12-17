@@ -1,7 +1,9 @@
 package org.zeith.hammerlib.client.screen;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.CoreShaders;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -30,8 +32,9 @@ public abstract class ScreenWTFMojang<T extends AbstractContainerMenu>
 	@Override
 	public void render(GuiGraphics pose, int mouseX, int mouseY, float partialTime)
 	{
-		this.renderBackground(pose, mouseX, mouseY, partialTime);
 		super.render(pose, mouseX, mouseY, partialTime);
+//		RenderSystem.setShader(CoreShaders.RENDERTYPE_GUI);
+//		this.renderBackground(pose, mouseX, mouseY, partialTime);
 		this.renderTooltip(pose, mouseX, mouseY);
 	}
 	

@@ -1,10 +1,15 @@
 package org.zeith.hammerlib.annotations;
 
-import org.jetbrains.annotations.*;
-import org.zeith.hammerlib.util.java.*;
+import com.google.common.base.Suppliers;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.objectweb.asm.Type;
+import org.zeith.hammerlib.util.java.Cast;
+import org.zeith.hammerlib.util.java.ReflectionUtil;
 
 import java.lang.annotation.*;
 import java.util.*;
+import java.util.function.Supplier;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
@@ -26,6 +31,33 @@ public @interface Ref
 		public static boolean isTypeSet(Ref ref)
 		{
 			return !void.class.equals(ref.value());
+		}
+		
+		public static Ref decode(Map<String, Object> ref)
+		{
+			Supplier<Class<?>> value = Suppliers.memoize(() -> ReflectionUtil.fetchClass((Type) ref.get("value")));
+			Supplier<String> member = Suppliers.memoize(() -> (String) ref.getOrDefault("field", ""));
+			
+			return new Ref()
+			{
+				@Override
+				public Class<?> value()
+				{
+					return value.get();
+				}
+				
+				@Override
+				public String field()
+				{
+					return member.get();
+				}
+				
+				@Override
+				public Class<? extends Annotation> annotationType()
+				{
+					return Ref.class;
+				}
+			};
 		}
 		
 		@Nullable

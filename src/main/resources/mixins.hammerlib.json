@@ -1,10 +1,10 @@
 {
 	"required": true,
-	"minVersion": "0.8.5",
+	"minVersion": "0.8.7",
 	"package": "org.zeith.hammerlib.mixins",
 	"refmap": "mixins.hammerlib.refmap.json",
 	"target": "@env(DEFAULT)",
-	"compatibilityLevel": "JAVA_17",
+	"compatibilityLevel": "JAVA_21",
 	"injectors": {
 		"maxShiftBy": 5
 	},

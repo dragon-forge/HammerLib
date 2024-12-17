@@ -57,7 +57,11 @@ public class RegistryAdapter
 			name = Resources.location(name.getNamespace(), prefix + name.getPath());
 			IRegisterListener l = Cast.cast(entry, IRegisterListener.class);
 			if(l != null) l.onPreRegistered(name);
+			
+			if(entry instanceof Block b) IdHelper.hotswap(b, name);
+			if(entry instanceof Item it) IdHelper.hotswap(it, name);
 			Registry.register(registry, name, entry);
+			
 			if(l != null) l.onPostRegistered(name);
 		};
 	}
@@ -155,16 +159,10 @@ public class RegistryAdapter
 		BiConsumer<ResourceLocation, T> grabber = createRegisterer(registry, prefix).andThen((key, handler) ->
 		{
 			if(handler instanceof Block b)
-			{
 				blockList.add(Tuples.immutable(b, key));
-				IdHelper.hotswap(b, key);
-			}
 			
 			if(handler instanceof ItemLike item && !tabs.isEmpty())
 				CreativeTabAdapter.bindTab(item, tabs.toArray(CreativeTab[]::new));
-			
-			if(handler instanceof Item it)
-				IdHelper.hotswap(it, key);
 		});
 		
 		if(Item.class.equals(superType)) for(var e : blockList)

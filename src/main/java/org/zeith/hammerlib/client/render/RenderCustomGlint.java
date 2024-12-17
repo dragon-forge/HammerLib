@@ -261,43 +261,43 @@ public class RenderCustomGlint
 	public static class GlintShaders
 	{
 		public static final ShaderProgram armorGlintShader = new ShaderProgram(
-				HLConstants.id("rendertype_armor_glint"),
+				HLConstants.id("core/rendertype_armor_glint"),
 				DefaultVertexFormat.POSITION_TEX_COLOR,
 				ShaderDefines.EMPTY
 		);
 		
 		public static final ShaderProgram armorEntityGlintShader = new ShaderProgram(
-				HLConstants.id("rendertype_armor_entity_glint"),
+				HLConstants.id("core/rendertype_armor_entity_glint"),
 				DefaultVertexFormat.POSITION_TEX_COLOR,
 				ShaderDefines.EMPTY
 		);
 		
 		public static final ShaderProgram glintTranslucentShader = new ShaderProgram(
-				HLConstants.id("rendertype_glint_translucent"),
+				HLConstants.id("core/rendertype_glint_translucent"),
 				DefaultVertexFormat.POSITION_TEX_COLOR,
 				ShaderDefines.EMPTY
 		);
 		
 		public static final ShaderProgram glintShader = new ShaderProgram(
-				HLConstants.id("rendertype_glint"),
+				HLConstants.id("core/rendertype_glint"),
 				DefaultVertexFormat.POSITION_TEX_COLOR,
 				ShaderDefines.EMPTY
 		);
 		
 		public static final ShaderProgram glintDirectShader = new ShaderProgram(
-				HLConstants.id("rendertype_glint_direct"),
+				HLConstants.id("core/rendertype_glint_direct"),
 				DefaultVertexFormat.POSITION_TEX_COLOR,
 				ShaderDefines.EMPTY
 		);
 		
 		public static final ShaderProgram entityGlintShader = new ShaderProgram(
-				HLConstants.id("rendertype_entity_glint"),
+				HLConstants.id("core/rendertype_entity_glint"),
 				DefaultVertexFormat.POSITION_TEX_COLOR,
 				ShaderDefines.EMPTY
 		);
 		
 		public static final ShaderProgram entityGlintDirectShader = new ShaderProgram(
-				HLConstants.id("rendertype_entity_glint_direct"),
+				HLConstants.id("core/rendertype_entity_glint_direct"),
 				DefaultVertexFormat.POSITION_TEX_COLOR,
 				ShaderDefines.EMPTY
 		);

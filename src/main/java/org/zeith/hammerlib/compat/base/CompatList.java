@@ -2,6 +2,7 @@ package org.zeith.hammerlib.compat.base;
 
 import net.neoforged.fml.ModList;
 import org.objectweb.asm.Type;
+import org.zeith.hammerlib.annotations.Ref;
 import org.zeith.hammerlib.core.adapter.OnlyIfAdapter;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.java.ReflectionUtil;
@@ -94,15 +95,12 @@ public class CompatList<T extends BaseCompat<T>>
 				ScanDataHelper.lookupAnnotatedObjects(ModCompat.class)
 						.stream()
 						.filter(data -> ModList.get().isLoaded(Objects.toString(data.getProperty("modid").orElse(""))))
-						.filter(data -> base.isAssignableFrom(ReflectionUtil.fetchClass((Type) data.getProperty("compatType").orElseThrow())))
+						.filter(data -> base.isAssignableFrom(ReflectionUtil.fetchClass((Type) data.getProperty("type").orElseThrow())))
 						.filter(data -> data.getProperty("shouldLoad")
-								.map(onlyIf ->
-										OnlyIfAdapter.checkCondition(
-												OnlyIfAdapter.decode(Cast.cast(onlyIf)),
-												"CompatList.gather",
-												base.getSimpleName(),
-												data,
-												Resources.location(Objects.toString(data.getProperty("modid").orElse("")), "root")
+								.map(ref ->
+										Cast.cast(
+												Ref.Resolver.resolveField(Ref.Resolver.decode(Cast.cast(ref))),
+												Boolean.class
 										)
 								)
 								.orElse(true)
