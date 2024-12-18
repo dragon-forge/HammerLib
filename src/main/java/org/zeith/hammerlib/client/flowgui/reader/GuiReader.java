@@ -338,7 +338,7 @@ public abstract class GuiReader<T extends GuiObject>
 		Map<String, Object> js = new HashMap<>();
 		try
 		{
-			js.put("Java", null); // Prevent exploiting Java types.
+			JsFactory.isolateJava(js); // Prevent exploiting Java types.
 			js.put("Math", MATH);
 			js.put("math", MATH);
 			query.putObjects(js::put);
@@ -392,7 +392,7 @@ public abstract class GuiReader<T extends GuiObject>
 	{
 		Map<String, Object> js = new HashMap<>(extraProps);
 		js.put("self", self);
-		js.put("Java", null); // Prevent exploiting Java types.
+		JsFactory.isolateJava(js); // Prevent exploiting Java types.
 		js.put("Math", MATH);
 		js.put("math", MATH);
 		query.putObjects(js::put);

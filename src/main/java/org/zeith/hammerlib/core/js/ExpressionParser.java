@@ -26,7 +26,7 @@ public class ExpressionParser
 		Map<String, Object> js = new HashMap<>();
 		try
 		{
-			js.put("Java", null); // Prevent exploiting Java types.
+			JsFactory.isolateJava(js); // Prevent exploiting Java types.
 			js.put("Math", MATH);
 			js.put("math", MATH);
 			

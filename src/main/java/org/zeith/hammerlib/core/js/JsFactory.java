@@ -110,4 +110,20 @@ public class JsFactory
 		if((p == null || c == null) && require) throw new IllegalStateException("Nashorn JS environment was not found.");
 		HammerLib.LOG.info("Using {} JS parser with {} converter.", p, c);
 	}
+	
+	public static void isolateJava(Map<String, Object> props)
+	{
+		props.put("load", null);
+		props.put("loadWithNewGlobal", null);
+		props.put("exit", null);
+		props.put("quit", null);
+		props.put("Java", null);
+		
+		props.put("java", null);
+		props.put("javax", null);
+		props.put("javafx", null);
+		props.put("org", null);
+		props.put("com", null);
+		props.put("edu", null);
+	}
 }

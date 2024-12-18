@@ -37,6 +37,11 @@ public class ScreenTestMachine
 		HammerLib.LOG.info("I have been pressed!!");
 	}
 	
+	public boolean enableTestButton()
+	{
+		return true;
+	}
+	
 	@Override
 	protected void init()
 	{
