@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root width="176" height="166" centered="int" debug="true" rotation="45">
+<root width="176" height="166" centered="int">
     <button id="img-test"
             height="22.5"
             width="100"
             callback="if(q.gui.pressTest) q.gui.pressTest()"
             label="hiiiii"
-            enabled="q.gui.enableTestButton &amp;&amp; q.gui.enableTestButton()"
+            enabled="q.gui.enableTestButton &amp;&amp; q.gui.enableTestButton() &amp;&amp; (1 - math.cos(query.time * 90)) / 2 > 0.2"
             alpha="0.5"
             text-color="#ff0000"
+            align-x="center"
     />
 </root>

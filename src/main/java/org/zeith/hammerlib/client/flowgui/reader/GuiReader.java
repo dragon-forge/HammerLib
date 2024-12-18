@@ -10,6 +10,7 @@ import org.zeith.hammerlib.annotations.ide.*;
 import org.zeith.hammerlib.api.data.DataNodeTransformer;
 import org.zeith.hammerlib.api.data.IDataNode;
 import org.zeith.hammerlib.client.flowgui.GuiObject;
+import org.zeith.hammerlib.client.flowgui.data.FlowQuery;
 import org.zeith.hammerlib.client.flowgui.objects.GuiRootObject;
 import org.zeith.hammerlib.core.js.*;
 import org.zeith.hammerlib.proxy.HLConstants;
@@ -34,8 +35,12 @@ public abstract class GuiReader<T extends GuiObject>
 				m.put("img", "image");
 				m.put("empty", "empty");
 				m.put("button", "button");
+				m.put("slot", "slot");
 			}
 	));
+	
+	@AllowedValues(AllowedValues.BOOLEAN)
+	public static final String KEY_IF = "if";
 	
 	@AllowedValues({ AllowedValues.BOOLEAN, "^int$" })
 	public static final String KEY_CENTERED = "centered";
@@ -104,11 +109,14 @@ public abstract class GuiReader<T extends GuiObject>
 		String id = attributes.getString(KEY_ID);
 		if(id == null || id.isBlank()) id = UUID.randomUUID().toString();
 		
+		var query = context.get(FlowguiRegistry.QUERY);
+		if(readBoolean(KEY_IF, query, attributes).get() == OptionalBoolean.OPTIONAL_FALSE)
+			return null;
+		
 		var obj = readObject(context, id, attributes);
 		if(obj == null) return null;
 		
 		var root = context.get(FlowguiRegistry.GUI_ROOT);
-		var query = context.get(FlowguiRegistry.QUERY);
 		
 		Set<String> keys = attributes.keys();
 		
@@ -165,7 +173,12 @@ public abstract class GuiReader<T extends GuiObject>
 						obj.addChild(child);
 						var from = Resources.locationOrNull(node.getString("from"));
 						var scene = from != null ? FlowguiRegistry.readRoot(from, childContext, child::getUnscaledWidth, child::getUnscaledHeight) : null;
-						if(scene != null) child.addChild(scene);
+						if(scene != null)
+						{
+							if(child.elementWidth.get() <= 0F) child.elementWidth.set(scene.getUnscaledWidth());
+							if(child.elementHeight.get() <= 0F) child.elementHeight.set(scene.getUnscaledHeight());
+							child.addChild(scene);
+						}
 						else HammerLib.LOG.warn("Failed to read Flowgui import: {}", readableName(node));
 					} else HammerLib.LOG.warn("Failed to read Flowgui import as placeholder object: {}", readableName(node));
 				}
@@ -240,7 +253,7 @@ public abstract class GuiReader<T extends GuiObject>
 		}
 		
 		driveFloat(root, query, attributes, KEY_X, 0F, scaledAxis[0], x -> obj.elementPosition.apply(pos0 ->
-						pos0.setX(
+						pos0.withX(
 								alX.get().apply(
 										x,
 										parentWidth.getAsFloat(),
@@ -251,7 +264,7 @@ public abstract class GuiReader<T extends GuiObject>
 		);
 		
 		driveFloat(root, query, attributes, KEY_Y, 0F, scaledAxis[1], y -> obj.elementPosition.apply(pos0 ->
-						pos0.setY(
+						pos0.withY(
 								alY.get().apply(
 										y,
 										parentHeight.getAsFloat(),
@@ -284,8 +297,8 @@ public abstract class GuiReader<T extends GuiObject>
 			if(scaledAxis[0] || scaledAxis[1]) root.onPreRender(f -> obj.pivotAtCenter());
 		}
 		
-		driveFloat(root, query, attributes, KEY_PIVOT_X, null, false, x -> obj.elementPivot.apply(p -> p.setX(x)));
-		driveFloat(root, query, attributes, KEY_PIVOT_Y, null, false, y -> obj.elementPivot.apply(p -> p.setY(y)));
+		driveFloat(root, query, attributes, KEY_PIVOT_X, null, false, x -> obj.elementPivot.apply(p -> p.withX(x)));
+		driveFloat(root, query, attributes, KEY_PIVOT_Y, null, false, y -> obj.elementPivot.apply(p -> p.withY(y)));
 	}
 	
 	protected boolean driveBool(GuiRootObject root, FlowQuery query, IDataNode attributes, String name, Boolean defaultValue, boolean alwaysDrive, BooleanConsumer driver)

@@ -2,7 +2,6 @@ package org.zeith.hammerlib.client.flowgui.readers;
 
 import com.google.common.base.MoreObjects;
 import net.minecraft.core.Holder;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
 import org.zeith.hammerlib.abstractions.props.KeyMap;
@@ -18,7 +17,7 @@ import java.util.Map;
 
 @Namespace(HLConstants.MOD_ID)
 @FlowguiReader("button")
-public class ButtonReader
+public class FlowguiButtonReader
 		extends GuiReader<GuiButtonObject>
 {
 	@AllowedValues(AllowedValues.NON_NEGATIVE_FLOAT)

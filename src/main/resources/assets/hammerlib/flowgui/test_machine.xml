@@ -1,16 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root width="176" height="166" centered="int" debug="true">
+<root width="176" height="166" centered="int">
     <img id="img-test" src="hammerlib:textures/gui/test_machine.png"
-        u-coord="0" v-coord="0" image-width="176" image-height="166" file-width="256"
-        file-height="256">
+         u-coord="0" v-coord="0" image-width="176" image-height="166" file-width="256"
+         file-height="256">
 
         <img id="img-test" src="hammerlib:textures/gui/test_machine.png"
-            u-coord="0" v-coord="0" image-width="176" image-height="166" file-width="256"
-            file-height="256" scale="0.5" scale-y="1 + math.sin(query.time * 360) * 0.15"
-            align-x="center" align-y="bottom" y="math.sin(query.time * 360) * 5"
-            rotation="query.time * 20" pivot-centered="true" />
+             u-coord="0" v-coord="0"
+             image-width="176" image-height="166"
+             file-width="256" file-height="256"
+             scale="0.5" scale-y="1 + math.sin(query.time * 360) * 0.05 * 0"
+             align-x="right" align-y="bottom"
+             pivot-centered="true"
+             rotation="math.sin(query.time * 720) * 5 * (1 - math.cos(query.time * 90)) / 2"
+        />
 
-        <import from="hammerlib:test" scale="0.5" width="176" height="166" align-x="center" />
+        <import from="hammerlib:test"
+                width="176"
+                height="166"
+        />
 
+        <import from="hammerlib:player_hotbar"
+                x="7"
+                y="25"
+                align-y="bottom"
+        />
+
+        <import from="hammerlib:player_inventory"
+                x="7"
+                y="83"
+                align-y="bottom"
+        />
     </img>
 </root>

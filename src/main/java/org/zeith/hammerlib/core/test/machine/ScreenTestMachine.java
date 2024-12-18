@@ -5,7 +5,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.abstractions.props.KeyMap;
-import org.zeith.hammerlib.client.flowgui.GuiObject;
+import org.zeith.hammerlib.client.flowgui.data.FlowQuery;
 import org.zeith.hammerlib.client.flowgui.objects.GuiRootObject;
 import org.zeith.hammerlib.client.flowgui.reader.*;
 import org.zeith.hammerlib.client.render.texture.GuiTexture;

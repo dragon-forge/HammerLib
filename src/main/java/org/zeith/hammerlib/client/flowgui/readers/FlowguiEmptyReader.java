@@ -10,10 +10,10 @@ import org.zeith.hammerlib.proxy.HLConstants;
 
 @Namespace(HLConstants.MOD_ID)
 @FlowguiReader("empty")
-public class EmptyReader
+public class FlowguiEmptyReader
 		extends GuiReader<GuiObject>
 {
-	public static final EmptyReader INSTANCE = new EmptyReader();
+	public static final FlowguiEmptyReader INSTANCE = new FlowguiEmptyReader();
 	
 	@Override
 	protected GuiObject readObject(KeyMap context, String name, IDataNode attributes)

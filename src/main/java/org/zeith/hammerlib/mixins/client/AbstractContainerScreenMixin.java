@@ -68,38 +68,18 @@ public abstract class AbstractContainerScreenMixin
 	
 	@WrapOperation(
 			method = "render",
-			at = @At(
-					value = "INVOKE",
-					target = "Lnet/minecraft/client/gui/screens/inventory/AbstractContainerScreen;renderSlotHighlightBack(Lnet/minecraft/client/gui/GuiGraphics;)V"
-			)
+			at = {
+					@At(
+							value = "INVOKE",
+							target = "Lnet/minecraft/client/gui/screens/inventory/AbstractContainerScreen;renderSlotHighlightBack(Lnet/minecraft/client/gui/GuiGraphics;)V"
+					),
+					@At(
+							value = "INVOKE",
+							target = "Lnet/minecraft/client/gui/screens/inventory/AbstractContainerScreen;renderSlotHighlightFront(Lnet/minecraft/client/gui/GuiGraphics;)V"
+					)
+			}
 	)
-	private void HammerLib_renderSlotHighlightBack(AbstractContainerScreen instance, GuiGraphics guiGraphics, Operation<Void> original)
-	{
-		ISlotLink link;
-		if(!(hoveredSlot instanceof IClientSlotPatch patch) || (link = patch.getLinkedHover()) == null)
-		{
-			original.call(instance, guiGraphics);
-			return;
-		}
-		
-		var pose = guiGraphics.pose();
-		pose.pushPose();
-		pose.translate(-hoveredSlot.x - leftPos, -hoveredSlot.y - topPos, 0);
-		link.patchSlotTransforms(hoveredSlot, pose);
-		
-		original.call(instance, guiGraphics);
-		
-		pose.popPose();
-	}
-	
-	@WrapOperation(
-			method = "render",
-			at = @At(
-					value = "INVOKE",
-					target = "Lnet/minecraft/client/gui/screens/inventory/AbstractContainerScreen;renderSlotHighlightFront(Lnet/minecraft/client/gui/GuiGraphics;)V"
-			)
-	)
-	private void HammerLib_renderSlotHighlightFront(AbstractContainerScreen instance, GuiGraphics guiGraphics, Operation<Void> original)
+	private void HammerLib_renderSlotHighlight(AbstractContainerScreen instance, GuiGraphics guiGraphics, Operation<Void> original)
 	{
 		ISlotLink link;
 		if(!(hoveredSlot instanceof IClientSlotPatch patch) || (link = patch.getLinkedHover()) == null)

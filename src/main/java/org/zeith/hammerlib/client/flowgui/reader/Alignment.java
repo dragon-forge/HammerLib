@@ -1,5 +1,6 @@
 package org.zeith.hammerlib.client.flowgui.reader;
 
+import org.zeith.hammerlib.client.flowgui.data.FlowQuery;
 import org.zeith.hammerlib.util.java.Cast;
 
 import java.util.Locale;

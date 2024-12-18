@@ -34,16 +34,14 @@ public class Point
 		return b;
 	}
 	
-	public Point setX(float x)
+	public Point withX(float x)
 	{
-		this.a = x;
-		return this;
+		return new Point(x, y());
 	}
 	
-	public Point setY(float y)
+	public Point withY(float y)
 	{
-		this.b = y;
-		return this;
+		return new Point(x(), y);
 	}
 	
 	@Override

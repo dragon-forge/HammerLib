@@ -16,6 +16,7 @@ import org.zeith.hammerlib.abstractions.props.Key;
 import org.zeith.hammerlib.abstractions.props.KeyMap;
 import org.zeith.hammerlib.api.data.IDataNode;
 import org.zeith.hammerlib.client.flowgui.GuiObject;
+import org.zeith.hammerlib.client.flowgui.data.FlowQuery;
 import org.zeith.hammerlib.client.flowgui.objects.GuiRootObject;
 import org.zeith.hammerlib.core.js.JsFactory;
 import org.zeith.hammerlib.proxy.HLConstants;
@@ -113,6 +114,7 @@ public class FlowguiRegistry
 		}
 	}
 	
+	@Nullable
 	static GuiObject read(KeyMap context, IDataNode data, FloatSupplier parentWidth, FloatSupplier parentHeight)
 	{
 		var cls = data.getString(GuiReader.KEY_CLASS);

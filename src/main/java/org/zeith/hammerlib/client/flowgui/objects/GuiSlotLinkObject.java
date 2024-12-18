@@ -1,5 +1,6 @@
 package org.zeith.hammerlib.client.flowgui.objects;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.world.inventory.Slot;
 import org.joml.Matrix4f;
@@ -36,11 +37,8 @@ public class GuiSlotLinkObject
 	@Override
 	protected void render(Graphics gfx, MousePos pos)
 	{
-		var ps = gfx.gfx().pose();
-		ps.pushPose();
-		transform = new Matrix4f(ps.last().pose());
+		transform = new Matrix4f(gfx.gfx().pose().last().pose());
 		untransform = transform.invert(new Matrix4f());
-		ps.popPose();
 	}
 	
 	@Override
@@ -59,9 +57,6 @@ public class GuiSlotLinkObject
 		}
 		
 		pose.mulPose(transform);
-		
-		// Translate back a bit to avoid tooltip being rendered below the item & count
-		pose.translate(0, 0, -75 * width / 16);
 		
 		// since vanilla slots are 16x the size of 1px, we should correct the scale
 		pose.scale(width / 16F, height / 16F, width / 16F);
