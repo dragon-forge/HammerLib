@@ -3,8 +3,7 @@
     <img id="background" src="hammerlib:textures/gui/test_machine.png"
          u-coord="0" v-coord="0"
          image-width="176" image-height="166"
-         file-width="256"
-         file-height="256"
+         file-width="256" file-height="256"
     >
         <img id="progress_bar" src="hammerlib:textures/gui/test_machine.png"
              x="80" y="35"
@@ -13,16 +12,7 @@
              file-width="256" file-height="256"
         />
 
-        <import from="c:player_hotbar"
-                x="7"
-                y="25"
-                align-y="bottom"
-        />
-
-        <import from="c:player_inventory"
-                x="7"
-                y="83"
-                align-y="bottom"
-        />
+        <import from="c:player_hotbar" x="7" y="25" align-y="bottom"/>
+        <import from="c:player_inventory" x="7" y="83" align-y="bottom"/>
     </img>
 </root>

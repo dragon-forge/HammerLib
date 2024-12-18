@@ -22,6 +22,11 @@ public class FlowQuery
 	{
 		this.gui = gui;
 		this.container = container;
-		this.slots = container == null ? null : new GuiSlotHelper(container);
+		this.slots = container == null ? null : createSlotHelper(container);
+	}
+	
+	protected GuiSlotHelper createSlotHelper(AbstractContainerMenu container)
+	{
+		return new GuiSlotHelper(container);
 	}
 }

@@ -35,7 +35,7 @@ public class GuiSlotHelper
 		for(int i = 0, len = sl.size(); i < len; i++)
 		{
 			var slot = sl.get(i);
-			if(slot.container instanceof Inventory playerInv)
+			if(slot.container instanceof Inventory)
 			{
 				int index = slot.getSlotIndex();
 				int prev = 0;
