@@ -42,15 +42,23 @@ public class FlowguiImageReader
 	@Override
 	protected GuiImageObject readObject(KeyMap context, String name, IDataNode attributes)
 	{
+		var root = context.get(FlowguiRegistry.GUI_ROOT);
+		var query = context.get(FlowguiRegistry.QUERY);
+		
 		GuiTexture texture = GuiTexture.of(Resources.location(attributes.getString(KEY_TEXTURE)));
 		
-		float uOffset = attributes.getFloat(KEY_U_COORD).filter(f -> f >= 0).orElseThrow(invalidField(attributes, KEY_U_COORD));
-		float vOffset = attributes.getFloat(KEY_V_COORD).filter(f -> f >= 0).orElseThrow(invalidField(attributes, KEY_V_COORD));
-		float width = attributes.getInt(KEY_IMAGE_WIDTH).stream().filter(i -> i > 0).findFirst().orElseThrow(invalidField(attributes, KEY_IMAGE_WIDTH));
-		float height = attributes.getInt(KEY_IMAGE_HEIGHT).stream().filter(i -> i > 0).findFirst().orElseThrow(invalidField(attributes, KEY_IMAGE_HEIGHT));
-		float txWidth = attributes.getInt(KEY_FILE_WIDTH).stream().filter(i -> i > 0).findFirst().orElse(256);
-		float txHeight = attributes.getInt(KEY_FILE_HEIGHT).stream().filter(i -> i > 0).findFirst().orElse(256);
+		var image = new GuiImageObject(name, texture, 0, 0, 0, 0, 256, 256);
 		
-		return new GuiImageObject(name, texture, uOffset, vOffset, width, height, txWidth, txHeight);
+		var jsc = getJSContext(context);
+		driveFloat(jsc, image, root, query, attributes, KEY_U_COORD, null, false, image.textureUOffset::set);
+		driveFloat(jsc, image, root, query, attributes, KEY_V_COORD, null, false, image.textureVOffset::set);
+		driveFloat(jsc, image, root, query, attributes, KEY_IMAGE_WIDTH, null, false, image.imageWidth::set);
+		driveFloat(jsc, image, root, query, attributes, KEY_IMAGE_HEIGHT, null, false, image.imageHeight::set);
+		driveFloat(jsc, image, root, query, attributes, KEY_FILE_WIDTH, 256F, false, image.fileWidth::set);
+		driveFloat(jsc, image, root, query, attributes, KEY_FILE_HEIGHT, 256F, false, image.fileHeight::set);
+		
+		image.size(image.imgWidth, image.imgHeight);
+		
+		return image;
 	}
 }

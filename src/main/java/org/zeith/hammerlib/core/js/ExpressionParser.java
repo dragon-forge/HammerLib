@@ -1,57 +1,30 @@
 package org.zeith.hammerlib.core.js;
 
-import lombok.val;
+import lombok.SneakyThrows;
 import net.minecraft.util.Mth;
-import org.zeith.hammerlib.core.js.math.*;
+import org.zeith.hammerlib.util.java.tuples.Tuple2;
 
-import javax.script.ScriptException;
+import javax.script.ScriptEngine;
 import java.util.*;
 
 public class ExpressionParser
 {
 	public static final MathJS MATH = new MathJS();
 	
-	public static <T extends IVariableAccess> InterpolatedDouble<T> parse(String expression)
+	@SneakyThrows
+	public static <T> Tuple2<ScriptEngine, T> parse(String expression, CallerSpec spec, Class<T> type)
 	{
-		expression = ExpressionFixer.fixExpression(expression);
-		
-		// Try parsing expression as constant first.
-		try
-		{
-			return InterpolatedDouble.constant(Double.parseDouble(expression));
-		} catch(Throwable e)
-		{
-		}
+		if(!type.isAnnotationPresent(FunctionalInterface.class))
+			throw new IllegalArgumentException(type + " is not a @FunctionalInterface!");
 		
 		Map<String, Object> js = new HashMap<>();
-		try
-		{
-			JsFactory.isolateJava(js); // Prevent exploiting Java types.
-			js.put("Math", MATH);
-			js.put("math", MATH);
-			
-			String fun = "function get() {\n\treturn " + expression + ";\n}";
-			
-			val res = JsFactory.parse(IDoubleTest.class, js, fun);
-			if(res == null) return query -> 0;
-			
-			val t = res.b();
-			return query ->
-			{
-				try
-				{
-					query.putObjects(res.a()::put);
-					return t.get();
-				} catch(RuntimeException e)
-				{
-					e.printStackTrace();
-					return Double.NaN;
-				}
-			};
-		} catch(ScriptException e)
-		{
-			throw new RuntimeException(e);
-		}
+		JsFactory.isolateJava(js); // Prevent exploiting Java types.
+		js.put("Math", MATH);
+		js.put("math", MATH);
+		
+		String fun = "function " + spec.method() + "(" + String.join(",", spec.args()) + "){\n\t" + (spec.hasReturn() ? "return" : "") + " " + expression + ";\n}";
+		
+		return JsFactory.parse(type, js, fun);
 	}
 	
 	private static final Random rng = new Random();

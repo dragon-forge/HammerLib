@@ -1,22 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root width="176" height="166" centered="int">
     <img id="img-test" src="hammerlib:textures/gui/test_machine.png"
-         u-coord="0" v-coord="0" image-width="176" image-height="166" file-width="256"
-         file-height="256">
+         u-coord="0" v-coord="0"
+         image-width="176" image-height="166"
+         file-width="256"
+         file-height="256"
+    >
 
         <img id="img-test" src="hammerlib:textures/gui/test_machine.png"
-             u-coord="0" v-coord="0"
-             image-width="176" image-height="166"
+             x="80" y="35"
+             u-coord="176" v-coord="14"
+             image-width="22 * q.gui.getProgress(q.partialTime)" image-height="16"
              file-width="256" file-height="256"
-             scale="0.5" scale-y="1 + math.sin(query.time * 360) * 0.05 * 0"
-             align-x="right" align-y="bottom"
-             pivot-centered="true"
-             rotation="math.sin(query.time * 720) * 5 * (1 - math.cos(query.time * 90)) / 2"
-        />
-
-        <import from="hammerlib:test"
-                width="176"
-                height="166"
         />
 
         <import from="hammerlib:player_hotbar"

@@ -13,8 +13,6 @@ import org.zeith.hammerlib.event.listeners.TagsUpdateListener;
 import org.zeith.hammerlib.proxy.HLConstants;
 import org.zeith.hammerlib.util.mcf.Resources;
 
-import java.util.Map;
-
 @Namespace(HLConstants.MOD_ID)
 @FlowguiReader("button")
 public class FlowguiButtonReader
@@ -64,11 +62,12 @@ public class FlowguiButtonReader
 		
 		var button = builder.build();
 		
-		var cbq = readCallback(KEY_CALLBACK, attributes, query, button, false, Map.of());
-		button.callback = cbq::invoke;
+		var cbq = readCallback(getJSContext(context), KEY_CALLBACK, attributes, query, button, false);
+		button.callback = b -> cbq.run();
 		
-		driveBool(root, query, attributes, KEY_ENABLED, true, false, button::setEnabled);
-		driveFloat(root, query, attributes, KEY_ALPHA, 1F, false, alpha -> button.setAlpha(Math.clamp(alpha, 0F, 1F)));
+		var jsc = getJSContext(context);
+		driveBool(jsc, button, root, query, attributes, KEY_ENABLED, true, false, button::setEnabled);
+		driveFloat(jsc, button, root, query, attributes, KEY_ALPHA, 1F, false, alpha -> button.setAlpha(Math.clamp(alpha, 0F, 1F)));
 		
 		return button;
 	}

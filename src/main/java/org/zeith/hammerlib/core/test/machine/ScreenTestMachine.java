@@ -7,7 +7,8 @@ import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.abstractions.props.KeyMap;
 import org.zeith.hammerlib.client.flowgui.data.FlowQuery;
 import org.zeith.hammerlib.client.flowgui.objects.GuiRootObject;
-import org.zeith.hammerlib.client.flowgui.reader.*;
+import org.zeith.hammerlib.client.flowgui.reader.FlowguiRegistry;
+import org.zeith.hammerlib.client.flowgui.reader.XmlFlowgui;
 import org.zeith.hammerlib.client.render.texture.GuiTexture;
 import org.zeith.hammerlib.client.screen.IAdvancedGui;
 import org.zeith.hammerlib.client.screen.ScreenWTFMojang;
@@ -42,6 +43,15 @@ public class ScreenTestMachine
 		return true;
 	}
 	
+	public float getProgress(float partialTime)
+	{
+		float maxProgress = 200F;
+		int mp = tile.maxProgress.getInt();
+		if(mp > 0) maxProgress = mp;
+		
+		return tile.progress.getInt() / maxProgress;
+	}
+	
 	@Override
 	protected void init()
 	{
@@ -65,19 +75,5 @@ public class ScreenTestMachine
 	@Override
 	protected void renderBackground(GuiGraphics gfx, float partialTime, int mouseX, int mouseY)
 	{
-		var tex = TEXTURE.with(gfx);
-
-//		tex.blitSegment(leftPos, topPos, 0, 0, imageWidth, imageHeight, 256, 256);
-		
-		float maxProgress = 200F;
-		int mp = tile.maxProgress.getInt();
-		if(mp > 0) maxProgress = mp;
-		
-		float prog = tile.progress.getInt() / maxProgress;
-		
-		tex.blitSegment(leftPos + 80, topPos + 35,
-				imageWidth, 14,
-				22 * prog, 16
-		);
 	}
 }

@@ -50,20 +50,26 @@ public class FlowguiRegistry
 	public static final Key<ResourceLocation> ROOT_ID = Key.of(HLConstants.id("root_id"), ResourceLocation.class);
 	//</editor-fold>
 	
+	public static final Key<Boolean> IS_CACHING_JS = Key.of(HLConstants.id("caching_js"), Boolean.class);
+	
 	//<editor-fold desc="Automatically populated keys">
 	public static final Key<GuiRootObject> GUI_ROOT = Key.of(HLConstants.id("gui_root"), GuiRootObject.class);
 	public static final Key<Stack<ResourceLocation>> LOAD_STACK = Key.of(HLConstants.id("load_stack"), Cast.cast(Stack.class));
+	public static final Key<JsContext> JS_CONTEXT = Key.of(HLConstants.id("js_context"), JsContext.class);
 	//</editor-fold>
 	
 	public static boolean DISABLE_CACHE = Boolean.parseBoolean(Objects.toString(System.getProperty("hammerlib.flowgui.nocache")));
+	private static final JsContext GLOBAL = new JsContext();
 	
 	@NotNull
 	public static GuiRootObject readRoot(KeyMap context)
 	{
 		var location = context.opt(ROOT_ID).orElseThrow();
-		var gui = context.opt(QUERY).map(FlowQuery::getGui).orElseThrow();
+		var gui = context.opt(QUERY).orElseThrow().gui;
 		context.put(LOAD_STACK, new Stack<>());
-		return readRoot(location, context, () -> gui.width, () -> gui.height);
+		context.put(JS_CONTEXT, GLOBAL);
+		context.computeIfAbsent(IS_CACHING_JS, Cast.constant(false));
+		return readRoot(location, context, gui != null ? () -> gui.width : Cast.constantF(1920), gui != null ? () -> gui.height : Cast.constantF(1080));
 	}
 	
 	@NotNull
@@ -140,18 +146,24 @@ public class FlowguiRegistry
 		FlowguiRegistry.resources = resources;
 		GUI_DATA.clear();
 		MISSING.clear();
+		GLOBAL.clear();
 		
 		JsFactory.init(true);
 		
 		for(ResourceLocation id : PRELOADED)
 		{
-			var provider = getFlowguiFile(id);
+			getFlowguiFile(id);
 			
 			// If cache is not disabled, memoize the result from the resource!
 			if(!DISABLE_CACHE)
 			{
 				// Instantly query the value to perform immediate preload.
-				provider.get();
+				FlowguiRegistry.readRoot(
+						KeyMap.createHash()
+								.with(FlowguiRegistry.QUERY, new FlowQuery(null))
+								.with(FlowguiRegistry.ROOT_ID, id)
+								.with(FlowguiRegistry.IS_CACHING_JS, true)
+				);
 			}
 		}
 	}
