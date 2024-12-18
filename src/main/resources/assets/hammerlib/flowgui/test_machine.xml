@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root width="176" height="166" centered="int">
-    <img id="img-test" src="hammerlib:textures/gui/test_machine.png"
+    <img id="background" src="hammerlib:textures/gui/test_machine.png"
          u-coord="0" v-coord="0"
          image-width="176" image-height="166"
          file-width="256"
          file-height="256"
     >
-
-        <img id="img-test" src="hammerlib:textures/gui/test_machine.png"
+        <img id="progress_bar" src="hammerlib:textures/gui/test_machine.png"
              x="80" y="35"
              u-coord="176" v-coord="14"
              image-width="22 * q.gui.getProgress(q.partialTime)" image-height="16"
