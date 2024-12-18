@@ -55,6 +55,11 @@ public class TileSyncableTickable
 		update();
 	}
 	
+	public void serverTick(ServerLevel level)
+	{
+		serverTick();
+	}
+	
 	@Override
 	public void clientTick(Level level, BlockPos pos, BlockState state, BlockEntity be)
 	{
@@ -67,13 +72,13 @@ public class TileSyncableTickable
 	}
 	
 	@Override
-	public void serverTick(Level level, BlockPos pos, BlockState state, BlockEntity be)
+	public void serverTick(ServerLevel level, BlockPos pos, BlockState state, BlockEntity be)
 	{
 		if(be != this) return;
 		this.level = level;
 		
 		dispatcher.tick(level);
-		serverTick();
+		serverTick(level);
 		ticksExisted++;
 	}
 }

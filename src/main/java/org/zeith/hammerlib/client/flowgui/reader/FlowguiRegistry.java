@@ -2,6 +2,7 @@ package org.zeith.hammerlib.client.flowgui.reader;
 
 import com.google.common.base.Suppliers;
 import lombok.extern.slf4j.Slf4j;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -10,6 +11,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.objectweb.asm.Type;
 import org.xml.sax.SAXException;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.abstractions.props.Key;
@@ -41,7 +43,7 @@ public class FlowguiRegistry
 	private static final Map<ResourceLocation, GuiReader<?>> REGISTRY = new HashMap<>();
 	
 	private static ResourceManager resources;
-	private static final Set<ResourceLocation> PRELOADED = new HashSet<>();
+	private static final Map<Type, ResourceLocation> PRELOADED = new HashMap<>();
 	private static final Set<ResourceLocation> MISSING = new HashSet<>();
 	private static final Map<ResourceLocation, Supplier<IDataNode>> GUI_DATA = new HashMap<>();
 	
@@ -150,7 +152,7 @@ public class FlowguiRegistry
 		
 		JsFactory.init(true);
 		
-		for(ResourceLocation id : PRELOADED)
+		for(ResourceLocation id : PRELOADED.values())
 		{
 			getFlowguiFile(id);
 			
@@ -208,12 +210,18 @@ public class FlowguiRegistry
 		return provider;
 	}
 	
+	public static ResourceLocation getId(Class<? extends Screen> gui)
+	{
+		return Objects.requireNonNull(PRELOADED.get(Type.getType(gui)), "XmlFlowgui.value() on " + gui);
+	}
+	
 	public static void handleXml(ScanDataHelper.ModAwareAnnotationData data)
 	{
-		PRELOADED.add(Resources.location(
-				data.getOwnerMod().orElseThrow().getNamespace(),
-				Objects.toString(data.getProperty("value").orElseThrow())
-		));
+		PRELOADED.put(data.clazz(), Resources.location(
+						data.getOwnerMod().orElseThrow().getNamespace(),
+						Objects.toString(data.getProperty("value").orElseThrow())
+				)
+		);
 	}
 	
 	public static void handleReader(ScanDataHelper.ModAwareAnnotationData data)

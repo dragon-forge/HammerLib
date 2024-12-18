@@ -3,10 +3,11 @@ package org.zeith.hammerlib.client.screen;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import org.jetbrains.annotations.Nullable;
-import org.zeith.hammerlib.api.inv.ComplexProgressHandler;
-import org.zeith.hammerlib.api.inv.ComplexProgressManager;
+import org.zeith.hammerlib.api.inv.*;
 
-public abstract class MenuWithProgressBars extends AbstractContainerMenu
+public abstract class MenuWithProgressBars
+		extends AbstractContainerMenu
+		implements ITickableContainer
 {
 	public final ComplexProgressHandler progressHandler;
 	public final ComplexProgressManager progressManager;
@@ -18,6 +19,7 @@ public abstract class MenuWithProgressBars extends AbstractContainerMenu
 		this.progressManager = handler.create();
 	}
 	
+	@Override
 	public void containerTick()
 	{
 		progressHandler.containerTick(progressManager);

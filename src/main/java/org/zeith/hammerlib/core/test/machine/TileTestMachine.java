@@ -5,16 +5,14 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
-import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.item.crafting.*;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.display.SlotDisplayContext;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -28,10 +26,11 @@ import org.zeith.hammerlib.api.inv.SimpleInventory;
 import org.zeith.hammerlib.api.io.NBTSerializable;
 import org.zeith.hammerlib.api.tiles.IContainerTile;
 import org.zeith.hammerlib.core.RecipeHelper;
-import org.zeith.hammerlib.core.init.GearsHL;
-import org.zeith.hammerlib.net.properties.*;
+import org.zeith.hammerlib.net.properties.PropertyInt;
+import org.zeith.hammerlib.net.properties.PropertyResourceKey;
 import org.zeith.hammerlib.tiles.TileSyncableTickable;
-import org.zeith.hammerlib.tiles.tooltip.*;
+import org.zeith.hammerlib.tiles.tooltip.EnumNumberFormat;
+import org.zeith.hammerlib.tiles.tooltip.ProgressBar;
 import org.zeith.hammerlib.tiles.tooltip.own.ITooltip;
 import org.zeith.hammerlib.tiles.tooltip.own.ITooltipProvider;
 import org.zeith.hammerlib.util.java.Cast;
@@ -63,6 +62,8 @@ public class TileTestMachine
 	public final PropertyInt maxProgress = new PropertyInt(DirectStorage.create(i -> _maxProgress = i, () -> _maxProgress));
 	public final PropertyResourceKey<Recipe<?>> activeRecipeId = new PropertyResourceKey<>(Registries.RECIPE, DirectStorage.create(r -> _activeRecipeId = r, () -> _activeRecipeId));
 	
+	public final PropertyInt uiProgress = new PropertyInt();
+	
 	public TileTestMachine(BlockPos pos, BlockState state)
 	{
 		super(TEST_MACHINE, pos, state);
@@ -73,7 +74,7 @@ public class TileTestMachine
 	}
 	
 	@Override
-	public void serverTick()
+	public void serverTick(ServerLevel level)
 	{
 		RecipeTestMachine r = getActiveRecipe();
 		
@@ -112,9 +113,14 @@ public class TileTestMachine
 			r = null;
 		}
 		
+		uiProgress.set(_progress);
+		
 		if(r == null && atTickRate(10))
 		{
-			var recipe = RecipeHelper.getRecipeHolders((ServerLevel) level, RecipeTestMachine.TYPE).filter(this::isValidRecipe).findFirst().orElse(null);
+			var recipe = RecipeHelper.getRecipeHolders(level, RecipeTestMachine.TYPE)
+					.filter(this::isValidRecipe)
+					.findFirst()
+					.orElse(null);
 			if(recipe != null)
 			{
 				var rec = recipe.value();
@@ -145,10 +151,8 @@ public class TileTestMachine
 	
 	public RecipeTestMachine getActiveRecipe()
 	{
-		if(_activeRecipeId != null)
-			return Cast.cast(level.registryAccess()
-							.lookupOrThrow(Registries.RECIPE)
-							.getValue(_activeRecipeId),
+		if(_activeRecipeId != null && level instanceof ServerLevel sl)
+			return Cast.cast(sl.recipeAccess().byKey(_activeRecipeId).map(RecipeHolder::value).orElse(null),
 					RecipeTestMachine.class
 			);
 		return null;

@@ -1,27 +1,18 @@
 package org.zeith.hammerlib.core.test.machine;
 
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
-import org.zeith.hammerlib.HammerLib;
-import org.zeith.hammerlib.abstractions.props.KeyMap;
-import org.zeith.hammerlib.client.flowgui.data.FlowQuery;
 import org.zeith.hammerlib.client.flowgui.objects.GuiRootObject;
-import org.zeith.hammerlib.client.flowgui.reader.FlowguiRegistry;
 import org.zeith.hammerlib.client.flowgui.reader.XmlFlowgui;
-import org.zeith.hammerlib.client.render.texture.GuiTexture;
+import org.zeith.hammerlib.client.screen.FlowguiScreen;
 import org.zeith.hammerlib.client.screen.IAdvancedGui;
-import org.zeith.hammerlib.client.screen.ScreenWTFMojang;
-import org.zeith.hammerlib.proxy.HLConstants;
 
 @XmlFlowgui("test_machine")
 @IAdvancedGui.ApplyToJEI
 public class ScreenTestMachine
-		extends ScreenWTFMojang<ContainerTestMachine>
+		extends FlowguiScreen<ContainerTestMachine>
 		implements IAdvancedGui<ScreenTestMachine>
 {
-	public static final GuiTexture TEXTURE = GuiTexture.of(HLConstants.id("textures/gui/test_machine.png"));
-	
 	public TileTestMachine tile;
 	
 	public GuiRootObject root;
@@ -30,17 +21,6 @@ public class ScreenTestMachine
 	{
 		super(container, inv, label);
 		this.tile = container.tile;
-		setSize(176, 166);
-	}
-	
-	public void pressTest()
-	{
-		HammerLib.LOG.info("I have been pressed!!");
-	}
-	
-	public boolean enableTestButton()
-	{
-		return true;
 	}
 	
 	public float getProgress(float partialTime)
@@ -49,31 +29,7 @@ public class ScreenTestMachine
 		int mp = tile.maxProgress.getInt();
 		if(mp > 0) maxProgress = mp;
 		
-		return tile.progress.getInt() / maxProgress;
-	}
-	
-	@Override
-	protected void init()
-	{
-		super.init();
-		
-		root = addRenderableWidget(FlowguiRegistry.readRoot(
-				KeyMap.createHash()
-						.with(FlowguiRegistry.QUERY, new FlowQuery(this))
-						.with(FlowguiRegistry.ROOT_ID, HLConstants.id("test_machine"))
-		));
-	}
-	
-	@Override
-	protected void containerTick()
-	{
-		if(root != null) root.sendUpdate();
-		menu.containerTick();
-		super.containerTick();
-	}
-	
-	@Override
-	protected void renderBackground(GuiGraphics gfx, float partialTime, int mouseX, int mouseY)
-	{
+		if(tile.activeRecipeId.get() == null) partialTime *= -1;
+		return Math.clamp((tile.uiProgress.getInt() + partialTime) / maxProgress, 0F, 1F);
 	}
 }

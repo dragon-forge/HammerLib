@@ -25,7 +25,7 @@ public class ContainerTestMachine
 	{
 		super(ContainerAPI.TILE_CONTAINER, windowId,
 				ComplexProgressHandler.withProperties(List.of(
-						tile.progress,
+						tile.uiProgress,
 						tile.maxProgress
 				), player.registryAccess())
 		);

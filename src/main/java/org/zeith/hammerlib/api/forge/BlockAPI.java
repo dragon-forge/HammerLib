@@ -1,6 +1,7 @@
 package org.zeith.hammerlib.api.forge;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.*;
@@ -47,14 +48,14 @@ public class BlockAPI
 	 */
 	public static <T extends BlockEntity> BlockEntityTicker<T> ticker(Level lvl)
 	{
-		return lvl.isClientSide ? (level, pos, state, entity) ->
+		return !lvl.isClientSide && lvl instanceof ServerLevel ? (level, pos, state, entity) ->
 		{
 			if(entity instanceof ISidedTickableTile t)
-				t.clientTick(level, pos, state, entity);
+				t.serverTick((ServerLevel) level, pos, state, entity);
 		} : (level, pos, state, entity) ->
 			   {
 				   if(entity instanceof ISidedTickableTile t)
-					   t.serverTick(level, pos, state, entity);
+					   t.clientTick(level, pos, state, entity);
 			   };
 	}
 	
