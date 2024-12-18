@@ -38,7 +38,7 @@ public record CustomGlintComponent<T>(IGlintProviderType<T> type, T data)
 	
 	private JsonElement serializeData()
 	{
-		return type.codec().encodeStart(JsonOps.INSTANCE, data).result().orElseThrow();
+		return type.codec().encodeStart(JsonOps.INSTANCE, data).result().orElse(null);
 	}
 	
 	@Override

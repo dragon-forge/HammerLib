@@ -19,6 +19,8 @@ import java.util.function.*;
 @Slf4j
 public class GuiObject
 {
+	public static final int SIMULATED_MOUSE_BUTTON = -25902376;
+	
 	private static final Vec3 ONE = new Vec3(1, 1, 1);
 	//<editor-fold desc="Object relationship">
 	private GuiObject parent;
@@ -266,13 +268,33 @@ public class GuiObject
 	
 	public GuiObject pivotAtCenter()
 	{
-		return pivot(width / 2, height / 2);
+		return pivot(getUnscaledWidth() / 2, getUnscaledHeight() / 2);
 	}
 	
 	public GuiObject rotation(float rotation)
 	{
 		this.rotation = rotation;
 		return this;
+	}
+	
+	public float getUnscaledWidth()
+	{
+		return width;
+	}
+	
+	public float getUnscaledHeight()
+	{
+		return height;
+	}
+	
+	public float getScaledWidth()
+	{
+		return (float) (getUnscaledWidth() * scale.x);
+	}
+	
+	public float getScaledHeight()
+	{
+		return (float) (getUnscaledHeight() * scale.y);
 	}
 	
 	public GuiObject usePos(Consumer<DirectStorage<Point>> handler)
@@ -307,7 +329,7 @@ public class GuiObject
 	{
 	}
 	
-	protected boolean onMouseClicked(Point globalMousePos, MousePos pos, int button)
+	protected boolean onMouseClicked(Point globalMousePos, MousePos pos, int button, boolean fake)
 	{
 		return false;
 	}
@@ -431,6 +453,11 @@ public class GuiObject
 		ps.popPose();
 	}
 	
+	public boolean isFakeMouseButton(int button)
+	{
+		return SIMULATED_MOUSE_BUTTON == button;
+	}
+	
 	public final boolean sendMouseClick(PoseStack ps, Point globalMousePos, int button)
 	{
 		if(!enabled) return false;
@@ -440,7 +467,7 @@ public class GuiObject
 		if(visible)
 		{
 			Vector3f v = untransform(ps).transformPosition(globalMousePos.x(), globalMousePos.y(), 0, new Vector3f());
-			if(onMouseClicked(globalMousePos, new MousePos(globalMousePos, v.x, v.y), button))
+			if(onMouseClicked(globalMousePos, new MousePos(globalMousePos, v.x, v.y), button, isFakeMouseButton(button)))
 				return true;
 		}
 		

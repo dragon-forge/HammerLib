@@ -34,14 +34,16 @@ public class Point
 		return b;
 	}
 	
-	public void setX(float x)
+	public Point setX(float x)
 	{
 		this.a = x;
+		return this;
 	}
 	
-	public void setY(float y)
+	public Point setY(float y)
 	{
 		this.b = y;
+		return this;
 	}
 	
 	@Override

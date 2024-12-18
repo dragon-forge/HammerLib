@@ -14,8 +14,12 @@ import org.zeith.hammerlib.util.mcf.Resources;
 public class FlowguiImageReader
 		extends GuiReader<GuiImageObject>
 {
+	@FileReference(
+			regex = "^(?<modid>[a-z0-9_.-]+):(?<path>[a-z0-9_./-]+)$",
+			value = "resources/assets/%modid%/%path%"
+	)
 	@AllowedValues(AllowedValues.RESOURCE_LOCATION)
-	public static final @Required String KEY_TEXTURE = "texture";
+	public static final @Required String KEY_TEXTURE = "src";
 	
 	@AllowedValues(AllowedValues.NON_NEGATIVE_FLOAT)
 	public static final @Required String KEY_U_COORD = "u-coord";

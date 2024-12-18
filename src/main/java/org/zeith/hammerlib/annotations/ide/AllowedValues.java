@@ -15,6 +15,7 @@ public @interface AllowedValues
 	String NON_NEGATIVE_FLOAT = "^(0|[1-9]\\d*)(\\.\\d+)?$";
 	String ANY_FLOAT = "^-?(0|[1-9]\\d*)(\\.\\d+)?$";
 	String RESOURCE_LOCATION = "^([a-z0-9_.-]+:[a-z0-9_./-]+)|([a-z0-9_./-]+)$";
+	String HEX_COLOR = "^#[a-fA-F0-9]{1,6}$";
 	
 	String[] value();
 }

@@ -184,6 +184,6 @@ public class GuiRootObject
 	@Override
 	public boolean isMouseOver(double pMouseX, double pMouseY)
 	{
-		return true;
+		return sendMouseClick(myPose(), new Point(pMouseX, pMouseY), SIMULATED_MOUSE_BUTTON);
 	}
 }

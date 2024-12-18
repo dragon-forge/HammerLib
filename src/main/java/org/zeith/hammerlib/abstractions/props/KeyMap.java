@@ -38,6 +38,18 @@ public class KeyMap
 		return (T) values.put(key, value);
 	}
 	
+	public <T> KeyMap with(Key<T> key, T value)
+	{
+		put(key, value);
+		return this;
+	}
+	
+	public KeyMap withAll(KeyMap other)
+	{
+		this.values.putAll(other.values);
+		return this;
+	}
+	
 	public static KeyMap createHash()
 	{
 		return new KeyMap(HashMap::new);

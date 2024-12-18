@@ -1,5 +1,6 @@
 package org.zeith.hammerlib.client.flowgui.reader;
 
+import net.minecraft.client.Minecraft;
 import org.zeith.hammerlib.abstractions.props.KeyMap;
 import org.zeith.hammerlib.api.data.IDataNode;
 import org.zeith.hammerlib.client.flowgui.objects.GuiRootObject;
@@ -19,6 +20,22 @@ final class RootReader
 		var root = GuiRootObject.root();
 		root.debugBoundaries = attributes.getBoolean(KEY_DEBUG);
 		context.put(GUI_ROOT, root);
+		
+		var query = context.get(FlowguiRegistry.QUERY);
+		
+		root.onPreRender(partialTime ->
+		{
+			partialTime = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(true);
+			query.put("partialTime", partialTime);
+			query.put("time", ((query.get("ticks") instanceof Number n ? n.longValue() : 0L) + (double) partialTime) / 20D);
+		});
+		
+		root.onTick(() ->
+		{
+			query.put("partialTime", 1);
+			query.put("ticks", (query.get("ticks") instanceof Number n ? n.longValue() : 0L) + 1L);
+		});
+		
 		return root;
 	}
 }

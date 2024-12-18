@@ -3,11 +3,11 @@ package org.zeith.hammerlib.core.test.machine;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
+import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.abstractions.props.KeyMap;
 import org.zeith.hammerlib.client.flowgui.GuiObject;
 import org.zeith.hammerlib.client.flowgui.objects.GuiRootObject;
-import org.zeith.hammerlib.client.flowgui.reader.FlowguiRegistry;
-import org.zeith.hammerlib.client.flowgui.reader.XmlFlowgui;
+import org.zeith.hammerlib.client.flowgui.reader.*;
 import org.zeith.hammerlib.client.render.texture.GuiTexture;
 import org.zeith.hammerlib.client.screen.IAdvancedGui;
 import org.zeith.hammerlib.client.screen.ScreenWTFMojang;
@@ -32,12 +32,21 @@ public class ScreenTestMachine
 		setSize(176, 166);
 	}
 	
+	public void pressTest()
+	{
+		HammerLib.LOG.info("I have been pressed!!");
+	}
+	
 	@Override
 	protected void init()
 	{
 		super.init();
-		root = FlowguiRegistry.readRoot(HLConstants.id("test_machine"), KeyMap.createHash(), width, height);
-		if(root != null) addRenderableWidget(root);
+		
+		root = addRenderableWidget(FlowguiRegistry.readRoot(
+				KeyMap.createHash()
+						.with(FlowguiRegistry.QUERY, new FlowQuery(this))
+						.with(FlowguiRegistry.ROOT_ID, HLConstants.id("test_machine"))
+		));
 	}
 	
 	@Override
@@ -52,7 +61,7 @@ public class ScreenTestMachine
 	protected void renderBackground(GuiGraphics gfx, float partialTime, int mouseX, int mouseY)
 	{
 		var tex = TEXTURE.with(gfx);
-		
+
 //		tex.blitSegment(leftPos, topPos, 0, 0, imageWidth, imageHeight, 256, 256);
 		
 		float maxProgress = 200F;

@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root width="176" height="166" centered="int">
-    <com class="hammerlib:image" id="img-test" texture="hammerlib:textures/gui/test_machine.png"
+<root width="176" height="166" centered="int" debug="true">
+    <img id="img-test" src="hammerlib:textures/gui/test_machine.png"
         u-coord="0" v-coord="0" image-width="176" image-height="166" file-width="256"
         file-height="256">
 
-        <com class="hammerlib:image" id="img-test" texture="hammerlib:textures/gui/test_machine.png"
+        <img id="img-test" src="hammerlib:textures/gui/test_machine.png"
             u-coord="0" v-coord="0" image-width="176" image-height="166" file-width="256"
-            file-height="256" scale="0.5" scale-y="0.75" align-x="center" align-y="bottom" />
+            file-height="256" scale="0.5" scale-y="1 + math.sin(query.time * 360) * 0.15"
+            align-x="center" align-y="bottom" y="math.sin(query.time * 360) * 5"
+            rotation="query.time * 20" pivot-centered="true" />
 
-    </com>
+        <import from="hammerlib:test" scale="0.5" width="176" height="166" align-x="center" />
+
+    </img>
 </root>

@@ -116,15 +116,26 @@ public class GuiButtonObject
 	
 	protected void renderButtonBg(Graphics gfx, MousePos pos)
 	{
-		gfx.blitFull(
-				RenderType::guiTexturedOverlay,
-				sprites.get(enabled, pos.isMouseWithin(this)),
+		var g = gfx.gfx();
+		var p = g.pose();
+		
+		int wi = (int) width;
+		int hi = (int) height;
+		float sdX = width / wi;
+		float sdY = height / hi;
+		
+		p.pushPose();
+		p.scale(sdX, sdY, 1);
+		g.blitSprite(
+				RenderType::guiTextured,
+				SPRITES.get(enabled, pos.isMouseWithin(this)),
 				0,
 				0,
-				width,
-				height,
+				wi,
+				hi,
 				ARGB.white(this.alpha)
 		);
+		p.popPose();
 	}
 	
 	public void onPress()
@@ -134,15 +145,15 @@ public class GuiButtonObject
 	}
 	
 	@Override
-	protected boolean onMouseClicked(Point globalMousePos, MousePos pos, int button)
+	protected boolean onMouseClicked(Point globalMousePos, MousePos pos, int button, boolean fake)
 	{
 		if(button == 0 && enabled && pos.isMouseWithin(this))
 		{
-			onPress();
+			if(!fake) onPress();
 			return true;
 		}
 		
-		return false;
+		return fake && enabled && pos.isMouseWithin(this);
 	}
 	
 	public void playDownSound(SoundManager pHandler)

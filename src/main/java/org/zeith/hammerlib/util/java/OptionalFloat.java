@@ -143,4 +143,9 @@ public final class OptionalFloat
 			   ? ("OptionalFloat[" + value + "]")
 			   : "OptionalFloat.empty";
 	}
+	
+	public OptionalFloat or(OptionalFloat or)
+	{
+		return isPresent() ? this : or;
+	}
 }
