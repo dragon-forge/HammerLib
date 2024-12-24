@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root width="162" height="18">
-    <slot id="hotbar_0" index="q.slots.playerHotbarSlots[0]" x="1" y="1" width="16" height="16"/>
-    <slot id="hotbar_1" index="q.slots.playerHotbarSlots[1]" x="19" y="1" width="16" height="16"/>
-    <slot id="hotbar_2" index="q.slots.playerHotbarSlots[2]" x="37" y="1" width="16" height="16"/>
-    <slot id="hotbar_3" index="q.slots.playerHotbarSlots[3]" x="55" y="1" width="16" height="16"/>
-    <slot id="hotbar_4" index="q.slots.playerHotbarSlots[4]" x="73" y="1" width="16" height="16"/>
-    <slot id="hotbar_5" index="q.slots.playerHotbarSlots[5]" x="91" y="1" width="16" height="16"/>
-    <slot id="hotbar_6" index="q.slots.playerHotbarSlots[6]" x="109" y="1" width="16" height="16"/>
-    <slot id="hotbar_7" index="q.slots.playerHotbarSlots[7]" x="127" y="1" width="16" height="16"/>
-    <slot id="hotbar_8" index="q.slots.playerHotbarSlots[8]" x="145" y="1" width="16" height="16"/>
+    <slot id="hotbar_0" index="(q) => q.slots.playerHotbarSlots[0]" x="1" y="1" width="16" height="16"/>
+    <slot id="hotbar_1" index="(q) => q.slots.playerHotbarSlots[1]" x="19" y="1" width="16" height="16"/>
+    <slot id="hotbar_2" index="(q) => q.slots.playerHotbarSlots[2]" x="37" y="1" width="16" height="16"/>
+    <slot id="hotbar_3" index="(q) => q.slots.playerHotbarSlots[3]" x="55" y="1" width="16" height="16"/>
+    <slot id="hotbar_4" index="(q) => q.slots.playerHotbarSlots[4]" x="73" y="1" width="16" height="16"/>
+    <slot id="hotbar_5" index="(q) => q.slots.playerHotbarSlots[5]" x="91" y="1" width="16" height="16"/>
+    <slot id="hotbar_6" index="(q) => q.slots.playerHotbarSlots[6]" x="109" y="1" width="16" height="16"/>
+    <slot id="hotbar_7" index="(q) => q.slots.playerHotbarSlots[7]" x="127" y="1" width="16" height="16"/>
+    <slot id="hotbar_8" index="(q) => q.slots.playerHotbarSlots[8]" x="145" y="1" width="16" height="16"/>
 </root>

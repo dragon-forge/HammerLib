@@ -2,6 +2,7 @@ package org.zeith.hammerlib.client.flowgui.reader;
 
 import lombok.extern.slf4j.Slf4j;
 import net.minecraft.Util;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.abstractions.props.KeyMap;
@@ -10,11 +11,10 @@ import org.zeith.hammerlib.api.data.DataNodeTransformer;
 import org.zeith.hammerlib.api.data.IDataNode;
 import org.zeith.hammerlib.client.flowgui.GuiObject;
 import org.zeith.hammerlib.client.flowgui.data.FlowQuery;
-import org.zeith.hammerlib.client.flowgui.objects.GuiRootObject;
 import org.zeith.hammerlib.core.js.CallerSpec;
 import org.zeith.hammerlib.proxy.HLConstants;
 import org.zeith.hammerlib.util.java.*;
-import org.zeith.hammerlib.util.java.cbq.*;
+import org.zeith.hammerlib.util.java.cbqs.cbq3.*;
 import org.zeith.hammerlib.util.java.itf.*;
 import org.zeith.hammerlib.util.mcf.Resources;
 import org.zeith.hammerlib.util.shaded.json.JSONObject;
@@ -26,17 +26,18 @@ import java.util.function.Supplier;
 @Slf4j
 public abstract class GuiReader<T extends GuiObject>
 {
-	public static final Map<String, String> TAGS_TO_COMPONENTS = Map.copyOf(Util.make(new HashMap<>(), m ->
-			{
-				m.put("img", "image");
-				m.put("empty", "empty");
-				m.put("button", "button");
-				m.put("slot", "slot");
-			}
-	));
+	public static final Map<String, String> TAGS_TO_COMPONENTS = Util.make(new HashMap<>(), m ->
+			Arrays.stream(FlowguiTags.class.getDeclaredFields())
+					.filter(f -> String.class.equals(f.getType()) && f.getName().startsWith("COM_"))
+					.forEach(f ->
+							ReflectionUtil.fetchValue(f, null, String.class)
+									.ifPresent(id -> m.put(f.getName().substring(4), id))
+					)
+	);
 	
+	@AllowJS
 	@AllowedValues(AllowedValues.BOOLEAN)
-	public static final String KEY_IF = "if";
+	public static final @Default("(q) => true") String KEY_IF = "if";
 	
 	@AllowedValues({ AllowedValues.BOOLEAN, "^int$" })
 	public static final String KEY_CENTERED = "centered";
@@ -79,7 +80,7 @@ public abstract class GuiReader<T extends GuiObject>
 	public static final @Default("left") String KEY_ALIGN_Y = "align-y";
 	
 	@AllowedValues(AllowedValues.RESOURCE_LOCATION)
-	public static final @Required String KEY_CLASS = "class";
+	public static final @Required("") String KEY_CLASS = "class";
 	
 	@AllowedValues("^[^/]+$")
 	public static final String KEY_ID = "id";
@@ -95,6 +96,15 @@ public abstract class GuiReader<T extends GuiObject>
 	{
 	}
 	
+	/**
+	 * Special handling for restoration of context. Called after this element has been added into the parent object, thus allowing to reconstruct full path, and using context to seek for the previous instance at given path.
+	 * <p>
+	 * Used by edit boxes to memoize their text values
+	 */
+	protected void finishBuilding(T object, KeyMap context)
+	{
+	}
+	
 	protected Supplier<RuntimeException> invalidField(IDataNode node, String fieldName)
 	{
 		return () -> new IllegalArgumentException("Field " + fieldName + " has invalid data (" + node.getString(fieldName) + ")!");
@@ -103,7 +113,11 @@ public abstract class GuiReader<T extends GuiObject>
 	public final T read(KeyMap context, IDataNode attributes, FloatSupplier parentWidth, FloatSupplier parentHeight)
 	{
 		String id = attributes.getString(KEY_ID);
-		if(id == null || id.isBlank()) id = UUID.randomUUID().toString();
+		if(id == null || id.isBlank())
+		{
+			var rng = context.getOrSupply(FlowguiRegistry.NAMEGEN_RANDOM, RandomSource::create);
+			id = "gen:" + new UUID(rng.nextLong(), rng.nextLong());
+		}
 		
 		var jsc = getJSContext(context);
 		
@@ -114,7 +128,7 @@ public abstract class GuiReader<T extends GuiObject>
 		var obj = readObject(context, id, attributes);
 		if(obj == null) return null;
 		
-		var root = context.get(FlowguiRegistry.GUI_ROOT);
+		obj.finishBuilding.add(() -> finishBuilding(obj, context));
 		
 		Set<String> keys = attributes.keys();
 		
@@ -123,15 +137,15 @@ public abstract class GuiReader<T extends GuiObject>
 		if(keys.contains(KEY_HEIGHT)) attributes.getFloat(KEY_HEIGHT).ifPresent(obj.elementHeight::set);
 		//</editor-fold>
 		
-		boolean[] scaledAxis = driveScale(jsc, root, query, attributes, obj);
-		drivePosition(jsc, root, query, attributes, obj, parentWidth, parentHeight, scaledAxis);
+		boolean[] scaledAxis = driveScale(jsc, query, attributes, obj);
+		drivePosition(jsc, query, attributes, obj, parentWidth, parentHeight, scaledAxis);
 		
 		//<editor-fold desc="Rotation">
-		driveFloat(jsc, obj, root, query, attributes, KEY_ROTATION, 0F, false, obj.elementRotation::set);
+		driveFloat(jsc, obj, query, attributes, KEY_ROTATION, 0F, false, obj.elementRotation::set);
 		//</editor-fold>
 		
 		//<editor-fold desc="Rotation Point">
-		drivePivot(jsc, root, query, attributes, obj, scaledAxis);
+		drivePivot(jsc, query, attributes, obj, scaledAxis);
 		//</editor-fold>
 		
 		//<editor-fold desc="Child elements">
@@ -146,7 +160,7 @@ public abstract class GuiReader<T extends GuiObject>
 			var tagName = TAGS_TO_COMPONENTS.get(cName);
 			if(tagName != null)
 			{
-				var node2 = DataNodeTransformer.convertToComponent(node, HLConstants.id(tagName));
+				var node2 = DataNodeTransformer.convertToComponent(node, Resources.location(tagName));
 				var child = FlowguiRegistry.read(context, node2, obj::getUnscaledWidth, obj::getUnscaledHeight);
 				if(child != null) obj.addChild(child);
 				else HammerLib.LOG.warn("Failed to read Flowgui {} component: {}", tagName, readableName(node));
@@ -201,21 +215,21 @@ public abstract class GuiReader<T extends GuiObject>
 		return obj;
 	}
 	
-	private boolean[] driveScale(JsContext jsc, GuiRootObject root, FlowQuery query, IDataNode attributes, GuiObject obj)
+	private boolean[] driveScale(JsContext jsc, FlowQuery query, IDataNode attributes, GuiObject obj)
 	{
 		AtomicReference<Float> scaleX = new AtomicReference<>(1F);
 		AtomicReference<Float> scaleY = new AtomicReference<>(1F);
 		AtomicReference<Float> scaleZ = new AtomicReference<>(1F);
 		AtomicReference<Float> mainScale = new AtomicReference<>(1F);
 		
-		boolean scaledAll = driveFloat(jsc, obj, root, query, attributes, KEY_SCALE_UNIFIED, 1F, false, s ->
+		boolean scaledAll = driveFloat(jsc, obj, query, attributes, KEY_SCALE_UNIFIED, 1F, false, s ->
 				{
 					mainScale.set(s);
 					obj.elementScale.set(new Vec3(scaleX.get() * s, scaleY.get() * s, scaleZ.get() * s));
 				}
 		);
 		
-		boolean scaledX = driveFloat(jsc, obj, root, query, attributes, KEY_SCALE_X, 1F, false, s ->
+		boolean scaledX = driveFloat(jsc, obj, query, attributes, KEY_SCALE_X, 1F, false, s ->
 				{
 					scaleX.set(s);
 					var es = obj.elementScale;
@@ -223,7 +237,7 @@ public abstract class GuiReader<T extends GuiObject>
 					es.set(new Vec3(s * mainScale.get(), vec.y, vec.z));
 				}
 		);
-		boolean scaledY = driveFloat(jsc, obj, root, query, attributes, KEY_SCALE_Y, 1F, false, s ->
+		boolean scaledY = driveFloat(jsc, obj, query, attributes, KEY_SCALE_Y, 1F, false, s ->
 				{
 					scaleY.set(s);
 					var es = obj.elementScale;
@@ -231,7 +245,7 @@ public abstract class GuiReader<T extends GuiObject>
 					es.set(new Vec3(vec.x, s * mainScale.get(), vec.z));
 				}
 		);
-		driveFloat(jsc, obj, root, query, attributes, KEY_SCALE_Z, 1F, false, s ->
+		driveFloat(jsc, obj, query, attributes, KEY_SCALE_Z, 1F, false, s ->
 				{
 					scaleZ.set(s);
 					var es = obj.elementScale;
@@ -243,7 +257,7 @@ public abstract class GuiReader<T extends GuiObject>
 		return new boolean[] { scaledAll || scaledX, scaledAll || scaledY };
 	}
 	
-	private void drivePosition(JsContext jsc, GuiRootObject root, FlowQuery query, IDataNode attributes, GuiObject obj, FloatSupplier parentWidth, FloatSupplier parentHeight, boolean[] scaledAxis)
+	private void drivePosition(JsContext jsc, FlowQuery query, IDataNode attributes, GuiObject obj, FloatSupplier parentWidth, FloatSupplier parentHeight, boolean[] scaledAxis)
 	{
 		Supplier<Alignment> alX = Alignment.readX(query, attributes.getString(KEY_ALIGN_X), Alignment.START);
 		Supplier<Alignment> alY = Alignment.readY(query, attributes.getString(KEY_ALIGN_Y), Alignment.START);
@@ -255,7 +269,7 @@ public abstract class GuiReader<T extends GuiObject>
 			else centering = 0;
 		}
 		
-		driveFloat(jsc, obj, root, query, attributes, KEY_X, 0F, scaledAxis[0], x -> obj.elementPosition.apply(pos0 ->
+		driveFloat(jsc, obj, query, attributes, KEY_X, 0F, scaledAxis[0], x -> obj.elementPosition.apply(pos0 ->
 						pos0.withX(
 								alX.get().apply(
 										x,
@@ -266,7 +280,7 @@ public abstract class GuiReader<T extends GuiObject>
 				)
 		);
 		
-		driveFloat(jsc, obj, root, query, attributes, KEY_Y, 0F, scaledAxis[1], y -> obj.elementPosition.apply(pos0 ->
+		driveFloat(jsc, obj, query, attributes, KEY_Y, 0F, scaledAxis[1], y -> obj.elementPosition.apply(pos0 ->
 						pos0.withY(
 								alY.get().apply(
 										y,
@@ -282,29 +296,29 @@ public abstract class GuiReader<T extends GuiObject>
 			case 1 ->
 			{
 				obj.centered(parentWidth.getAsFloat(), parentHeight.getAsFloat());
-				root.onPreRender((f) -> obj.centered(parentWidth.getAsFloat(), parentHeight.getAsFloat()));
+				obj.onPreRender((f, mouse) -> obj.centered(parentWidth.getAsFloat(), parentHeight.getAsFloat()));
 			}
 			case 2 ->
 			{
 				obj.centered((int) parentWidth.getAsFloat(), (int) parentHeight.getAsFloat());
-				root.onPreRender((f) -> obj.centered((int) parentWidth.getAsFloat(), (int) parentHeight.getAsFloat()));
+				obj.onPreRender((f, mouse) -> obj.centered((int) parentWidth.getAsFloat(), (int) parentHeight.getAsFloat()));
 			}
 		}
 	}
 	
-	private void drivePivot(JsContext jsc, GuiRootObject root, FlowQuery query, IDataNode attributes, GuiObject obj, boolean[] scaledAxis)
+	private void drivePivot(JsContext jsc, FlowQuery query, IDataNode attributes, GuiObject obj, boolean[] scaledAxis)
 	{
 		if(attributes.getBoolean(KEY_PIVOT_CENTER))
 		{
 			obj.pivotAtCenter();
-			if(scaledAxis[0] || scaledAxis[1]) root.onPreRender(f -> obj.pivotAtCenter());
+			if(scaledAxis[0] || scaledAxis[1]) obj.onPreRender((f, mouse) -> obj.pivotAtCenter());
 		}
 		
-		driveFloat(jsc, obj, root, query, attributes, KEY_PIVOT_X, null, false, x -> obj.elementPivot.apply(p -> p.withX(x)));
-		driveFloat(jsc, obj, root, query, attributes, KEY_PIVOT_Y, null, false, y -> obj.elementPivot.apply(p -> p.withY(y)));
+		driveFloat(jsc, obj, query, attributes, KEY_PIVOT_X, null, false, x -> obj.elementPivot.apply(p -> p.withX(x)));
+		driveFloat(jsc, obj, query, attributes, KEY_PIVOT_Y, null, false, y -> obj.elementPivot.apply(p -> p.withY(y)));
 	}
 	
-	protected boolean driveBool(JsContext jsc, GuiObject self, GuiRootObject root, FlowQuery query, IDataNode attributes, String name, Boolean defaultValue, boolean alwaysDrive, BooleanConsumer driver)
+	protected boolean driveBool(JsContext jsc, GuiObject self, FlowQuery query, IDataNode attributes, String name, Boolean defaultValue, boolean alwaysDrive, BooleanConsumer driver)
 	{
 		var parsed = readBoolean(jsc, name, query, attributes, self);
 		
@@ -314,7 +328,7 @@ public abstract class GuiReader<T extends GuiObject>
 		
 		// Non-Constant lambda
 		if(dynamic)
-			root.onPreRender(time ->
+			self.onPreRender((time, mouse) ->
 					parsed.get().or(fallback).ifPresent(driver)
 			);
 		
@@ -323,7 +337,7 @@ public abstract class GuiReader<T extends GuiObject>
 		return dynamic;
 	}
 	
-	protected boolean driveFloat(JsContext jsc, GuiObject self, GuiRootObject root, FlowQuery query, IDataNode attributes, String name, Float defaultValue, boolean alwaysDrive, FloatConsumer driver)
+	protected boolean driveFloat(JsContext jsc, GuiObject self, FlowQuery query, IDataNode attributes, String name, Float defaultValue, boolean alwaysDrive, FloatConsumer driver)
 	{
 		var parsed = readFloat(jsc, name, query, attributes, self);
 		
@@ -333,7 +347,7 @@ public abstract class GuiReader<T extends GuiObject>
 		
 		// Non-Constant lambda
 		if(dynamic)
-			root.onPreRender(time ->
+			self.onPreRender((time, mouse) ->
 					parsed.get().or(fallback).ifPresent(driver)
 			);
 		
@@ -342,8 +356,8 @@ public abstract class GuiReader<T extends GuiObject>
 		return dynamic;
 	}
 	
-	private static final CallerSpec CBQ_SPEC = new CallerSpec("invoke", List.of("query", "q", "self", "args"), false);
-	private static final CallerSpec CBQ_RET_SPEC = new CallerSpec("invoke", List.of("query", "q", "self", "args"), true);
+	private static final CallerSpec CBQ_SPEC = new CallerSpec("invoke", false);
+	private static final CallerSpec CBQ_RET_SPEC = new CallerSpec("invoke", true);
 	
 	protected Supplier<OptionalBoolean> readBoolean(JsContext jsc, String from, FlowQuery query, IDataNode attributes, GuiObject self)
 	{
@@ -355,14 +369,14 @@ public abstract class GuiReader<T extends GuiObject>
 		var str = attributes.getString(from);
 		if(str == null) return Cast.constant(OptionalBoolean.empty());
 		
-		var cbq = jsc.eval(BoolCallback4.class, str, CBQ_RET_SPEC);
+		var cbq = jsc.eval(BoolCallback3.class, str, CBQ_RET_SPEC);
 		if(cbq == null) return Cast.constant(OptionalBoolean.empty());
 		
 		return () ->
 		{
 			try
 			{
-				return OptionalBoolean.of(cbq.invoke(query, query, self, List.of()));
+				return OptionalBoolean.of(cbq.invoke(query, self, null));
 			} catch(Exception e)
 			{
 				return OptionalBoolean.empty();
@@ -378,14 +392,14 @@ public abstract class GuiReader<T extends GuiObject>
 		var str = attributes.getString(from);
 		if(str == null) return Cast.constant(OptionalFloat.empty());
 		
-		var cbq = jsc.eval(DoubleCallback4.class, str, CBQ_RET_SPEC);
+		var cbq = jsc.eval(DoubleCallback3.class, str, CBQ_RET_SPEC);
 		if(cbq == null) return Cast.constant(OptionalFloat.empty());
 		
 		return () ->
 		{
 			try
 			{
-				return OptionalFloat.of((float) cbq.invoke(query, query, self, List.of()));
+				return OptionalFloat.of((float) cbq.invoke(query, self, null));
 			} catch(Exception e)
 			{
 				return OptionalFloat.empty();
@@ -401,14 +415,14 @@ public abstract class GuiReader<T extends GuiObject>
 		var str = attributes.getString(from);
 		if(str == null) return Cast.constant(OptionalInt.empty());
 		
-		var cbq = jsc.eval(IntCallback4.class, str, CBQ_RET_SPEC);
+		var cbq = jsc.eval(IntCallback3.class, str, CBQ_RET_SPEC);
 		if(cbq == null) return Cast.constant(OptionalInt.empty());
 		
 		return () ->
 		{
 			try
 			{
-				return OptionalInt.of(cbq.invoke(query, query, self, List.of()));
+				return OptionalInt.of(cbq.invoke(query, self, null));
 			} catch(Exception e)
 			{
 				return OptionalInt.empty();
@@ -420,17 +434,19 @@ public abstract class GuiReader<T extends GuiObject>
 	{
 		var expression = node.getString(from);
 		if(expression == null || expression.isBlank()) return () ->
-		{};
+		{
+		};
 		
-		var cbq = jsc.eval(Callback4.class, expression, returns ? CBQ_RET_SPEC : CBQ_SPEC);
+		var cbq = jsc.eval(Callback3.class, expression, returns ? CBQ_RET_SPEC : CBQ_SPEC);
 		if(cbq == null) return () ->
-		{};
+		{
+		};
 		
 		return () ->
 		{
 			try
 			{
-				cbq.invoke(query, query, self, List.of());
+				cbq.invoke(query, self, null);
 			} catch(RuntimeException e)
 			{
 				log.error("Failed to invoke callback {} (code: {})", readableName(node), expression);

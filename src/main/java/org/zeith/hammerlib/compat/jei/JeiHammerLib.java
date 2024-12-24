@@ -9,10 +9,8 @@ import mezz.jei.api.neoforge.NeoForgeTypes;
 import mezz.jei.api.registration.*;
 import mezz.jei.api.runtime.IIngredientListOverlay;
 import mezz.jei.api.runtime.IJeiRuntime;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
@@ -21,15 +19,20 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.abstractions.recipes.*;
+import org.zeith.hammerlib.client.flowgui.reader.XmlFlowgui;
+import org.zeith.hammerlib.client.screen.ApplyToJEI;
 import org.zeith.hammerlib.client.screen.IAdvancedGui;
-import org.zeith.hammerlib.core.RecipeHelper;
+import org.zeith.hammerlib.core.scans.base.DataScanner;
+import org.zeith.hammerlib.core.scans.base.IAnnotationScanListener;
 import org.zeith.hammerlib.proxy.HLConstants;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.java.tuples.Tuple2;
 import org.zeith.hammerlib.util.mcf.Resources;
 import org.zeith.hammerlib.util.mcf.ScanDataHelper;
 
+import java.lang.annotation.ElementType;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 @JeiPlugin
@@ -203,12 +206,24 @@ public class JeiHammerLib
 			}
 		}
 		
-		ScanDataHelper.lookupAnnotatedObjects(IAdvancedGui.ApplyToJEI.class)
-				.stream()
-				.map(ScanDataHelper.ModAwareAnnotationData::getOwnerClass)
-				.filter(raw -> AbstractContainerScreen.class.isAssignableFrom(raw) &&
-							   IAdvancedGui.class.isAssignableFrom(raw))
-				.forEach(f -> registration.addGuiContainerHandler(f.asSubclass(AbstractContainerScreen.class), Cast.cast(AdvancedGuiToJeiWrapper.get())));
+		var ds = DataScanner.start();
+		
+		IAnnotationScanListener registrar = data ->
+		{
+			var cls = data.getOwnerClass();
+			
+			Object reg2j = data.getProperty("registerToJei").orElse(null);
+			if(reg2j != null && "false".equalsIgnoreCase(reg2j.toString()))
+				return;
+			
+			if(AbstractContainerScreen.class.isAssignableFrom(cls) && IAdvancedGui.class.isAssignableFrom(cls))
+				registration.addGuiContainerHandler(cls.asSubclass(AbstractContainerScreen.class), Cast.cast(AdvancedGuiToJeiWrapper.get()));
+		};
+		
+		ds.add(IAnnotationScanListener.forAnnotation(ApplyToJEI.class, ElementType.TYPE, registrar));
+		ds.add(IAnnotationScanListener.forAnnotation(XmlFlowgui.class, ElementType.TYPE, registrar));
+		
+		DataScanner.finish(ds);
 	}
 	
 	@Override

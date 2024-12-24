@@ -6,4 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Required
 {
+    /**
+     * Example value to be provided.
+     */
+    String value();
 }

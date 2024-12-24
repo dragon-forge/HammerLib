@@ -12,8 +12,9 @@ import org.zeith.hammerlib.proxy.HLConstants;
 public class FlowguiSlotReader
 		extends GuiReader<GuiSlotLinkObject>
 {
+	@AllowJS
 	@AllowedValues(AllowedValues.POSITIVE_INTEGERS)
-	public static final @Required String KEY_INDEX = "index";
+	public static final @Required("(q) => q.slots.playerHotbarSlots[0]") String KEY_INDEX = "index";
 	
 	@Override
 	protected GuiSlotLinkObject readObject(KeyMap context, String name, IDataNode attributes)

@@ -1,6 +1,7 @@
 package org.zeith.hammerlib.client.flowgui.objects;
 
 import net.minecraft.util.ARGB;
+import net.minecraft.world.phys.Vec3;
 import org.zeith.hammerlib.client.flowgui.*;
 import org.zeith.hammerlib.client.render.texture.GuiTexture;
 import org.zeith.hammerlib.util.java.DirectStorage;
@@ -12,6 +13,7 @@ public class GuiImageObject
 	public float uOffset, vOffset;
 	public float imgWidth, imgHeight, txWidth, txHeight;
 	
+	public Vec3 color = Vec3.fromRGB24(0xFFFFFFFF);
 	public float alpha = 1F;
 	
 	public final DirectStorage<Float> textureUOffset = DirectStorage.create(p -> uOffset = p, () -> uOffset);
@@ -46,7 +48,7 @@ public class GuiImageObject
 	protected void render(Graphics gfx, MousePos pos)
 	{
 		var drawer = tex.with(gfx);
-		drawer.state().color = ARGB.white(alpha);
+		drawer.state().color = ARGB.colorFromFloat(alpha, (float) color.x, (float) color.y, (float) color.z);
 		drawer.blitSegment(0, 0, uOffset, vOffset, imgWidth, imgHeight, txWidth, txHeight);
 	}
 }

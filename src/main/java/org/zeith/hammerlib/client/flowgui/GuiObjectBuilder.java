@@ -91,4 +91,9 @@ public class GuiObjectBuilder
 	{
 		return GuiSpriteButtonObject.builder(name);
 	}
+	
+	public GuiEditBoxObject.EditBoxBuilder editBox()
+	{
+		return GuiEditBoxObject.builder(name);
+	}
 }

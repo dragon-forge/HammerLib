@@ -19,23 +19,29 @@ public class FlowguiImageReader
 			value = "resources/assets/%modid%/%path%"
 	)
 	@AllowedValues(AllowedValues.RESOURCE_LOCATION)
-	public static final @Required String KEY_TEXTURE = "src";
-	
+	public static final @Required("minecraft:textures/gui/container/furnace.png") String KEY_TEXTURE = "src";
+
+	@AllowJS
 	@AllowedValues(AllowedValues.NON_NEGATIVE_FLOAT)
-	public static final @Required String KEY_U_COORD = "u-coord";
-	
+	public static final @Required("0") String KEY_U_COORD = "u-coord";
+
+	@AllowJS
 	@AllowedValues(AllowedValues.NON_NEGATIVE_FLOAT)
-	public static final @Required String KEY_V_COORD = "v-coord";
-	
+	public static final @Required("0") String KEY_V_COORD = "v-coord";
+
+	@AllowJS
 	@AllowedValues(AllowedValues.NON_NEGATIVE_FLOAT)
-	public static final @Required String KEY_IMAGE_WIDTH = "image-width";
-	
+	public static final @Required("176") String KEY_IMAGE_WIDTH = "image-width";
+
+	@AllowJS
 	@AllowedValues(AllowedValues.NON_NEGATIVE_FLOAT)
-	public static final @Required String KEY_IMAGE_HEIGHT = "image-height";
-	
+	public static final @Required("166") String KEY_IMAGE_HEIGHT = "image-height";
+
+	@AllowJS
 	@AllowedValues(AllowedValues.NON_NEGATIVE_FLOAT)
 	public static final @Default("256") String KEY_FILE_WIDTH = "file-width";
-	
+
+	@AllowJS
 	@AllowedValues(AllowedValues.NON_NEGATIVE_FLOAT)
 	public static final @Default("256") String KEY_FILE_HEIGHT = "file-height";
 	
@@ -50,12 +56,12 @@ public class FlowguiImageReader
 		var image = new GuiImageObject(name, texture, 0, 0, 0, 0, 256, 256);
 		
 		var jsc = getJSContext(context);
-		driveFloat(jsc, image, root, query, attributes, KEY_U_COORD, null, false, image.textureUOffset::set);
-		driveFloat(jsc, image, root, query, attributes, KEY_V_COORD, null, false, image.textureVOffset::set);
-		driveFloat(jsc, image, root, query, attributes, KEY_IMAGE_WIDTH, null, false, image.imageWidth::set);
-		driveFloat(jsc, image, root, query, attributes, KEY_IMAGE_HEIGHT, null, false, image.imageHeight::set);
-		driveFloat(jsc, image, root, query, attributes, KEY_FILE_WIDTH, 256F, false, image.fileWidth::set);
-		driveFloat(jsc, image, root, query, attributes, KEY_FILE_HEIGHT, 256F, false, image.fileHeight::set);
+		driveFloat(jsc, image, query, attributes, KEY_U_COORD, null, false, image.textureUOffset::set);
+		driveFloat(jsc, image, query, attributes, KEY_V_COORD, null, false, image.textureVOffset::set);
+		driveFloat(jsc, image, query, attributes, KEY_IMAGE_WIDTH, null, false, image.imageWidth::set);
+		driveFloat(jsc, image, query, attributes, KEY_IMAGE_HEIGHT, null, false, image.imageHeight::set);
+		driveFloat(jsc, image, query, attributes, KEY_FILE_WIDTH, 256F, false, image.fileWidth::set);
+		driveFloat(jsc, image, query, attributes, KEY_FILE_HEIGHT, 256F, false, image.fileHeight::set);
 		
 		image.size(image.imgWidth, image.imgHeight);
 		

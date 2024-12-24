@@ -1,30 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root width="162" height="54">
-    <slot id="inv_0" index="q.slots.playerInventorySlots[0]" x="1" y="1" width="16" height="16"/>
-    <slot id="inv_1" index="q.slots.playerInventorySlots[1]" x="19" y="1" width="16" height="16"/>
-    <slot id="inv_2" index="q.slots.playerInventorySlots[2]" x="37" y="1" width="16" height="16"/>
-    <slot id="inv_3" index="q.slots.playerInventorySlots[3]" x="55" y="1" width="16" height="16"/>
-    <slot id="inv_4" index="q.slots.playerInventorySlots[4]" x="73" y="1" width="16" height="16"/>
-    <slot id="inv_5" index="q.slots.playerInventorySlots[5]" x="91" y="1" width="16" height="16"/>
-    <slot id="inv_6" index="q.slots.playerInventorySlots[6]" x="109" y="1" width="16" height="16"/>
-    <slot id="inv_7" index="q.slots.playerInventorySlots[7]" x="127" y="1" width="16" height="16"/>
-    <slot id="inv_8" index="q.slots.playerInventorySlots[8]" x="145" y="1" width="16" height="16"/>
-    <slot id="inv_9" index="q.slots.playerInventorySlots[9]" x="1" y="19" width="16" height="16"/>
-    <slot id="inv_10" index="q.slots.playerInventorySlots[10]" x="19" y="19" width="16" height="16"/>
-    <slot id="inv_11" index="q.slots.playerInventorySlots[11]" x="37" y="19" width="16" height="16"/>
-    <slot id="inv_12" index="q.slots.playerInventorySlots[12]" x="55" y="19" width="16" height="16"/>
-    <slot id="inv_13" index="q.slots.playerInventorySlots[13]" x="73" y="19" width="16" height="16"/>
-    <slot id="inv_14" index="q.slots.playerInventorySlots[14]" x="91" y="19" width="16" height="16"/>
-    <slot id="inv_15" index="q.slots.playerInventorySlots[15]" x="109" y="19" width="16" height="16"/>
-    <slot id="inv_16" index="q.slots.playerInventorySlots[16]" x="127" y="19" width="16" height="16"/>
-    <slot id="inv_17" index="q.slots.playerInventorySlots[17]" x="145" y="19" width="16" height="16"/>
-    <slot id="inv_18" index="q.slots.playerInventorySlots[18]" x="1" y="37" width="16" height="16"/>
-    <slot id="inv_19" index="q.slots.playerInventorySlots[19]" x="19" y="37" width="16" height="16"/>
-    <slot id="inv_20" index="q.slots.playerInventorySlots[20]" x="37" y="37" width="16" height="16"/>
-    <slot id="inv_21" index="q.slots.playerInventorySlots[21]" x="55" y="37" width="16" height="16"/>
-    <slot id="inv_22" index="q.slots.playerInventorySlots[22]" x="73" y="37" width="16" height="16"/>
-    <slot id="inv_23" index="q.slots.playerInventorySlots[23]" x="91" y="37" width="16" height="16"/>
-    <slot id="inv_24" index="q.slots.playerInventorySlots[24]" x="109" y="37" width="16" height="16"/>
-    <slot id="inv_25" index="q.slots.playerInventorySlots[25]" x="127" y="37" width="16" height="16"/>
-    <slot id="inv_26" index="q.slots.playerInventorySlots[26]" x="145" y="37" width="16" height="16"/>
+    <slot id="inv_0" index="(q) => q.slots.playerInventorySlots[0]" x="1" y="1" width="16" height="16"/>
+    <slot id="inv_1" index="(q) => q.slots.playerInventorySlots[1]" x="19" y="1" width="16" height="16"/>
+    <slot id="inv_2" index="(q) => q.slots.playerInventorySlots[2]" x="37" y="1" width="16" height="16"/>
+    <slot id="inv_3" index="(q) => q.slots.playerInventorySlots[3]" x="55" y="1" width="16" height="16"/>
+    <slot id="inv_4" index="(q) => q.slots.playerInventorySlots[4]" x="73" y="1" width="16" height="16"/>
+    <slot id="inv_5" index="(q) => q.slots.playerInventorySlots[5]" x="91" y="1" width="16" height="16"/>
+    <slot id="inv_6" index="(q) => q.slots.playerInventorySlots[6]" x="109" y="1" width="16" height="16"/>
+    <slot id="inv_7" index="(q) => q.slots.playerInventorySlots[7]" x="127" y="1" width="16" height="16"/>
+    <slot id="inv_8" index="(q) => q.slots.playerInventorySlots[8]" x="145" y="1" width="16" height="16"/>
+    <slot id="inv_9" index="(q) => q.slots.playerInventorySlots[9]" x="1" y="19" width="16" height="16"/>
+    <slot id="inv_10" index="(q) => q.slots.playerInventorySlots[10]" x="19" y="19" width="16" height="16"/>
+    <slot id="inv_11" index="(q) => q.slots.playerInventorySlots[11]" x="37" y="19" width="16" height="16"/>
+    <slot id="inv_12" index="(q) => q.slots.playerInventorySlots[12]" x="55" y="19" width="16" height="16"/>
+    <slot id="inv_13" index="(q) => q.slots.playerInventorySlots[13]" x="73" y="19" width="16" height="16"/>
+    <slot id="inv_14" index="(q) => q.slots.playerInventorySlots[14]" x="91" y="19" width="16" height="16"/>
+    <slot id="inv_15" index="(q) => q.slots.playerInventorySlots[15]" x="109" y="19" width="16" height="16"/>
+    <slot id="inv_16" index="(q) => q.slots.playerInventorySlots[16]" x="127" y="19" width="16" height="16"/>
+    <slot id="inv_17" index="(q) => q.slots.playerInventorySlots[17]" x="145" y="19" width="16" height="16"/>
+    <slot id="inv_18" index="(q) => q.slots.playerInventorySlots[18]" x="1" y="37" width="16" height="16"/>
+    <slot id="inv_19" index="(q) => q.slots.playerInventorySlots[19]" x="19" y="37" width="16" height="16"/>
+    <slot id="inv_20" index="(q) => q.slots.playerInventorySlots[20]" x="37" y="37" width="16" height="16"/>
+    <slot id="inv_21" index="(q) => q.slots.playerInventorySlots[21]" x="55" y="37" width="16" height="16"/>
+    <slot id="inv_22" index="(q) => q.slots.playerInventorySlots[22]" x="73" y="37" width="16" height="16"/>
+    <slot id="inv_23" index="(q) => q.slots.playerInventorySlots[23]" x="91" y="37" width="16" height="16"/>
+    <slot id="inv_24" index="(q) => q.slots.playerInventorySlots[24]" x="109" y="37" width="16" height="16"/>
+    <slot id="inv_25" index="(q) => q.slots.playerInventorySlots[25]" x="127" y="37" width="16" height="16"/>
+    <slot id="inv_26" index="(q) => q.slots.playerInventorySlots[26]" x="145" y="37" width="16" height="16"/>
 </root>

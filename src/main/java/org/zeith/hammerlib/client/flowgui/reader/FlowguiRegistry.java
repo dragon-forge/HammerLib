@@ -6,6 +6,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -24,6 +25,7 @@ import org.zeith.hammerlib.core.js.JsFactory;
 import org.zeith.hammerlib.proxy.HLConstants;
 import org.zeith.hammerlib.util.data.XmlHelper;
 import org.zeith.hammerlib.util.java.Cast;
+import org.zeith.hammerlib.util.java.Hashers;
 import org.zeith.hammerlib.util.java.itf.FloatSupplier;
 import org.zeith.hammerlib.util.mcf.Resources;
 import org.zeith.hammerlib.util.mcf.ScanDataHelper;
@@ -50,6 +52,7 @@ public class FlowguiRegistry
 	//<editor-fold desc="Required keys">
 	public static final Key<FlowQuery> QUERY = Key.of(HLConstants.id("query"), FlowQuery.class);
 	public static final Key<ResourceLocation> ROOT_ID = Key.of(HLConstants.id("root_id"), ResourceLocation.class);
+	public static final Key<GuiRootObject> PREVIOUS_ROOT = Key.of(HLConstants.id("previous_root"), GuiRootObject.class);
 	//</editor-fold>
 	
 	public static final Key<Boolean> IS_CACHING_JS = Key.of(HLConstants.id("caching_js"), Boolean.class);
@@ -58,6 +61,7 @@ public class FlowguiRegistry
 	public static final Key<GuiRootObject> GUI_ROOT = Key.of(HLConstants.id("gui_root"), GuiRootObject.class);
 	public static final Key<Stack<ResourceLocation>> LOAD_STACK = Key.of(HLConstants.id("load_stack"), Cast.cast(Stack.class));
 	public static final Key<JsContext> JS_CONTEXT = Key.of(HLConstants.id("js_context"), JsContext.class);
+	public static final Key<RandomSource> NAMEGEN_RANDOM = Key.of(HLConstants.id("namegen_random"), RandomSource.class);
 	//</editor-fold>
 	
 	public static boolean DISABLE_CACHE = Boolean.parseBoolean(Objects.toString(System.getProperty("hammerlib.flowgui.nocache")));
@@ -71,7 +75,10 @@ public class FlowguiRegistry
 		context.put(LOAD_STACK, new Stack<>());
 		context.put(JS_CONTEXT, GLOBAL);
 		context.computeIfAbsent(IS_CACHING_JS, Cast.constant(false));
-		return readRoot(location, context, gui != null ? () -> gui.width : Cast.constantF(1920), gui != null ? () -> gui.height : Cast.constantF(1080));
+		context.put(NAMEGEN_RANDOM, RandomSource.create(Hashers.hashCodeL(location.getNamespace(), location.getPath())));
+		GuiRootObject root = readRoot(location, context, gui != null ? () -> gui.width : Cast.constantF(1920), gui != null ? () -> gui.height : Cast.constantF(1080));
+		root.finishBuilding();
+		return root;
 	}
 	
 	@NotNull
@@ -170,7 +177,7 @@ public class FlowguiRegistry
 		}
 	}
 	
-	private static Supplier<IDataNode> getFlowguiFile(ResourceLocation id)
+	static Supplier<IDataNode> getFlowguiFile(ResourceLocation id)
 	{
 		var reg = GUI_DATA.get(id);
 		if(reg != null) return reg;
@@ -180,6 +187,12 @@ public class FlowguiRegistry
 		Supplier<IDataNode> provider = () ->
 		{
 			var res = resources.getResource(file).orElse(null);
+			
+			if(res == null)
+			{
+				log.error("Flowgui XML file not found: {}", file);
+				return null;
+			}
 			
 			try(var input = res.open())
 			{

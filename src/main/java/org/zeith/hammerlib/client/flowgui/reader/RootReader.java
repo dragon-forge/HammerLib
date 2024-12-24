@@ -23,7 +23,7 @@ final class RootReader
 		
 		var query = context.get(FlowguiRegistry.QUERY);
 		
-		root.onPreRender(partialTime ->
+		root.onPreRender((partialTime, mouse) ->
 		{
 			partialTime = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(true);
 			query.put("partialTime", partialTime);

@@ -1,10 +1,36 @@
 package org.zeith.hammerlib.api.data;
 
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class DataNodeTransformer
 {
+	public static IDataNode mergeAttributesFromParent(IDataNode parent, IDataNode child)
+	{
+		return new DelegatingDataNode(child)
+		{
+			@Override
+			public @Nullable Object get(String key)
+			{
+				var fromParent = parent.get(key);
+				if(fromParent != null) return fromParent;
+				return super.get(key);
+			}
+			
+			@Override
+			public @NotNull Set<String> keys()
+			{
+				Set<String> child = new HashSet<>(super.keys());
+				child.addAll(parent.keys());
+				return child;
+			}
+		};
+	}
+	
 	public static IDataNode convertToComponent(IDataNode node, ResourceLocation comType)
 	{
 		String compName = comType.toString();

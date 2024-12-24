@@ -20,6 +20,16 @@ public interface IDataTree
 		return val instanceof Boolean b ? b : Boolean.parseBoolean(Objects.toString(val));
 	}
 	
+	default boolean getBooleanOrDefault(String index, boolean defaultValue)
+	{
+		var val = get(index);
+		String s;
+		return val instanceof Boolean b ? b :
+			   ((s = Objects.toString(val)).equalsIgnoreCase("false") || s.equalsIgnoreCase("true")
+				? Boolean.parseBoolean(s)
+				: defaultValue);
+	}
+	
 	default String getString(String index)
 	{
 		var val = get(index);

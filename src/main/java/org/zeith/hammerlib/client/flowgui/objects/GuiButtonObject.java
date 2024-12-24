@@ -128,7 +128,7 @@ public class GuiButtonObject
 		p.scale(sdX, sdY, 1);
 		g.blitSprite(
 				RenderType::guiTextured,
-				SPRITES.get(enabled, pos.isMouseWithin(this)),
+				sprites.get(enabled, pos.isMouseWithin(this)),
 				0,
 				0,
 				wi,

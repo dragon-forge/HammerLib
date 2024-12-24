@@ -4,14 +4,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import org.zeith.hammerlib.client.flowgui.objects.GuiRootObject;
 import org.zeith.hammerlib.client.flowgui.reader.XmlFlowgui;
-import org.zeith.hammerlib.client.screen.FlowguiScreen;
-import org.zeith.hammerlib.client.screen.IAdvancedGui;
+import org.zeith.hammerlib.client.screen.*;
 
 @XmlFlowgui("test_machine")
-@IAdvancedGui.ApplyToJEI
 public class ScreenTestMachine
 		extends FlowguiScreen<ContainerTestMachine>
-		implements IAdvancedGui<ScreenTestMachine>
 {
 	public TileTestMachine tile;
 	
@@ -21,6 +18,10 @@ public class ScreenTestMachine
 	{
 		super(container, inv, label);
 		this.tile = container.tile;
+	}
+	
+	public void respond(String s)
+	{
 	}
 	
 	public float getProgress(float partialTime)

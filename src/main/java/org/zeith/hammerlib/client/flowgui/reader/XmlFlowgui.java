@@ -7,4 +7,6 @@ import java.lang.annotation.*;
 public @interface XmlFlowgui
 {
 	String value();
+	
+	boolean registerToJei() default true;
 }

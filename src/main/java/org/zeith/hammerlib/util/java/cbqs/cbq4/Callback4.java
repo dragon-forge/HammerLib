@@ -1,4 +1,4 @@
-package org.zeith.hammerlib.util.java.cbq;
+package org.zeith.hammerlib.util.java.cbqs.cbq4;
 
 @FunctionalInterface
 public interface Callback4

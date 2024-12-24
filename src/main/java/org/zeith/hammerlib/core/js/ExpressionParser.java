@@ -12,7 +12,7 @@ public class ExpressionParser
 	public static final MathJS MATH = new MathJS();
 	
 	@SneakyThrows
-	public static <T> Tuple2<ScriptEngine, T> parse(String expression, CallerSpec spec, Class<T> type)
+	public static <T> Tuple2<ScriptEngine, T> parse(String expression, CallerSpec spec, List<String> args, Class<T> type)
 	{
 		if(!type.isAnnotationPresent(FunctionalInterface.class))
 			throw new IllegalArgumentException(type + " is not a @FunctionalInterface!");
@@ -22,7 +22,7 @@ public class ExpressionParser
 		js.put("Math", MATH);
 		js.put("math", MATH);
 		
-		String fun = "function " + spec.method() + "(" + String.join(",", spec.args()) + "){\n\t" + (spec.hasReturn() ? "return" : "") + " " + expression + ";\n}";
+		String fun = "function " + spec.method() + "(" + String.join(",", args) + "){\n\t" + (spec.hasReturn() ? "return" : "") + " " + expression + ";\n}";
 		
 		return JsFactory.parse(type, js, fun);
 	}

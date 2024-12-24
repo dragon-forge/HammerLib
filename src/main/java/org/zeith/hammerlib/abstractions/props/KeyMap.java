@@ -28,6 +28,12 @@ public class KeyMap
 		return (T) values.getOrDefault(key, defaultValue);
 	}
 	
+	public <T> T getOrSupply(Key<T> key, Supplier<T> defaultValue)
+	{
+		var t = values.get(key);
+		return t != null ? (T) t : defaultValue.get();
+	}
+	
 	public <T> T computeIfAbsent(Key<T> key, Supplier<T> defaultValue)
 	{
 		return (T) values.computeIfAbsent(key, k -> defaultValue.get());

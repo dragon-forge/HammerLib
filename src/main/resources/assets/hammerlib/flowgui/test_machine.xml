@@ -8,11 +8,14 @@
         <img id="progress_bar" src="hammerlib:textures/gui/test_machine.png"
              x="80" y="35"
              u-coord="176" v-coord="14"
-             image-width="22 * q.gui.getProgress(q.partialTime)" image-height="16"
+             image-width="(q) => 22 * q.gui.getProgress(q.partialTime)" image-height="16"
              file-width="256" file-height="256"
         />
 
+        <slot id="output_slot" index="(q) => q.slots.guiSlots[2]" x="112" y="31" width="24" height="24"/>
         <import from="c:player_hotbar" x="7" y="25" align-y="bottom"/>
         <import from="c:player_inventory" x="7" y="83" align-y="bottom"/>
+
+<!--        <input if="(q) => false" width="100" height="20" on-changed="(q, s) => q.gui.respond(s)" max-length="16" align-y="bottom" x="-22" rotation="-90"/>-->
     </img>
 </root>

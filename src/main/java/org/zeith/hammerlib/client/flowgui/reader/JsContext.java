@@ -5,11 +5,12 @@ import org.zeith.hammerlib.core.js.*;
 import org.zeith.hammerlib.util.java.Cast;
 
 import javax.script.ScriptEngine;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Pattern;
 
 public class JsContext
 {
+	private static final Pattern LAMBDA = Pattern.compile("^\\s*\\((?<args>[^)]*)\\)\\s*=>\\s*");
 	private final Map<CachedType, ScriptType> scriptCache = new HashMap<>();
 	
 	public <T> T eval(Class<T> interfaceType, String input, CallerSpec spec)
@@ -22,13 +23,23 @@ public class JsContext
 	{
 		try
 		{
-			var text = ExpressionFixer.fixExpression(expression.input());
-			var tup = ExpressionParser.parse(text, expression.spec(), expression.type());
-			return new ScriptType(tup.b(), tup.a());
+			var text = expression.input();
+			var lambda = LAMBDA.matcher(text);
+			if(!lambda.find()) throw new IllegalArgumentException("JS expression must start with lambda: " + text);
+			String args = lambda.group("args");
+			
+			text = text.substring(lambda.end());
+			text = ExpressionFixer.fixExpression(text);
+			
+			var usedArgs = Arrays.stream(args.split(",")).map(String::strip).toList();
+			
+			var tup = ExpressionParser.parse(text, expression.spec(), usedArgs, expression.type());
+			
+			return new ScriptType(tup.b(), usedArgs, tup.a());
 		} catch(Exception e)
 		{
 			HammerLib.LOG.error("Failed to parse script <{}>", expression.input(), e);
-			return new ScriptType(null, null);
+			return new ScriptType(null, List.of(), null);
 		}
 	}
 	
@@ -37,7 +48,7 @@ public class JsContext
 		scriptCache.clear();
 	}
 	
-	private record ScriptType(Object itf, ScriptEngine engine) {}
+	private record ScriptType(Object itf, List<String> usedArgs, ScriptEngine engine) {}
 	
 	private record CachedType(Class<?> type, String input, CallerSpec spec) {}
 }
