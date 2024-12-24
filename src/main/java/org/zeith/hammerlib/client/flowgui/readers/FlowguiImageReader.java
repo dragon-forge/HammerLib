@@ -8,6 +8,8 @@ import org.zeith.hammerlib.client.flowgui.reader.*;
 import org.zeith.hammerlib.proxy.HLConstants;
 import org.zeith.hammerlib.util.mcf.Resources;
 
+import static org.zeith.hammerlib.client.flowgui.reader.ComDrivers.driveFloat;
+
 @Namespace(HLConstants.MOD_ID)
 @FlowguiReader("image")
 public class FlowguiImageReader

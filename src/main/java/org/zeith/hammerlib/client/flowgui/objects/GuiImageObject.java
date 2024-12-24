@@ -4,11 +4,14 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.zeith.hammerlib.client.flowgui.*;
 import org.zeith.hammerlib.util.java.DirectStorage;
+
+import java.util.function.Supplier;
 
 public class GuiImageObject
 		extends GuiObject
@@ -54,35 +57,46 @@ public class GuiImageObject
 		gfx.drawManaged(() ->
 		{
 			RenderSystem.setShaderTexture(0, tex);
-			blitWithBlend(gfx.gfx(), uOffset, vOffset, width, height, txWidth, txHeight, alpha, color);
+			blitWithBlend(GameRenderer::getPositionColorTexShader, gfx.gfx(), uOffset, vOffset, width, height, txWidth, txHeight, alpha, color);
 		});
 	}
 	
 	public static void blitWithBlend(
-			GuiGraphics matrices,
+			Supplier<ShaderInstance> shader,
+			GuiGraphics gfx,
 			float texPosX, float texPosY,
 			float width, float height,
 			float texWidth, float texHeight,
 			float alpha, Vec3 rgb
 	)
 	{
-		RenderSystem.enableBlend();
-		RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
-		BufferBuilder vertex = Tesselator.getInstance().getBuilder();
 		float u1 = texPosX / texWidth;
 		float u2 = (texPosX + width) / texWidth;
 		float v1 = texPosY / texHeight;
 		float v2 = (texPosY + height) / texHeight;
-		Matrix4f m = matrices.pose().last().pose();
-		if(vertex.building()) vertex.endOrDiscardIfEmpty();
-		vertex.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX);
+		
+		Matrix4f pose = gfx.pose().last().pose();
+		
+		BufferBuilder buf = Tesselator.getInstance().getBuilder();
+		if(buf.building())
+		{
+			var batch = buf.endOrDiscardIfEmpty();
+			if(batch != null) BufferUploader.drawWithShader(batch);
+		}
+		
+		
+		RenderSystem.enableBlend();
+		RenderSystem.setShader(shader);
+		buf.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX);
 		
 		float r = (float) rgb.x(), g = (float) rgb.y(), b = (float) rgb.z();
-		vertex.vertex(m, 0, 0, 0).color(r, g, b, alpha).uv(u1, v1).endVertex();
-		vertex.vertex(m, 0, height, 0).color(r, g, b, alpha).uv(u1, v2).endVertex();
-		vertex.vertex(m, width, height, 0).color(r, g, b, alpha).uv(u2, v2).endVertex();
-		vertex.vertex(m, width, 0, 0).color(r, g, b, alpha).uv(u2, v1).endVertex();
-		BufferUploader.drawWithShader(vertex.end());
+		
+		buf.vertex(pose, 0, 0, 0).color(r, g, b, alpha).uv(u1, v1).endVertex();
+		buf.vertex(pose, 0, height, 0).color(r, g, b, alpha).uv(u1, v2).endVertex();
+		buf.vertex(pose, width, height, 0).color(r, g, b, alpha).uv(u2, v2).endVertex();
+		buf.vertex(pose, width, 0, 0).color(r, g, b, alpha).uv(u2, v1).endVertex();
+		
+		BufferUploader.drawWithShader(buf.end());
 		RenderSystem.disableBlend();
 	}
 }

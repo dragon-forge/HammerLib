@@ -13,6 +13,11 @@ public class JsContext
 	private static final Pattern LAMBDA = Pattern.compile("^\\s*\\((?<args>[^)]*)\\)\\s*=>\\s*");
 	private final Map<CachedType, ScriptType> scriptCache = new HashMap<>();
 	
+	public static boolean isScript(String expression)
+	{
+		return LAMBDA.matcher(expression).find();
+	}
+	
 	public <T> T eval(Class<T> interfaceType, String input, CallerSpec spec)
 	{
 		var se = scriptCache.computeIfAbsent(new CachedType(interfaceType, input, spec), JsContext::load);

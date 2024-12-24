@@ -31,6 +31,7 @@ public class GuiButtonObject
 	public Component message;
 	public OnPress callback;
 	public Holder<SoundEvent> pressSound;
+	public float pressSoundPitch = 1F;
 	
 	@Builder(builderClassName = "ButtonBuilder")
 	public GuiButtonObject(@NotNull String name,
@@ -39,7 +40,8 @@ public class GuiButtonObject
 						   boolean enabled,
 						   @NotNull Component message,
 						   @NotNull OnPress callback,
-						   Holder<SoundEvent> pressSound
+						   Holder<SoundEvent> pressSound,
+						   Float pressSoundPitch
 	)
 	{
 		super(name);
@@ -49,6 +51,7 @@ public class GuiButtonObject
 		this.message = message;
 		this.callback = callback;
 		this.pressSound = pressSound;
+		if(pressSoundPitch != null) this.pressSoundPitch = pressSoundPitch;
 	}
 	
 	public GuiButtonObject setAlpha(float alpha)
@@ -72,6 +75,12 @@ public class GuiButtonObject
 	public GuiButtonObject setMessage(Component message)
 	{
 		this.message = message;
+		return this;
+	}
+	
+	public GuiButtonObject setPressSoundPitch(float pressSoundPitch)
+	{
+		this.pressSoundPitch = pressSoundPitch;
 		return this;
 	}
 	
@@ -126,7 +135,7 @@ public class GuiButtonObject
 	public void playDownSound(SoundManager pHandler)
 	{
 		if(pressSound != null)
-			pHandler.play(SimpleSoundInstance.forUI(pressSound, 1.0F));
+			pHandler.play(SimpleSoundInstance.forUI(pressSound, pressSoundPitch));
 	}
 	
 	protected int getTextureY(boolean hovered)

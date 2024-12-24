@@ -1,6 +1,8 @@
 package org.zeith.hammerlib.client.flowgui.objects;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import lombok.Builder;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -17,7 +19,7 @@ public class GuiSpriteButtonObject
 	public ResourceLocation texture;
 	public Vec3 color = new Vec3(1, 1, 1);
 	
-	@Builder(builderClassName = "SpriteBtnBuilder")
+	@Builder(builderClassName = "SpriteButtonBuilder")
 	public GuiSpriteButtonObject(
 			@NotNull String name,
 			float alpha,
@@ -26,11 +28,12 @@ public class GuiSpriteButtonObject
 			@NotNull Component message,
 			@NotNull OnPress callback,
 			Holder<SoundEvent> pressSound,
+			Float pressSoundPitch,
 			@NotNull ResourceLocation customTexture,
 			Vec3 color
 	)
 	{
-		super(name, alpha, packedFGColor, enabled, message, callback, pressSound);
+		super(name, alpha, packedFGColor, enabled, message, callback, pressSound, pressSoundPitch);
 		texture = customTexture;
 		if(color != null) this.color = color;
 	}
@@ -38,12 +41,22 @@ public class GuiSpriteButtonObject
 	@Override
 	protected void renderButtonBg(Graphics gfx, MousePos pos)
 	{
-		GuiImageObject.blitWithBlend(gfx.gfx(),
-				0, getTextureY(pos.isMouseWithin(this)),
-				width, height,
-				width, height,
-				alpha, color
-		);
+		RenderSystem.enableBlend();
+		RenderSystem.enableDepthTest();
+		gfx.setColor(1.0F, 1.0F, 1.0F, this.alpha);
+		gfx.drawManaged(() ->
+		{
+			RenderSystem.setShaderTexture(0, texture);
+			GuiImageObject.blitWithBlend(
+					GameRenderer::getPositionColorTexShader,
+					gfx.gfx(),
+					0, getTextureY(pos.isMouseWithin(this)),
+					width, height,
+					width, height * 3,
+					alpha, color
+			);
+		});
+		gfx.setColor(1.0F, 1.0F, 1.0F, 1.0F);
 	}
 	
 	@Override
@@ -55,9 +68,9 @@ public class GuiSpriteButtonObject
 		return (int) (state * height);
 	}
 	
-	public static SpriteBtnBuilder of(String name)
+	public static SpriteButtonBuilder of(String name)
 	{
-		return new SpriteBtnBuilder()
+		return new SpriteButtonBuilder()
 				.name(name)
 				.alpha(1F)
 				.packedFGColor(UNSET_FG_COLOR)

@@ -17,8 +17,13 @@ public class ScreenTestMachine
 	
 	public ScreenTestMachine(ContainerTestMachine container, Inventory inv, Component label)
 	{
-		super(container, inv, label);
+		super(container, inv, Component.empty());
 		this.tile = container.tile;
+	}
+	
+	public Component getName()
+	{
+		return BlockTestMachine.TEST_MACHINE.getName();
 	}
 	
 	public void respond(String s)

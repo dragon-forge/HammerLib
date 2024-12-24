@@ -9,4 +9,5 @@ public class FlowguiTags
 	public static final String COM_button = HLConstants.MOD_ID + ":button";
 	public static final String COM_slot = HLConstants.MOD_ID + ":slot";
 	public static final String COM_input = HLConstants.MOD_ID + ":input";
+	public static final String COM_label = HLConstants.MOD_ID + ":label";
 }

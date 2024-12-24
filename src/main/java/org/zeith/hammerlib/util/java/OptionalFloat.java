@@ -1,9 +1,10 @@
 package org.zeith.hammerlib.util.java;
 
+import it.unimi.dsi.fastutil.floats.Float2ObjectFunction;
+import it.unimi.dsi.fastutil.floats.FloatUnaryOperator;
 import org.zeith.hammerlib.util.java.itf.*;
 
-import java.util.NoSuchElementException;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Supplier;
 
 public final class OptionalFloat
@@ -83,6 +84,16 @@ public final class OptionalFloat
 		{
 			return predicate.test(value) ? this : empty();
 		}
+	}
+	
+	public OptionalFloat map(FloatUnaryOperator map)
+	{
+		return isEmpty() ? this : of(map.apply(value));
+	}
+	
+	public <T> Optional<T> mapToObj(Float2ObjectFunction<T> map)
+	{
+		return isEmpty() ? Optional.empty() : Optional.ofNullable(map.apply(Float.valueOf(value)));
 	}
 	
 	public float orElse(float other)

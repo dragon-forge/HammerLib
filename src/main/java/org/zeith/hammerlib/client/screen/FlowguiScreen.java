@@ -29,6 +29,12 @@ public class FlowguiScreen<T extends AbstractContainerMenu>
 	}
 	
 	@Override
+	protected void renderLabels(GuiGraphics pose, int mouseX, int mouseY)
+	{
+		renderForeground(pose, mouseX, mouseY);
+	}
+	
+	@Override
 	public List<Rect2i> getExtraAreas()
 	{
 		return GuiObjectHelper.getAllAreas(root);
