@@ -8,9 +8,11 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.zeith.hammerlib.client.flowgui.objects.GuiRootObject;
-import org.zeith.hammerlib.util.math.Point;
+import org.zeith.hammerlib.client.flowgui.objects.RenderHook;
+import org.zeith.hammerlib.client.flowgui.util.ScrollData;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.java.DirectStorage;
+import org.zeith.hammerlib.util.math.Point;
 
 import java.util.*;
 import java.util.function.*;
@@ -18,7 +20,10 @@ import java.util.function.*;
 @Slf4j
 public class GuiObject
 {
+	public static final int SIMULATED_MOUSE_BUTTON = -25902376;
+	
 	private static final Vec3 ONE = new Vec3(1, 1, 1);
+	
 	//<editor-fold desc="Object relationship">
 	private GuiObject parent;
 	private final List<GuiObject> children = new ArrayList<>();
@@ -29,6 +34,7 @@ public class GuiObject
 	
 	private final String simpleName = getClass().getSimpleName();
 	
+	protected RenderHook preRenderHandler = RenderHook.list();
 	protected boolean enabled = true, visible = true;
 	protected float zOffset;
 	protected Point pos = Point.ZERO, pivot = Point.ZERO;
@@ -36,10 +42,11 @@ public class GuiObject
 	protected float width, height;
 	protected float rotation;
 	
+	public final List<Runnable> finishBuilding = new ArrayList<>(0);
 	public final DirectStorage<Point> elementPosition = DirectStorage.create(p -> pos(p.x(), p.y()), () -> pos);
 	public final DirectStorage<Point> elementPivot = DirectStorage.create(p -> pivot(p.x(), p.y()), () -> pivot);
 	public final DirectStorage<Vec3> elementScale = DirectStorage.create(p -> scale = p, () -> scale);
-	public final DirectStorage<Float> elementRotation = DirectStorage.create(p -> rotation = p, () -> rotation);
+	public final DirectStorage<Float> elementRotation = DirectStorage.create(this::rotation, () -> rotation);
 	public final DirectStorage<Float> elementWidth = DirectStorage.create(p -> width = p, () -> width);
 	public final DirectStorage<Float> elementHeight = DirectStorage.create(p -> height = p, () -> height);
 	
@@ -49,9 +56,23 @@ public class GuiObject
 		this.originalName = this.name = name;
 	}
 	
+	public GuiObject onPreRender(RenderHook task)
+	{
+		this.preRenderHandler = this.preRenderHandler.andThen(task);
+		return this;
+	}
+	
 	public @Nullable <T extends GuiObject> T findByName(String path, Class<T> expectType)
 	{
-		return Cast.cast(findByName(path), expectType);
+		List<GuiObject> allChildren = new ArrayList<>();
+		allChildren.add(this);
+		for(int i = 0; i < allChildren.size(); i++)
+		{
+			GuiObject c = allChildren.get(i);
+			if(c.getName().equals(path) && expectType.isInstance(c)) return expectType.cast(c);
+			for(GuiObject c2 : c.getChildren()) allChildren.add(c2);
+		}
+		return null;
 	}
 	
 	public @Nullable <T extends GuiObject> T findByNameIgnoreCase(String path, Class<T> expectType)
@@ -94,6 +115,21 @@ public class GuiObject
 	{
 		if(path.isBlank()) return this;
 		
+		if(path.startsWith("$root"))
+		{
+			path = path.substring(5);
+			GuiObject o = this;
+			while(o != null)
+			{
+				if(o instanceof GuiRootObject root && o.parent == null)
+				{
+					if(path.equals("/")) return root;
+					return root.findByPath(path.substring(1));
+				}
+				o = o.parent;
+			}
+		}
+		
 		String name;
 		int nextSlash = path.indexOf('/');
 		if(nextSlash >= 0) name = path.substring(0, nextSlash);
@@ -101,6 +137,23 @@ public class GuiObject
 		
 		GuiObject o = byName.get(name);
 		return o != null ? o.findByPath(path.substring(nextSlash + 1)) : null;
+	}
+	
+	private String myPathCache;
+	
+	public @Nullable String getMyPath()
+	{
+		if(myPathCache != null) return myPathCache;
+		
+		List<String> names = new ArrayList<>();
+		GuiObject o = this;
+		while(o != null)
+		{
+			names.add(0, o.getName());
+			o = o.parent;
+		}
+		
+		return myPathCache = String.join("/", names);
 	}
 	
 	public final Iterable<GuiObject> getChildren()
@@ -145,6 +198,7 @@ public class GuiObject
 		}
 		
 		byName.put(child.getName(), child);
+		myPathCache = null;
 		
 		return this;
 	}
@@ -162,7 +216,10 @@ public class GuiObject
 	public final void remove()
 	{
 		if(parent != null)
+		{
 			parent.removeChild(getName());
+			myPathCache = null;
+		}
 	}
 	
 	public final String getName()
@@ -214,6 +271,30 @@ public class GuiObject
 		return this;
 	}
 	
+	public GuiObject centeredX(float width)
+	{
+		pos((width - this.width) / 2, pos.y());
+		return this;
+	}
+	
+	public GuiObject centeredX(int width)
+	{
+		pos((int) ((width - this.width) / 2), pos.y());
+		return this;
+	}
+	
+	public GuiObject centeredY(float height)
+	{
+		pos(pos.x(), (height - this.height) / 2);
+		return this;
+	}
+	
+	public GuiObject centeredY(int height)
+	{
+		pos(pos.x(), (int) ((height - this.height) / 2));
+		return this;
+	}
+	
 	public GuiObject pos(float x, float y)
 	{
 		this.pos = new Point(x, y);
@@ -241,13 +322,33 @@ public class GuiObject
 	
 	public GuiObject pivotAtCenter()
 	{
-		return pivot(width / 2, height / 2);
+		return pivot(getUnscaledWidth() / 2, getUnscaledHeight() / 2);
 	}
 	
 	public GuiObject rotation(float rotation)
 	{
 		this.rotation = rotation;
 		return this;
+	}
+	
+	public float getUnscaledWidth()
+	{
+		return width;
+	}
+	
+	public float getUnscaledHeight()
+	{
+		return height;
+	}
+	
+	public float getScaledWidth()
+	{
+		return (float) (getUnscaledWidth() * scale.x);
+	}
+	
+	public float getScaledHeight()
+	{
+		return (float) (getUnscaledHeight() * scale.y);
 	}
 	
 	public GuiObject usePos(Consumer<DirectStorage<Point>> handler)
@@ -282,7 +383,7 @@ public class GuiObject
 	{
 	}
 	
-	protected boolean onMouseClicked(Point globalMousePos, MousePos pos, int button)
+	protected boolean onMouseClicked(Point globalMousePos, MousePos pos, int button, boolean fake)
 	{
 		return false;
 	}
@@ -297,7 +398,7 @@ public class GuiObject
 		return false;
 	}
 	
-	protected boolean onMouseScrolled(Point globalMousePos, MousePos pos, double delta)
+	protected boolean onMouseScrolled(Point globalMousePos, MousePos pos, ScrollData delta)
 	{
 		return false;
 	}
@@ -331,20 +432,22 @@ public class GuiObject
 	public final <T> void runForTree(PoseStack pose, Class<T> filter, BiConsumer<T, PoseStack> handler)
 	{
 		runForTree(pose, (obj, ps) ->
-		{
-			T t = Cast.cast(obj, filter);
-			if(t != null) handler.accept(t, ps);
-		});
+				{
+					T t = Cast.cast(obj, filter);
+					if(t != null) handler.accept(t, ps);
+				}
+		);
 	}
 	
 	public final <T, R> Optional<R> findInTree(PoseStack pose, Class<T> filter, BiFunction<T, PoseStack, Optional<R>> handler)
 	{
 		return findInTree(pose, (obj, ps) ->
-		{
-			T t = Cast.cast(obj, filter);
-			if(t != null) return handler.apply(t, ps);
-			return Optional.empty();
-		});
+				{
+					T t = Cast.cast(obj, filter);
+					if(t != null) return handler.apply(t, ps);
+					return Optional.empty();
+				}
+		);
 	}
 	
 	public final void runForTree(PoseStack pose, BiConsumer<GuiObject, PoseStack> handler)
@@ -395,13 +498,20 @@ public class GuiObject
 		if(visible)
 		{
 			Vector3f v = untransform(ps).transformPosition(globalMousePos.x(), globalMousePos.y(), 0, new Vector3f());
-			render(g, new MousePos(globalMousePos, v.x, v.y));
+			var mouse = new MousePos(globalMousePos, v.x, v.y);
+			preRenderHandler.hook(g.partialTime(), mouse);
+			render(g, mouse);
 		}
 		
 		for(GuiObject child : children)
 			child.renderObject(g, globalMousePos);
 		
 		ps.popPose();
+	}
+	
+	public boolean isFakeMouseButton(int button)
+	{
+		return SIMULATED_MOUSE_BUTTON == button;
 	}
 	
 	public final boolean sendMouseClick(PoseStack ps, Point globalMousePos, int button)
@@ -413,7 +523,7 @@ public class GuiObject
 		if(visible)
 		{
 			Vector3f v = untransform(ps).transformPosition(globalMousePos.x(), globalMousePos.y(), 0, new Vector3f());
-			if(onMouseClicked(globalMousePos, new MousePos(globalMousePos, v.x, v.y), button))
+			if(onMouseClicked(globalMousePos, new MousePos(globalMousePos, v.x, v.y), button, isFakeMouseButton(button)))
 				return true;
 		}
 		
@@ -469,7 +579,7 @@ public class GuiObject
 		return false;
 	}
 	
-	public final boolean sendMouseScroll(PoseStack ps, Point globalMousePos, double delta)
+	public final boolean sendMouseScroll(PoseStack ps, Point globalMousePos, ScrollData delta)
 	{
 		if(!enabled) return false;
 		ps.pushPose();

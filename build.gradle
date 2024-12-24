@@ -25,7 +25,6 @@ apply plugin: 'idea'
 apply plugin: 'maven-publish'
 apply plugin: "com.matthewprenger.cursegradle"
 apply plugin: 'org.spongepowered.mixin'
-apply plugin: 'se.bjurr.gitchangelog.git-changelog-gradle-plugin'
 
 ext.configFile = file("build.txt")
 configFile.withReader {
@@ -122,8 +121,8 @@ dependencies {
     minecraft "net.neoforged:forge:${config.mc_version}-${config.forge_version}"
 
     ////// UTILITY STUFF //////
-    compileOnly 'org.projectlombok:lombok:1.18.32'
-    annotationProcessor 'org.projectlombok:lombok:1.18.32'
+    compileOnly 'org.projectlombok:lombok:1.18.36'
+    annotationProcessor 'org.projectlombok:lombok:1.18.36'
     ///////////////////////////
 
     if (hasConfig("jei_version") && !config.jei_version.isEmpty()) {
@@ -309,20 +308,6 @@ publish.dependsOn('reobfJar')
 
 build.dependsOn signJar
 
-task generateChangelog(type: se.bjurr.gitchangelog.plugin.gradle.GitChangelogTask) {
-    group = "git changelog"
-    if (config.last_git_commit != null && !config.last_git_commit.isEmpty()) fromRevision = config.last_git_commit
-    templateContent = """
-Changelog:
-
-{{#tags}}
-  {{#commits}}
-- {{messageTitle}} ([{{hash}}](https://github.com/{{ownerName}}/{{repoName}}/commit/{{hash}})) by {{authorName}}
-  {{/commits}}
-{{/tags}}
-"""
-}
-
 tasks.register('buildAndUploadMod') {
     group = "upload"
     dependsOn "curseforge${config.cf_project}", 'modrinth'
@@ -333,8 +318,6 @@ tasks.register('buildAndUploadMod') {
 }
 
 afterEvaluate {
-    tasks["signJar"].dependsOn.add(generateChangelog)
-
     tasks["curseforge${config.cf_project}"].dependsOn.add(publish)
     tasks["modrinth"].dependsOn.add(publish)
 }

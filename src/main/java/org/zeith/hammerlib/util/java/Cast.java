@@ -1,6 +1,7 @@
 package org.zeith.hammerlib.util.java;
 
 import org.jetbrains.annotations.Contract;
+import org.zeith.hammerlib.util.java.itf.FloatSupplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -26,6 +27,11 @@ public class Cast
 	}
 	
 	public static LongSupplier constantL(long value)
+	{
+		return () -> value;
+	}
+	
+	public static FloatSupplier constantF(float value)
 	{
 		return () -> value;
 	}

@@ -52,7 +52,7 @@ public class TestFlowgui
 								)
 						)
 				)
-				.onPreRender(partialTicks ->
+				.onPreRender((partialTicks, mouse) ->
 				{
 					long sys = System.currentTimeMillis();
 					float dist = Mth.sin(sys % 36000L / 100F);

@@ -1,7 +1,6 @@
 package org.zeith.hammerlib.client.flowgui.objects;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import it.unimi.dsi.fastutil.floats.FloatConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
@@ -9,9 +8,13 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.renderer.Rect2i;
-import org.zeith.hammerlib.client.flowgui.*;
+import org.zeith.hammerlib.client.flowgui.Graphics;
+import org.zeith.hammerlib.client.flowgui.GuiObject;
 import org.zeith.hammerlib.client.flowgui.util.GuiObjectHelper;
+import org.zeith.hammerlib.client.flowgui.util.ScrollData;
 import org.zeith.hammerlib.util.math.Point;
+
+import java.util.Stack;
 
 public class GuiRootObject
 		extends GuiObject
@@ -19,9 +22,6 @@ public class GuiRootObject
 {
 	protected boolean focused;
 	protected Runnable tickHandler = () ->
-	{
-	};
-	protected FloatConsumer preRenderHandler = f ->
 	{
 	};
 	
@@ -36,6 +36,19 @@ public class GuiRootObject
 		super("$root");
 	}
 	
+	public GuiRootObject finishBuilding()
+	{
+		Stack<GuiObject> traversal = new Stack<>();
+		traversal.push(this);
+		while(!traversal.isEmpty())
+		{
+			GuiObject element = traversal.pop();
+			element.finishBuilding.forEach(Runnable::run);
+			element.getChildren().forEach(traversal::push);
+		}
+		return this;
+	}
+	
 	public GuiRootObject onTick(Runnable task)
 	{
 		var prev = this.tickHandler;
@@ -47,9 +60,10 @@ public class GuiRootObject
 		return this;
 	}
 	
-	public GuiRootObject onPreRender(FloatConsumer task)
+	@Override
+	public GuiRootObject onPreRender(RenderHook task)
 	{
-		this.preRenderHandler = this.preRenderHandler.andThen(task);
+		super.onPreRender(task);
 		return this;
 	}
 	
@@ -63,12 +77,6 @@ public class GuiRootObject
 	protected void update()
 	{
 		tickHandler.run();
-	}
-	
-	@Override
-	protected void render(Graphics gfx, MousePos pos)
-	{
-		preRenderHandler.accept(gfx.partialTime());
 	}
 	
 	/**
@@ -99,9 +107,9 @@ public class GuiRootObject
 	}
 	
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double delta)
+	public boolean mouseScrolled(double pMouseX, double pMouseY, double pScrollY)
 	{
-		return sendMouseScroll(myPose(), new Point(mouseX, mouseY), delta);
+		return sendMouseScroll(myPose(), new Point(pMouseX, pMouseY), new ScrollData(pScrollY));
 	}
 	
 	@Override
@@ -183,6 +191,6 @@ public class GuiRootObject
 	@Override
 	public boolean isMouseOver(double pMouseX, double pMouseY)
 	{
-		return true;
+		return sendMouseClick(myPose(), new Point(pMouseX, pMouseY), SIMULATED_MOUSE_BUTTON);
 	}
 }

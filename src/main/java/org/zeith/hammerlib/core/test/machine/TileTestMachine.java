@@ -56,6 +56,8 @@ public class TileTestMachine
 	public final PropertyInt maxProgress = new PropertyInt(DirectStorage.create(i -> _maxProgress = i, () -> _maxProgress));
 	public final PropertyResourceLocation activeRecipeId = new PropertyResourceLocation(DirectStorage.create(r -> _activeRecipeId = r, () -> _activeRecipeId));
 	
+	public final PropertyInt uiProgress = new PropertyInt();
+	
 	public TileTestMachine(BlockPos pos, BlockState state)
 	{
 		super(TEST_MACHINE, pos, state);
@@ -104,6 +106,8 @@ public class TileTestMachine
 			activeRecipeId.set(null);
 			r = null;
 		}
+		
+		uiProgress.set(_progress);
 		
 		if(r == null && atTickRate(10))
 		{

@@ -32,7 +32,7 @@ public class RecipesHL
 			 .top(ItemTags.SAND, 1)
 			 .bottom(ItemTags.LOGS_THAT_BURN, 1)
 			 .result(new ItemStack(Items.GLASS))
-			 .registerIf(Cast.constantB(false));
+			 .registerIf(Cast.constantB(true));
 		}
 		
 		GearsHL.recipes(e);

@@ -18,6 +18,7 @@ import org.objectweb.asm.Type;
 import org.zeith.hammerlib.api.LanguageHelper.LangMap;
 import org.zeith.hammerlib.api.lighting.ColoredLight;
 import org.zeith.hammerlib.api.proxy.IProxy;
+import org.zeith.hammerlib.core.scans.base.DataScanner;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -124,6 +125,10 @@ public class HLCommonProxy
 	public Consumer<RegisterParticleProvidersEvent> addParticleTypeProvider(ParticleType<?> type, Class<?> providerCls)
 	{
 		return null;
+	}
+	
+	public void appendScans(DataScanner data)
+	{
 	}
 	
 	protected static final class QueuedTask

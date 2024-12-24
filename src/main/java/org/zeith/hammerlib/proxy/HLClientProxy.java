@@ -31,18 +31,23 @@ import org.zeith.hammerlib.api.items.tooltip.*;
 import org.zeith.hammerlib.api.lighting.*;
 import org.zeith.hammerlib.api.lighting.impl.IGlowingEntity;
 import org.zeith.hammerlib.api.proxy.IClientProxy;
+import org.zeith.hammerlib.client.flowgui.reader.*;
 import org.zeith.hammerlib.client.model.SimpleModelGenerator;
 import org.zeith.hammerlib.client.render.tile.*;
 import org.zeith.hammerlib.client.utils.TexturePixelGetter;
 import org.zeith.hammerlib.core.adapter.ConfigAdapter;
 import org.zeith.hammerlib.core.items.tooltip.*;
+import org.zeith.hammerlib.core.scans.base.DataScanner;
+import org.zeith.hammerlib.core.scans.base.IAnnotationScanListener;
 import org.zeith.hammerlib.event.client.ClientLoadedInEvent;
 import org.zeith.hammerlib.mixins.client.ParticleEngineAccessor;
 import org.zeith.hammerlib.net.Network;
 import org.zeith.hammerlib.net.packets.*;
 import org.zeith.hammerlib.util.java.*;
 import org.zeith.hammerlib.util.mcf.LogicalSidePredictor;
+import org.zeith.hammerlib.util.mcf.RunnableReloader;
 
+import java.lang.annotation.ElementType;
 import java.lang.reflect.Constructor;
 import java.util.*;
 import java.util.function.*;
@@ -73,10 +78,18 @@ public class HLClientProxy
 	}
 	
 	@Override
+	public void appendScans(DataScanner data)
+	{
+		data.add(IAnnotationScanListener.forAnnotation(FlowguiReader.class, ElementType.TYPE, FlowguiRegistry::handleReader));
+		data.add(IAnnotationScanListener.forAnnotation(XmlFlowgui.class, ElementType.TYPE, FlowguiRegistry::handleXml));
+	}
+	
+	@Override
 	public void construct(IEventBus modBus)
 	{
 		modBus.addListener(this::registerKeybinds);
 		modBus.addListener(this::modelBake);
+		modBus.addListener(this::registerReloadListeners);
 		modBus.addListener(this::registerClientTooltips);
 		modBus.addListener(this::loadComplete);
 		modBus.addListener(TexturePixelGetter::reloadTexture);
@@ -94,6 +107,11 @@ public class HLClientProxy
 	{
 		int[] colors = TexturePixelGetter.getAllColors(e.getItemStack());
 		e.getTooltipElements().add(Either.right(new TooltipColoredLine(colors)));
+	}
+	
+	private void registerReloadListeners(RegisterClientReloadListenersEvent e)
+	{
+		e.registerReloadListener(RunnableReloader.of(FlowguiRegistry::reload));
 	}
 	
 	private void registerClientTooltips(RegisterClientTooltipComponentFactoriesEvent e)
@@ -120,7 +138,8 @@ public class HLClientProxy
 		MenuScreens.register(ContainerAPI.TILE_CONTAINER, (MenuScreens.ScreenConstructor) (ctr, inv, txt) -> Cast
 				.optionally(ctr, IScreenContainer.class)
 				.map(c -> c.openScreen(inv, txt))
-				.orElse(null));
+				.orElse(null)
+		);
 		
 		PARTICLE_MAP = ((ParticleEngineAccessor) Minecraft.getInstance().particleEngine).getParticles();
 	}
@@ -198,7 +217,8 @@ public class HLClientProxy
 								{
 									throw new ReportedException(new CrashReport(
 											"Unable to create BlockEntityRenderer(no-args) for BlockEntityType " +
-											name, err));
+											name, err
+									));
 								}
 							};
 						}
@@ -206,7 +226,8 @@ public class HLClientProxy
 					{
 						throw new ReportedException(new CrashReport(
 								"Unable to create BlockEntityRenderer(no-args) for BlockEntityType " +
-								name, err));
+								name, err
+						));
 					}
 				}
 			}
@@ -248,7 +269,8 @@ public class HLClientProxy
 				{
 					throw new ReportedException(new CrashReport(
 							"Unable to create ParticleProvider.Sprite(no-args) for ParticleType " +
-							name, ex));
+							name, ex
+					));
 				}
 			}
 			
@@ -265,7 +287,8 @@ public class HLClientProxy
 				{
 					throw new ReportedException(new CrashReport(
 							"Unable to create ParticleProvider.Sprite(no-args) for ParticleType " +
-							name, ex));
+							name, ex
+					));
 				}
 			}
 			
@@ -290,17 +313,19 @@ public class HLClientProxy
 					{
 						ctor.setAccessible(true);
 						e.registerSpriteSet(type, set ->
-						{
-							try
-							{
-								return Cast.cast(ctor.newInstance(set));
-							} catch(ReflectiveOperationException ex)
-							{
-								throw new ReportedException(new CrashReport(
-										"Unable to create ParticleProvider(no-args) for ParticleType " +
-										name, ex));
-							}
-						});
+								{
+									try
+									{
+										return Cast.cast(ctor.newInstance(set));
+									} catch(ReflectiveOperationException ex)
+									{
+										throw new ReportedException(new CrashReport(
+												"Unable to create ParticleProvider(no-args) for ParticleType " +
+												name, ex
+										));
+									}
+								}
+						);
 						return;
 					}
 				}

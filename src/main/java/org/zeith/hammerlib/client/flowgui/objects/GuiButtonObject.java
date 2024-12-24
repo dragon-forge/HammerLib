@@ -11,7 +11,6 @@ import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
@@ -33,7 +32,7 @@ public class GuiButtonObject
 	public OnPress callback;
 	public Holder<SoundEvent> pressSound;
 	
-	@Builder
+	@Builder(builderClassName = "ButtonBuilder")
 	public GuiButtonObject(@NotNull String name,
 						   float alpha,
 						   int packedFGColor,
@@ -76,9 +75,9 @@ public class GuiButtonObject
 		return this;
 	}
 	
-	public static GuiButtonObjectBuilder builder(String name)
+	public static ButtonBuilder builder(String name)
 	{
-		return new GuiButtonObjectBuilder()
+		return new ButtonBuilder()
 				.name(name)
 				.alpha(1F)
 				.packedFGColor(UNSET_FG_COLOR)
@@ -92,16 +91,18 @@ public class GuiButtonObject
 	protected void render(Graphics gfx, MousePos pos)
 	{
 		Minecraft minecraft = Minecraft.getInstance();
-		
-		var pGuiGraphics = gfx.gfx();
-		
-		pGuiGraphics.setColor(1.0F, 1.0F, 1.0F, this.alpha);
+		renderButtonBg(gfx, pos);
+		int i = getFGColor();
+		this.renderString(gfx.gfx(), minecraft.font, i | Mth.ceil(this.alpha * 255.0F) << 24);
+	}
+	
+	protected void renderButtonBg(Graphics pGfx, MousePos pos)
+	{
 		RenderSystem.enableBlend();
 		RenderSystem.enableDepthTest();
-		pGuiGraphics.blitNineSliced(AbstractWidget.WIDGETS_LOCATION, 0, 0, (int) width, (int) height, 20, 4, 200, 20, 0, this.getTextureY(pos.isMouseWithin(this)));
-		pGuiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
-		int i = getFGColor();
-		this.renderString(pGuiGraphics, minecraft.font, i | Mth.ceil(this.alpha * 255.0F) << 24);
+		pGfx.setColor(1.0F, 1.0F, 1.0F, this.alpha);
+		pGfx.blitNineSliced(AbstractWidget.WIDGETS_LOCATION, 0, 0, (int) width, (int) height, 20, 4, 200, 20, 0, this.getTextureY(pos.isMouseWithin(this)));
+		pGfx.setColor(1.0F, 1.0F, 1.0F, 1.0F);
 	}
 	
 	public void onPress()
@@ -111,15 +112,15 @@ public class GuiButtonObject
 	}
 	
 	@Override
-	protected boolean onMouseClicked(Point globalMousePos, MousePos pos, int button)
+	protected boolean onMouseClicked(Point globalMousePos, MousePos pos, int button, boolean fake)
 	{
 		if(button == 0 && enabled && pos.isMouseWithin(this))
 		{
-			onPress();
+			if(!fake) onPress();
 			return true;
 		}
 		
-		return false;
+		return fake && enabled && pos.isMouseWithin(this);
 	}
 	
 	public void playDownSound(SoundManager pHandler)
@@ -128,7 +129,7 @@ public class GuiButtonObject
 			pHandler.play(SimpleSoundInstance.forUI(pressSound, 1.0F));
 	}
 	
-	private int getTextureY(boolean hovered)
+	protected int getTextureY(boolean hovered)
 	{
 		int i = 1;
 		if(!this.enabled)
@@ -181,9 +182,9 @@ public class GuiButtonObject
 		}
 	}
 	
-	public static class GuiButtonObjectBuilder
+	public static class ButtonBuilder
 	{
-		private GuiButtonObjectBuilder name(String name)
+		private ButtonBuilder name(String name)
 		{
 			this.name = name;
 			return this;

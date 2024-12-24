@@ -64,8 +64,18 @@ public class GuiObjectBuilder
 		return text(text, 0xFFFFFFFF, true);
 	}
 	
-	public GuiButtonObject.GuiButtonObjectBuilder button()
+	public GuiButtonObject.ButtonBuilder button()
 	{
 		return GuiButtonObject.builder(name);
+	}
+	
+	public GuiButtonObject.ButtonBuilder spriteButton()
+	{
+		return GuiSpriteButtonObject.builder(name);
+	}
+	
+	public GuiEditBoxObject.EditBoxBuilder editBox()
+	{
+		return GuiEditBoxObject.builder(name);
 	}
 }
