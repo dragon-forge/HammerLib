@@ -87,9 +87,9 @@ public class GuiObjectBuilder
 		return GuiButtonObject.builder(name);
 	}
 	
-	public GuiButtonObject.ButtonBuilder spriteButton()
+	public GuiSpriteButtonObject.SpriteBtnBuilder spriteButton()
 	{
-		return GuiSpriteButtonObject.builder(name);
+		return GuiSpriteButtonObject.of(name);
 	}
 	
 	public GuiEditBoxObject.EditBoxBuilder editBox()

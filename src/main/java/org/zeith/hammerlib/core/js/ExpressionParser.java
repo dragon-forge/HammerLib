@@ -2,6 +2,7 @@ package org.zeith.hammerlib.core.js;
 
 import lombok.SneakyThrows;
 import net.minecraft.util.Mth;
+import org.zeith.hammerlib.util.colors.ColorHelper;
 import org.zeith.hammerlib.util.java.tuples.Tuple2;
 
 import javax.script.ScriptEngine;
@@ -183,6 +184,21 @@ public class ExpressionParser
 			interpolatedAngle = (interpolatedAngle % 360 + 360) % 360;
 			
 			return interpolatedAngle;
+		}
+		
+		public int rgbi(int red, int green, int blue)
+		{
+			return ColorHelper.packRGBi(red, green, blue);
+		}
+		
+		public int rgb(float red, float green, float blue)
+		{
+			return ColorHelper.packRGB(red, green, blue);
+		}
+		
+		public int hsv(float hue, float saturation, float value)
+		{
+			return Mth.hsvToRgb(hue, saturation, value);
 		}
 	}
 }

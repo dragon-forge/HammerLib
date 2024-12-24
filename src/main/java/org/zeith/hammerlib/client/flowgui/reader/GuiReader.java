@@ -11,17 +11,17 @@ import org.zeith.hammerlib.api.data.DataNodeTransformer;
 import org.zeith.hammerlib.api.data.IDataNode;
 import org.zeith.hammerlib.client.flowgui.GuiObject;
 import org.zeith.hammerlib.client.flowgui.data.FlowQuery;
-import org.zeith.hammerlib.core.js.CallerSpec;
 import org.zeith.hammerlib.proxy.HLConstants;
-import org.zeith.hammerlib.util.java.*;
-import org.zeith.hammerlib.util.java.cbqs.cbq3.*;
-import org.zeith.hammerlib.util.java.itf.*;
+import org.zeith.hammerlib.util.java.OptionalBoolean;
+import org.zeith.hammerlib.util.java.ReflectionUtil;
+import org.zeith.hammerlib.util.java.itf.FloatSupplier;
 import org.zeith.hammerlib.util.mcf.Resources;
-import org.zeith.hammerlib.util.shaded.json.JSONObject;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
+
+import static org.zeith.hammerlib.client.flowgui.reader.ComDrivers.*;
 
 @Slf4j
 public abstract class GuiReader<T extends GuiObject>
@@ -122,7 +122,7 @@ public abstract class GuiReader<T extends GuiObject>
 		var jsc = getJSContext(context);
 		
 		var query = context.get(FlowguiRegistry.QUERY);
-		if(readBoolean(jsc, KEY_IF, query, attributes, null).get() == OptionalBoolean.OPTIONAL_FALSE)
+		if(readBoolean(jsc, null, query, attributes, KEY_IF).get() == OptionalBoolean.OPTIONAL_FALSE)
 			return null;
 		
 		var obj = readObject(context, id, attributes);
@@ -318,154 +318,13 @@ public abstract class GuiReader<T extends GuiObject>
 		driveFloat(jsc, obj, query, attributes, KEY_PIVOT_Y, null, false, y -> obj.elementPivot.apply(p -> p.withY(y)));
 	}
 	
-	protected boolean driveBool(JsContext jsc, GuiObject self, FlowQuery query, IDataNode attributes, String name, Boolean defaultValue, boolean alwaysDrive, BooleanConsumer driver)
-	{
-		var parsed = readBoolean(jsc, name, query, attributes, self);
-		
-		var fallback = defaultValue != null ? OptionalBoolean.of(defaultValue) : OptionalBoolean.empty();
-		
-		boolean dynamic = alwaysDrive || !parsed.getClass().getName().contains(Cast.class.getName());
-		
-		// Non-Constant lambda
-		if(dynamic)
-			self.onPreRender((time, mouse) ->
-					parsed.get().or(fallback).ifPresent(driver)
-			);
-		
-		parsed.get().or(fallback).ifPresent(driver);
-		
-		return dynamic;
-	}
-	
-	protected boolean driveFloat(JsContext jsc, GuiObject self, FlowQuery query, IDataNode attributes, String name, Float defaultValue, boolean alwaysDrive, FloatConsumer driver)
-	{
-		var parsed = readFloat(jsc, name, query, attributes, self);
-		
-		var fallback = defaultValue != null ? OptionalFloat.of(defaultValue) : OptionalFloat.empty();
-		
-		boolean dynamic = alwaysDrive || !parsed.getClass().getName().contains(Cast.class.getName());
-		
-		// Non-Constant lambda
-		if(dynamic)
-			self.onPreRender((time, mouse) ->
-					parsed.get().or(fallback).ifPresent(driver)
-			);
-		
-		parsed.get().or(fallback).ifPresent(driver);
-		
-		return dynamic;
-	}
-	
-	private static final CallerSpec CBQ_SPEC = new CallerSpec("invoke", false);
-	private static final CallerSpec CBQ_RET_SPEC = new CallerSpec("invoke", true);
-	
-	protected Supplier<OptionalBoolean> readBoolean(JsContext jsc, String from, FlowQuery query, IDataNode attributes, GuiObject self)
-	{
-		var expression = attributes.getString(from);
-		if("true".equalsIgnoreCase(expression) || "false".equalsIgnoreCase(expression))
-			return Cast.constant(OptionalBoolean.of(Boolean.parseBoolean(expression)));
-		if(expression == null) return Cast.constant(OptionalBoolean.empty());
-		
-		var str = attributes.getString(from);
-		if(str == null) return Cast.constant(OptionalBoolean.empty());
-		
-		var cbq = jsc.eval(BoolCallback3.class, str, CBQ_RET_SPEC);
-		if(cbq == null) return Cast.constant(OptionalBoolean.empty());
-		
-		return () ->
-		{
-			try
-			{
-				return OptionalBoolean.of(cbq.invoke(query, self, null));
-			} catch(Exception e)
-			{
-				return OptionalBoolean.empty();
-			}
-		};
-	}
-	
-	protected Supplier<OptionalFloat> readFloat(JsContext jsc, String from, FlowQuery query, IDataNode attributes, GuiObject self)
-	{
-		var of = attributes.getFloat(from);
-		if(of.isPresent()) return Cast.constant(of);
-		
-		var str = attributes.getString(from);
-		if(str == null) return Cast.constant(OptionalFloat.empty());
-		
-		var cbq = jsc.eval(DoubleCallback3.class, str, CBQ_RET_SPEC);
-		if(cbq == null) return Cast.constant(OptionalFloat.empty());
-		
-		return () ->
-		{
-			try
-			{
-				return OptionalFloat.of((float) cbq.invoke(query, self, null));
-			} catch(Exception e)
-			{
-				return OptionalFloat.empty();
-			}
-		};
-	}
-	
-	protected Supplier<OptionalInt> readInt(JsContext jsc, String from, FlowQuery query, IDataNode attributes, GuiObject self)
-	{
-		var of = attributes.getInt(from);
-		if(of.isPresent()) return Cast.constant(of);
-		
-		var str = attributes.getString(from);
-		if(str == null) return Cast.constant(OptionalInt.empty());
-		
-		var cbq = jsc.eval(IntCallback3.class, str, CBQ_RET_SPEC);
-		if(cbq == null) return Cast.constant(OptionalInt.empty());
-		
-		return () ->
-		{
-			try
-			{
-				return OptionalInt.of(cbq.invoke(query, self, null));
-			} catch(Exception e)
-			{
-				return OptionalInt.empty();
-			}
-		};
-	}
-	
-	protected Runnable readCallback(JsContext jsc, String from, IDataNode node, FlowQuery query, GuiObject self, boolean returns)
-	{
-		var expression = node.getString(from);
-		if(expression == null || expression.isBlank()) return () ->
-		{
-		};
-		
-		var cbq = jsc.eval(Callback3.class, expression, returns ? CBQ_RET_SPEC : CBQ_SPEC);
-		if(cbq == null) return () ->
-		{
-		};
-		
-		return () ->
-		{
-			try
-			{
-				cbq.invoke(query, self, null);
-			} catch(RuntimeException e)
-			{
-				log.error("Failed to invoke callback {} (code: {})", readableName(node), expression);
-			}
-		};
-	}
-	
 	protected JsContext getJSContext(KeyMap map)
 	{
 		return map.get(FlowguiRegistry.JS_CONTEXT);
 	}
 	
-	public static String readableName(IDataNode node)
+	protected FlowQuery getQuery(KeyMap map)
 	{
-		var keys = node.keys();
-		return "<%s %s %s/>"
-				.formatted(node.getMyName(),
-						keys.contains(KEY_CLASS) ? "class=%s".formatted(JSONObject.quote(node.getString(KEY_CLASS))) : "",
-						keys.contains(KEY_ID) ? "id=%s".formatted(JSONObject.quote(node.getString(KEY_ID))) : ""
-				).trim();
+		return map.get(FlowguiRegistry.QUERY);
 	}
 }

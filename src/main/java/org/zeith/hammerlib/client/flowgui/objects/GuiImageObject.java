@@ -1,6 +1,10 @@
 package org.zeith.hammerlib.client.flowgui.objects;
 
-import net.minecraft.util.ARGB;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.*;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.CoreShaders;
+import net.minecraft.client.renderer.ShaderProgram;
 import net.minecraft.world.phys.Vec3;
 import org.zeith.hammerlib.client.flowgui.*;
 import org.zeith.hammerlib.client.render.texture.GuiTexture;
@@ -47,8 +51,46 @@ public class GuiImageObject
 	@Override
 	protected void render(Graphics gfx, MousePos pos)
 	{
-		var drawer = tex.with(gfx);
-		drawer.state().color = ARGB.colorFromFloat(alpha, (float) color.x, (float) color.y, (float) color.z);
-		drawer.blitSegment(0, 0, uOffset, vOffset, imgWidth, imgHeight, txWidth, txHeight);
+		gfx.drawSpecial((g) ->
+		{
+			RenderSystem.setShaderTexture(0, tex.texture());
+			blitWithBlend(CoreShaders.POSITION_TEX_COLOR, gfx.gfx(), uOffset, vOffset, width, height, txWidth, txHeight, alpha, color);
+		});
+//		var drawer = tex.with(gfx);
+//		drawer.state().color = ARGB.colorFromFloat(alpha, (float) color.x, (float) color.y, (float) color.z);
+//		drawer.blitSegment(0, 0, uOffset, vOffset, imgWidth, imgHeight, txWidth, txHeight);
+	}
+	
+	public static void blitWithBlend(
+			ShaderProgram shader,
+			GuiGraphics gfx,
+			float texPosX, float texPosY,
+			float width, float height,
+			float texWidth, float texHeight,
+			float alpha, Vec3 rgb
+	)
+	{
+		float u1 = texPosX / texWidth;
+		float u2 = (texPosX + width) / texWidth;
+		float v1 = texPosY / texHeight;
+		float v2 = (texPosY + height) / texHeight;
+		
+		var pose = gfx.pose().last().pose();
+		
+		BufferBuilder buf = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+		
+		
+		RenderSystem.enableBlend();
+		RenderSystem.setShader(shader);
+		
+		float r = (float) rgb.x(), g = (float) rgb.y(), b = (float) rgb.z();
+		
+		buf.addVertex(pose, 0, 0, 0).setColor(r, g, b, alpha).setUv(u1, v1);
+		buf.addVertex(pose, 0, height, 0).setColor(r, g, b, alpha).setUv(u1, v2);
+		buf.addVertex(pose, width, height, 0).setColor(r, g, b, alpha).setUv(u2, v2);
+		buf.addVertex(pose, width, 0, 0).setColor(r, g, b, alpha).setUv(u2, v1);
+		
+		BufferUploader.drawWithShader(buf.build());
+		RenderSystem.disableBlend();
 	}
 }

@@ -7,6 +7,8 @@ import org.zeith.hammerlib.client.flowgui.objects.GuiSlotLinkObject;
 import org.zeith.hammerlib.client.flowgui.reader.*;
 import org.zeith.hammerlib.proxy.HLConstants;
 
+import static org.zeith.hammerlib.client.flowgui.reader.ComDrivers.readInt;
+
 @Namespace(HLConstants.MOD_ID)
 @FlowguiReader("slot")
 public class FlowguiSlotReader
@@ -26,7 +28,7 @@ public class FlowguiSlotReader
 		
 		GuiSlotLinkObject link = new GuiSlotLinkObject(name);
 		
-		var value = readInt(getJSContext(context), KEY_INDEX, query, attributes, link).get();
+		var value = readInt(getJSContext(context), link, query, attributes, KEY_INDEX).get();
 		
 		if(cachingJS) return link;
 		
