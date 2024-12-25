@@ -134,8 +134,7 @@ public class ComDrivers
 				try
 				{
 					Object s = cbq.invoke(query, self, null);
-					String st;
-					return s instanceof Component com ? com : MoreObjects.firstNonNull(Component.Serializer.fromJsonLenient(st = Objects.toString(s), TagsUpdateListener.getRegistryAccess()), Component.translatable(st));
+					return s instanceof Component com ? com : componentFromString(Objects.toString(s));
 				} catch(Exception e)
 				{
 					return Component.literal("Error: " + e)
@@ -144,15 +143,19 @@ public class ComDrivers
 			};
 		}
 		
-		
+		return Cast.constant(componentFromString(str));
+	}
+	
+	public static Component componentFromString(String str)
+	{
 		try
 		{
-			return Cast.constant(Component.Serializer.fromJson(str, TagsUpdateListener.getRegistryAccess()));
+			return Component.Serializer.fromJson(str, TagsUpdateListener.getRegistryAccess());
 		} catch(Exception e)
 		{
 		}
 		
-		return Cast.constant(Component.translatable(str));
+		return Component.translatable(str);
 	}
 	
 	public static Supplier<OptionalBoolean> readBoolean(JsContext jsc, GuiObject self, FlowQuery query, IDataNode attributes, String from)
