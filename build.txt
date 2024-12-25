@@ -31,7 +31,7 @@ mc_user=Zeitheron,63fa4c485b5640809727d5d59663e603
 java=17
 
 # Keeping track of latest git commit for changelog generation!
-last_git_commit=3623ee8b3ce99d0
+last_git_commit=84a18ffd2bf14c7
 
 # Project ID on CurseForge
 cf_project=247401
