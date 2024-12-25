@@ -17,8 +17,8 @@ public class FlowguiImageReader
 		extends GuiReader<GuiImageObject>
 {
 	@FileReference(
-			regex = "^(?<modid>[a-z0-9_.-]+):(?<path>[a-z0-9_./-]+)$",
-			value = "resources/assets/%modid%/%path%"
+			regex = { "^(?<modid>[a-z0-9_.-]+):(?<path>[a-z0-9_./-]+)$", "^(?<path>[a-z0-9_./-]+)$" },
+			value = { "assets/%modid%/%path%", "assets/minecraft/%path%" }
 	)
 	@AllowedValues(AllowedValues.RESOURCE_LOCATION)
 	public static final @Required("minecraft:textures/gui/container/furnace.png") String KEY_TEXTURE = "src";
