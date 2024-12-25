@@ -54,7 +54,13 @@ public class GuiImageObject
 		gfx.drawSpecial((g) ->
 		{
 			RenderSystem.setShaderTexture(0, tex.texture());
-			blitWithBlend(CoreShaders.POSITION_TEX_COLOR, gfx.gfx(), uOffset, vOffset, width, height, txWidth, txHeight, alpha, color);
+			blitWithBlend(CoreShaders.POSITION_TEX_COLOR, gfx.gfx(),
+					uOffset, vOffset,
+					width, height,
+					imgWidth, imgHeight,
+					txWidth, txHeight,
+					alpha, color
+			);
 		});
 //		var drawer = tex.with(gfx);
 //		drawer.state().color = ARGB.colorFromFloat(alpha, (float) color.x, (float) color.y, (float) color.z);
@@ -70,15 +76,35 @@ public class GuiImageObject
 			float alpha, Vec3 rgb
 	)
 	{
+		blitWithBlend(
+				shader,
+				gfx,
+				texPosX, texPosY,
+				width, height,
+				width, height,
+				texWidth, texHeight,
+				alpha, rgb
+		);
+	}
+	
+	public static void blitWithBlend(
+			ShaderProgram shader,
+			GuiGraphics gfx,
+			float texPosX, float texPosY,
+			float renderWidth, float renderHeight,
+			float spriteWidth, float spriteHeight,
+			float texWidth, float texHeight,
+			float alpha, Vec3 rgb
+	)
+	{
 		float u1 = texPosX / texWidth;
-		float u2 = (texPosX + width) / texWidth;
+		float u2 = (texPosX + spriteWidth) / texWidth;
 		float v1 = texPosY / texHeight;
-		float v2 = (texPosY + height) / texHeight;
+		float v2 = (texPosY + spriteHeight) / texHeight;
 		
 		var pose = gfx.pose().last().pose();
 		
 		BufferBuilder buf = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-		
 		
 		RenderSystem.enableBlend();
 		RenderSystem.setShader(shader);
@@ -86,9 +112,9 @@ public class GuiImageObject
 		float r = (float) rgb.x(), g = (float) rgb.y(), b = (float) rgb.z();
 		
 		buf.addVertex(pose, 0, 0, 0).setColor(r, g, b, alpha).setUv(u1, v1);
-		buf.addVertex(pose, 0, height, 0).setColor(r, g, b, alpha).setUv(u1, v2);
-		buf.addVertex(pose, width, height, 0).setColor(r, g, b, alpha).setUv(u2, v2);
-		buf.addVertex(pose, width, 0, 0).setColor(r, g, b, alpha).setUv(u2, v1);
+		buf.addVertex(pose, 0, renderHeight, 0).setColor(r, g, b, alpha).setUv(u1, v2);
+		buf.addVertex(pose, renderWidth, renderHeight, 0).setColor(r, g, b, alpha).setUv(u2, v2);
+		buf.addVertex(pose, renderWidth, 0, 0).setColor(r, g, b, alpha).setUv(u2, v1);
 		
 		BufferUploader.drawWithShader(buf.build());
 		RenderSystem.disableBlend();
