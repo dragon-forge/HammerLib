@@ -33,11 +33,11 @@ public class FlowguiImageReader
 	
 	@AllowJS
 	@AllowedValues(AllowedValues.NON_NEGATIVE_FLOAT)
-	public static final @Required("176") String KEY_RENDER_WIDTH = "render-width";
+	public static final String KEY_RENDER_WIDTH = "render-width";
 	
 	@AllowJS
 	@AllowedValues(AllowedValues.NON_NEGATIVE_FLOAT)
-	public static final @Required("166") String KEY_RENDER_HEIGHT = "render-height";
+	public static final String KEY_RENDER_HEIGHT = "render-height";
 	
 	@AllowJS
 	@AllowedValues(AllowedValues.NON_NEGATIVE_FLOAT)
