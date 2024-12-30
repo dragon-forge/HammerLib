@@ -1,5 +1,6 @@
 package org.zeith.hammerlib.mixins;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagLoader;
 import net.minecraft.tags.TagManager;
@@ -39,8 +40,12 @@ public class TagLoaderMixin
 				.orElse(null);
 		
 		if(reg != null)
-			HammerLib.postEvent(new BuildTagsEvent(reg, directory, value));
-		else
-			HammerLib.LOG.warn("Unable to find registry for tag directory " + directory);
+		{
+			var ev = new BuildTagsEvent(reg, directory, value);
+			HammerLib.postEvent(ev);
+			ev.cleanup();
+			HammerLib.LOG.info("Built tags for registry {}", reg.getRegistryKey().location());
+		} else
+			HammerLib.LOG.warn("Unable to find registry for tag directory {}", directory);
 	}
 }

@@ -1,5 +1,6 @@
 package org.zeith.hammerlib.event.listeners;
 
+import lombok.Getter;
 import net.minecraft.core.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.*;
@@ -15,7 +16,9 @@ import java.util.stream.Collectors;
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class TagsUpdateListener
 {
+	@Getter
 	private static RegistryAccess registryAccess = RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
+	
 	private static Map<ResourceKey<? extends Registry>, Map> tagCache = new HashMap<>();
 	
 	public static final ICondition.IContext REMOTE_TAG_ACCESS = new ICondition.IContext()
