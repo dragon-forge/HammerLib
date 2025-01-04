@@ -41,7 +41,7 @@ public class GuiWidgetWrapperObject<W extends AbstractWidget>
 	@Override
 	protected boolean onMouseDragged(Point globalMousePos, MousePos pos, int button, MousePos dragPos)
 	{
-		return wrapped.mouseDragged(pos.relX(), pos.relY(), button, dragPos.relX(), dragPos.relY());
+		return wrapped.isFocused() && wrapped.mouseDragged(pos.relX(), pos.relY(), button, dragPos.relX(), dragPos.relY());
 	}
 	
 	@Override
