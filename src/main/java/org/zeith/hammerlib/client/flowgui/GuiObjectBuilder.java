@@ -7,6 +7,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.inventory.Slot;
 import org.zeith.hammerlib.client.flowgui.objects.*;
+import org.zeith.hammerlib.util.java.Cast;
+
+import java.util.function.Supplier;
 
 public class GuiObjectBuilder
 {
@@ -46,7 +49,7 @@ public class GuiObjectBuilder
 			float width, float height,
 			float txWidth, float txHeight)
 	{
-		return new GuiImageObject(name, tex, uOffset, vOffset, width, height, txWidth, txHeight);
+		return new GuiImageObject(name, Cast.constant(tex), uOffset, vOffset, width, height, txWidth, txHeight);
 	}
 	
 	public GuiImageObject image(
@@ -56,6 +59,34 @@ public class GuiObjectBuilder
 	{
 		return image(tex, uOffset, vOffset, width, height, 256, 256);
 	}
+	
+	
+	
+	public GuiImageObject fullImage(
+			Supplier<ResourceLocation> tex,
+			float width, float height
+	)
+	{
+		return image(tex, 0, 0, width, height, width, height);
+	}
+	
+	public GuiImageObject image(
+			Supplier<ResourceLocation> tex,
+			float uOffset, float vOffset,
+			float width, float height,
+			float txWidth, float txHeight)
+	{
+		return new GuiImageObject(name, tex, uOffset, vOffset, width, height, txWidth, txHeight);
+	}
+	
+	public GuiImageObject image(
+			Supplier<ResourceLocation> tex,
+			float uOffset, float vOffset,
+			float width, float height)
+	{
+		return image(tex, uOffset, vOffset, width, height, 256, 256);
+	}
+	
 	
 	public GuiTextObject text(Font font, FormattedCharSequence text, int color, boolean shadow)
 	{

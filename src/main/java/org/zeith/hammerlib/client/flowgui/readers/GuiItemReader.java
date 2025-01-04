@@ -18,6 +18,7 @@ import org.zeith.hammerlib.proxy.HLConstants;
 import org.zeith.hammerlib.util.mcf.Resources;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 import static org.zeith.hammerlib.client.flowgui.reader.ComDrivers.driveInt;
@@ -44,13 +45,13 @@ public class GuiItemReader
 	
 	@SneakyThrows
 	@Override
-	protected GuiItemObject readObject(KeyMap context, String name, IDataNode attributes)
+	protected GuiItemObject readObject(KeyMap map, String name, IDataNode node)
 	{
-		var jsc = getJSContext(context);
-		var query = getQuery(context);
+		AtomicReference<GuiItemObject> self = new AtomicReference<>();
+		var ctx = getDriverContext(map, node, self);
 		
-		var itemIdFactory = ComDrivers.readString(jsc, KEY_ITEM, query, attributes, null);
-		var tagFactory = ComDrivers.readString(jsc, KEY_NBT, query, attributes, null);
+		var itemIdFactory = ComDrivers.readString(ctx, KEY_ITEM);
+		var tagFactory = ComDrivers.readString(ctx, KEY_NBT);
 		
 		boolean constant = ComDrivers.isConstant(itemIdFactory) && ComDrivers.isConstant(tagFactory);
 		
@@ -84,9 +85,10 @@ public class GuiItemReader
 			return stack;
 		};
 		
-		var self = new GuiItemObject(name, finalFactory);
-		driveInt(jsc, self, query, attributes, KEY_COUNT, 1, false, count::set);
+		self.set(new GuiItemObject(name, finalFactory));
 		
-		return self;
+		driveInt(ctx, KEY_COUNT, 1, false, count::set);
+		
+		return self.get();
 	}
 }

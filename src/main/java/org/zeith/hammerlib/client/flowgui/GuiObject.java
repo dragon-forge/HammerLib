@@ -3,6 +3,7 @@ package org.zeith.hammerlib.client.flowgui;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import lombok.extern.slf4j.Slf4j;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
@@ -60,6 +61,12 @@ public class GuiObject
 	{
 		this.preRenderHandler = this.preRenderHandler.andThen(task);
 		return this;
+	}
+	
+	public void visitObjects(Consumer<GuiObject> pConsumer)
+	{
+		pConsumer.accept(this);
+		children.forEach(o -> o.visitObjects(pConsumer));
 	}
 	
 	public @Nullable <T extends GuiObject> T findByName(String path, Class<T> expectType)

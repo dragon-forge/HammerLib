@@ -8,8 +8,7 @@ import org.zeith.hammerlib.core.js.converters.fb.CastingFallbackJsConverter;
 import org.zeith.hammerlib.core.js.converters.openjdk.*;
 
 import javax.script.ScriptEngine;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class OpenJDKParser
 		implements IJsParser
@@ -38,6 +37,21 @@ public class OpenJDKParser
 	@Override
 	public ScriptEngine create()
 	{
-		return engineFactory.getScriptEngine(classFilter);
+		return engineFactory.getScriptEngine(new String[] {
+						"-doe",
+						"--language=es6"
+				}, getAppClassLoader(), classFilter
+		);
+	}
+	
+	private static ClassLoader getAppClassLoader()
+	{
+		// Revisit: script engine implementation needs the capability to
+		// find the class loader of the context in which the script engine
+		// is running so that classes will be found and loaded properly
+		return Objects.requireNonNullElseGet(
+				Thread.currentThread().getContextClassLoader(),
+				NashornScriptEngineFactory.class::getClassLoader
+		);
 	}
 }

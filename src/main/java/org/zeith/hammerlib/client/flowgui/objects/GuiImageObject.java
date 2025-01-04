@@ -9,6 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.zeith.hammerlib.client.flowgui.*;
+import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.java.DirectStorage;
 
 import java.util.function.Supplier;
@@ -16,7 +17,7 @@ import java.util.function.Supplier;
 public class GuiImageObject
 		extends GuiObject
 {
-	public ResourceLocation tex;
+	public Supplier<ResourceLocation> tex;
 	public float uOffset, vOffset;
 	public float imgWidth, imgHeight, txWidth, txHeight;
 	
@@ -32,9 +33,12 @@ public class GuiImageObject
 	public final DirectStorage<Float> fileWidth = DirectStorage.create(p -> txWidth = p, () -> txWidth);
 	public final DirectStorage<Float> fileHeight = DirectStorage.create(p -> txHeight = p, () -> txHeight);
 	
+	public int shaderTexture = 0;
+	public Supplier<ShaderInstance> shader = FlowguiShaderRegistry.GUI_SHADER;
+	
 	public GuiImageObject(
 			String name,
-			ResourceLocation tex,
+			Supplier<ResourceLocation> tex,
 			float uOffset, float vOffset,
 			float imgWidth, float imgHeight,
 			float txWidth, float txHeight
@@ -51,13 +55,25 @@ public class GuiImageObject
 		size(imgWidth, imgHeight);
 	}
 	
+	public GuiImageObject shader(Supplier<ShaderInstance> shader)
+	{
+		this.shader = shader;
+		return this;
+	}
+	
+	public GuiImageObject shaderTexture(int shaderTexture)
+	{
+		this.shaderTexture = shaderTexture;
+		return this;
+	}
+	
 	@Override
 	protected void render(Graphics gfx, MousePos pos)
 	{
 		gfx.drawManaged(() ->
 		{
-			RenderSystem.setShaderTexture(0, tex);
-			blitWithBlend(GameRenderer::getPositionColorTexShader, gfx.gfx(),
+			RenderSystem.setShaderTexture(shaderTexture, tex.get());
+			blitWithBlend(shader, gfx.gfx(),
 					uOffset, vOffset,
 					width, height,
 					imgWidth, imgHeight,

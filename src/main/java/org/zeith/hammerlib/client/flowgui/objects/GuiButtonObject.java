@@ -24,6 +24,8 @@ import org.zeith.hammerlib.client.flowgui.*;
 import org.zeith.hammerlib.client.utils.GLStencil;
 import org.zeith.hammerlib.util.math.Point;
 
+import java.util.function.Supplier;
+
 public class GuiButtonObject
 		extends GuiObject
 {
@@ -34,7 +36,7 @@ public class GuiButtonObject
 	public boolean enabled;
 	public Component message;
 	public OnPress callback;
-	public Holder<SoundEvent> pressSound;
+	public Supplier<SoundEvent> pressSound;
 	public float pressSoundPitch = 1F;
 	
 	@Builder(builderClassName = "ButtonBuilder")
@@ -44,7 +46,7 @@ public class GuiButtonObject
 						   boolean enabled,
 						   @NotNull Component message,
 						   @NotNull OnPress callback,
-						   Holder<SoundEvent> pressSound,
+						   Supplier<SoundEvent> pressSound,
 						   Float pressSoundPitch
 	)
 	{
@@ -139,7 +141,10 @@ public class GuiButtonObject
 	public void playDownSound(SoundManager pHandler)
 	{
 		if(pressSound != null)
-			pHandler.play(SimpleSoundInstance.forUI(pressSound, pressSoundPitch));
+		{
+			var snd = pressSound.get();
+			if(snd != null) pHandler.play(SimpleSoundInstance.forUI(snd, pressSoundPitch));
+		}
 	}
 	
 	protected int getTextureY(boolean hovered)

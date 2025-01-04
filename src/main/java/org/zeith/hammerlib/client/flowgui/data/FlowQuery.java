@@ -13,6 +13,10 @@ public class FlowQuery
 	public final AbstractContainerMenu container;
 	public final GuiSlotHelper slots;
 	
+	public int ticks;
+	public double partialTime;
+	public double time;
+	
 	public FlowQuery(Screen gui)
 	{
 		this(gui, gui instanceof AbstractContainerScreen<?> c ? c.getMenu() : null);

@@ -2,16 +2,20 @@ package org.zeith.hammerlib.client.flowgui.readers;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import org.zeith.hammerlib.abstractions.props.KeyMap;
 import org.zeith.hammerlib.annotations.ide.*;
 import org.zeith.hammerlib.api.data.IDataNode;
+import org.zeith.hammerlib.client.flowgui.objects.GuiEditBoxObject;
 import org.zeith.hammerlib.client.flowgui.objects.GuiTextObject;
 import org.zeith.hammerlib.client.flowgui.reader.FlowguiReader;
 import org.zeith.hammerlib.client.flowgui.reader.GuiReader;
 import org.zeith.hammerlib.proxy.HLConstants;
 import org.zeith.hammerlib.util.java.OptionalBoolean;
+import org.zeith.hammerlib.util.java.Suppliers2;
 import org.zeith.hammerlib.util.mcf.Resources;
 
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 import static org.zeith.hammerlib.client.flowgui.reader.ComDrivers.*;
@@ -30,6 +34,7 @@ public class FlowguiLabelReader
 	@AllowJS
 	public static final @Default("true") String KEY_SHADOW = "shadow";
 	
+	@AllowJS
 	@AllowedValues(AllowedValues.RESOURCE_LOCATION)
 	public static final @Default("minecraft:default") String KEY_FONT = "font";
 	
@@ -54,26 +59,22 @@ public class FlowguiLabelReader
 	public static final @Default("false") String KEY_OBFUSCATED = "obfuscated";
 	
 	@Override
-	protected GuiTextObject readObject(KeyMap context, String name, IDataNode attributes)
+	protected GuiTextObject readObject(KeyMap map, String name, IDataNode node)
 	{
-		var query = getQuery(context);
-		var jsc = getJSContext(context);
+		var self = new GuiTextObject(name, Minecraft.getInstance().font, Component.empty().getVisualOrderText(), 0xFFFFFFFF, true);
+		var ctx = getDriverContext(map, node, self);
 		
-		var label = new GuiTextObject(name, Minecraft.getInstance().font, Component.empty().getVisualOrderText(), 0xFFFFFFFF, true);
+		Supplier<OptionalBoolean> bold = readBoolean(ctx, KEY_BOLD);
+		Supplier<OptionalBoolean> italic = readBoolean(ctx, KEY_ITALIC);
+		Supplier<OptionalBoolean> underlined = readBoolean(ctx, KEY_UNDERLINED);
+		Supplier<OptionalBoolean> strikethrough = readBoolean(ctx, KEY_STRIKETHROUGH);
+		Supplier<OptionalBoolean> obfuscated = readBoolean(ctx, KEY_OBFUSCATED);
+		Supplier<ResourceLocation> font = Suppliers2.map(readString(ctx, KEY_FONT), s -> s.isBlank() ? null : Resources.locationOrNull(s));
 		
-		Supplier<OptionalBoolean> bold = readBoolean(jsc, label, query, attributes, KEY_BOLD);
-		Supplier<OptionalBoolean> italic = readBoolean(jsc, label, query, attributes, KEY_ITALIC);
-		Supplier<OptionalBoolean> underlined = readBoolean(jsc, label, query, attributes, KEY_UNDERLINED);
-		Supplier<OptionalBoolean> strikethrough = readBoolean(jsc, label, query, attributes, KEY_STRIKETHROUGH);
-		Supplier<OptionalBoolean> obfuscated = readBoolean(jsc, label, query, attributes, KEY_OBFUSCATED);
-		
-		var str = attributes.getString(KEY_FONT);
-		var font = str != null && !str.isBlank() ? Resources.locationOrNull(str) : null;
-		
-		driveColor(jsc, label, query, attributes, KEY_COLOR, 0xFFFFFFFF, false, label::setColor);
-		driveBool(jsc, label, query, attributes, KEY_SHADOW, true, false, label::setShadow);
-		driveComponent(jsc, label, query, attributes, KEY_VALUE, Component.empty(), false, comp ->
-				label.setText(comp.copy().withStyle(st ->
+		driveColor(ctx, KEY_COLOR, 0xFFFFFFFF, false, self::setColor);
+		driveBool(ctx, KEY_SHADOW, true, false, self::setShadow);
+		driveComponent(ctx, KEY_VALUE, Component.empty(), false, comp ->
+				self.setText(comp.copy().withStyle(st ->
 				{
 					var b = bold.get();
 					if(b != null && b.isPresent()) st = st.withBold(b.orElse(false));
@@ -85,11 +86,12 @@ public class FlowguiLabelReader
 					if(b != null && b.isPresent()) st = st.withStrikethrough(b.orElse(false));
 					b = obfuscated.get();
 					if(b != null && b.isPresent()) st = st.withObfuscated(b.orElse(false));
-					if(font != null) st = st.withFont(font);
+					var f = font.get();
+					if(f != null) st = st.withFont(f);
 					return st;
 				}))
 		);
 		
-		return label;
+		return self;
 	}
 }

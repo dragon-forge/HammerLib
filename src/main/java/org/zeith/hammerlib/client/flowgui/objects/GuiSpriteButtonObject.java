@@ -3,21 +3,25 @@ package org.zeith.hammerlib.client.flowgui.objects;
 import com.mojang.blaze3d.systems.RenderSystem;
 import lombok.Builder;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.core.Holder;
+import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
-import org.zeith.hammerlib.client.flowgui.Graphics;
-import org.zeith.hammerlib.client.flowgui.MousePos;
+import org.zeith.hammerlib.client.flowgui.*;
+
+import java.util.function.Supplier;
 
 public class GuiSpriteButtonObject
 		extends GuiButtonObject
 {
 	public ResourceLocation texture;
 	public Vec3 color = new Vec3(1, 1, 1);
+	
+	public Supplier<ShaderInstance> shader = FlowguiShaderRegistry.GUI_SHADER;
+	public int shaderTexture = 0;
 	
 	@Builder(builderClassName = "SpriteButtonBuilder")
 	public GuiSpriteButtonObject(
@@ -27,7 +31,7 @@ public class GuiSpriteButtonObject
 			boolean enabled,
 			@NotNull Component message,
 			@NotNull OnPress callback,
-			Holder<SoundEvent> pressSound,
+			Supplier<SoundEvent> pressSound,
 			Float pressSoundPitch,
 			@NotNull ResourceLocation customTexture,
 			Vec3 color
@@ -38,6 +42,18 @@ public class GuiSpriteButtonObject
 		if(color != null) this.color = color;
 	}
 	
+	public GuiSpriteButtonObject shader(Supplier<ShaderInstance> shader)
+	{
+		this.shader = shader;
+		return this;
+	}
+	
+	public GuiSpriteButtonObject shaderTexture(int shaderTexture)
+	{
+		this.shaderTexture = shaderTexture;
+		return this;
+	}
+	
 	@Override
 	protected void renderButtonBg(Graphics gfx, MousePos pos)
 	{
@@ -46,9 +62,9 @@ public class GuiSpriteButtonObject
 		gfx.setColor(1.0F, 1.0F, 1.0F, this.alpha);
 		gfx.drawManaged(() ->
 		{
-			RenderSystem.setShaderTexture(0, texture);
+			RenderSystem.setShaderTexture(shaderTexture, texture);
 			GuiImageObject.blitWithBlend(
-					GameRenderer::getPositionColorTexShader,
+					shader,
 					gfx.gfx(),
 					0, getTextureY(pos.isMouseWithin(this)),
 					width, height,
