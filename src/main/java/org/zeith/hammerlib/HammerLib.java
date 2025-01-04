@@ -104,13 +104,6 @@ public class HammerLib
 	}
 	
 	@SubscribeEvent
-	@OnlyIn(Dist.CLIENT)
-	public void clientSetup(FMLClientSetupEvent e)
-	{
-		PROXY.clientSetup();
-	}
-	
-	@SubscribeEvent
 	public void checkFingerprint(FMLFingerprintCheckEvent e)
 	{
 		CommonMessages.printMessageOnFingerprintViolation(e, "97e852e9b3f01b83574e8315f7e77651c6605f2b455919a7319e9869564f013c",

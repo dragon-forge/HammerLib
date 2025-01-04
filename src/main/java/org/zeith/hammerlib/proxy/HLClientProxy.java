@@ -23,7 +23,6 @@ import net.minecraftforge.eventbus.api.*;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.event.lifecycle.*;
 import net.minecraftforge.registries.ForgeRegistries;
-import org.objectweb.asm.Type;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.api.forge.ContainerAPI;
 import org.zeith.hammerlib.api.inv.IScreenContainer;
@@ -37,6 +36,7 @@ import org.zeith.hammerlib.client.render.tile.*;
 import org.zeith.hammerlib.client.utils.TexturePixelGetter;
 import org.zeith.hammerlib.core.adapter.ConfigAdapter;
 import org.zeith.hammerlib.core.items.tooltip.*;
+import org.zeith.hammerlib.core.scans.ScanRequireStencil;
 import org.zeith.hammerlib.core.scans.base.DataScanner;
 import org.zeith.hammerlib.core.scans.base.IAnnotationScanListener;
 import org.zeith.hammerlib.event.client.ClientLoadedInEvent;
@@ -82,6 +82,7 @@ public class HLClientProxy
 	{
 		data.add(IAnnotationScanListener.forAnnotation(FlowguiReader.class, ElementType.TYPE, FlowguiRegistry::handleReader));
 		data.add(IAnnotationScanListener.forAnnotation(XmlFlowgui.class, ElementType.TYPE, FlowguiRegistry::handleXml));
+		data.add(ScanRequireStencil.create());
 	}
 	
 	@Override
@@ -93,6 +94,7 @@ public class HLClientProxy
 		modBus.addListener(this::registerClientTooltips);
 		modBus.addListener(this::loadComplete);
 		modBus.addListener(TexturePixelGetter::reloadTexture);
+		modBus.addListener(this::clientSetup);
 		SimpleModelGenerator.setup();
 
 //		MinecraftForge.EVENT_BUS.addListener(this::alterTooltip);
@@ -131,8 +133,7 @@ public class HLClientProxy
 //		e.getModels().put(BlockModelShaper.stateToModelLocation(state), null);
 	}
 	
-	@Override
-	public void clientSetup()
+	private void clientSetup(FMLClientSetupEvent e)
 	{
 		//noinspection DataFlowIssue,rawtypes
 		MenuScreens.register(ContainerAPI.TILE_CONTAINER, (MenuScreens.ScreenConstructor) (ctr, inv, txt) -> Cast
@@ -142,6 +143,8 @@ public class HLClientProxy
 		);
 		
 		PARTICLE_MAP = ((ParticleEngineAccessor) Minecraft.getInstance().particleEngine).getParticles();
+		
+		e.enqueueWork(ScanRequireStencil.requestStencil());
 	}
 	
 	public static Stream<Particle> streamParticles()

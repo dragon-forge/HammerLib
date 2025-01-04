@@ -32,11 +32,19 @@ public class GuiObjectBuilder
 		return new GuiSlotLinkObject(name).bindToSlot(slot);
 	}
 	
+	public GuiImageObject fullImage(
+			ResourceLocation tex,
+			float width, float height
+	)
+	{
+		return image(tex, 0, 0, width, height, width, height);
+	}
+	
 	public GuiImageObject image(
 			ResourceLocation tex,
 			float uOffset, float vOffset,
-			int width, int height,
-			int txWidth, int txHeight)
+			float width, float height,
+			float txWidth, float txHeight)
 	{
 		return new GuiImageObject(name, tex, uOffset, vOffset, width, height, txWidth, txHeight);
 	}
@@ -44,7 +52,7 @@ public class GuiObjectBuilder
 	public GuiImageObject image(
 			ResourceLocation tex,
 			float uOffset, float vOffset,
-			int width, int height)
+			float width, float height)
 	{
 		return image(tex, uOffset, vOffset, width, height, 256, 256);
 	}

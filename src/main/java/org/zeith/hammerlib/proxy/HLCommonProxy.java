@@ -14,7 +14,6 @@ import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.server.ServerLifecycleHooks;
-import org.objectweb.asm.Type;
 import org.zeith.hammerlib.api.LanguageHelper.LangMap;
 import org.zeith.hammerlib.api.lighting.ColoredLight;
 import org.zeith.hammerlib.api.proxy.IProxy;
@@ -64,10 +63,6 @@ public class HLCommonProxy
 	}
 	
 	public void commonSetup()
-	{
-	}
-	
-	public void clientSetup()
 	{
 	}
 	
