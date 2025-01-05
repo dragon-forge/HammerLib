@@ -192,7 +192,7 @@ public class GuiButtonObject
 			double d2 = Math.sin((Math.PI / 2D) * Math.cos((Math.PI * 2D) * d0 / d1)) / 2.0D + 0.5D;
 			double d3 = Mth.lerp(d2, 0.0D, (double) l);
 			
-			if(Minecraft.getInstance().getMainRenderTarget().isStencilEnabled())
+			if(GLStencil.isEnabled())
 				try(var stencil = GLStencil.of())
 				{
 					stencil.populateStencil(pGuiGraphics, gfx ->
