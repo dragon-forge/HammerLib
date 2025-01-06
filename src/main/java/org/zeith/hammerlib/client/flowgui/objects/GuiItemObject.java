@@ -1,6 +1,7 @@
 package org.zeith.hammerlib.client.flowgui.objects;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.item.ItemStack;
 import org.zeith.hammerlib.client.flowgui.*;
@@ -13,8 +14,10 @@ public class GuiItemObject
 		extends GuiObject
 		implements IAdvancedComponent
 {
+	public Font font = Minecraft.getInstance().font;
 	public Supplier<ItemStack> stack;
 	public boolean hoverable;
+	public boolean decorated = true;
 	public boolean provideIngredient;
 	public int seed = 0;
 	
@@ -39,6 +42,12 @@ public class GuiItemObject
 		return this;
 	}
 	
+	public GuiItemObject decorated(boolean decorated)
+	{
+		this.decorated = decorated;
+		return this;
+	}
+	
 	public GuiItemObject provideIngredient(boolean provideIngredient)
 	{
 		this.provideIngredient = provideIngredient;
@@ -52,6 +61,7 @@ public class GuiItemObject
 		if(stack.isEmpty()) return;
 		
 		gfx.renderItem(stack, 0, 0, seed);
+		if(decorated) gfx.renderItemDecorations(font, stack, 0, 0);
 		
 		isMouseOver = pos.isMouseWithin(this);
 		
@@ -59,7 +69,7 @@ public class GuiItemObject
 		{
 			var g = gfx.gfx();
 			AbstractContainerScreen.renderSlotHighlight(g, 0, 0, 0);
-			drawTooltip(gfx, pos, Minecraft.getInstance().font, Tooltip.ofItem(stack));
+			drawTooltip(gfx, pos, font, Tooltip.ofItem(stack));
 		}
 	}
 	
