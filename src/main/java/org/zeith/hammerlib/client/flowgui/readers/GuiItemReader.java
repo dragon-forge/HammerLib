@@ -51,6 +51,21 @@ public class GuiItemReader
 	public static final String KEY_COUNT = "count";
 	
 	@AllowJS
+	@Suggestions({ "true", "false" })
+	@AllowedValues(AllowedValues.BOOLEAN)
+	public static final @Default("false") String KEY_HOVERABLE = "hoverable";
+	
+	@AllowJS
+	@Suggestions({ "true", "false" })
+	@AllowedValues(AllowedValues.BOOLEAN)
+	public static final @Default("true") String KEY_DECORATED = "decorated";
+	
+	@AllowJS
+	@Suggestions({ "true", "false" })
+	@AllowedValues(AllowedValues.BOOLEAN)
+	public static final String KEY_OFFER_INGREDIENT = "offer-ingredient";
+	
+	@AllowJS
 	public static final String KEY_COMPONENTS = "components";
 	
 	@SneakyThrows
@@ -95,6 +110,9 @@ public class GuiItemReader
 		self.set(new GuiItemObject(name, finalFactory));
 		
 		driveInt(ctx, KEY_COUNT, 1, false, count::set);
+		driveBool(ctx, KEY_HOVERABLE, false, false, o::hoverable);
+		driveBool(ctx, KEY_DECORATED, true, false, o::decorated);
+		driveBool(ctx, KEY_OFFER_INGREDIENT, false, false, o::provideIngredient);
 		
 		return self.get();
 	}

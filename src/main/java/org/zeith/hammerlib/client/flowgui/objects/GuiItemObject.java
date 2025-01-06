@@ -2,11 +2,10 @@ package org.zeith.hammerlib.client.flowgui.objects;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import org.joml.Matrix4f;
 import org.zeith.hammerlib.client.flowgui.*;
 import org.zeith.hammerlib.compat.jei.IJeiPluginHL;
 import org.zeith.hammerlib.compat.jei.JeiKeyRole;
@@ -19,8 +18,10 @@ public class GuiItemObject
 	private static final ResourceLocation SLOT_HIGHLIGHT_BACK_SPRITE = ResourceLocation.withDefaultNamespace("container/slot_highlight_back");
 	private static final ResourceLocation SLOT_HIGHLIGHT_FRONT_SPRITE = ResourceLocation.withDefaultNamespace("container/slot_highlight_front");
 	
+	public Font font = Minecraft.getInstance().font;
 	public Supplier<ItemStack> stack;
 	public boolean hoverable;
+	public boolean decorated = true;
 	public boolean jeiable;
 	public int seed = 0;
 	
@@ -45,6 +46,12 @@ public class GuiItemObject
 		return this;
 	}
 	
+	public GuiItemObject decorated(boolean decorated)
+	{
+		this.decorated = decorated;
+		return this;
+	}
+	
 	public GuiItemObject jeiable(boolean jeiable)
 	{
 		this.jeiable = jeiable;
@@ -65,21 +72,12 @@ public class GuiItemObject
 			g.blitSprite(RenderType::guiTextured, SLOT_HIGHLIGHT_BACK_SPRITE, -4, -4, 24, 24);
 		
 		gfx.renderItem(stack, 0, 0, seed);
+		if(decorated) gfx.renderItemDecorations(font, stack, 0, 0);
 		
 		if(hoverable && isMouseOver)
 		{
 			g.blitSprite(RenderType::guiTexturedOverlay, SLOT_HIGHLIGHT_FRONT_SPRITE, -4, -4, 24, 24);
-			
-			var ps = g.pose();
-			ps.pushPose();
-			ps.mulPose(new Matrix4f(ps.last().pose()).invert()); // Untransform from component to screen space
-			{
-				var gp = pos.globalPos();
-				float x = gp.x(), y = gp.y();
-				ps.translate(x % 1F, y % 1F, 0);
-				g.renderTooltip(Minecraft.getInstance().font, stack, (int) x, (int) y);
-			}
-			ps.popPose();
+			drawTooltip(gfx, pos, font, Tooltip.ofItem(stack));
 		}
 	}
 	
