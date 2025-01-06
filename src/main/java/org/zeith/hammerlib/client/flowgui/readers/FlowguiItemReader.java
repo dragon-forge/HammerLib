@@ -45,7 +45,7 @@ public class FlowguiItemReader
 	@AllowJS
 	@Suggestions({ "true", "false" })
 	@AllowedValues(AllowedValues.BOOLEAN)
-	public static final String KEY_HOVERABLE = "hoverable";
+	public static final @Default("false") String KEY_HOVERABLE = "hoverable";
 	
 	@AllowJS
 	@Suggestions({ "true", "false" })
