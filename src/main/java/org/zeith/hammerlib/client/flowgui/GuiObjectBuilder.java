@@ -6,7 +6,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import org.zeith.hammerlib.client.flowgui.objects.*;
+import org.zeith.hammerlib.client.flowgui.util.Tooltip;
 import org.zeith.hammerlib.client.render.texture.GuiTexture;
 import org.zeith.hammerlib.util.java.Cast;
 
@@ -87,8 +89,6 @@ public class GuiObjectBuilder
 	}
 	
 	
-	
-	
 	public GuiImageObject fullImage(
 			ResourceLocation tex,
 			float width, float height
@@ -142,5 +142,15 @@ public class GuiObjectBuilder
 	public GuiEditBoxObject.EditBoxBuilder editBox()
 	{
 		return GuiEditBoxObject.builder(name);
+	}
+	
+	public GuiItemObject item(Supplier<ItemStack> stack)
+	{
+		return new GuiItemObject(name, stack);
+	}
+	
+	public GuiTooltipObject tooltip(Tooltip tooltip)
+	{
+		return new GuiTooltipObject(name).tooltip(tooltip);
 	}
 }

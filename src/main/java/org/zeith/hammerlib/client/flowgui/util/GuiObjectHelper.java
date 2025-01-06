@@ -32,38 +32,36 @@ public class GuiObjectHelper
 	{
 		Vector3f tp = new Vector3f();
 		return object.findInTree(pose, IAdvancedComponent.class, (com, pos) ->
-		{
-			GuiObject.untransform(pos).transformPosition((float) mouseX, (float) mouseY, 0, tp);
-			var ing = com.getIngredientUnderMouse(tp.x, tp.y);
-			if(ing != null) return Optional.of(ing);
-			return Optional.empty();
-		}).orElse(null);
+				{
+					GuiObject.untransform(pos).transformPosition((float) mouseX, (float) mouseY, 0, tp);
+					var ing = com.getIngredientUnderMouse(tp.x, tp.y);
+					if(ing != null) return Optional.of(ing);
+					return Optional.empty();
+				}
+		).orElse(null);
 	}
 	
 	public static List<Rect2i> getAllAreas(GuiObject object, PoseStack pose)
 	{
 		List<Rect2i> rectangles = new ArrayList<>();
 		object.runForTree(pose, (com, pos) ->
-		{
-			var mat = new Matrix4f(pos.last().pose());
-			
-			var width = com.elementWidth.get().intValue();
-			var height = com.elementHeight.get().intValue();
-			
-			// Add our default boundary
-			if(width > 0 && height > 0)
-				rectangles.add(untransform(mat, new Rect2i(
-						0, 0,
-						width, height
-				)));
-			
-			if(com instanceof IAdvancedComponent adv)
-				for(Rect2i r : adv.getExtraAreas())
 				{
-					r = untransform(mat, r);
-					rectangles.add(r);
+					var mat = new Matrix4f(pos.last().pose());
+					
+					// Add our default boundary
+					com.getUnpositionedBounds()
+							.stream()
+							.map(r -> untransform(mat, r))
+							.forEach(rectangles::add);
+					
+					if(com instanceof IAdvancedComponent adv)
+						for(Rect2i r : adv.getExtraAreas())
+						{
+							r = untransform(mat, r);
+							rectangles.add(r);
+						}
 				}
-		});
+		);
 		return rectangles;
 	}
 	

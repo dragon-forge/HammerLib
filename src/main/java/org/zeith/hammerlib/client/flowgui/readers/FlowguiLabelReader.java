@@ -32,6 +32,8 @@ public class FlowguiLabelReader
 	public static final @Default("#FFFFFF") String KEY_COLOR = "color";
 	
 	@AllowJS
+	@Suggestions({ "true", "false" })
+	@AllowedValues(AllowedValues.BOOLEAN)
 	public static final @Default("true") String KEY_SHADOW = "shadow";
 	
 	@AllowJS
@@ -39,22 +41,27 @@ public class FlowguiLabelReader
 	public static final @Default("minecraft:default") String KEY_FONT = "font";
 	
 	@AllowJS
+	@Suggestions({ "true", "false" })
 	@AllowedValues(AllowedValues.BOOLEAN)
 	public static final @Default("false") String KEY_BOLD = "bold";
 	
 	@AllowJS
+	@Suggestions({ "true", "false" })
 	@AllowedValues(AllowedValues.BOOLEAN)
 	public static final @Default("false") String KEY_ITALIC = "italic";
 	
 	@AllowJS
+	@Suggestions({ "true", "false" })
 	@AllowedValues(AllowedValues.BOOLEAN)
 	public static final @Default("false") String KEY_UNDERLINED = "underlined";
 	
 	@AllowJS
+	@Suggestions({ "true", "false" })
 	@AllowedValues(AllowedValues.BOOLEAN)
 	public static final @Default("false") String KEY_STRIKETHROUGH = "strikethrough";
 	
 	@AllowJS
+	@Suggestions({ "true", "false" })
 	@AllowedValues(AllowedValues.BOOLEAN)
 	public static final @Default("false") String KEY_OBFUSCATED = "obfuscated";
 	

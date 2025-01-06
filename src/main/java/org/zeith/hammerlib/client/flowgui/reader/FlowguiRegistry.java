@@ -131,7 +131,7 @@ public class FlowguiRegistry
 	}
 	
 	@Nullable
-	static GuiObject read(KeyMap context, IDataNode data, FloatSupplier parentWidth, FloatSupplier parentHeight)
+	static Optional<GuiObject> read(KeyMap context, IDataNode data, FloatSupplier parentWidth, FloatSupplier parentHeight)
 	{
 		var cls = data.getString(GuiReader.KEY_CLASS);
 		var reader = getReader(Resources.locationOrNull(cls.toLowerCase(Locale.ROOT)));
@@ -143,7 +143,7 @@ public class FlowguiRegistry
 			);
 			return null;
 		}
-		return reader.read(context, data, parentWidth, parentHeight);
+		return Optional.ofNullable(reader.read(context, data, parentWidth, parentHeight));
 	}
 	
 	static GuiReader<?> getReader(ResourceLocation id)

@@ -72,7 +72,7 @@ public class GuiWidgetWrapperObject<W extends AbstractWidget>
 	@Override
 	protected boolean onKeyPressed(int keyCode, int scanCode, int modifiers)
 	{
-		return wrapped.keyPressed(keyCode, scanCode, modifiers);
+		return wrapped.keyPressed(keyCode, scanCode, modifiers) || wrapped.isFocused();
 	}
 	
 	@Override

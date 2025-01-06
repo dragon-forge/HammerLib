@@ -40,6 +40,12 @@ public class FlowguiScreen<T extends AbstractContainerMenu>
 		return GuiObjectHelper.getAllAreas(root);
 	}
 	
+	@Override
+	public Object getIngredientUnderMouse(double mouseX, double mouseY)
+	{
+		return GuiObjectHelper.getIngredientUnderMouse(root, mouseX, mouseY);
+	}
+	
 	protected void populateQuery(FlowQuery q)
 	{
 	}

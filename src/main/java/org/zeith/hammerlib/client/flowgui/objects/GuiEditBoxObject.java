@@ -24,6 +24,11 @@ public class GuiEditBoxObject
 		);
 	}
 	
+	public String getText()
+	{
+		return wrapped.getValue();
+	}
+	
 	public static EditBoxBuilder builder(String name)
 	{
 		return new EditBoxBuilder()

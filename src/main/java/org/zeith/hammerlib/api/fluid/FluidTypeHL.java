@@ -1,6 +1,7 @@
 package org.zeith.hammerlib.api.fluid;
 
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Rarity;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidType;
 import org.zeith.hammerlib.api.client.ext.IClientFluidExtensionHolder;
@@ -16,7 +17,7 @@ import java.util.function.Consumer;
  */
 public class FluidTypeHL
 		extends FluidType
-		implements IRegisterListener, IClientFluidExtensionHolder
+		implements IRegisterListener, IClientFluidExtensionHolder, IExtendedFluidType
 {
 	protected ResourceLocation
 			still = HLConstants.id("block/machine_down"),
