@@ -64,6 +64,8 @@ public class FlowguiSpriteButtonReader
 	public static final @Default("(q, self) => {}") String KEY_CALLBACK = "callback";
 	
 	@AllowJS
+	@Suggestions({ "true", "false" })
+	@AllowedValues(AllowedValues.BOOLEAN)
 	public static final @Default("(q, self) => true") String KEY_ENABLED = "enabled";
 	
 	@Override

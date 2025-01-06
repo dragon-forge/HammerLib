@@ -12,23 +12,42 @@
              file-width="256" file-height="256"
         />
 
+        <slot id="input_top" index="(q) => q.slots.guiSlots[0]" x="56" y="17" width="16" height="16"/>
+        <slot id="input_bottom" index="(q) => q.slots.guiSlots[1]" x="56" y="53" width="16" height="16"/>
         <slot id="output_slot" index="(q) => q.slots.guiSlots[2]" x="112" y="31" width="24" height="24"/>
         <import from="c:player_hotbar" x="7" y="25" align-y="bottom"/>
         <import from="c:player_inventory" x="7" y="83" align-y="bottom"/>
 
-        <input if="(q) => false"
-               width="100" height="20"
-               on-changed="(q, s) => q.gui.respond(s)"
-               max-length="16"
-               align-y="bottom" x="(q, self) => math.sin(q.time * 30) * 5 - 22"
-               rotation="(q) => -90 + math.cos(q.time * 90) * 5"
-               hint='{"translate":"block.minecraft.stone"}'
-        />
-
         <label font="minecraft:default" shadow="false" x="8" y="6"
-               value='(q, self) => q.gui.getName &amp;&amp; q.gui.getName() ? q.gui.getName() : JSON.stringify({"translate":"block.minecraft.stone"})'
+               value='(q, self) => q.gui.getName &amp;&amp; q.gui.getName() ? q.gui.getName() : {"translate":"block.minecraft.stone"}'
                color="(q) => math.hsv(0, 0, 0.25)"
         />
         <label value='{"translate":"container.inventory"}' color="#3f3f3f" shadow="false" x="8" y="85" align-y="bottom"/>
     </img>
+
+    <empty if="(q) => false" width="176" height="166" pivot-centered="true" rotation="180"> <!-- DEMO THINGS -->
+        <item item="minecraft:diamond" offer-ingredient="true" hoverable="true" rotation="45"/>
+        <fluid
+                x="8" y="16" width="16" height="52"
+                count="(q) => (q.time * 1000) % 1000"
+                capacity="1000"
+                fluid="(q) => q.time % 2 > 1 ? 'minecraft:water' : 'minecraft:lava'"
+                offer-ingredient="true"
+                hoverable="true"
+                fluid-texture="still"
+                show-capacity="true"
+        />
+        <input
+                width="100" height="20"
+                on-changed="(q, s) => q.gui.respond(s)"
+                max-length="16"
+                align-y="bottom" x="(q, self) => math.sin(q.time * 30) * 5 - 22"
+                rotation="(q) => -90 + math.cos(q.time * 90) * 5"
+                hint='{"translate":"block.minecraft.stone","color":"dark_gray"}'
+        >
+            <tooltip
+                    text='(q, self) => [{"translate":"block.minecraft.stone"},{"text":self.parent.text,"bold":true}, `Time: ${parseInt(q.time)}s`]'
+            />
+        </input>
+    </empty>
 </root>

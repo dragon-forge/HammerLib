@@ -3,6 +3,7 @@ package org.zeith.hammerlib.client.render;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
@@ -17,7 +18,7 @@ import org.zeith.hammerlib.util.colors.ColorHelper;
 
 public class FluidRendererHelper
 {
-	public static void renderFluidInGui(PoseStack pose, FluidStack fluid, FluidTextureType type, float full, float x, float y, float width, float height)
+	public static void renderFluidInGui(GuiGraphics gfx, FluidStack fluid, FluidTextureType type, float full, float x, float y, float width, float height)
 	{
 		if(!fluid.isEmpty())
 		{
@@ -40,7 +41,7 @@ public class FluidRendererHelper
 				float[] colors = RenderSystem.getShaderColor().clone();
 				RenderSystem.setShaderColor(r, g, b, a);
 				
-				Matrix4f pose4f = pose.last().pose();
+				Matrix4f pose4f = gfx.pose().last().pose();
 				
 				float minX = sprite.getU(0);
 				float maxX = sprite.getU(16);

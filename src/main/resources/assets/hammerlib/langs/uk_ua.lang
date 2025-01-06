@@ -13,5 +13,8 @@ item.hammerlib.gears.diamond=Diamond Gear
 item.hammerlib.gears.netherite=Netherite Gear
 
 info.hammerlib.material=Crafting Material
+info.hammerlib.fluid_uncapped=%s mB
+info.hammerlib.fluid_capped=%s / %s mB
+info.hammerlib.empty=Empty
 
 key.hammerlib.render_item=[HammerLib] Render GUI Item

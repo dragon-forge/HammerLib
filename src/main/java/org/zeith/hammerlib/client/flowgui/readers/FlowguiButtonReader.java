@@ -47,6 +47,8 @@ public class FlowguiButtonReader
 	public static final @Default("") String KEY_CALLBACK = "callback";
 	
 	@AllowJS
+	@Suggestions({ "true", "false" })
+	@AllowedValues(AllowedValues.BOOLEAN)
 	public static final @Default("true") String KEY_ENABLED = "enabled";
 	
 	@Override

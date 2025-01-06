@@ -164,7 +164,7 @@ public abstract class GuiReader<T extends GuiObject>
 			{
 				var node2 = DataNodeTransformer.convertToComponent(node, Resources.location(tagName));
 				var child = FlowguiRegistry.read(map, node2, obj::getUnscaledWidth, obj::getUnscaledHeight);
-				if(child != null) obj.addChild(child);
+				if(child != null) child.ifPresent(obj::addChild);
 				else HammerLib.LOG.warn("Failed to read Flowgui {} component: {}", tagName, readableName(node));
 				continue;
 			}
@@ -174,31 +174,34 @@ public abstract class GuiReader<T extends GuiObject>
 				case "com" ->
 				{
 					var child = FlowguiRegistry.read(map, node, obj::getUnscaledWidth, obj::getUnscaledHeight);
-					if(child != null) obj.addChild(child);
+					if(child != null) child.ifPresent(obj::addChild);
 					else HammerLib.LOG.warn("Failed to read Flowgui component: {}", readableName(node));
 				}
 				case "import" ->
 				{
 					var node2 = DataNodeTransformer.convertToComponent(node, HLConstants.id("empty"));
-					var child = FlowguiRegistry.read(map, node2, obj::getUnscaledWidth, obj::getUnscaledHeight);
-					if(child != null)
+					var childOpt = FlowguiRegistry.read(map, node2, obj::getUnscaledWidth, obj::getUnscaledHeight);
+					if(childOpt != null)
 					{
 						var childContext = KeyMap.createHash().withAll(map);
-						obj.addChild(child);
-						var from = Resources.locationOrNull(node.getString("from"));
-						var scene = from != null ? FlowguiRegistry.readRoot(from, childContext, child::getUnscaledWidth, child::getUnscaledHeight) : null;
-						if(scene != null)
+						childOpt.ifPresent(child ->
 						{
-							if(child.elementWidth.get() <= 0F) child.elementWidth.set(scene.getUnscaledWidth());
-							if(child.elementHeight.get() <= 0F) child.elementHeight.set(scene.getUnscaledHeight());
-							List<GuiObject> chs = new ArrayList<>();
-							scene.getChildren().forEach(chs::add);
-							for(GuiObject ch : chs)
+							obj.addChild(child);
+							var from = Resources.locationOrNull(node.getString("from"));
+							var scene = from != null ? FlowguiRegistry.readRoot(from, childContext, child::getUnscaledWidth, child::getUnscaledHeight) : null;
+							if(scene != null)
 							{
-								scene.removeChild(ch.getName());
-								child.addChild(ch);
-							}
-						} else HammerLib.LOG.warn("Failed to read Flowgui import: {}", readableName(node));
+								if(child.elementWidth.get() <= 0F) child.elementWidth.set(scene.getUnscaledWidth());
+								if(child.elementHeight.get() <= 0F) child.elementHeight.set(scene.getUnscaledHeight());
+								List<GuiObject> chs = new ArrayList<>();
+								scene.getChildren().forEach(chs::add);
+								for(GuiObject ch : chs)
+								{
+									scene.removeChild(ch.getName());
+									child.addChild(ch);
+								}
+							} else HammerLib.LOG.warn("Failed to read Flowgui import: {}", readableName(node));
+						});
 					} else HammerLib.LOG.warn("Failed to read Flowgui import as placeholder object: {}", readableName(node));
 				}
 				case "root" ->

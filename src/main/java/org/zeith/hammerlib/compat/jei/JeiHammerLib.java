@@ -60,9 +60,9 @@ public class JeiHammerLib
 		Class<?> cl = type;
 		do
 		{
-			cl = cl.getSuperclass();
 			if(INGREDIENT_TYPES.containsKey(cl))
 				return Cast.cast(Optional.of(INGREDIENT_TYPES.get(cl)));
+			cl = cl.getSuperclass();
 		} while(cl != null);
 		return Optional.empty();
 	}

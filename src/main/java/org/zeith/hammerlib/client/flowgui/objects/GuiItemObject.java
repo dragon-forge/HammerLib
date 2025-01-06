@@ -1,22 +1,21 @@
 package org.zeith.hammerlib.client.flowgui.objects;
 
-import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.item.ItemStack;
-import org.joml.Matrix4f;
 import org.zeith.hammerlib.client.flowgui.*;
-import org.zeith.hammerlib.compat.jei.IJeiPluginHL;
-import org.zeith.hammerlib.compat.jei.JeiKeyRole;
+import org.zeith.hammerlib.client.flowgui.util.Tooltip;
+import org.zeith.hammerlib.client.screen.IAdvancedComponent;
 
 import java.util.function.Supplier;
 
 public class GuiItemObject
 		extends GuiObject
+		implements IAdvancedComponent
 {
 	public Supplier<ItemStack> stack;
 	public boolean hoverable;
-	public boolean jeiable;
+	public boolean provideIngredient;
 	public int seed = 0;
 	
 	public boolean isMouseOver;
@@ -40,9 +39,9 @@ public class GuiItemObject
 		return this;
 	}
 	
-	public GuiItemObject jeiable(boolean jeiable)
+	public GuiItemObject provideIngredient(boolean provideIngredient)
 	{
-		this.jeiable = jeiable;
+		this.provideIngredient = provideIngredient;
 		return this;
 	}
 	
@@ -60,33 +59,15 @@ public class GuiItemObject
 		{
 			var g = gfx.gfx();
 			AbstractContainerScreen.renderSlotHighlight(g, 0, 0, 0);
-			
-			var ps = g.pose();
-			ps.pushPose();
-			ps.mulPoseMatrix(new Matrix4f(ps.last().pose()).invert()); // Untransform from component to screen space
-			{
-				var gp = pos.globalPos();
-				float x = gp.x(), y = gp.y();
-				ps.translate(x % 1F, y % 1F, 0);
-				g.renderTooltip(Minecraft.getInstance().font, stack, (int) x, (int) y);
-			}
-			ps.popPose();
+			drawTooltip(gfx, pos, Minecraft.getInstance().font, Tooltip.ofItem(stack));
 		}
 	}
 	
 	@Override
-	protected boolean onKeyPressed(int keyCode, int scanCode, int modifiers)
+	public Object getIngredientUnderMouse(double mouseX, double mouseY)
 	{
-		if(jeiable && isMouseOver)
-		{
-			InputConstants.Key key = InputConstants.getKey(keyCode, scanCode);
-			var jei = IJeiPluginHL.get();
-			if(jei != null)
-			{
-				JeiKeyRole role = jei.getRoleForKey(key);
-				if(role != null) role.sendToJei(stack.get());
-			}
-		}
-		return super.onKeyPressed(keyCode, scanCode, modifiers);
+		if(provideIngredient && mouseX >= 0 && mouseY >= 0 && mouseX < width && mouseY < height)
+			return stack.get();
+		return null;
 	}
 }

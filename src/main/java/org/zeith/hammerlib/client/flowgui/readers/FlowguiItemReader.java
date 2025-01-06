@@ -21,11 +21,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
-import static org.zeith.hammerlib.client.flowgui.reader.ComDrivers.driveInt;
+import static org.zeith.hammerlib.client.flowgui.reader.ComDrivers.*;
 
 @Namespace(HLConstants.MOD_ID)
 @FlowguiReader("item")
-public class GuiItemReader
+public class FlowguiItemReader
 		extends GuiReader<GuiItemObject>
 {
 	@AllowJS
@@ -39,6 +39,16 @@ public class GuiItemReader
 	@AllowJS
 	@AllowedValues(AllowedValues.POSITIVE_INTEGERS)
 	public static final String KEY_COUNT = "count";
+	
+	@AllowJS
+	@Suggestions({ "true", "false" })
+	@AllowedValues(AllowedValues.BOOLEAN)
+	public static final String KEY_HOVERABLE = "hoverable";
+	
+	@AllowJS
+	@Suggestions({ "true", "false" })
+	@AllowedValues(AllowedValues.BOOLEAN)
+	public static final String KEY_OFFER_INGREDIENT = "offer-ingredient";
 	
 	@AllowJS
 	public static final String KEY_NBT = "nbt";
@@ -85,10 +95,13 @@ public class GuiItemReader
 			return stack;
 		};
 		
-		self.set(new GuiItemObject(name, finalFactory));
+		GuiItemObject o = new GuiItemObject(name, finalFactory);
+		self.set(o);
 		
 		driveInt(ctx, KEY_COUNT, 1, false, count::set);
+		driveBool(ctx, KEY_HOVERABLE, false, false, o::hoverable);
+		driveBool(ctx, KEY_OFFER_INGREDIENT, false, false, o::provideIngredient);
 		
-		return self.get();
+		return o;
 	}
 }

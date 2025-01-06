@@ -6,7 +6,13 @@ import java.util.List;
 
 public interface IAdvancedComponent
 {
-	List<Rect2i> getExtraAreas();
+	default List<Rect2i> getExtraAreas()
+	{
+		return List.of();
+	}
 	
-	Object getIngredientUnderMouse(double mouseX, double mouseY);
+	default Object getIngredientUnderMouse(double mouseX, double mouseY)
+	{
+		return null;
+	}
 }

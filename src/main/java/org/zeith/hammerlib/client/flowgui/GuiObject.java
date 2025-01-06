@@ -2,20 +2,27 @@ package org.zeith.hammerlib.client.flowgui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.renderer.Rect2i;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import org.zeith.hammerlib.client.flowgui.objects.GuiRootObject;
-import org.zeith.hammerlib.client.flowgui.objects.RenderHook;
+import org.zeith.hammerlib.client.flowgui.objects.*;
 import org.zeith.hammerlib.client.flowgui.util.ScrollData;
+import org.zeith.hammerlib.client.flowgui.util.Tooltip;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.java.DirectStorage;
 import org.zeith.hammerlib.util.math.Point;
+import org.zeith.hammerlib.util.mcf.fluid.FluidHelper;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 import java.util.function.*;
 
 @Slf4j
@@ -26,8 +33,9 @@ public class GuiObject
 	private static final Vec3 ONE = new Vec3(1, 1, 1);
 	
 	//<editor-fold desc="Object relationship">
-	private GuiObject parent;
+	private @Getter GuiObject parent;
 	private final List<GuiObject> children = new ArrayList<>();
+	private final List<GuiObject> childrenView = Collections.unmodifiableList(children);
 	private final Map<String, GuiObject> byName = new HashMap<>();
 	private final String originalName;
 	private String name;
@@ -55,6 +63,18 @@ public class GuiObject
 	{
 		if(name.contains("/")) throw new IllegalArgumentException("GuiObject's path can not have '/' character.");
 		this.originalName = this.name = name;
+	}
+	
+	public GuiObject addTooltip(Supplier<Tooltip> tooltipSupplier)
+	{
+		addChild(new GuiTooltipObject("$tooltip").tooltip(tooltipSupplier));
+		return this;
+	}
+	
+	public GuiObject addTooltip(Tooltip tooltip)
+	{
+		addChild(new GuiTooltipObject("$tooltip").tooltip(tooltip));
+		return this;
 	}
 	
 	public GuiObject onPreRender(RenderHook task)
@@ -165,7 +185,7 @@ public class GuiObject
 	
 	public final Iterable<GuiObject> getChildren()
 	{
-		return children;
+		return childrenView;
 	}
 	
 	public GuiObject getChild(String name)
@@ -195,17 +215,23 @@ public class GuiObject
 		
 		child.parent = this;
 		children.add(child);
+		onChildAdded(child);
+		child.onAddedInto(this);
 		
 		if(byName.containsKey(child.getName()))
 		{
 			String pv = child.toString();
 			child.setName(child.originalName);
+			child.myPathCache = null;
 			log.warn("Attempted to add {} into {} but the name is already bound. Renaming to {}.", pv, this, child.getName());
 			return this;
+		} else
+		{
+			byName.put(child.getName(), child);
+			myPathCache = null;
+			child.myPathCache = null;
 		}
 		
-		byName.put(child.getName(), child);
-		myPathCache = null;
 		
 		return this;
 	}
@@ -217,6 +243,8 @@ public class GuiObject
 		children.remove(go);
 		go.parent = null;
 		go.name = go.originalName;
+		go.onRemovedFrom(this);
+		onChildRemoved(go);
 		return go;
 	}
 	
@@ -227,6 +255,29 @@ public class GuiObject
 			parent.removeChild(getName());
 			myPathCache = null;
 		}
+	}
+	
+	public List<Rect2i> getUnpositionedBounds()
+	{
+		var width = elementWidth.get().intValue();
+		var height = elementHeight.get().intValue();
+		return List.of(new Rect2i(0, 0, width, height));
+	}
+	
+	protected void onAddedInto(GuiObject parent)
+	{
+	}
+	
+	protected void onRemovedFrom(GuiObject parent)
+	{
+	}
+	
+	protected void onChildAdded(GuiObject child)
+	{
+	}
+	
+	protected void onChildRemoved(GuiObject child)
+	{
 	}
 	
 	public final String getName()
@@ -728,5 +779,19 @@ public class GuiObject
 	{
 		this.scale = this.scale.multiply(x, y, z);
 		return this;
+	}
+	
+	protected void drawTooltip(Graphics gfx, MousePos mouse, Font font, Tooltip tooltip)
+	{
+		var ps = gfx.pose();
+		ps.pushPose();
+		ps.mulPoseMatrix(new Matrix4f(ps.last().pose()).invert()); // Untransform from component to screen space
+		{
+			var gp = mouse.globalPos();
+			float x = gp.x(), y = gp.y();
+			ps.translate(x % 1F, y % 1F, 0);
+			tooltip.render(gfx, font, (int) x, (int) y);
+		}
+		ps.popPose();
 	}
 }

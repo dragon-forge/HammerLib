@@ -33,14 +33,17 @@ public class FlowguiEditBoxReader
 	public static final @Default("#707070") String KEY_UNEDITABLE_TEXT_COLOR = "uneditable-text-color";
 	
 	@AllowJS
+	@Suggestions({ "true", "false" })
 	@AllowedValues(AllowedValues.BOOLEAN)
 	public static final @Default("true") String KEY_BORDERED = "bordered";
 	
 	@AllowJS
+	@Suggestions({ "true", "false" })
 	@AllowedValues(AllowedValues.BOOLEAN)
 	public static final @Default("true") String KEY_CAN_LOSE_FOCUS = "can-lose-focus";
 	
 	@AllowJS
+	@Suggestions({ "true", "false" })
 	@AllowedValues(AllowedValues.BOOLEAN)
 	public static final @Default("true") String KEY_EDITABLE = "editable";
 	

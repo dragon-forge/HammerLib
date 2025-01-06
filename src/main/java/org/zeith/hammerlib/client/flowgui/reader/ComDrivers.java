@@ -1,20 +1,24 @@
 package org.zeith.hammerlib.client.flowgui.reader;
 
+import com.google.common.base.MoreObjects;
+import com.google.gson.*;
 import lombok.extern.slf4j.Slf4j;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
+import net.minecraft.util.LowerCaseEnumTypeAdapterFactory;
 import org.jetbrains.annotations.NotNull;
+import org.openjdk.nashorn.api.scripting.ScriptObjectMirror;
 import org.zeith.hammerlib.annotations.ide.AllowedValues;
 import org.zeith.hammerlib.api.data.IDataNode;
-import org.zeith.hammerlib.client.flowgui.GuiObject;
-import org.zeith.hammerlib.client.flowgui.data.FlowQuery;
 import org.zeith.hammerlib.core.js.CallerSpec;
+import org.zeith.hammerlib.core.js.ObjectMirrorConverter;
 import org.zeith.hammerlib.util.java.*;
 import org.zeith.hammerlib.util.java.cbqs.cbq3.*;
 import org.zeith.hammerlib.util.java.itf.BooleanConsumer;
 import org.zeith.hammerlib.util.java.itf.FloatConsumer;
-import org.zeith.hammerlib.util.shaded.json.JSONObject;
+import org.zeith.hammerlib.util.shaded.json.*;
 
 import java.util.*;
 import java.util.function.*;
@@ -153,6 +157,7 @@ public class ComDrivers
 				try
 				{
 					Object s = cbq.invoke(ctx.query(), ctx.self(), null);
+					if(s instanceof ScriptObjectMirror som) s = ObjectMirrorConverter.toGson(som);
 					return s instanceof Component com ? com : componentFromString(Objects.toString(s));
 				} catch(Exception e)
 				{
@@ -163,6 +168,37 @@ public class ComDrivers
 		}
 		
 		return Cast.constant(componentFromString(str));
+	}
+	
+	@NotNull
+	public static Supplier<List<Component>> readComponents(DriverContext ctx, String from)
+	{
+		var str = ctx.getString(from);
+		if(str == null || str.isBlank()) return Cast.constant(List.of());
+		
+		var cbq = JsContext.isScript(str) ? ctx.eval(Callback3.class, str, CBQ_RET_SPEC) : null;
+		if(cbq != null)
+		{
+			return () ->
+			{
+				try
+				{
+					Object s = cbq.invoke(ctx.query(), ctx.self(), null);
+					if(s instanceof ScriptObjectMirror som) s = ObjectMirrorConverter.toGson(som);
+					return s instanceof Component[] coms
+						   ? List.of(coms)
+						   : s instanceof Component com
+							 ? List.of(com)
+							 : componentsFromString(Objects.toString(s));
+				} catch(Exception e)
+				{
+					return List.of(Component.literal("Error: " + e)
+							.setStyle(Style.EMPTY.withColor(ChatFormatting.RED)));
+				}
+			};
+		}
+		
+		return Cast.constant(componentsFromString(str));
 	}
 	
 	@NotNull
@@ -200,6 +236,39 @@ public class ComDrivers
 		}
 		
 		return Component.translatable(str);
+	}
+	
+	private static final Gson GSON = Util.make(() ->
+	{
+		GsonBuilder gsonbuilder = new GsonBuilder();
+		gsonbuilder.disableHtmlEscaping();
+		gsonbuilder.registerTypeHierarchyAdapter(Component.class, new Component.Serializer());
+		gsonbuilder.registerTypeHierarchyAdapter(Style.class, new Style.Serializer());
+		gsonbuilder.registerTypeAdapterFactory(new LowerCaseEnumTypeAdapterFactory());
+		return gsonbuilder.create();
+	});
+	
+	public static List<Component> componentsFromString(String str)
+	{
+		try
+		{
+			JsonElement t = GSON.fromJson(str, JsonElement.class);
+			
+			if(t instanceof JsonArray arr)
+			{
+				List<Component> coms = new ArrayList<>(arr.size());
+				for(int i = 0; i < arr.size(); i++)
+				{
+					coms.add(Component.Serializer.fromJson(arr.get(i)));
+				}
+				return coms;
+			} else
+				return List.of(MoreObjects.firstNonNull(Component.Serializer.fromJson(t), Component.empty()));
+		} catch(Exception e)
+		{
+		}
+		
+		return List.of(Component.translatable(str));
 	}
 	
 	@NotNull

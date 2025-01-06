@@ -1,6 +1,7 @@
 package org.zeith.hammerlib.api.fluid;
 
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Rarity;
 import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.minecraftforge.fluids.FluidType;
 import org.zeith.hammerlib.api.fml.IRegisterListener;
@@ -14,7 +15,7 @@ import java.util.function.Consumer;
  */
 public class FluidTypeHL
 		extends FluidType
-		implements IRegisterListener
+		implements IRegisterListener, IExtendedFluidType
 {
 	protected ResourceLocation
 			still = HLConstants.id("block/machine_down"),
