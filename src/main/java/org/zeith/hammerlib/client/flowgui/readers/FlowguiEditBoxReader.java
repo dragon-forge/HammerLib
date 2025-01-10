@@ -11,6 +11,8 @@ import org.zeith.hammerlib.client.flowgui.reader.*;
 import org.zeith.hammerlib.core.js.CallerSpec;
 import org.zeith.hammerlib.proxy.HLConstants;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import static org.zeith.hammerlib.client.flowgui.reader.ComDrivers.*;
 
 @Namespace(HLConstants.MOD_ID)
@@ -55,34 +57,35 @@ public class FlowguiEditBoxReader
 	public static final CallerSpec CONSUMER_SPEC = new CallerSpec("accept", false);
 	
 	@Override
-	protected GuiEditBoxObject readObject(KeyMap context, String name, IDataNode node)
+	protected GuiEditBoxObject readObject(KeyMap map, String name, IDataNode node)
 	{
-		var query = context.get(FlowguiRegistry.QUERY);
-		var jsc = getJSContext(context);
+		AtomicReference<GuiEditBoxObject> self = new AtomicReference<>();
+		var ctx = getDriverContext(map, node, self);
 		
 		GuiEditBoxObject.EditBoxBuilder builder = GuiEditBoxObject.builder(name);
 		
 		String str = node.getString(KEY_ONCHANGED);
-		StringConsumer eval = jsc.eval(StringConsumer.class, str, CONSUMER_SPEC);
-		if(eval != null) builder.responder(s -> eval.accept(query, s));
+		StringConsumer eval = ctx.eval(StringConsumer.class, str, CONSUMER_SPEC);
+		if(eval != null) builder.responder(s -> eval.accept(ctx.query(), s));
 		
 		GuiEditBoxObject box = builder.build();
+		self.set(box);
 		
-		driveBool(jsc, box, query, node, KEY_BORDERED, true, false, box::bordered);
-		driveBool(jsc, box, query, node, KEY_CAN_LOSE_FOCUS, true, false, box::canLoseFocus);
-		driveInt(jsc, box, query, node, KEY_MAX_LENGTH, 50, false, box::maxLength);
-		driveBool(jsc, box, query, node, KEY_EDITABLE, true, true, box::editable);
-		driveComponent(jsc, box, query, node, KEY_HINT, Component.empty(), false, box::hint);
-		driveColor(jsc, box, query, node, KEY_TEXT_COLOR, 0xFFFFFF, false, box::textColor);
-		driveColor(jsc, box, query, node, KEY_UNEDITABLE_TEXT_COLOR, 0xFFFFFF, false, box::textColorUneditable);
+		driveBool(ctx, KEY_BORDERED, true, false, box::bordered);
+		driveBool(ctx, KEY_CAN_LOSE_FOCUS, true, false, box::canLoseFocus);
+		driveInt(ctx, KEY_MAX_LENGTH, 50, false, box::maxLength);
+		driveBool(ctx, KEY_EDITABLE, true, false, box::editable);
+		driveComponent(ctx, KEY_HINT, Component.empty(), false, box::hint);
+		driveColor(ctx, KEY_TEXT_COLOR, 0xFFFFFF, false, box::textColor);
+		driveColor(ctx, KEY_UNEDITABLE_TEXT_COLOR, 0xFFFFFF, false, box::textColorUneditable);
 		
 		return box;
 	}
 	
 	@Override
-	protected void finishBuilding(GuiEditBoxObject object, KeyMap context)
+	protected void finishBuilding(GuiEditBoxObject object, KeyMap map)
 	{
-		GuiRootObject pr = context.get(FlowguiRegistry.PREVIOUS_ROOT);
+		GuiRootObject pr = map.get(FlowguiRegistry.PREVIOUS_ROOT);
 		if(pr == null) return;
 		String mp = object.getMyPath();
 		GuiEditBoxObject prev = pr.findByPath(mp, GuiEditBoxObject.class);

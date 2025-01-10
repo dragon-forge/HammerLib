@@ -55,6 +55,7 @@ public class FlowguiRegistry
 	public static final Key<GuiRootObject> PREVIOUS_ROOT = Key.of(HLConstants.id("previous_root"), GuiRootObject.class);
 	//</editor-fold>
 	
+	// This key is "true" when the resource manager is reloading in order to precompile the scripts ahead of time.
 	public static final Key<Boolean> IS_CACHING_JS = Key.of(HLConstants.id("caching_js"), Boolean.class);
 	
 	//<editor-fold desc="Automatically populated keys">

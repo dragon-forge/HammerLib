@@ -19,20 +19,21 @@ public class FlowguiSlotReader
 	public static final @Required("(q) => q.slots.playerHotbarSlots[0]") String KEY_INDEX = "index";
 	
 	@Override
-	protected GuiSlotLinkObject readObject(KeyMap context, String name, IDataNode attributes)
+	protected GuiSlotLinkObject readObject(KeyMap map, String name, IDataNode node)
 	{
-		var cachingJS = context.getOrDefault(FlowguiRegistry.IS_CACHING_JS, false);
+		var cachingJS = map.getOrDefault(FlowguiRegistry.IS_CACHING_JS, false);
 		
-		var query = context.get(FlowguiRegistry.QUERY);
+		var query = map.get(FlowguiRegistry.QUERY);
 		if(!cachingJS && (query.container == null || query.slots == null)) return null;
 		
 		GuiSlotLinkObject link = new GuiSlotLinkObject(name);
+		var ctx = getDriverContext(map, node, link);
 		
-		var value = readInt(getJSContext(context), link, query, attributes, KEY_INDEX).get();
+		var value = readInt(ctx, KEY_INDEX).get();
 		
 		if(cachingJS) return link;
 		
-		var error = invalidField(attributes, KEY_INDEX);
+		var error = invalidField(node, KEY_INDEX);
 		var slot = value.orElseThrow(error);
 		
 		var allSlots = query.container.slots;

@@ -8,6 +8,9 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.inventory.Slot;
 import org.zeith.hammerlib.client.flowgui.objects.*;
 import org.zeith.hammerlib.client.render.texture.GuiTexture;
+import org.zeith.hammerlib.util.java.Cast;
+
+import java.util.function.Supplier;
 
 public class GuiObjectBuilder
 {
@@ -34,7 +37,15 @@ public class GuiObjectBuilder
 	}
 	
 	public GuiImageObject fullImage(
-			ResourceLocation tex,
+			GuiTexture tex,
+			float width, float height
+	)
+	{
+		return image(tex, 0, 0, width, height, width, height);
+	}
+	
+	public GuiImageObject fullImage(
+			Supplier<GuiTexture> tex,
 			float width, float height
 	)
 	{
@@ -42,12 +53,48 @@ public class GuiObjectBuilder
 	}
 	
 	public GuiImageObject image(
-			ResourceLocation tex,
+			GuiTexture tex,
+			float uOffset, float vOffset,
+			float width, float height)
+	{
+		return image(tex, uOffset, vOffset, width, height, 256, 256);
+	}
+	
+	public GuiImageObject image(
+			GuiTexture tex,
 			float uOffset, float vOffset,
 			float width, float height,
 			float txWidth, float txHeight)
 	{
-		return new GuiImageObject(name, GuiTexture.of(tex), uOffset, vOffset, width, height, txWidth, txHeight);
+		return new GuiImageObject(name, Cast.constant(tex), uOffset, vOffset, width, height, txWidth, txHeight);
+	}
+	
+	public GuiImageObject image(
+			Supplier<GuiTexture> tex,
+			float uOffset, float vOffset,
+			float width, float height,
+			float txWidth, float txHeight)
+	{
+		return new GuiImageObject(name, tex, uOffset, vOffset, width, height, txWidth, txHeight);
+	}
+	
+	public GuiImageObject image(
+			Supplier<GuiTexture> tex,
+			float uOffset, float vOffset,
+			float width, float height)
+	{
+		return image(tex, uOffset, vOffset, width, height, 256, 256);
+	}
+	
+	
+	
+	
+	public GuiImageObject fullImage(
+			ResourceLocation tex,
+			float width, float height
+	)
+	{
+		return image(GuiTexture.of(tex), 0, 0, width, height, width, height);
 	}
 	
 	public GuiImageObject image(
@@ -59,20 +106,12 @@ public class GuiObjectBuilder
 	}
 	
 	public GuiImageObject image(
-			GuiTexture tex,
+			ResourceLocation tex,
 			float uOffset, float vOffset,
-			int width, int height,
-			int txWidth, int txHeight)
+			float width, float height,
+			float txWidth, float txHeight)
 	{
-		return new GuiImageObject(name, tex, uOffset, vOffset, width, height, txWidth, txHeight);
-	}
-	
-	public GuiImageObject image(
-			GuiTexture tex,
-			float uOffset, float vOffset,
-			int width, int height)
-	{
-		return image(tex, uOffset, vOffset, width, height, 256, 256);
+		return new GuiImageObject(name, Cast.constant(GuiTexture.of(tex)), uOffset, vOffset, width, height, txWidth, txHeight);
 	}
 	
 	public GuiTextObject text(Font font, FormattedCharSequence text, int color, boolean shadow)

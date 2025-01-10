@@ -16,7 +16,7 @@ public class FlowguiEmptyReader
 	public static final FlowguiEmptyReader INSTANCE = new FlowguiEmptyReader();
 	
 	@Override
-	protected GuiObject readObject(KeyMap context, String name, IDataNode attributes)
+	protected GuiObject readObject(KeyMap map, String name, IDataNode attributes)
 	{
 		return new GuiObject(name);
 	}

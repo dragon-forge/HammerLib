@@ -1,10 +1,10 @@
 package org.zeith.hammerlib.client.flowgui.reader;
 
-import com.google.common.base.MoreObjects;
 import lombok.extern.slf4j.Slf4j;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
+import org.jetbrains.annotations.NotNull;
 import org.zeith.hammerlib.annotations.ide.AllowedValues;
 import org.zeith.hammerlib.api.data.IDataNode;
 import org.zeith.hammerlib.client.flowgui.GuiObject;
@@ -23,9 +23,9 @@ import java.util.function.*;
 @Slf4j
 public class ComDrivers
 {
-	public static boolean driveComponent(JsContext jsc, GuiObject self, FlowQuery query, IDataNode attributes, String name, Component defaultValue, boolean alwaysDrive, Consumer<Component> driver)
+	public static boolean driveComponent(DriverContext ctx, String name, Component defaultValue, boolean alwaysDrive, Consumer<Component> driver)
 	{
-		var parsed = readComponent(jsc, name, query, attributes, self);
+		var parsed = readComponent(ctx, name);
 		
 		var fallback = Cast.constant(Optional.ofNullable(defaultValue));
 		
@@ -33,7 +33,7 @@ public class ComDrivers
 		
 		// Non-Constant lambda
 		if(dynamic)
-			self.onPreRender((time, mouse) ->
+			ctx.onPreRender((time, mouse) ->
 					Optional.ofNullable(parsed.get()).or(fallback).ifPresent(driver)
 			);
 		
@@ -42,9 +42,28 @@ public class ComDrivers
 		return dynamic;
 	}
 	
-	public static boolean driveBool(JsContext jsc, GuiObject self, FlowQuery query, IDataNode attributes, String name, Boolean defaultValue, boolean alwaysDrive, BooleanConsumer driver)
+	public static boolean driveString(DriverContext ctx, String name, String defaultValue, boolean alwaysDrive, Consumer<String> driver)
 	{
-		var parsed = readBoolean(jsc, self, query, attributes, name);
+		var parsed = readString(ctx, name);
+		
+		var fallback = Cast.constant(Optional.ofNullable(defaultValue));
+		
+		boolean dynamic = alwaysDrive || !isConstant(parsed);
+		
+		// Non-Constant lambda
+		if(dynamic)
+			ctx.onPreRender((time, mouse) ->
+					Optional.ofNullable(parsed.get()).or(fallback).ifPresent(driver)
+			);
+		
+		Optional.ofNullable(parsed.get()).or(fallback).ifPresent(driver);
+		
+		return dynamic;
+	}
+	
+	public static boolean driveBool(DriverContext ctx, String name, Boolean defaultValue, boolean alwaysDrive, BooleanConsumer driver)
+	{
+		var parsed = readBoolean(ctx, name);
 		
 		var fallback = defaultValue != null ? OptionalBoolean.of(defaultValue) : OptionalBoolean.empty();
 		
@@ -52,7 +71,7 @@ public class ComDrivers
 		
 		// Non-Constant lambda
 		if(dynamic)
-			self.onPreRender((time, mouse) ->
+			ctx.onPreRender((time, mouse) ->
 					parsed.get().or(fallback).ifPresent(driver)
 			);
 		
@@ -61,9 +80,9 @@ public class ComDrivers
 		return dynamic;
 	}
 	
-	public static boolean driveFloat(JsContext jsc, GuiObject self, FlowQuery query, IDataNode attributes, String name, Float defaultValue, boolean alwaysDrive, FloatConsumer driver)
+	public static boolean driveFloat(DriverContext ctx, String name, Float defaultValue, boolean alwaysDrive, FloatConsumer driver)
 	{
-		var parsed = readFloat(jsc, self, query, attributes, name);
+		var parsed = readFloat(ctx, name);
 		
 		var fallback = defaultValue != null ? OptionalFloat.of(defaultValue) : OptionalFloat.empty();
 		
@@ -71,7 +90,7 @@ public class ComDrivers
 		
 		// Non-Constant lambda
 		if(dynamic)
-			self.onPreRender((time, mouse) ->
+			ctx.onPreRender((time, mouse) ->
 					parsed.get().or(fallback).ifPresent(driver)
 			);
 		
@@ -80,9 +99,9 @@ public class ComDrivers
 		return dynamic;
 	}
 	
-	public static boolean driveInt(JsContext jsc, GuiObject self, FlowQuery query, IDataNode attributes, String name, Integer defaultValue, boolean alwaysDrive, IntConsumer driver)
+	public static boolean driveInt(DriverContext ctx, String name, Integer defaultValue, boolean alwaysDrive, IntConsumer driver)
 	{
-		var parsed = readInt(jsc, self, query, attributes, name);
+		var parsed = readInt(ctx, name);
 		
 		var fallback = defaultValue != null ? OptionalInt.of(defaultValue) : OptionalInt.empty();
 		
@@ -90,7 +109,7 @@ public class ComDrivers
 		
 		// Non-Constant lambda
 		if(dynamic)
-			self.onPreRender((time, mouse) ->
+			ctx.onPreRender((time, mouse) ->
 					parsed.get().ifPresentOrElse(driver, () -> fallback.ifPresent(driver))
 			);
 		
@@ -99,9 +118,9 @@ public class ComDrivers
 		return dynamic;
 	}
 	
-	public static boolean driveColor(JsContext jsc, GuiObject self, FlowQuery query, IDataNode attributes, String name, Integer defaultValue, boolean alwaysDrive, IntConsumer driver)
+	public static boolean driveColor(DriverContext ctx, String name, Integer defaultValue, boolean alwaysDrive, IntConsumer driver)
 	{
-		var parsed = readColor(jsc, self, query, attributes, name);
+		var parsed = readColor(ctx, name);
 		
 		var fallback = defaultValue != null ? OptionalInt.of(defaultValue) : OptionalInt.empty();
 		
@@ -109,7 +128,7 @@ public class ComDrivers
 		
 		// Non-Constant lambda
 		if(dynamic)
-			self.onPreRender((time, mouse) ->
+			ctx.onPreRender((time, mouse) ->
 					parsed.get().ifPresentOrElse(driver, () -> fallback.ifPresent(driver))
 			);
 		
@@ -121,19 +140,20 @@ public class ComDrivers
 	private static final CallerSpec CBQ_SPEC = new CallerSpec("invoke", false);
 	private static final CallerSpec CBQ_RET_SPEC = new CallerSpec("invoke", true);
 	
-	public static Supplier<Component> readComponent(JsContext jsc, String from, FlowQuery query, IDataNode attributes, GuiObject self)
+	@NotNull
+	public static Supplier<Component> readComponent(DriverContext ctx, String from)
 	{
-		var str = attributes.getString(from);
+		var str = ctx.getString(from);
 		if(str == null || str.isBlank()) return Cast.constant(Component.empty());
 		
-		var cbq = JsContext.isScript(str) ? jsc.eval(Callback3.class, str, CBQ_RET_SPEC) : null;
+		var cbq = JsContext.isScript(str) ? ctx.eval(Callback3.class, str, CBQ_RET_SPEC) : null;
 		if(cbq != null)
 		{
 			return () ->
 			{
 				try
 				{
-					Object s = cbq.invoke(query, self, null);
+					Object s = cbq.invoke(ctx.query(), ctx.self(), null);
 					return s instanceof Component com ? com : componentFromString(Objects.toString(s));
 				} catch(Exception e)
 				{
@@ -146,19 +166,20 @@ public class ComDrivers
 		return Cast.constant(componentFromString(str));
 	}
 	
-	public static Supplier<String> readString(JsContext jsc, String from, FlowQuery query, IDataNode attributes, GuiObject self)
+	@NotNull
+	public static Supplier<String> readString(DriverContext ctx, String from)
 	{
-		var str = attributes.getString(from);
+		var str = ctx.getString(from);
 		if(str == null || str.isBlank()) return Cast.constant("");
 		
-		var cbq = JsContext.isScript(str) ? jsc.eval(Callback3.class, str, CBQ_RET_SPEC) : null;
+		var cbq = JsContext.isScript(str) ? ctx.eval(Callback3.class, str, CBQ_RET_SPEC) : null;
 		if(cbq != null)
 		{
 			return () ->
 			{
 				try
 				{
-					Object s = cbq.invoke(query, self, null);
+					Object s = cbq.invoke(ctx.query(), ctx.self(), null);
 					return s instanceof CharSequence com ? com.toString() : Objects.toString(s);
 				} catch(Exception e)
 				{
@@ -182,24 +203,25 @@ public class ComDrivers
 		return Component.translatable(str);
 	}
 	
-	public static Supplier<OptionalBoolean> readBoolean(JsContext jsc, GuiObject self, FlowQuery query, IDataNode attributes, String from)
+	@NotNull
+	public static Supplier<OptionalBoolean> readBoolean(DriverContext ctx, String from)
 	{
-		var expression = attributes.getString(from);
+		var expression = ctx.getString(from);
 		if("true".equalsIgnoreCase(expression) || "false".equalsIgnoreCase(expression))
 			return Cast.constant(OptionalBoolean.of(Boolean.parseBoolean(expression)));
 		if(expression == null) return Cast.constant(OptionalBoolean.empty());
 		
-		var str = attributes.getString(from);
+		var str = ctx.getString(from);
 		if(str == null) return Cast.constant(OptionalBoolean.empty());
 		
-		var cbq = jsc.eval(BoolCallback3.class, str, CBQ_RET_SPEC);
+		var cbq = ctx.eval(BoolCallback3.class, str, CBQ_RET_SPEC);
 		if(cbq == null) return Cast.constant(OptionalBoolean.empty());
 		
 		return () ->
 		{
 			try
 			{
-				return OptionalBoolean.of(cbq.invoke(query, self, null));
+				return OptionalBoolean.of(cbq.invoke(ctx.query(), ctx.self(), null));
 			} catch(Exception e)
 			{
 				return OptionalBoolean.empty();
@@ -207,22 +229,23 @@ public class ComDrivers
 		};
 	}
 	
-	public static Supplier<OptionalFloat> readFloat(JsContext jsc, GuiObject self, FlowQuery query, IDataNode attributes, String from)
+	@NotNull
+	public static Supplier<OptionalFloat> readFloat(DriverContext ctx, String from)
 	{
-		var of = attributes.getFloat(from);
+		var of = ctx.getFloat(from);
 		if(of.isPresent()) return Cast.constant(of);
 		
-		var str = attributes.getString(from);
+		var str = ctx.getString(from);
 		if(str == null) return Cast.constant(OptionalFloat.empty());
 		
-		var cbq = jsc.eval(DoubleCallback3.class, str, CBQ_RET_SPEC);
+		var cbq = ctx.eval(DoubleCallback3.class, str, CBQ_RET_SPEC);
 		if(cbq == null) return Cast.constant(OptionalFloat.empty());
 		
 		return () ->
 		{
 			try
 			{
-				return OptionalFloat.of((float) cbq.invoke(query, self, null));
+				return OptionalFloat.of((float) cbq.invoke(ctx.query(), ctx.self(), null));
 			} catch(Exception e)
 			{
 				return OptionalFloat.empty();
@@ -230,22 +253,23 @@ public class ComDrivers
 		};
 	}
 	
-	public static Supplier<OptionalInt> readInt(JsContext jsc, GuiObject self, FlowQuery query, IDataNode attributes, String from)
+	@NotNull
+	public static Supplier<OptionalInt> readInt(DriverContext ctx, String from)
 	{
-		var of = attributes.getInt(from);
+		var of = ctx.getInt(from);
 		if(of.isPresent()) return Cast.constant(of);
 		
-		var str = attributes.getString(from);
+		var str = ctx.getString(from);
 		if(str == null) return Cast.constant(OptionalInt.empty());
 		
-		var cbq = jsc.eval(IntCallback3.class, str, CBQ_RET_SPEC);
+		var cbq = ctx.eval(IntCallback3.class, str, CBQ_RET_SPEC);
 		if(cbq == null) return Cast.constant(OptionalInt.empty());
 		
 		return () ->
 		{
 			try
 			{
-				return OptionalInt.of(cbq.invoke(query, self, null));
+				return OptionalInt.of(cbq.invoke(ctx.query(), ctx.self(), null));
 			} catch(Exception e)
 			{
 				return OptionalInt.empty();
@@ -253,24 +277,25 @@ public class ComDrivers
 		};
 	}
 	
-	public static Supplier<OptionalInt> readColor(JsContext jsc, GuiObject self, FlowQuery query, IDataNode attributes, String from)
+	@NotNull
+	public static Supplier<OptionalInt> readColor(DriverContext ctx, String from)
 	{
-		var of = attributes.getInt(from);
+		var of = ctx.getInt(from);
 		if(of.isPresent()) return Cast.constant(of);
 		
-		String str = attributes.getString(from);
+		String str = ctx.getString(from);
 		if(str == null || str.isBlank()) return Cast.constant(OptionalInt.empty());
 		if(str != null && str.matches(AllowedValues.HEX_COLOR))
 			return Cast.constant(OptionalInt.of(Integer.parseInt(str.substring(1), 16)));
 		
-		var cbq = jsc.eval(IntCallback3.class, str, CBQ_RET_SPEC);
+		var cbq = ctx.eval(IntCallback3.class, str, CBQ_RET_SPEC);
 		if(cbq == null) return Cast.constant(OptionalInt.empty());
 		
 		return () ->
 		{
 			try
 			{
-				return OptionalInt.of(cbq.invoke(query, self, null));
+				return OptionalInt.of(cbq.invoke(ctx.query(), ctx.self(), null));
 			} catch(Exception e)
 			{
 				return OptionalInt.empty();
@@ -278,14 +303,19 @@ public class ComDrivers
 		};
 	}
 	
-	public static Runnable readCallback(JsContext jsc, GuiObject self, IDataNode node, FlowQuery query, String from, boolean returns)
+	public static Runnable readCallback(DriverContext ctx, String from, boolean returns)
 	{
-		var expression = node.getString(from);
+		return readCallback(ctx, from, returns, null);
+	}
+	
+	public static Runnable readCallback(DriverContext ctx, String from, boolean returns, Object thirdParam)
+	{
+		var expression = ctx.getString(from);
 		if(expression == null || expression.isBlank()) return () ->
 		{
 		};
 		
-		var cbq = jsc.eval(Callback3.class, expression, returns ? CBQ_RET_SPEC : CBQ_SPEC);
+		var cbq = ctx.eval(Callback3.class, expression, returns ? CBQ_RET_SPEC : CBQ_SPEC);
 		if(cbq == null) return () ->
 		{
 		};
@@ -294,10 +324,10 @@ public class ComDrivers
 		{
 			try
 			{
-				cbq.invoke(query, self, null);
+				cbq.invoke(ctx.query(), ctx.self(), thirdParam);
 			} catch(RuntimeException e)
 			{
-				log.error("Failed to invoke callback {} (code: {})", readableName(node), expression);
+				log.error("Failed to invoke callback {} (code: {})", readableName(ctx.attributes()), expression);
 			}
 		};
 	}
