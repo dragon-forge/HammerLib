@@ -41,6 +41,10 @@ public class ConfigHL
 		@Config.IntEntry(value = 1024, min = 16, max = 16384)
 		public int guiItemRenderResolution;
 		
+		@Config.ConfigEntry(entry = "OpenGL Stencil", comment = "Enable use of GL stencils?\n-1 Block enabling of stencils through HammerLib means\n0 Stencil not enabled unless HammerLib-dependent mod requests stencils to be enabled (default)\n1 Enforce use of stencil regardless if any mods need it or not")
+		@Config.IntEntry(value = 0, min = -1, max = 1)
+		public int glStencil;
+		
 		@Override
 		public void load(ConfigCategory category)
 				throws ConfigException

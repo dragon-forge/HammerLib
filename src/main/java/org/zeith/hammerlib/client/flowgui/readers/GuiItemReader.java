@@ -1,0 +1,99 @@
+package org.zeith.hammerlib.client.flowgui.readers;
+
+import com.google.common.base.Suppliers;
+import com.google.gson.Gson;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.JsonOps;
+import lombok.SneakyThrows;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.RegistryCodecs;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.TagParser;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.resources.RegistryOps;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.world.item.ItemStack;
+import org.zeith.hammerlib.abstractions.props.KeyMap;
+import org.zeith.hammerlib.annotations.ide.*;
+import org.zeith.hammerlib.api.data.IDataNode;
+import org.zeith.hammerlib.client.flowgui.objects.GuiItemObject;
+import org.zeith.hammerlib.client.flowgui.reader.*;
+import org.zeith.hammerlib.event.listeners.TagsUpdateListener;
+import org.zeith.hammerlib.proxy.HLConstants;
+import org.zeith.hammerlib.util.mcf.CodecHelper;
+import org.zeith.hammerlib.util.mcf.Resources;
+
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
+
+import static org.zeith.hammerlib.client.flowgui.reader.ComDrivers.driveInt;
+
+@Namespace(HLConstants.MOD_ID)
+@FlowguiReader("item")
+public class GuiItemReader
+		extends GuiReader<GuiItemObject>
+{
+	@AllowJS
+	@AllowedValues(AllowedValues.RESOURCE_LOCATION)
+	@FileReference(
+			regex = { "^(?<modid>[a-z0-9_.-]+):(?<path>[a-z0-9_./-]+)$", "^(?<path>[a-z0-9_./-]+)$" },
+			value = { "assets/%modid%/models/item/%path%.json", "assets/minecraft/models/item/%path%.json" }
+	)
+	public static final @Required("minecraft:diamond") String KEY_ITEM = "item";
+	
+	@AllowJS
+	@AllowedValues(AllowedValues.POSITIVE_INTEGERS)
+	public static final String KEY_COUNT = "count";
+	
+	@AllowJS
+	public static final String KEY_COMPONENTS = "components";
+	
+	@SneakyThrows
+	@Override
+	protected GuiItemObject readObject(KeyMap context, String name, IDataNode attributes)
+	{
+		var jsc = getJSContext(context);
+		var query = getQuery(context);
+		
+		var itemIdFactory = ComDrivers.readString(jsc, KEY_ITEM, query, attributes, null);
+		var tagFactory = ComDrivers.readString(jsc, KEY_COMPONENTS, query, attributes, null);
+		
+		boolean constant = ComDrivers.isConstant(itemIdFactory) && ComDrivers.isConstant(tagFactory);
+		
+		Supplier<ItemStack> primaryFactory = () ->
+		{
+			var stack = BuiltInRegistries.ITEM
+					.getValue(Resources.location(itemIdFactory.get()))
+					.getDefaultInstance();
+			var tag = tagFactory.get();
+			if(tag != null && !tag.isBlank())
+			{
+				CodecHelper.parseRegistryJson(TagsUpdateListener.getRegistryAccess(), DataComponentPatch.CODEC, tag)
+						.ifLeft(stack::applyComponents)
+						.ifRight(err ->
+								stack.set(DataComponents.CUSTOM_NAME, Component.literal(err).setStyle(Style.EMPTY.withColor(ChatFormatting.RED)))
+						);
+			}
+			return stack;
+		};
+		
+		var intermFactory = constant ? Suppliers.memoize(primaryFactory::get) : primaryFactory;
+		
+		AtomicInteger count = new AtomicInteger(1);
+		Supplier<ItemStack> finalFactory = () ->
+		{
+			var stack = intermFactory.get();
+			stack.setCount(count.get());
+			return stack;
+		};
+		
+		var self = new GuiItemObject(name, finalFactory);
+		driveInt(jsc, self, query, attributes, KEY_COUNT, 1, false, count::set);
+		
+		return self;
+	}
+}

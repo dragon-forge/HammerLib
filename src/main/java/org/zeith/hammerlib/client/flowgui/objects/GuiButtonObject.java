@@ -8,6 +8,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.core.Holder;
@@ -20,8 +21,11 @@ import net.minecraft.util.Mth;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.jetbrains.annotations.Nullable;
 import org.zeith.hammerlib.client.flowgui.*;
+import org.zeith.hammerlib.client.utils.GLStencil;
 import org.zeith.hammerlib.util.math.Point;
 
 public class GuiButtonObject
@@ -215,9 +219,34 @@ public class GuiButtonObject
 			double d1 = Math.max((double) l * 0.5D, 3.0D);
 			double d2 = Math.sin((Math.PI / 2D) * Math.cos((Math.PI * 2D) * d0 / d1)) / 2.0D + 0.5D;
 			double d3 = Mth.lerp(d2, 0.0D, (double) l);
-			pGuiGraphics.enableScissor(pMinX, pMinY, pMaxX, pMaxY);
-			pGuiGraphics.drawString(pFont, pText, pMinX - (int) d3, j, pColor);
-			pGuiGraphics.disableScissor();
+			
+			if(GLStencil.isEnabled())
+				try(var stencil = GLStencil.of())
+				{
+					stencil.populateStencil(pGuiGraphics, gfx ->
+							gfx.fill(pMinX, pMinY, pMaxX, pMaxY, 0xFFFFFFFF)
+					);
+					
+					stencil.renderWithStencil(() ->
+					{
+						pGuiGraphics.drawString(pFont, pText, pMinX - (int) d3, j, pColor);
+					});
+				}
+			else
+			{
+				Matrix4f mat = pGuiGraphics.pose().last().pose();
+				Vector3f v1Pos = mat.transformPosition(pMinX, pMinY, 0, new Vector3f());
+				Vector3f v2Pos = mat.transformPosition(pMaxX, pMinY, 0, new Vector3f());
+				Vector3f v3Pos = mat.transformPosition(pMaxX, pMaxY, 0, new Vector3f());
+				Vector3f v4Pos = mat.transformPosition(pMinX, pMaxY, 0, new Vector3f());
+				float minX = Math.min(v1Pos.x, Math.min(v2Pos.x, Math.min(v3Pos.x, v4Pos.x)));
+				float minY = Math.min(v1Pos.y, Math.min(v2Pos.y, Math.min(v3Pos.y, v4Pos.y)));
+				float maxX = Math.max(v1Pos.x, Math.max(v2Pos.x, Math.max(v3Pos.x, v4Pos.x)));
+				float maxY = Math.max(v1Pos.y, Math.max(v2Pos.y, Math.max(v3Pos.y, v4Pos.y)));
+				pGuiGraphics.enableScissor((int) minX, (int) minY, (int) maxX, (int) maxY);
+				pGuiGraphics.drawString(pFont, pText, pMinX - (int) d3, j, pColor);
+				pGuiGraphics.disableScissor();
+			}
 		} else
 		{
 			pGuiGraphics.drawCenteredString(pFont, pText, (pMinX + pMaxX) / 2, j, pColor);

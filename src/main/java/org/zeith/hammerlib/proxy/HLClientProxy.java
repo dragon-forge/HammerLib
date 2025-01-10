@@ -46,6 +46,7 @@ import org.zeith.hammerlib.client.utils.TexturePixelGetter;
 import org.zeith.hammerlib.core.adapter.ConfigAdapter;
 import org.zeith.hammerlib.core.items.tooltip.ClientTooltipColoredLine;
 import org.zeith.hammerlib.core.items.tooltip.ClientTooltipMulti;
+import org.zeith.hammerlib.core.scans.ScanRequireStencil;
 import org.zeith.hammerlib.core.scans.base.DataScanner;
 import org.zeith.hammerlib.core.scans.base.IAnnotationScanListener;
 import org.zeith.hammerlib.event.client.ClientLoadedInEvent;
@@ -93,6 +94,7 @@ public class HLClientProxy
 	{
 		data.add(IAnnotationScanListener.forAnnotation(FlowguiReader.class, ElementType.TYPE, FlowguiRegistry::handleReader));
 		data.add(IAnnotationScanListener.forAnnotation(XmlFlowgui.class, ElementType.TYPE, FlowguiRegistry::handleXml));
+		data.add(ScanRequireStencil.create());
 	}
 	
 	@Override
@@ -105,6 +107,7 @@ public class HLClientProxy
 		modBus.addListener(this::registerGuis);
 		modBus.addListener(this::registerClientExtensions);
 		modBus.addListener(TexturePixelGetter::reloadTexture);
+		modBus.addListener(this::clientSetup);
 		modBus.addListener(this::registerReloadListeners);
 		SimpleModelGenerator.setup();
 		
@@ -173,8 +176,7 @@ public class HLClientProxy
 		);
 	}
 	
-	@Override
-	public void clientSetup()
+	private void clientSetup(FMLClientSetupEvent e)
 	{
 		PARTICLE_MAP = ((ParticleEngineAccessor) Minecraft.getInstance().particleEngine).getParticles();
 	}

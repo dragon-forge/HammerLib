@@ -66,10 +66,6 @@ public class HLCommonProxy
 	{
 	}
 	
-	public void clientSetup()
-	{
-	}
-	
 	public void applyLang(LangMap map)
 	{
 	}

@@ -1,10 +1,12 @@
 package org.zeith.hammerlib.compat.jei;
 
 import com.google.common.base.Preconditions;
+import com.mojang.blaze3d.platform.InputConstants;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.ingredients.IIngredientType;
+import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.neoforge.NeoForgeTypes;
 import mezz.jei.api.registration.*;
 import mezz.jei.api.runtime.IIngredientListOverlay;
@@ -17,6 +19,7 @@ import net.minecraft.world.item.crafting.*;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.abstractions.recipes.*;
 import org.zeith.hammerlib.client.flowgui.reader.XmlFlowgui;
@@ -32,7 +35,6 @@ import org.zeith.hammerlib.util.mcf.ScanDataHelper;
 
 import java.lang.annotation.ElementType;
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 @JeiPlugin
@@ -249,6 +251,33 @@ public class JeiHammerLib
 				.filter(ing -> ing.getType().getIngredientClass().equals(ing.getType().getIngredientClass()))
 				.filter(ing -> type.isInstance(ing.getIngredient()))
 				.map(ing -> Cast.cast(ing.getIngredient()));
+	}
+	
+	@Override
+	public @Nullable JeiKeyRole getRoleForKey(InputConstants.Key key)
+	{
+		var keys = runtime.getKeyMappings();
+		if(keys.getShowRecipe().isActiveAndMatches(key)) return JeiKeyRole.RECIPES;
+		if(keys.getShowUses().isActiveAndMatches(key)) return JeiKeyRole.USES;
+		return null;
+	}
+	
+	@Override
+	public void showRecipes(Object o)
+	{
+		var ff = runtime.getJeiHelpers().getFocusFactory();
+		Optional<IIngredientType<Object>> type = runtime.getIngredientManager().getIngredientTypeChecked(o);
+		type.map(t -> ff.createFocus(RecipeIngredientRole.OUTPUT, t, o))
+				.ifPresent(runtime.getRecipesGui()::show);
+	}
+	
+	@Override
+	public void showUses(Object o)
+	{
+		var ff = runtime.getJeiHelpers().getFocusFactory();
+		Optional<IIngredientType<Object>> type = runtime.getIngredientManager().getIngredientTypeChecked(o);
+		type.map(t -> ff.createFocus(RecipeIngredientRole.INPUT, t, o))
+				.ifPresent(runtime.getRecipesGui()::show);
 	}
 	
 	// FIXME

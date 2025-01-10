@@ -29,7 +29,7 @@ public class ComDrivers
 		
 		var fallback = Cast.constant(Optional.ofNullable(defaultValue));
 		
-		boolean dynamic = alwaysDrive || !parsed.getClass().getName().contains(Cast.class.getName());
+		boolean dynamic = alwaysDrive || !isConstant(parsed);
 		
 		// Non-Constant lambda
 		if(dynamic)
@@ -48,7 +48,7 @@ public class ComDrivers
 		
 		var fallback = defaultValue != null ? OptionalBoolean.of(defaultValue) : OptionalBoolean.empty();
 		
-		boolean dynamic = alwaysDrive || !parsed.getClass().getName().contains(Cast.class.getName());
+		boolean dynamic = alwaysDrive || !isConstant(parsed);
 		
 		// Non-Constant lambda
 		if(dynamic)
@@ -67,7 +67,7 @@ public class ComDrivers
 		
 		var fallback = defaultValue != null ? OptionalFloat.of(defaultValue) : OptionalFloat.empty();
 		
-		boolean dynamic = alwaysDrive || !parsed.getClass().getName().contains(Cast.class.getName());
+		boolean dynamic = alwaysDrive || !isConstant(parsed);
 		
 		// Non-Constant lambda
 		if(dynamic)
@@ -86,7 +86,7 @@ public class ComDrivers
 		
 		var fallback = defaultValue != null ? OptionalInt.of(defaultValue) : OptionalInt.empty();
 		
-		boolean dynamic = alwaysDrive || !parsed.getClass().getName().contains(Cast.class.getName());
+		boolean dynamic = alwaysDrive || !isConstant(parsed);
 		
 		// Non-Constant lambda
 		if(dynamic)
@@ -105,7 +105,7 @@ public class ComDrivers
 		
 		var fallback = defaultValue != null ? OptionalInt.of(defaultValue) : OptionalInt.empty();
 		
-		boolean dynamic = alwaysDrive || !parsed.getClass().getName().contains(Cast.class.getName());
+		boolean dynamic = alwaysDrive || !isConstant(parsed);
 		
 		// Non-Constant lambda
 		if(dynamic)
@@ -144,6 +144,30 @@ public class ComDrivers
 		}
 		
 		return Cast.constant(componentFromString(str));
+	}
+	
+	public static Supplier<String> readString(JsContext jsc, String from, FlowQuery query, IDataNode attributes, GuiObject self)
+	{
+		var str = attributes.getString(from);
+		if(str == null || str.isBlank()) return Cast.constant("");
+		
+		var cbq = JsContext.isScript(str) ? jsc.eval(Callback3.class, str, CBQ_RET_SPEC) : null;
+		if(cbq != null)
+		{
+			return () ->
+			{
+				try
+				{
+					Object s = cbq.invoke(query, self, null);
+					return s instanceof CharSequence com ? com.toString() : Objects.toString(s);
+				} catch(Exception e)
+				{
+					return e.toString();
+				}
+			};
+		}
+		
+		return Cast.constant(str);
 	}
 	
 	public static Component componentFromString(String str)
@@ -286,5 +310,12 @@ public class ComDrivers
 						keys.contains(GuiReader.KEY_CLASS) ? "class=%s".formatted(JSONObject.quote(node.getString(GuiReader.KEY_CLASS))) : "",
 						keys.contains(GuiReader.KEY_ID) ? "id=%s".formatted(JSONObject.quote(node.getString(GuiReader.KEY_ID))) : ""
 				).trim();
+	}
+	
+	private static final String CAST_NAME = Cast.class.getName();
+	
+	public static boolean isConstant(Object supplier)
+	{
+		return supplier != null && supplier.getClass().getName().startsWith(CAST_NAME);
 	}
 }

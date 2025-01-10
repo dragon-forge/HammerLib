@@ -85,13 +85,6 @@ public class HammerLib
 		});
 	}
 	
-	@SubscribeEvent
-	@OnlyIn(Dist.CLIENT)
-	public void clientSetup(FMLClientSetupEvent e)
-	{
-		PROXY.clientSetup();
-	}
-	
 	// Fixme: Need to figure out why jar signing results in a null fingerprint (corrupted jdks?!)
 //	@SubscribeEvent
 //	public void checkFingerprint(FMLFingerprintCheckEvent e)
