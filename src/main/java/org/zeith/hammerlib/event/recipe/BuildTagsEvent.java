@@ -15,6 +15,8 @@ import java.util.*;
 public class BuildTagsEvent
 		extends Event
 {
+	private static final Object IO_SYNC = new Object();
+	
 	public final String directory;
 	public final Map<ResourceLocation, List<TagLoader.EntryWithSource>> tags;
 	public final Registry reg;
@@ -63,14 +65,24 @@ public class BuildTagsEvent
 	
 	protected TagRegistrationContext getContext(String modid)
 	{
-		return contextMap.computeIfAbsent(modid, TagRegistrationContext::load);
+		return contextMap.computeIfAbsent(modid, m ->
+				{
+					synchronized(IO_SYNC)
+					{
+						return TagRegistrationContext.load(m);
+					}
+				}
+		);
 	}
 	
 	@ApiStatus.Internal
 	public void cleanup()
 	{
-		for(TagRegistrationContext value : contextMap.values())
-			value.save();
+		synchronized(IO_SYNC)
+		{
+			for(TagRegistrationContext value : contextMap.values())
+				value.save();
+		}
 		contextMap.clear();
 	}
 	
