@@ -2,20 +2,14 @@ package org.zeith.hammerlib.client.flowgui.objects;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.network.chat.Component;
-import net.minecraftforge.fluids.FluidStack;
-import org.joml.Matrix4f;
+import net.neoforged.neoforge.fluids.FluidStack;
 import org.zeith.hammerlib.client.flowgui.*;
 import org.zeith.hammerlib.client.flowgui.util.Tooltip;
 import org.zeith.hammerlib.client.render.FluidRendererHelper;
 import org.zeith.hammerlib.client.screen.IAdvancedComponent;
 import org.zeith.hammerlib.client.utils.FluidTextureType;
-import org.zeith.hammerlib.util.mcf.fluid.FluidHelper;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 public class GuiFluidObject

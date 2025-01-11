@@ -8,11 +8,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 import org.zeith.hammerlib.client.flowgui.Graphics;
 import org.zeith.hammerlib.util.mcf.fluid.FluidHelper;
 
-import javax.tools.Tool;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;

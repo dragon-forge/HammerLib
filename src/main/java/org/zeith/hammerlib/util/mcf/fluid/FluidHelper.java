@@ -3,10 +3,9 @@ package org.zeith.hammerlib.util.mcf.fluid;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.zeith.hammerlib.api.fluid.IExtendedFluidType;
 import org.zeith.hammerlib.proxy.HLConstants;
@@ -28,7 +27,7 @@ public class FluidHelper
 		
 		if(!fluid.isEmpty())
 		{
-			var dn = fluid.getDisplayName();
+			var dn = fluid.getHoverName();
 			tooltip.add(Component.empty().append(dn).withStyle(fluid.getFluid().getFluidType().getRarity(fluid).getStyleModifier()));
 			
 			var nf = DecimalFormat.getIntegerInstance();
@@ -63,7 +62,7 @@ public class FluidHelper
 	
 	public static boolean anyFluidMatches(ItemStack stack, Predicate<FluidStack> filter)
 	{
-		return stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).map(h ->
+		return Optional.ofNullable(stack.getCapability(Capabilities.FluidHandler.ITEM)).map(h ->
 		{
 			var slots = h.getTanks();
 			for(int i = 0; i < slots; ++i)
@@ -75,7 +74,7 @@ public class FluidHelper
 	
 	public static boolean allFluidsMatch(ItemStack stack, Predicate<FluidStack> filter)
 	{
-		return stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).map(h ->
+		return Optional.ofNullable(stack.getCapability(Capabilities.FluidHandler.ITEM)).map(h ->
 		{
 			var slots = h.getTanks();
 			for(int i = 0; i < slots; ++i)
@@ -87,7 +86,7 @@ public class FluidHelper
 	
 	public static boolean noneFluidsMatch(ItemStack stack, Predicate<FluidStack> filter)
 	{
-		return stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).map(h ->
+		return Optional.ofNullable(stack.getCapability(Capabilities.FluidHandler.ITEM)).map(h ->
 		{
 			var slots = h.getTanks();
 			for(int i = 0; i < slots; ++i)
@@ -104,7 +103,7 @@ public class FluidHelper
 	
 	public static boolean isFluidContainerFull(ItemStack stack)
 	{
-		return stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).map(h ->
+		return Optional.ofNullable(stack.getCapability(Capabilities.FluidHandler.ITEM)).map(h ->
 		{
 			FluidStack fs;
 			var slots = h.getTanks();

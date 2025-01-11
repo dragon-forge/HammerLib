@@ -1,19 +1,19 @@
 package org.zeith.hammerlib.client.flowgui.objects;
 
-import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import org.zeith.hammerlib.client.flowgui.*;
-import org.zeith.hammerlib.compat.jei.IJeiPluginHL;
-import org.zeith.hammerlib.compat.jei.JeiKeyRole;
+import org.zeith.hammerlib.client.flowgui.util.Tooltip;
+import org.zeith.hammerlib.client.screen.IAdvancedComponent;
 
 import java.util.function.Supplier;
 
 public class GuiItemObject
 		extends GuiObject
+		implements IAdvancedComponent
 {
 	private static final ResourceLocation SLOT_HIGHLIGHT_BACK_SPRITE = ResourceLocation.withDefaultNamespace("container/slot_highlight_back");
 	private static final ResourceLocation SLOT_HIGHLIGHT_FRONT_SPRITE = ResourceLocation.withDefaultNamespace("container/slot_highlight_front");
@@ -22,7 +22,7 @@ public class GuiItemObject
 	public Supplier<ItemStack> stack;
 	public boolean hoverable;
 	public boolean decorated = true;
-	public boolean jeiable;
+	public boolean provideIngredient;
 	public int seed = 0;
 	
 	public boolean isMouseOver;
@@ -52,9 +52,9 @@ public class GuiItemObject
 		return this;
 	}
 	
-	public GuiItemObject jeiable(boolean jeiable)
+	public GuiItemObject provideIngredient(boolean provideIngredient)
 	{
-		this.jeiable = jeiable;
+		this.provideIngredient = provideIngredient;
 		return this;
 	}
 	
@@ -82,18 +82,10 @@ public class GuiItemObject
 	}
 	
 	@Override
-	protected boolean onKeyPressed(int keyCode, int scanCode, int modifiers)
+	public Object getIngredientUnderMouse(double mouseX, double mouseY)
 	{
-		if(jeiable && isMouseOver)
-		{
-			InputConstants.Key key = InputConstants.getKey(keyCode, scanCode);
-			var jei = IJeiPluginHL.get();
-			if(jei != null)
-			{
-				JeiKeyRole role = jei.getRoleForKey(key);
-				if(role != null) role.sendToJei(stack.get());
-			}
-		}
-		return super.onKeyPressed(keyCode, scanCode, modifiers);
+		if(provideIngredient && mouseX >= 0 && mouseY >= 0 && mouseX < width && mouseY < height)
+			return stack.get();
+		return null;
 	}
 }

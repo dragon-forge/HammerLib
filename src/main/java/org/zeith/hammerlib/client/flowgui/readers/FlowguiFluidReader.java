@@ -2,19 +2,24 @@ package org.zeith.hammerlib.client.flowgui.readers;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Suppliers;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import lombok.SneakyThrows;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.TagParser;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import net.minecraft.util.Mth;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 import org.zeith.hammerlib.abstractions.props.KeyMap;
 import org.zeith.hammerlib.annotations.ide.*;
 import org.zeith.hammerlib.api.data.IDataNode;
 import org.zeith.hammerlib.client.flowgui.objects.GuiFluidObject;
 import org.zeith.hammerlib.client.flowgui.reader.*;
 import org.zeith.hammerlib.client.utils.FluidTextureType;
+import org.zeith.hammerlib.event.listeners.TagsUpdateListener;
 import org.zeith.hammerlib.proxy.HLConstants;
+import org.zeith.hammerlib.util.mcf.CodecHelper;
 import org.zeith.hammerlib.util.mcf.Resources;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -77,19 +82,19 @@ public class FlowguiFluidReader
 		
 		Supplier<FluidStack> primaryFactory = () ->
 		{
-			var fluid = new FluidStack(BuiltInRegistries.FLUID
-					.get(Resources.location(itemIdFactory.get())), 1
+			var fluid = new FluidStack(
+					BuiltInRegistries.FLUID.getValue(Resources.location(itemIdFactory.get())),
+					1
 			);
 			
 			var tag = tagFactory.get();
 			if(tag != null && !tag.isBlank())
 			{
-				try
-				{
-					fluid.setTag(TagParser.parseTag(tag));
-				} catch(CommandSyntaxException e)
-				{
-				}
+				CodecHelper.parseRegistryJson(TagsUpdateListener.getRegistryAccess(), DataComponentPatch.CODEC, tag)
+						.ifLeft(fluid::applyComponents)
+						.ifRight(err ->
+								fluid.set(DataComponents.CUSTOM_NAME, Component.literal(err).setStyle(Style.EMPTY.withColor(ChatFormatting.RED)))
+						);
 			}
 			return fluid;
 		};

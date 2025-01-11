@@ -1,21 +1,13 @@
 package org.zeith.hammerlib.client.flowgui.readers;
 
 import com.google.common.base.Suppliers;
-import com.google.gson.Gson;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.JsonOps;
 import lombok.SneakyThrows;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.TagParser;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.RegistryOps;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import org.zeith.hammerlib.abstractions.props.KeyMap;
 import org.zeith.hammerlib.annotations.ide.*;
@@ -63,17 +55,7 @@ public class FlowguiItemReader
 	@AllowJS
 	@Suggestions({ "true", "false" })
 	@AllowedValues(AllowedValues.BOOLEAN)
-	public static final @Default("false") String KEY_HOVERABLE = "hoverable";
-	
-	@AllowJS
-	@Suggestions({ "true", "false" })
-	@AllowedValues(AllowedValues.BOOLEAN)
 	public static final @Default("true") String KEY_DECORATED = "decorated";
-	
-	@AllowJS
-	@Suggestions({ "true", "false" })
-	@AllowedValues(AllowedValues.BOOLEAN)
-	public static final String KEY_OFFER_INGREDIENT = "offer-ingredient";
 	
 	@AllowJS
 	public static final String KEY_COMPONENTS = "components";

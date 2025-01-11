@@ -13,13 +13,13 @@ import org.openjdk.nashorn.api.scripting.ScriptObjectMirror;
 import org.zeith.hammerlib.annotations.ide.AllowedValues;
 import org.zeith.hammerlib.api.data.IDataNode;
 import org.zeith.hammerlib.core.js.CallerSpec;
-import org.zeith.hammerlib.event.listeners.TagsUpdateListener;
 import org.zeith.hammerlib.core.js.ObjectMirrorConverter;
+import org.zeith.hammerlib.event.listeners.TagsUpdateListener;
 import org.zeith.hammerlib.util.java.*;
 import org.zeith.hammerlib.util.java.cbqs.cbq3.*;
 import org.zeith.hammerlib.util.java.itf.BooleanConsumer;
 import org.zeith.hammerlib.util.java.itf.FloatConsumer;
-import org.zeith.hammerlib.util.shaded.json.*;
+import org.zeith.hammerlib.util.shaded.json.JSONObject;
 
 import java.util.*;
 import java.util.function.*;
@@ -243,8 +243,6 @@ public class ComDrivers
 	{
 		GsonBuilder gsonbuilder = new GsonBuilder();
 		gsonbuilder.disableHtmlEscaping();
-		gsonbuilder.registerTypeHierarchyAdapter(Component.class, new Component.Serializer());
-		gsonbuilder.registerTypeHierarchyAdapter(Style.class, new Style.Serializer());
 		gsonbuilder.registerTypeAdapterFactory(new LowerCaseEnumTypeAdapterFactory());
 		return gsonbuilder.create();
 	});
@@ -260,11 +258,11 @@ public class ComDrivers
 				List<Component> coms = new ArrayList<>(arr.size());
 				for(int i = 0; i < arr.size(); i++)
 				{
-					coms.add(Component.Serializer.fromJson(arr.get(i)));
+					coms.add(Component.Serializer.fromJson(arr.get(i), TagsUpdateListener.getRegistryAccess()));
 				}
 				return coms;
 			} else
-				return List.of(MoreObjects.firstNonNull(Component.Serializer.fromJson(t), Component.empty()));
+				return List.of(MoreObjects.firstNonNull(Component.Serializer.fromJson(t, TagsUpdateListener.getRegistryAccess()), Component.empty()));
 		} catch(Exception e)
 		{
 		}

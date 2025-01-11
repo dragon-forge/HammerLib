@@ -785,7 +785,7 @@ public class GuiObject
 	{
 		var ps = gfx.pose();
 		ps.pushPose();
-		ps.mulPoseMatrix(new Matrix4f(ps.last().pose()).invert()); // Untransform from component to screen space
+		ps.mulPose(new Matrix4f(ps.last().pose()).invert()); // Untransform from component to screen space
 		{
 			var gp = mouse.globalPos();
 			float x = gp.x(), y = gp.y();

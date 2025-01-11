@@ -14,6 +14,7 @@ import net.neoforged.neoforge.event.TagsUpdatedEvent;
 import java.util.*;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @EventBusSubscriber
 public class TagsUpdateListener
@@ -21,6 +22,21 @@ public class TagsUpdateListener
 	@Getter
 	private static HolderLookup.Provider registryAccess = RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
 	private static Map<ResourceKey<? extends Registry>, Map> tagCache = new HashMap<>();
+	
+	public static final HolderLookup.Provider LATEST_CLIENTSIDE_REGISTRY_ACCESS = new HolderLookup.Provider()
+	{
+		@Override
+		public Stream<ResourceKey<? extends Registry<?>>> listRegistryKeys()
+		{
+			return registryAccess.listRegistryKeys();
+		}
+		
+		@Override
+		public <T> Optional<? extends HolderLookup.RegistryLookup<T>> lookup(ResourceKey<? extends Registry<? extends T>> resourceKey)
+		{
+			return registryAccess.lookup(resourceKey);
+		}
+	};
 	
 	public static <T> Map<ResourceLocation, Collection<Holder<T>>> getAllTags(ResourceKey<? extends Registry<T>> registry)
 	{

@@ -1,7 +1,7 @@
 package org.zeith.hammerlib.api.fluid;
 
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
-import net.minecraftforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
