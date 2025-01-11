@@ -24,6 +24,13 @@ public class Resources
 	@Nullable
 	public static ResourceLocation locationOrNull(String location)
 	{
-		return ResourceLocation.tryParse(location);
+		if(location == null) return null;
+		try
+		{
+			return ResourceLocation.tryParse(location);
+		} catch(Exception e)
+		{
+			return null;
+		}
 	}
 }

@@ -1,6 +1,7 @@
 package org.zeith.hammerlib.client.flowgui.objects;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Builder;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -239,17 +240,8 @@ public class GuiButtonObject
 				}
 			else
 			{
-				Matrix4f mat = pGuiGraphics.pose().last().pose();
-				Vector3f v1Pos = mat.transformPosition(pMinX, pMinY, 0, new Vector3f());
-				Vector3f v2Pos = mat.transformPosition(pMaxX, pMinY, 0, new Vector3f());
-				Vector3f v3Pos = mat.transformPosition(pMaxX, pMaxY, 0, new Vector3f());
-				Vector3f v4Pos = mat.transformPosition(pMinX, pMaxY, 0, new Vector3f());
-				float minX = Math.min(v1Pos.x, Math.min(v2Pos.x, Math.min(v3Pos.x, v4Pos.x)));
-				float minY = Math.min(v1Pos.y, Math.min(v2Pos.y, Math.min(v3Pos.y, v4Pos.y)));
-				float maxX = Math.max(v1Pos.x, Math.max(v2Pos.x, Math.max(v3Pos.x, v4Pos.x)));
-				float maxY = Math.max(v1Pos.y, Math.max(v2Pos.y, Math.max(v3Pos.y, v4Pos.y)));
-				pGuiGraphics.enableScissor((int) minX, (int) minY, (int) maxX, (int) maxY);
-				pGuiGraphics.drawString(pFont, pText, pMinX - (int) d3, j, pColor);
+				pGuiGraphics.enableScissor(pMinX, pMinY, pMaxX, pMaxY);
+				pGuiGraphics.drawString(pFont, pText.getVisualOrderText(), pMinX - (float) d3, j, pColor, true);
 				pGuiGraphics.disableScissor();
 			}
 		} else

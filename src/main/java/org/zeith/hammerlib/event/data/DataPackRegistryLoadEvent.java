@@ -2,8 +2,8 @@ package org.zeith.hammerlib.event.data;
 
 import lombok.Getter;
 import net.minecraft.core.*;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.*;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.neoforged.bus.api.Event;
 import org.zeith.hammerlib.util.java.Cast;
 
@@ -22,12 +22,21 @@ public class DataPackRegistryLoadEvent
 {
 	@Getter
 	private final Source source;
+	
+	@Getter
+	private final ResourceManager resources;
+	
 	private final GenericRegistry registry;
 	
-	public DataPackRegistryLoadEvent(Source source, WritableRegistry<?> registry)
+	@Getter
+	private final RegistryOps.RegistryInfoLookup provider;
+	
+	public DataPackRegistryLoadEvent(Source source, WritableRegistry<?> registry, ResourceManager resources, RegistryOps.RegistryInfoLookup provider)
 	{
 		this.source = source;
 		this.registry = new GenericRegistry(registry);
+		this.resources = resources;
+		this.provider = provider;
 	}
 	
 	public <T> Optional<WritableRegistry<T>> getRegistry(ResourceKey<? extends Registry<T>> key)

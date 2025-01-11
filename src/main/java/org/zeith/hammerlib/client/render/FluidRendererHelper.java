@@ -45,8 +45,8 @@ public class FluidRendererHelper
 				Matrix4f pose4f = gfx.pose().last().pose();
 				
 				float minX = sprite.getU(0);
-				float maxX = sprite.getU(16);
-				float maxY = sprite.getV(16);
+				float maxX = sprite.getU(1);
+				float maxY = sprite.getV(1);
 				
 				float ys = 0;
 				while(heightF > 0)
@@ -54,7 +54,7 @@ public class FluidRendererHelper
 					float ch = Math.min(width, heightF);
 					{
 						float yCoord = y + height - ch - ys;
-						float minY = sprite.getV(16 - Math.min(16, heightF * 16F / width));
+						float minY = sprite.getV(1 - Math.min(1, heightF / width));
 						
 						bb.addVertex(pose4f, x, yCoord + ch, 0).setUv(minX, maxY);
 						bb.addVertex(pose4f, x + width, yCoord + ch, 0).setUv(maxX, maxY);
@@ -65,7 +65,8 @@ public class FluidRendererHelper
 					ys += ch;
 				}
 				
-				BufferUploader.drawWithShader(bb.build());
+				var mesh = bb.build();
+				if(mesh != null) BufferUploader.drawWithShader(mesh);
 				RenderSystem.setShaderColor(colors[0], colors[1], colors[2], colors[3]);
 			}
 		}

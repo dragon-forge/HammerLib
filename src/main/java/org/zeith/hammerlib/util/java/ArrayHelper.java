@@ -11,6 +11,15 @@ import java.util.stream.Stream;
 
 public class ArrayHelper
 {
+	@SafeVarargs
+	public static <T> T firstNonNull(T... objects)
+	{
+		for(T object : objects)
+			if(object != null)
+				return object;
+		throw new NullPointerException("All parameters are null");
+	}
+	
 	public static <T, R> R[] map(Function<T, R> func, T... ts)
 	{
 		return collect(stream(ts).map(func));

@@ -2,7 +2,6 @@ package org.zeith.hammerlib.client.flowgui.readers;
 
 import com.google.common.base.MoreObjects;
 import net.minecraft.client.gui.components.WidgetSprites;
-import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
@@ -10,12 +9,9 @@ import org.zeith.hammerlib.abstractions.props.KeyMap;
 import org.zeith.hammerlib.annotations.ide.*;
 import org.zeith.hammerlib.api.data.IDataNode;
 import org.zeith.hammerlib.client.flowgui.objects.GuiButtonObject;
-import org.zeith.hammerlib.client.flowgui.objects.GuiEditBoxObject;
 import org.zeith.hammerlib.client.flowgui.reader.*;
-import org.zeith.hammerlib.event.listeners.TagsUpdateListener;
 import org.zeith.hammerlib.proxy.HLConstants;
-import org.zeith.hammerlib.util.java.Cast;
-import org.zeith.hammerlib.util.java.Suppliers2;
+import org.zeith.hammerlib.util.java.*;
 import org.zeith.hammerlib.util.mcf.Resources;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -120,8 +116,9 @@ public class FlowguiButtonReader
 				MoreObjects.firstNonNull(Resources.locationOrNull(node.getString(KEY_SPRITES_ENABLED)), button.sprites.enabled()),
 				MoreObjects.firstNonNull(disabled, button.sprites.disabled()),
 				MoreObjects.firstNonNull(Resources.locationOrNull(node.getString(KEY_SPRITES_ENABLED_HOVER)), button.sprites.enabledFocused()),
-				MoreObjects.firstNonNull(
-						MoreObjects.firstNonNull(Resources.locationOrNull(node.getString(KEY_SPRITES_DISABLED_HOVER)), disabled),
+				ArrayHelper.firstNonNull(
+						Resources.locationOrNull(node.getString(KEY_SPRITES_DISABLED_HOVER)),
+						disabled,
 						button.sprites.disabledFocused()
 				)
 		);
