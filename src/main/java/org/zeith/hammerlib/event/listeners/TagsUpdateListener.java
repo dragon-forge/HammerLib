@@ -12,6 +12,7 @@ import net.minecraftforge.fml.common.Mod;
 import java.util.*;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class TagsUpdateListener
@@ -20,6 +21,27 @@ public class TagsUpdateListener
 	private static RegistryAccess registryAccess = RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
 	
 	private static Map<ResourceKey<? extends Registry>, Map> tagCache = new HashMap<>();
+	
+	public static final HolderLookup.Provider LATEST_CLIENTSIDE_REGISTRY_ACCESS = new HolderLookup.Provider()
+	{
+		@Override
+		public <T> Optional<HolderLookup.RegistryLookup<T>> lookup(ResourceKey<? extends Registry<? extends T>> pRegistryKey)
+		{
+			return registryAccess.lookup(pRegistryKey);
+		}
+		
+		@Override
+		public <T> HolderLookup.RegistryLookup<T> lookupOrThrow(ResourceKey<? extends Registry<? extends T>> pRegistryKey)
+		{
+			return registryAccess.lookupOrThrow(pRegistryKey);
+		}
+		
+		@Override
+		public HolderGetter.Provider asGetterLookup()
+		{
+			return registryAccess.asGetterLookup();
+		}
+	};
 	
 	public static final ICondition.IContext REMOTE_TAG_ACCESS = new ICondition.IContext()
 	{
