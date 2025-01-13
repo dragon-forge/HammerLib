@@ -49,6 +49,7 @@ public class GuiObject
 	
 	public final List<Runnable> finishBuilding = new ArrayList<>(0);
 	public final DirectStorage<Point> elementPosition = DirectStorage.create(p -> pos(p.x(), p.y()), () -> pos);
+	public final DirectStorage<Float> elementZPos = DirectStorage.create(this::zOffset, () -> zOffset);
 	public final DirectStorage<Point> elementPivot = DirectStorage.create(p -> pivot(p.x(), p.y()), () -> pivot);
 	public final DirectStorage<Vec3> elementScale = DirectStorage.create(p -> scale = p, () -> scale);
 	public final DirectStorage<Float> elementRotation = DirectStorage.create(this::rotation, () -> rotation);
@@ -358,6 +359,12 @@ public class GuiObject
 	public GuiObject pos(float x, float y)
 	{
 		this.pos = new Point(x, y);
+		return this;
+	}
+	
+	public GuiObject zOffset(float zOffset)
+	{
+		this.zOffset = zOffset;
 		return this;
 	}
 	
