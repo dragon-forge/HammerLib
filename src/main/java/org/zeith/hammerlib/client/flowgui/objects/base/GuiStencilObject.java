@@ -8,7 +8,7 @@ import org.zeith.hammerlib.util.math.Point;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class GuiStencilObject
+public class GuiStencilObject
 		extends GuiObject
 {
 	protected final List<GuiObject> stencilChildren = new ArrayList<>();
