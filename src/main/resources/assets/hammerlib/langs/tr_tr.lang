@@ -1,0 +1,18 @@
+# Hammer Lib Turkish translations
+
+itemGroup.hammerlib=HammerLib
+config.jade.plugin_hammerlib.root=HammerLib
+
+block.hammerlib.test_machine=Test Makinesi
+item.hammerlib.wrench=Anahtar
+item.hammerlib.gears.wooden=Ahşap Dişli
+item.hammerlib.gears.stone=Taş Dişli
+item.hammerlib.gears.copper=Bakır Dişli
+item.hammerlib.gears.iron=Demir Dişli
+item.hammerlib.gears.gold=Altın Dişli
+item.hammerlib.gears.diamond=Elmas Dişli
+item.hammerlib.gears.netherite=Netherit Dişli
+
+info.hammerlib.material=Üretim Malzemesi
+
+key.hammerlib.render_item=[HammerLib] GUI Eşyasını Oluştur
