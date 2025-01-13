@@ -23,6 +23,7 @@ import org.zeith.hammerlib.client.model.IUnbakedGeometry;
 import org.zeith.hammerlib.client.model.*;
 import org.zeith.hammerlib.mixins.client.BlockElementFaceAccessor;
 import org.zeith.hammerlib.util.java.tuples.*;
+import org.zeith.hammerlib.util.mcf.Resources;
 
 import java.util.*;
 import java.util.function.Function;
@@ -138,7 +139,7 @@ public class MultiLayerModel
 				quads.addAll(baked);
 			}
 			
-			TextureAtlasSprite particle = spriteGetter.apply(new Material(InventoryMenu.BLOCK_ATLAS, new ResourceLocation(textures.getOrDefault("particle", "particle"))));
+			TextureAtlasSprite particle = spriteGetter.apply(new Material(InventoryMenu.BLOCK_ATLAS, Resources.location(textures.getOrDefault("particle", "particle"))));
 			
 			var renderTypeHint = context.getRenderTypeHint();
 			var renderTypes = renderTypeHint != null ? context.getRenderType(renderTypeHint) : RenderTypeGroup.EMPTY;
