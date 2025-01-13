@@ -2,6 +2,7 @@ package org.zeith.hammerlib.client.flowgui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Builder;
+import lombok.With;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -24,6 +25,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Builder
+@With
 public record Graphics(GuiGraphics gfx, Minecraft game, float partialTime, boolean debugBounds)
 {
 	public void fill(int minX, int minY, int maxX, int maxY, int color)

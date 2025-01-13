@@ -4,10 +4,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.Rect2i;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
@@ -18,11 +16,8 @@ import org.zeith.hammerlib.client.flowgui.util.Tooltip;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.java.DirectStorage;
 import org.zeith.hammerlib.util.math.Point;
-import org.zeith.hammerlib.util.mcf.fluid.FluidHelper;
 
-import java.awt.*;
 import java.util.*;
-import java.util.List;
 import java.util.function.*;
 
 @Slf4j
@@ -44,6 +39,7 @@ public class GuiObject
 	private final String simpleName = getClass().getSimpleName();
 	
 	protected RenderHook preRenderHandler = RenderHook.list();
+	protected RenderHook postRenderHandler = RenderHook.list();
 	protected boolean enabled = true, visible = true;
 	protected float zOffset;
 	protected Point pos = Point.ZERO, pivot = Point.ZERO;
@@ -80,6 +76,12 @@ public class GuiObject
 	public GuiObject onPreRender(RenderHook task)
 	{
 		this.preRenderHandler = this.preRenderHandler.andThen(task);
+		return this;
+	}
+	
+	public GuiObject onPostRender(RenderHook task)
+	{
+		this.postRenderHandler = this.postRenderHandler.andThen(task);
 		return this;
 	}
 	
@@ -553,17 +555,18 @@ public class GuiObject
 		ps.pushPose();
 		transform(ps);
 		
+		Vector3f v = untransform(ps).transformPosition(globalMousePos.x(), globalMousePos.y(), 0, new Vector3f());
+		var mouse = new MousePos(globalMousePos, v.x, v.y);
+		
 		if(visible)
 		{
-			Vector3f v = untransform(ps).transformPosition(globalMousePos.x(), globalMousePos.y(), 0, new Vector3f());
-			var mouse = new MousePos(globalMousePos, v.x, v.y);
 			preRenderHandler.hook(g.partialTime(), mouse);
 			render(g, mouse);
 		}
 		
-		for(GuiObject child : children)
-			child.renderObject(g, globalMousePos);
+		renderChildren(g, globalMousePos);
 		
+		postRenderHandler.hook(g.partialTime(), mouse);
 		ps.popPose();
 	}
 	
@@ -585,11 +588,18 @@ public class GuiObject
 				return true;
 		}
 		
+		if(sendMouseClickToChildren(ps, globalMousePos, button))
+			return true;
+		
+		ps.popPose();
+		return false;
+	}
+	
+	protected boolean sendMouseClickToChildren(PoseStack ps, Point globalMousePos, int button)
+	{
 		for(GuiObject child : children)
 			if(child.sendMouseClick(ps, globalMousePos, button))
 				return true;
-		
-		ps.popPose();
 		return false;
 	}
 	
@@ -608,9 +618,8 @@ public class GuiObject
 				return true;
 		}
 		
-		for(GuiObject child : children)
-			if(child.sendMouseDrag(ps, globalMousePos, button, globalDragPos))
-				return true;
+		if(sendMouseDragToChildren(ps, globalMousePos, button, globalDragPos))
+			return true;
 		
 		ps.popPose();
 		return false;
@@ -629,9 +638,8 @@ public class GuiObject
 				return true;
 		}
 		
-		for(GuiObject child : children)
-			if(child.sendMouseRelease(ps, globalMousePos, button))
-				return true;
+		if(sendMouseReleaseToChildren(ps, globalMousePos, button))
+			return true;
 		
 		ps.popPose();
 		return false;
@@ -650,9 +658,8 @@ public class GuiObject
 				return true;
 		}
 		
-		for(GuiObject child : children)
-			if(child.sendMouseScroll(ps, globalMousePos, delta))
-				return true;
+		if(sendMouseScrollToChildren(ps, globalMousePos, delta))
+			return true;
 		
 		ps.popPose();
 		return false;
@@ -668,8 +675,7 @@ public class GuiObject
 			Vector3f v = untransform(ps).transformPosition(globalMousePos.x(), globalMousePos.y(), 0, new Vector3f());
 			onMouseMoved(globalMousePos, new MousePos(globalMousePos, v.x, v.y));
 		}
-		for(GuiObject child : children)
-			child.sendMouseMove(ps, globalMousePos);
+		sendMouseMoveToChildren(ps, globalMousePos);
 		ps.popPose();
 	}
 	
@@ -677,26 +683,77 @@ public class GuiObject
 	{
 		if(!enabled) return false;
 		if(visible && onKeyPressed(keyCode, scanCode, modifiers)) return true;
-		for(GuiObject child : children)
-			if(child.sendKeyPress(keyCode, scanCode, modifiers))
-				return true;
-		return false;
+		return sendKeyPressToChildren(keyCode, scanCode, modifiers);
 	}
 	
 	public final boolean sendKeyRelease(int keyCode, int scanCode, int modifiers)
 	{
 		if(!enabled) return false;
 		if(visible && onKeyReleased(keyCode, scanCode, modifiers)) return true;
-		for(GuiObject child : children)
-			if(child.sendKeyRelease(keyCode, scanCode, modifiers))
-				return true;
-		return false;
+		return sendKeyReleaseToChildren(keyCode, scanCode, modifiers);
 	}
 	
 	public final boolean sendCharType(char codePoint, int modifiers)
 	{
 		if(!enabled) return false;
 		if(visible && onCharTyped(codePoint, modifiers)) return true;
+		return sendCharTypeToChildren(codePoint, modifiers);
+	}
+	
+	protected void renderChildren(Graphics g, Point globalMousePos)
+	{
+		for(GuiObject child : children)
+			child.renderObject(g, globalMousePos);
+	}
+	
+	protected boolean sendMouseDragToChildren(PoseStack ps, Point globalMousePos, int button, Point globalDragPos)
+	{
+		for(GuiObject child : children)
+			if(child.sendMouseDrag(ps, globalMousePos, button, globalDragPos))
+				return true;
+		return false;
+	}
+	
+	protected boolean sendMouseReleaseToChildren(PoseStack ps, Point globalMousePos, int button)
+	{
+		for(GuiObject child : children)
+			if(child.sendMouseRelease(ps, globalMousePos, button))
+				return true;
+		return false;
+	}
+	
+	protected boolean sendMouseScrollToChildren(PoseStack ps, Point globalMousePos, ScrollData delta)
+	{
+		for(GuiObject child : children)
+			if(child.sendMouseScroll(ps, globalMousePos, delta))
+				return true;
+		return false;
+	}
+	
+	protected void sendMouseMoveToChildren(PoseStack ps, Point globalMousePos)
+	{
+		for(GuiObject child : children)
+			child.sendMouseMove(ps, globalMousePos);
+	}
+	
+	protected boolean sendKeyPressToChildren(int keyCode, int scanCode, int modifiers)
+	{
+		for(GuiObject child : children)
+			if(child.sendKeyPress(keyCode, scanCode, modifiers))
+				return true;
+		return false;
+	}
+	
+	protected boolean sendKeyReleaseToChildren(int keyCode, int scanCode, int modifiers)
+	{
+		for(GuiObject child : children)
+			if(child.sendKeyRelease(keyCode, scanCode, modifiers))
+				return true;
+		return false;
+	}
+	
+	protected boolean sendCharTypeToChildren(char codePoint, int modifiers)
+	{
 		for(GuiObject child : children)
 			if(child.sendCharType(codePoint, modifiers))
 				return true;
