@@ -2,25 +2,18 @@ package org.zeith.hammerlib.client.model.builtin;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.*;
 import net.minecraft.client.resources.model.*;
-import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.util.RandomSource;
 import net.minecraft.util.context.ContextMap;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.client.model.IQuadTransformer;
 import net.neoforged.neoforge.client.model.QuadTransformers;
-import net.neoforged.neoforge.client.model.data.ModelData;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.zeith.hammerlib.client.model.IUnbakedGeometry;
-import org.zeith.hammerlib.client.model.LoadUnbakedGeometry;
+import org.zeith.hammerlib.client.model.*;
+import org.zeith.hammerlib.util.mcf.Resources;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 @LoadUnbakedGeometry(path = "emissive")
 public class EmissiveGeometry
@@ -30,6 +23,8 @@ public class EmissiveGeometry
 	protected UnbakedModel parent;
 	protected int emissivity;
 	
+	protected final Map<ResourceLocation, ResourceLocation> textures = new HashMap<>();
+	
 	public EmissiveGeometry(JsonObject obj, JsonDeserializationContext context)
 	{
 		if(obj.has("inline_parent") && obj.get("inline_parent").isJsonObject())
@@ -37,13 +32,12 @@ public class EmissiveGeometry
 		else
 			parentLocation = ResourceLocation.tryParse(GsonHelper.getAsString(obj, "parent"));
 		emissivity = GsonHelper.getAsInt(obj, "emissivity", 15);
-	}
-	
-	@Override
-	public BakedModel bake(TextureSlots textures, ModelBaker baker, ModelState modelState, boolean useAmbientOcclusion, boolean usesBlockLight, ItemTransforms itemTransforms, ContextMap additionalProperties)
-	{
-		BakedModel res = baker.bake(parentLocation, modelState);
-		return new EmissiveQuadApplierModel(res, QuadTransformers.settingEmissivity(emissivity));
+		if(obj.has("textures"))
+		{
+			var arr = obj.getAsJsonObject("textures");
+			for(String id : arr.keySet())
+				textures.put(Resources.location(id), Resources.location(GsonHelper.getAsString(arr, id)));
+		}
 	}
 	
 	@Override
@@ -51,37 +45,60 @@ public class EmissiveGeometry
 	{
 		if(parentLocation != null)
 			parent = modelGetter.resolve(parentLocation);
-		if(parent != null)
+		else if(parent != null)
 			parent.resolveDependencies(modelGetter);
 	}
 	
-	public static class EmissiveQuadApplierModel
-			extends DelegateBakedModel
+	@Override
+	public void fillAdditionalProperties(ContextMap.Builder propertiesBuilder)
 	{
-		protected final IQuadTransformer transformer;
-		
-		public EmissiveQuadApplierModel(BakedModel originalModel, IQuadTransformer transformer)
-		{
-			super(originalModel);
-			this.transformer = transformer;
-		}
-		
-		@Override
-		public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, RandomSource rand)
-		{
-			return transformer.process(super.getQuads(state, side, rand));
-		}
-		
-		@Override
-		public @NotNull List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @NotNull RandomSource rand, @NotNull ModelData extraData, @Nullable RenderType renderType)
-		{
-			return transformer.process(super.getQuads(state, side, rand, extraData, renderType));
-		}
-		
-		@Override
-		public List<BakedModel> getRenderPasses(ItemStack itemStack)
-		{
-			return List.of(this);
-		}
+		if(parent != null)
+			parent.fillAdditionalProperties(propertiesBuilder);
+	}
+	
+	@Override
+	public @Nullable UnbakedModel getParent()
+	{
+		return parent;
+	}
+	
+	@Override
+	public @Nullable ItemTransforms getTransforms()
+	{
+		return parent.getTransforms();
+	}
+	
+	@Override
+	public TextureSlots.Data getTextureSlots()
+	{
+		return parent.getTextureSlots();
+	}
+	
+	@Override
+	public @Nullable Boolean getAmbientOcclusion()
+	{
+		return parent.getAmbientOcclusion();
+	}
+	
+	@Override
+	public @Nullable GuiLight getGuiLight()
+	{
+		return parent.getGuiLight();
+	}
+	
+	@Override
+	public BakedModel bake(TextureSlots textures, ModelBaker baker, ModelState modelState, boolean useAmbientOcclusion, boolean usesBlockLight, ItemTransforms itemTransforms, ContextMap additionalProperties)
+	{
+		BakedModel res = parent.bake(TextureSlotsHelper.replacing(textures, (id, mat) ->
+						{
+							if(mat == null) return null;
+							var dTex = EmissiveGeometry.this.textures.getOrDefault(mat.texture(), mat.texture());
+							if(dTex != null && !dTex.equals(mat.texture()))
+								mat = new Material(mat.atlasLocation(), dTex);
+							return mat;
+						}
+				), baker, modelState, useAmbientOcclusion, usesBlockLight, itemTransforms, additionalProperties
+		);
+		return new QuadTransformingBakedModel(res, QuadTransformers.settingEmissivity(emissivity));
 	}
 }
