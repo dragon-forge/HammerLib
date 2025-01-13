@@ -6,11 +6,14 @@ import com.mojang.serialization.*;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.util.GsonHelper;
 
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
+
 public class CodecHelper
 {
 	public static <T> DynamicOps<T> withRegistry(DynamicOps<T> ops, HolderLookup.Provider access)
 	{
-		return access.createSerializationContext(ops);
+		return ops;
 	}
 	
 	public static <T> Either<T, String> parseRegistryJson(HolderLookup.Provider access, Codec<T> codec, String json)
@@ -26,10 +29,9 @@ public class CodecHelper
 	public static <T, O> Either<T, String> parse(Codec<T> codec, DynamicOps<O> ops, O op)
 	{
 		DataResult<T> dr = codec.parse(ops, op);
-		if(dr.hasResultOrPartial())
-			return Either.left(dr.resultOrPartial().orElse(null));
-		if(dr.isError())
-			return Either.right(dr.error().map(DataResult.Error::message).orElse(""));
-		return null;
+		AtomicReference<String> err = new AtomicReference<>();
+		return dr.resultOrPartial(err::set)
+				.<Either<T, String>>map(Either::left)
+				.orElseGet(() -> Either.right(Objects.toString(err.get())));
 	}
 }

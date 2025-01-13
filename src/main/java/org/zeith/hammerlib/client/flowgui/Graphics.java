@@ -2,6 +2,7 @@ package org.zeith.hammerlib.client.flowgui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Builder;
+import lombok.With;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Builder
+@With
 public record Graphics(GuiGraphics gfx, Minecraft game, float partialTime, boolean debugBounds)
 {
 	public void setColor(float r, float g, float b, float a)
