@@ -5,11 +5,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.fml.DistExecutor;
+import org.zeith.hammerlib.api.proxy.IProxy;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 public class ChatMessageAdapter
 {
@@ -17,25 +16,26 @@ public class ChatMessageAdapter
 	
 	public static void sendOnFirstWorldLoad(Component message)
 	{
-		messages.add(message);
+		synchronized(messages)
+		{
+			messages.add(message);
+		}
 	}
 	
 	static
 	{
-		DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () ->
-		{
-			Consumer<TickEvent.ClientTickEvent> listener = evt ->
-			{
-				var mc = Minecraft.getInstance();
-				if(mc.level != null)
+		IProxy.runOn(Dist.CLIENT, () -> () ->
+				MinecraftForge.EVENT_BUS.addListener((TickEvent.ClientTickEvent evt) ->
 				{
-					while(!messages.isEmpty())
+					var mc = Minecraft.getInstance();
+					if(mc.level != null)
 					{
-						mc.chatListener.handleSystemMessage(messages.remove(0), false);
+						while(!messages.isEmpty())
+						{
+							mc.chatListener.handleSystemMessage(messages.remove(0), false);
+						}
 					}
-				}
-			};
-			MinecraftForge.EVENT_BUS.addListener(listener);
-		});
+				})
+		);
 	}
 }

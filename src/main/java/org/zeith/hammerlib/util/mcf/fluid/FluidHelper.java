@@ -3,13 +3,13 @@ package org.zeith.hammerlib.util.mcf.fluid;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.fluids.FluidStack;
 import org.zeith.hammerlib.api.fluid.IExtendedFluidType;
 import org.zeith.hammerlib.proxy.HLConstants;
+import org.zeith.hammerlib.util.CommonMessages;
 
 import java.text.DecimalFormat;
 import java.util.*;
@@ -42,7 +42,7 @@ public class FluidHelper
 				tooltip.add(Component.literal(BuiltInRegistries.FLUID.getKey(fluid.getFluid()).toString())
 						.withStyle(ChatFormatting.DARK_GRAY));
 		} else
-			tooltip.add(Component.translatable("info." + HLConstants.MOD_ID + ".empty"));
+			tooltip.add(CommonMessages.EMPTY.get());
 		
 		return tooltip;
 	}

@@ -6,12 +6,16 @@ import org.apache.logging.log4j.Logger;
 import org.zeith.hammerlib.client.adapter.ChatMessageAdapter;
 import org.zeith.hammerlib.core.adapter.ModSourceAdapter;
 import org.zeith.hammerlib.event.fml.FMLFingerprintCheckEvent;
+import org.zeith.hammerlib.proxy.HLConstants;
 
 import java.net.URL;
+import java.util.function.Supplier;
 
 public class CommonMessages
 {
-	public static final Component CRAFTING_MATERIAL = Component.translatable("info.hammerlib.material").withStyle(ChatFormatting.GRAY);
+	private static final String EMPTY_KEY = HLConstants.id("empty").toLanguageKey("info");
+	public static final Component CRAFTING_MATERIAL = Component.translatable(HLConstants.id("material").toLanguageKey("info")).withStyle(ChatFormatting.GRAY);
+	public static final Supplier<Component> EMPTY = () -> Component.translatable(EMPTY_KEY);
 	
 	public static CheckResult printMessageOnIllegalRedistribution(Class<?> modClass, Logger log, String modName, String downloadUrl)
 	{
@@ -21,11 +25,11 @@ public class CommonMessages
 		
 		if(illegalSourceNotice != null)
 		{
-			log.fatal("====================================================");
+			log.error("=".repeat(52));
 			log.fatal("== WARNING: " + modName + " was downloaded from " + illegalSourceNotice.referrerDomain() +
-					", which has been marked as illegal site over at stopmodreposts.org.");
+					  ", which has been marked as illegal site over at stopmodreposts.org.");
 			log.fatal("== Please download the mod from " + downloadUrl);
-			log.fatal("====================================================");
+			log.error("=".repeat(52));
 			
 			var illegalUri = Component.literal(illegalSourceNotice.referrerDomain())
 					.withStyle(s -> s.withColor(ChatFormatting.RED));
@@ -68,7 +72,7 @@ public class CommonMessages
 	{
 		if(event.isViolated(expectFingerprint))
 		{
-			log.fatal("====================================================");
+			log.error("=".repeat(52));
 			log.fatal("== WARNING: Somebody has been tampering with " + modName + "'s jar! (" + event.getModContainer().getModInfo().getOwningFile().getFile().getFileName() + ")");
 			log.fatal("== It is highly recommended that you re-download it from " + downloadUrl);
 			var set = event.getInvalidSignedFiles();
@@ -78,7 +82,7 @@ public class CommonMessages
 				for(var e : set)
 					log.fatal("== " + e);
 			}
-			log.fatal("====================================================");
+			log.error("=".repeat(52));
 			
 			String host = downloadUrl;
 			try
