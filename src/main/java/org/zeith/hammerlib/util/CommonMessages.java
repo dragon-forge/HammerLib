@@ -7,12 +7,16 @@ import org.apache.logging.log4j.Logger;
 import org.zeith.hammerlib.client.adapter.ChatMessageAdapter;
 import org.zeith.hammerlib.core.adapter.ModSourceAdapter;
 import org.zeith.hammerlib.event.fml.FMLFingerprintCheckEvent;
+import org.zeith.hammerlib.proxy.HLConstants;
 
 import java.net.URL;
+import java.util.function.Supplier;
 
 public class CommonMessages
 {
-	public static final Component CRAFTING_MATERIAL = Component.translatable("info.hammerlib.material").withStyle(ChatFormatting.GRAY);
+	private static final String EMPTY_KEY = HLConstants.id("empty").toLanguageKey("info");
+	public static final Component CRAFTING_MATERIAL = Component.translatable(HLConstants.id("material").toLanguageKey("info")).withStyle(ChatFormatting.GRAY);
+	public static final Supplier<Component> EMPTY = () -> Component.translatable(EMPTY_KEY);
 	
 	public static CheckResult printMessageOnIllegalRedistribution(Class<?> modClass, Logger log, String modName, String downloadUrl)
 	{

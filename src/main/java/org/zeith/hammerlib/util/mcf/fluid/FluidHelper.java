@@ -9,6 +9,7 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.zeith.hammerlib.api.fluid.IExtendedFluidType;
 import org.zeith.hammerlib.proxy.HLConstants;
+import org.zeith.hammerlib.util.CommonMessages;
 
 import java.text.DecimalFormat;
 import java.util.*;
@@ -41,7 +42,7 @@ public class FluidHelper
 				tooltip.add(Component.literal(BuiltInRegistries.FLUID.getKey(fluid.getFluid()).toString())
 						.withStyle(ChatFormatting.DARK_GRAY));
 		} else
-			tooltip.add(Component.translatable("info." + HLConstants.MOD_ID + ".empty"));
+			tooltip.add(CommonMessages.EMPTY.get());
 		
 		return tooltip;
 	}

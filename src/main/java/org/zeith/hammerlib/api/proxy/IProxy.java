@@ -55,9 +55,9 @@ public interface IProxy
 		return FMLEnvironment.dist == expect ? Cast.cast(((Supplier) clientTarget.get()).get()) : null;
 	}
 	
-	static void runOn(Dist expect, Supplier<Runnable> clientTarget)
+	static void runOn(Dist dist, Supplier<Runnable> target)
 	{
-		if(FMLEnvironment.dist == expect)
-			clientTarget.get().run();
+		if(FMLEnvironment.dist == dist)
+			target.get().run();
 	}
 }
