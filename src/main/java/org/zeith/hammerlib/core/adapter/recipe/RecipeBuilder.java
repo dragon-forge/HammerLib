@@ -1,48 +1,20 @@
 package org.zeith.hammerlib.core.adapter.recipe;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.ItemLike;
-import org.zeith.hammerlib.api.recipes.IngredientWithCount;
-import org.zeith.hammerlib.core.RecipeHelper;
 import org.zeith.hammerlib.util.mcf.itf.IRecipeRegistrationEvent;
 
-import java.util.Optional;
-import java.util.function.BooleanSupplier;
-import java.util.function.Predicate;
-
-public abstract class RecipeBuilder<R extends RecipeBuilder<R, RT>, RT>
+public abstract class RecipeBuilder<R extends RecipeBuilder<R>>
+	extends AbstractRecipeBuilder<R>
 {
-	protected final IRecipeRegistrationEvent<RT> event;
-	protected ResourceLocation identifier;
-	protected String group = "";
 	protected ItemStack result = ItemStack.EMPTY;
 	
-	public RecipeBuilder(IRecipeRegistrationEvent<RT> event)
+	public RecipeBuilder(IRecipeRegistrationEvent<Recipe<?>> event)
 	{
-		this.event = event;
-	}
-	
-	/**
-	 * Optional
-	 */
-	public R id(ResourceLocation identifier)
-	{
-		this.identifier = identifier;
-		return (R) this;
-	}
-	
-	public R group(String group)
-	{
-		this.group = group;
-		return (R) this;
-	}
-	
-	public R group(RecipeGroup group)
-	{
-		this.group = group.toString();
-		return (R) this;
+		super(event);
 	}
 	
 	public R result(ItemStack stack)
@@ -63,65 +35,15 @@ public abstract class RecipeBuilder<R extends RecipeBuilder<R, RT>, RT>
 		return (R) this;
 	}
 	
-	public ResourceLocation getIdentifier()
+	@Override
+	protected ResourceLocation getResultIdentifier()
 	{
-		if(this.identifier != null) return this.identifier;
-		return this.identifier = event.nextId(result.getItem());
+		return BuiltInRegistries.ITEM.getKey(result.getItem());
 	}
 	
 	protected void validate()
 	{
 		if(result.isEmpty())
 			throw new IllegalStateException(getClass().getSimpleName() + " does not have a defined result!");
-	}
-	
-	public abstract void register();
-	
-	public ResourceLocation registerAndGetId()
-	{
-		register();
-		return getIdentifier();
-	}
-	
-	public void registerIf(BooleanSupplier condition)
-	{
-		if(condition.getAsBoolean())
-			register();
-	}
-	
-	public void registerIf(Predicate<ResourceLocation> condition)
-	{
-		if(condition.test(identifier))
-			register();
-	}
-	
-	public Optional<ResourceLocation> registerIfAndGetId(BooleanSupplier condition)
-	{
-		if(condition.getAsBoolean())
-		{
-			register();
-			return Optional.of(getIdentifier());
-		}
-		return Optional.empty();
-	}
-	
-	public Optional<ResourceLocation> registerIfAndGetId(Predicate<ResourceLocation> condition)
-	{
-		if(condition.test(identifier))
-		{
-			register();
-			return Optional.of(getIdentifier());
-		}
-		return Optional.empty();
-	}
-	
-	protected Ingredient parseIngredient(Object obj)
-	{
-		return RecipeHelper.fromComponent(obj);
-	}
-	
-	protected IngredientWithCount parseIngredient(Object obj, int count)
-	{
-		return new IngredientWithCount(RecipeHelper.fromComponent(obj), count);
 	}
 }

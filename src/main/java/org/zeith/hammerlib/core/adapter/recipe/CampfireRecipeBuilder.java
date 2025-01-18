@@ -14,7 +14,7 @@ public class CampfireRecipeBuilder
 	}
 	
 	@Override
-	protected Recipe<?> generateRecipe()
+	protected Recipe<?> createRecipe()
 	{
 		return new CampfireCookingRecipe(getIdentifier(), group, category, input, result, xp, cookTime);
 	}

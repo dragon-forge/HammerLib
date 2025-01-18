@@ -116,7 +116,7 @@ public class RecipeTestMachine
 	}
 	
 	public static class TestMachineRecipeBuilder
-			extends RecipeBuilder<TestMachineRecipeBuilder, Recipe<?>>
+			extends RecipeBuilder<TestMachineRecipeBuilder>
 	{
 		protected IngredientWithCount inputA, inputB;
 		protected int time = 100;
@@ -174,12 +174,9 @@ public class RecipeTestMachine
 		}
 		
 		@Override
-		public void register() throws IllegalStateException
+		protected Recipe<?> createRecipe()
 		{
-			validate();
-			
-			var id = getIdentifier();
-			event.register(id, new RecipeTestMachine(id, group, time, result, inputA, inputB));
+			return new RecipeTestMachine(getIdentifier(), group, time, result, inputA, inputB);
 		}
 	}
 	

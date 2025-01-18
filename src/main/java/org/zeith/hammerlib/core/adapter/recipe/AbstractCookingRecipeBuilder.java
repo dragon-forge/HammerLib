@@ -32,17 +32,4 @@ public abstract class AbstractCookingRecipeBuilder<R extends AbstractCookingReci
 		this.xp = xp;
 		return (R) this;
 	}
-	
-	protected abstract Recipe<?> generateRecipe();
-	
-	@Override
-	public void register()
-	{
-		validate();
-		
-		var rec = generateRecipe();
-		if(!event.enableRecipe(rec.getType(), getIdentifier())) return;
-		
-		event.register(rec.getId(), rec);
-	}
 }

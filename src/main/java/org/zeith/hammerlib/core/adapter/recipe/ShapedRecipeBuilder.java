@@ -4,14 +4,15 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.*;
 import org.zeith.hammerlib.core.RecipeHelper;
 import org.zeith.hammerlib.core.recipes.HLShapedRecipe;
-import org.zeith.hammerlib.core.recipes.replacers.*;
+import org.zeith.hammerlib.core.recipes.replacers.IRemainingItemReplacer;
+import org.zeith.hammerlib.core.recipes.replacers.RemainingReplacerRegistrar;
 import org.zeith.hammerlib.util.mcf.itf.IRecipeRegistrationEvent;
 
 import java.util.*;
 import java.util.stream.Stream;
 
 public class ShapedRecipeBuilder
-		extends RecipeBuilderMC<ShapedRecipeBuilder>
+		extends RecipeBuilder<ShapedRecipeBuilder>
 {
 	protected final Map<Character, Ingredient> dictionary = new HashMap<>();
 	protected final List<ResourceLocation> replacers = new ArrayList<>();
@@ -64,14 +65,10 @@ public class ShapedRecipeBuilder
 	}
 	
 	@Override
-	public void register()
+	protected Recipe<?> createRecipe()
 	{
-		validate();
-		if(!event.enableRecipe(RecipeType.CRAFTING, getIdentifier())) return;
-		
-		var id = getIdentifier();
-		var rec = new HLShapedRecipe(id, group, category, shape.width, shape.height, shape.createIngredientMap(dictionary), result);
+		var rec = new HLShapedRecipe(getIdentifier(), group, category, shape.width, shape.height, shape.createIngredientMap(dictionary), result);
 		rec.addReplacers(replacers);
-		event.register(id, rec);
+		return rec;
 	}
 }

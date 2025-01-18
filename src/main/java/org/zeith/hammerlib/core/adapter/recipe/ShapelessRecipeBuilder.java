@@ -12,7 +12,7 @@ import java.util.*;
 import java.util.stream.Stream;
 
 public class ShapelessRecipeBuilder
-		extends RecipeBuilderMC<ShapelessRecipeBuilder>
+		extends RecipeBuilder<ShapelessRecipeBuilder>
 {
 	protected final NonNullList<Ingredient> ingredients = NonNullList.create();
 	protected final List<ResourceLocation> replacers = new ArrayList<>();
@@ -54,15 +54,18 @@ public class ShapelessRecipeBuilder
 	}
 	
 	@Override
-	public void register()
+	protected void validate()
 	{
-		validate();
-		if(!event.enableRecipe(RecipeType.CRAFTING, getIdentifier())) return;
+		super.validate();
 		if(ingredients.isEmpty())
 			throw new IllegalStateException(getClass().getSimpleName() + " does not have any defined ingredients!");
-		var id = getIdentifier();
-		var rec = new HLShapelessRecipe(id, group, category, ingredients, result);
+	}
+	
+	@Override
+	protected Recipe<?> createRecipe()
+	{
+		var rec = new HLShapelessRecipe(getIdentifier(), group, category, ingredients, result);
 		rec.addReplacers(replacers);
-		event.register(id, rec);
+		return rec;
 	}
 }

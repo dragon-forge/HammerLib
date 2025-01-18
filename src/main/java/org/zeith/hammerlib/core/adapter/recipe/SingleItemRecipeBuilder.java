@@ -5,7 +5,7 @@ import org.zeith.hammerlib.core.RecipeHelper;
 import org.zeith.hammerlib.util.mcf.itf.IRecipeRegistrationEvent;
 
 public abstract class SingleItemRecipeBuilder<R extends SingleItemRecipeBuilder<R>>
-		extends RecipeBuilderMC<R>
+		extends RecipeBuilder<R>
 {
 	protected Ingredient input = Ingredient.EMPTY;
 	
