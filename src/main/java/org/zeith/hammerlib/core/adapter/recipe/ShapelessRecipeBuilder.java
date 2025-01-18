@@ -3,16 +3,17 @@ package org.zeith.hammerlib.core.adapter.recipe;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.*;
-import org.zeith.hammerlib.core.*;
+import org.zeith.hammerlib.core.RecipeHelper;
+import org.zeith.hammerlib.core.RegistriesHL;
 import org.zeith.hammerlib.core.recipes.HLShapelessRecipe;
-import org.zeith.hammerlib.core.recipes.replacers.*;
+import org.zeith.hammerlib.core.recipes.replacers.IRemainingItemReplacer;
 import org.zeith.hammerlib.util.mcf.itf.IRecipeRegistrationEvent;
 
 import java.util.*;
 import java.util.stream.Stream;
 
 public class ShapelessRecipeBuilder
-		extends RecipeBuilderMC<ShapelessRecipeBuilder>
+		extends RecipeBuilder<ShapelessRecipeBuilder>
 {
 	protected final NonNullList<Ingredient> ingredients = NonNullList.create();
 	protected final List<ResourceLocation> replacers = new ArrayList<>();
@@ -54,15 +55,18 @@ public class ShapelessRecipeBuilder
 	}
 	
 	@Override
-	public void register()
+	protected void validate()
 	{
-		validate();
-		if(!event.enableRecipe(RecipeType.CRAFTING, getIdentifier())) return;
+		super.validate();
 		if(ingredients.isEmpty())
 			throw new IllegalStateException(getClass().getSimpleName() + " does not have any defined ingredients!");
-		var id = getIdentifier();
+	}
+	
+	@Override
+	protected Recipe<?> createRecipe()
+	{
 		var rec = new HLShapelessRecipe(group, category, result, ingredients);
 		rec.addReplacers(replacers);
-		event.register(id, rec);
+		return rec;
 	}
 }

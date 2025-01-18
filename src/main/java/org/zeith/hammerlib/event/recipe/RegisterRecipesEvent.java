@@ -161,11 +161,11 @@ public class RegisterRecipesEvent
 	}
 	
 	@Override
-	public ResourceLocation nextId(Item item)
+	public ResourceLocation nextId(ResourceLocation item)
 	{
-		if(item == null || item == Items.AIR) return null;
+		if(item == null) return null;
 		
-		ResourceLocation rl = transformRecipeIdToContext(BuiltInRegistries.ITEM.getKey(item));
+		ResourceLocation rl = transformRecipeIdToContext(item);
 		
 		if(!isRecipeIdTaken(rl)) return rl;
 		

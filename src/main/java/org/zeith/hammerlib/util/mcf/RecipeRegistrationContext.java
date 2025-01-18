@@ -59,7 +59,7 @@ public class RecipeRegistrationContext
 		return data.enableRecipe(idKey);
 	}
 	
-	public <RES, T extends RecipeBuilder<T, RES>> Optional<T> register(RecipeType<?> type, @NotNull T builder)
+	public <T extends RecipeBuilder<T>> Optional<T> register(RecipeType<?> type, @NotNull T builder)
 	{
 		if(enableRecipe(type, builder.getIdentifier()))
 		{

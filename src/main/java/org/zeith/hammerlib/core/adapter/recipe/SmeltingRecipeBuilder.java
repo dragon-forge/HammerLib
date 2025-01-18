@@ -12,7 +12,7 @@ public class SmeltingRecipeBuilder
 	}
 	
 	@Override
-	protected Recipe<?> generateRecipe()
+	protected Recipe<?> createRecipe()
 	{
 		return new SmeltingRecipe(group, category, input, result, xp, cookTime);
 	}

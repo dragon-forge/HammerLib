@@ -34,16 +34,6 @@ public abstract class AbstractCookingRecipeBuilder<R extends AbstractCookingReci
 		return (R) this;
 	}
 	
-	protected abstract Recipe<?> generateRecipe();
-	
 	@Override
-	public void register()
-	{
-		validate();
-		
-		var rec = generateRecipe();
-		if(!event.enableRecipe(rec.getType(), getIdentifier())) return;
-		
-		event.register(getIdentifier(), rec);
-	}
+	protected abstract Recipe<?> createRecipe();
 }

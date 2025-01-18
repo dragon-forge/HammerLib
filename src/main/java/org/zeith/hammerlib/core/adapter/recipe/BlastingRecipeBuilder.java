@@ -13,7 +13,7 @@ public class BlastingRecipeBuilder
 	}
 	
 	@Override
-	protected Recipe<?> generateRecipe()
+	protected Recipe<?> createRecipe()
 	{
 		return new BlastingRecipe(group, category, input, result, xp, cookTime);
 	}

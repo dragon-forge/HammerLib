@@ -6,7 +6,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.RecipeType;
 
 public interface IRecipeRegistrationEvent<T>
-		extends IResourceRegistrar<T>, IResourceLocationGenerator<Item>
+		extends IResourceRegistrar<T>, IResourceLocationGenerator
 {
 	HolderLookup.Provider registryAccess();
 	
