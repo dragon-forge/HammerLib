@@ -20,6 +20,7 @@ import org.zeith.hammerlib.api.recipes.RecipeBuilderExtension;
 import org.zeith.hammerlib.api.recipes.RegisterExt;
 import org.zeith.hammerlib.core.RecipeHelper;
 import org.zeith.hammerlib.core.adapter.recipe.*;
+import org.zeith.hammerlib.core.recipes.ServerContext;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.mcf.RecipeRegistrationContext;
 import org.zeith.hammerlib.util.mcf.Resources;
@@ -36,7 +37,6 @@ public class RegisterRecipesEvent
 		extends Event
 		implements IRecipeRegistrationEvent<Recipe<?>>, IModBusEvent
 {
-	protected final HolderLookup.Provider registries;
 	private final HolderLookup.RegistryLookup<Item> itemRegistry;
 	protected final @Getter ICondition.IContext context;
 	private final List<RecipeHolder<?>> recipes = Lists.newArrayList();
@@ -47,13 +47,16 @@ public class RegisterRecipesEvent
 	
 	private final Map<Class<?>, RecipeBuilderExtension> extensions;
 	
-	public RegisterRecipesEvent(HolderLookup.Provider registries, ICondition.IContext context, Predicate<ResourceLocation> idInUse)
+	@Getter
+	private final ServerContext serverContext;
+	
+	public RegisterRecipesEvent(Predicate<ResourceLocation> idInUse, ServerContext context)
 	{
-		this.registries = registries;
-		this.context = context;
 		this.idInUse = idInUse;
+		this.serverContext = context;
+		this.context = context.context();
 		this.extensions = RecipeBuilderExtension.attach(this);
-		this.itemRegistry = registries.lookupOrThrow(Registries.ITEM);
+		this.itemRegistry = context.registryAccess().lookupOrThrow(Registries.ITEM);
 	}
 	
 	/**
@@ -192,7 +195,7 @@ public class RegisterRecipesEvent
 	@Override
 	public HolderLookup.Provider registryAccess()
 	{
-		return registries;
+		return context.registryAccess();
 	}
 	
 	@Override

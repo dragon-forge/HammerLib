@@ -1,7 +1,6 @@
 package org.zeith.hammerlib.core;
 
 import net.minecraft.core.HolderGetter;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -12,15 +11,14 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.Level;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.neoforge.common.conditions.ICondition;
 import net.neoforged.neoforge.common.crafting.CompoundIngredient;
-import net.neoforged.neoforge.resource.ContextAwareReloadListener;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.api.items.IIngredientProvider;
 import org.zeith.hammerlib.core.adapter.OreDictionaryAdapter;
+import org.zeith.hammerlib.core.recipes.ServerContext;
 import org.zeith.hammerlib.event.ParseIngredientEvent;
 import org.zeith.hammerlib.event.recipe.RegisterRecipesEvent;
 import org.zeith.hammerlib.mixins.ContextAwareReloadListenerAccessor;
@@ -40,15 +38,14 @@ public class RecipeHelper
 	public static final String NEOFORGE_MOD_ID_FOR_TAGS = "c";
 	
 	public static void registerCustomRecipes(
-			HolderLookup.Provider registries,
 			Predicate<ResourceLocation> idInUse,
 			Consumer<RecipeHolder<?>> addRecipe,
 			Consumer<Set<ResourceLocation>> removeRecipes,
 			boolean silent,
-			ICondition.IContext context
+			ServerContext context
 	)
 	{
-		RegisterRecipesEvent rre = new RegisterRecipesEvent(registries, context, idInUse);
+		RegisterRecipesEvent rre = new RegisterRecipesEvent(idInUse, context);
 		ModList.get().forEachModInOrder(mc ->
 		{
 			var bus = mc.getEventBus();
@@ -112,7 +109,7 @@ public class RecipeHelper
 	
 	public static void injectRecipes(RecipeManager mgr, ICondition.IContext context, Predicate<ResourceKey<Recipe<?>>> recipeIdUsed, Consumer<RecipeHolder<?>> registrar, Consumer<ResourceKey<Recipe<?>>> delete)
 	{
-		registerCustomRecipes(mgr.registries, loc -> recipeIdUsed.test(RegisterRecipesEvent.key(loc)), registrar, s -> s.stream().map(RegisterRecipesEvent::key).forEach(delete), false, context);
+		registerCustomRecipes(loc -> recipeIdUsed.test(RegisterRecipesEvent.key(loc)), registrar, s -> s.stream().map(RegisterRecipesEvent::key).forEach(delete), false, ServerContext.gather(mgr, context));
 	}
 	
 	public static <C extends RecipeInput, T extends Recipe<C>> Collection<RecipeHolder<T>> getRecipeMap(ServerLevel level, RecipeType<T> type)
