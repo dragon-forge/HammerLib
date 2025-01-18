@@ -15,6 +15,7 @@ import org.zeith.hammerlib.client.flowgui.objects.GuiFluidObject;
 import org.zeith.hammerlib.client.flowgui.reader.*;
 import org.zeith.hammerlib.client.utils.FluidTextureType;
 import org.zeith.hammerlib.proxy.HLConstants;
+import org.zeith.hammerlib.util.java.Suppliers2;
 import org.zeith.hammerlib.util.mcf.Resources;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -31,6 +32,10 @@ public class FlowguiFluidReader
 	@AllowJS
 	@AllowedValues(AllowedValues.RESOURCE_LOCATION)
 	public static final @Required("minecraft:water") String KEY_FLUID = "fluid";
+	
+	@AllowJS
+	@AllowedValues({ })
+	public static final String KEY_FLUID_STACK = "fluid-stack";
 	
 	@AllowJS
 	@AllowedValues(AllowedValues.POSITIVE_INTEGERS)
@@ -70,55 +75,64 @@ public class FlowguiFluidReader
 		AtomicReference<GuiFluidObject> self = new AtomicReference<>();
 		var ctx = getDriverContext(map, node, self);
 		
-		var itemIdFactory = ComDrivers.readString(ctx, KEY_FLUID);
-		var tagFactory = ComDrivers.readString(ctx, KEY_NBT);
+		Supplier<FluidStack> finalFactory;
+		boolean dynCount;
 		
-		boolean constant = ComDrivers.isConstant(itemIdFactory) && ComDrivers.isConstant(tagFactory);
-		
-		Supplier<FluidStack> primaryFactory = () ->
+		if(node.keys().contains(KEY_FLUID_STACK))
 		{
-			var fluid = new FluidStack(BuiltInRegistries.FLUID
-					.get(Resources.location(itemIdFactory.get())), 1
+			finalFactory = Suppliers2.map(ComDrivers.readObject(ctx, KEY_FLUID_STACK, FluidStack.class), f ->
+					{
+						if(f == null) f = FluidStack.EMPTY;
+						return f;
+					}
 			);
-			
-			var tag = tagFactory.get();
-			if(tag != null && !tag.isBlank())
-			{
-				try
-				{
-					fluid.setTag(TagParser.parseTag(tag));
-				} catch(CommandSyntaxException e)
-				{
-				}
-			}
-			return fluid;
-		};
-		
-		var intermFactory = constant ? Suppliers.memoize(primaryFactory::get) : primaryFactory;
-		
-		AtomicInteger count = new AtomicInteger(1);
-		Supplier<FluidStack> finalFactory = () ->
+			dynCount = true;
+		} else
 		{
-			var stack = intermFactory.get();
-			stack.setAmount(count.get());
-			return stack;
-		};
+			var itemIdFactory = ComDrivers.readString(ctx, KEY_FLUID);
+			var tagFactory = ComDrivers.readString(ctx, KEY_NBT);
+			
+			boolean constant = ComDrivers.isConstant(itemIdFactory) && ComDrivers.isConstant(tagFactory);
+			
+			Supplier<FluidStack> primaryFactory = () ->
+			{
+				var fluid = new FluidStack(BuiltInRegistries.FLUID
+						.get(Resources.location(itemIdFactory.get())), 1
+				);
+				
+				var tag = tagFactory.get();
+				if(tag != null && !tag.isBlank())
+				{
+					try
+					{
+						fluid.setTag(TagParser.parseTag(tag));
+					} catch(CommandSyntaxException e)
+					{
+					}
+				}
+				return fluid;
+			};
+			
+			var intermFactory = constant ? Suppliers.memoize(primaryFactory::get) : primaryFactory;
+			
+			AtomicInteger count = new AtomicInteger(1);
+			finalFactory = () ->
+			{
+				var stack = intermFactory.get();
+				stack.setAmount(count.get());
+				return stack;
+			};
+			dynCount = driveInt(ctx, KEY_COUNT, 1, false, count::set);
+		}
 		
 		GuiFluidObject o = new GuiFluidObject(name, finalFactory);
 		self.set(o);
 		
-		AtomicInteger capacity = new AtomicInteger();
-		boolean dynCount = driveInt(ctx, KEY_COUNT, 1, false, count::set);
-		boolean dynCapacity = driveInt(ctx, KEY_CAPACITY, 1, dynCount, cap ->
-				{
-					o.fill(Mth.clamp(count.get() / Math.max(1F, cap), 0F, 1F));
-					capacity.set(cap);
-				}
-		);
+		driveInt(ctx, KEY_CAPACITY, 1, dynCount, o::capacity);
 		driveBool(ctx, KEY_HOVERABLE, false, false, o::hoverable);
 		driveBool(ctx, KEY_OFFER_INGREDIENT, false, false, o::provideIngredient);
 		driveString(ctx, KEY_FLUID_TEXTURE, "still", false, t -> o.textureType(MoreObjects.firstNonNull(FluidTextureType.fromString(t), FluidTextureType.STILL)));
-		driveBool(ctx, KEY_SHOW_CAPACITY, false, dynCapacity, b -> o.capacity(b ? capacity.get() : null));
+		driveBool(ctx, KEY_SHOW_CAPACITY, false, false, o::showCapacity);
 		
 		return o;
 	}

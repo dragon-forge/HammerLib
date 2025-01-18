@@ -226,6 +226,31 @@ public class ComDrivers
 		return Cast.constant(str);
 	}
 	
+	@NotNull
+	public static <T> Supplier<T> readObject(DriverContext ctx, String from, Class<T> returnType)
+	{
+		var str = ctx.getString(from);
+		if(str == null || str.isBlank()) return Cast.constant(null);
+		
+		var cbq = JsContext.isScript(str) ? ctx.eval(Callback3.class, str, CBQ_RET_SPEC) : null;
+		if(cbq != null)
+		{
+			return () ->
+			{
+				try
+				{
+					Object s = cbq.invoke(ctx.query(), ctx.self(), null);
+					return returnType.isInstance(s) ? (T) s : ObjectMirrorConverter.unwrap(s, returnType);
+				} catch(Exception e)
+				{
+					return null;
+				}
+			};
+		}
+		
+		return Cast.constant(null);
+	}
+	
 	public static Component componentFromString(String str)
 	{
 		try

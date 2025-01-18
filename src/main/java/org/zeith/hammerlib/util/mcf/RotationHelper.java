@@ -1,8 +1,8 @@
 package org.zeith.hammerlib.util.mcf;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.core.*;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.Random;
 import java.util.function.BiFunction;
@@ -135,6 +135,48 @@ public class RotationHelper
 	public static BlockPos rotateAroundPivot(BlockPos pivot, Direction horizontal, BlockPos relative)
 	{
 		return ROTATION_MAP[horizontal.ordinal()].transform(pivot, relative);
+	}
+	
+	private static final Direction.Axis[] AXES = Direction.Axis.values();
+	
+	public static Direction fromNormal(Vec3i normal)
+	{
+		Direction.Axis axis = null;
+		Direction.AxisDirection axDir = null;
+		Integer pv = null;
+		for(Direction.Axis a : AXES)
+		{
+			var v = normal.get(a);
+			if(v == 0) continue;
+			var abs = Math.abs(v);
+			if(pv == null || abs > pv)
+			{
+				pv = abs;
+				axis = a;
+				axDir = v > 0 ? Direction.AxisDirection.POSITIVE : Direction.AxisDirection.NEGATIVE;
+			}
+		}
+		return axis != null ? Direction.fromAxisAndDirection(axis, axDir) : null;
+	}
+	
+	public static Direction fromNormal(Vec3 normal)
+	{
+		Direction.Axis axis = null;
+		Direction.AxisDirection axDir = null;
+		Double pv = null;
+		for(Direction.Axis a : AXES)
+		{
+			var v = normal.get(a);
+			if(v == 0) continue;
+			var abs = Math.abs(v);
+			if(pv == null || abs > pv)
+			{
+				pv = abs;
+				axis = a;
+				axDir = v > 0 ? Direction.AxisDirection.POSITIVE : Direction.AxisDirection.NEGATIVE;
+			}
+		}
+		return axis != null ? Direction.fromAxisAndDirection(axis, axDir) : null;
 	}
 	
 	public enum PivotRotation

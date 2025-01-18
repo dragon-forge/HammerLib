@@ -142,7 +142,7 @@ public class FluidFactory
 	
 	public boolean is(Fluid fluid)
 	{
-		return fluid == source || fluid == flowing;
+		return fluid == source.get() || fluid == flowing.get();
 	}
 	
 	public boolean is(FluidType fluid)

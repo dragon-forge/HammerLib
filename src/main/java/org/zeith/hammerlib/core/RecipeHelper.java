@@ -28,6 +28,8 @@ import java.util.stream.Stream;
 
 public class RecipeHelper
 {
+	public static final String NEOFORGE_MOD_ID_FOR_TAGS = "forge";
+	
 	public static void registerCustomRecipes(
 			Predicate<ResourceLocation> idInUse,
 			Consumer<Recipe<?>> addRecipe,

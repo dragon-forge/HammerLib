@@ -41,6 +41,7 @@ public abstract class RecipeBuilder<R extends RecipeBuilder<R>>
 		return BuiltInRegistries.ITEM.getKey(result.getItem());
 	}
 	
+	@Override
 	protected void validate()
 	{
 		if(result.isEmpty())
