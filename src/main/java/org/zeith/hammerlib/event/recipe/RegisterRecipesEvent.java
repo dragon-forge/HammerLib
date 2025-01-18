@@ -16,6 +16,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.zeith.hammerlib.api.recipes.RecipeBuilderExtension;
 import org.zeith.hammerlib.core.adapter.recipe.*;
+import org.zeith.hammerlib.core.recipes.ServerContext;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.mcf.RecipeRegistrationContext;
 import org.zeith.hammerlib.util.mcf.itf.IRecipeRegistrationEvent;
@@ -45,10 +46,14 @@ public class RegisterRecipesEvent
 	@Getter
 	private final ICondition.IContext context;
 	
-	public RegisterRecipesEvent(Predicate<ResourceLocation> idInUse, ICondition.IContext context)
+	@Getter
+	private final ServerContext serverContext;
+	
+	public RegisterRecipesEvent(Predicate<ResourceLocation> idInUse, ServerContext serverContext)
 	{
 		this.idInUse = idInUse;
-		this.context = context;
+		this.context = serverContext.context();
+		this.serverContext = serverContext;
 		this.extensions = RecipeBuilderExtension.attach(this);
 	}
 	

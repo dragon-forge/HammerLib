@@ -15,6 +15,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.api.items.IIngredientProvider;
 import org.zeith.hammerlib.core.adapter.OreDictionaryAdapter;
+import org.zeith.hammerlib.core.recipes.ServerContext;
 import org.zeith.hammerlib.event.ParseIngredientEvent;
 import org.zeith.hammerlib.event.recipe.RegisterRecipesEvent;
 import org.zeith.hammerlib.proxy.HLConstants;
@@ -35,7 +36,7 @@ public class RecipeHelper
 			Consumer<Recipe<?>> addRecipe,
 			Consumer<Set<ResourceLocation>> removeRecipes,
 			boolean silent,
-			ICondition.IContext context
+			ServerContext context
 	)
 	{
 		RegisterRecipesEvent rre = new RegisterRecipesEvent(idInUse, context);
@@ -79,15 +80,10 @@ public class RecipeHelper
 				recipeList::add,
 				removed::addAll,
 				false,
-				context
+				ServerContext.gather(mgr, context)
 		);
 		Internal.addRecipes(mgr, recipeList);
 		Internal.removeRecipes(mgr, removed::stream);
-	}
-	
-	public static void injectRecipesCustom(Map<ResourceLocation, Recipe<?>> handler, Set<ResourceLocation> removed, ICondition.IContext ctx)
-	{
-		registerCustomRecipes(handler::containsKey, r -> handler.put(r.getId(), r), removed::addAll, false, ctx);
 	}
 	
 	public static <C extends Container, T extends Recipe<C>> Map<ResourceLocation, T> getRecipeMap(Level level, RecipeType<T> type)
