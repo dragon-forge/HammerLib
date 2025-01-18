@@ -2,6 +2,7 @@ package org.zeith.hammerlib.core.js;
 
 import com.google.gson.*;
 import org.openjdk.nashorn.api.scripting.ScriptObjectMirror;
+import org.openjdk.nashorn.api.scripting.ScriptUtils;
 import org.zeith.hammerlib.util.shaded.json.JSONArray;
 import org.zeith.hammerlib.util.shaded.json.JSONObject;
 
@@ -10,6 +11,15 @@ import org.zeith.hammerlib.util.shaded.json.JSONObject;
  */
 public class ObjectMirrorConverter
 {
+	public static <T> T unwrap(Object input, Class<T> returnType)
+	{
+		var uw = ScriptUtils.unwrap(input);
+		if(returnType.isInstance(uw)) return (T) uw;
+		if(input instanceof ScriptObjectMirror som)
+			return som.to(returnType);
+		return null;
+	}
+	
 	public static JsonElement toGson(ScriptObjectMirror mirror)
 	{
 		if(mirror.isArray())

@@ -20,11 +20,11 @@ public class GuiFluidObject
 	public Supplier<FluidStack> stack;
 	public boolean hoverable;
 	public boolean provideIngredient;
-	public float fill;
 	
 	public boolean isMouseOver;
 	
-	public Integer capacity;
+	public int capacity = 1;
+	public boolean showCapacity;
 	
 	public GuiFluidObject(String name, Supplier<FluidStack> stack)
 	{
@@ -33,15 +33,15 @@ public class GuiFluidObject
 		this.stack = stack;
 	}
 	
-	public GuiFluidObject capacity(Integer capacity)
+	public GuiFluidObject capacity(int capacity)
 	{
-		this.capacity = capacity;
+		this.capacity = Math.max(1, capacity);
 		return this;
 	}
 	
-	public GuiFluidObject fill(float fill)
+	public GuiFluidObject showCapacity(boolean showCapacity)
 	{
-		this.fill = fill;
+		this.showCapacity = showCapacity;
 		return this;
 	}
 	
@@ -70,7 +70,7 @@ public class GuiFluidObject
 		if(stack.isEmpty()) return;
 		
 		PoseStack pose = gfx.pose();
-		FluidRendererHelper.renderFluidInGui(gfx.gfx(), stack, textureType, fill, 0, 0, width, height);
+		FluidRendererHelper.renderFluidInGui(gfx.gfx(), stack, textureType, stack.getAmount() / (float) capacity, 0, 0, width, height);
 		
 		isMouseOver = pos.isMouseWithin(this);
 		if(hoverable && isMouseOver)
@@ -82,7 +82,7 @@ public class GuiFluidObject
 			pose.popPose();
 			
 			var mc = Minecraft.getInstance();
-			drawTooltip(gfx, pos, mc.font, Tooltip.ofFluid(stack, capacity != null, capacity != null ? capacity.intValue() : 0));
+			drawTooltip(gfx, pos, mc.font, Tooltip.ofFluid(stack, showCapacity, capacity));
 		}
 	}
 	
