@@ -1,11 +1,11 @@
 package org.zeith.hammerlib.mixins;
 
+import com.google.common.collect.Multimap;
 import com.google.gson.JsonElement;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.item.crafting.*;
 import net.minecraftforge.common.crafting.conditions.ICondition;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
@@ -34,8 +34,10 @@ public abstract class RecipeManagerMixin
 	@Shadow
 	public Map<ResourceLocation, Recipe<?>> byName;
 	
+	@Shadow
+	public Map<RecipeType<?>, Map<ResourceLocation, Recipe<?>>> recipes;
 	@Unique
-	private final Map<ResourceLocation, List<ResourceLocation>> hammerLib$SpoofByName = SpoofRecipesEvent.gather();
+	private final Multimap<ResourceLocation, ResourceLocation> hammerLib$SpoofByName = SpoofRecipesEvent.gather();
 	
 	@Inject(
 			method = "byKey",
@@ -45,9 +47,13 @@ public abstract class RecipeManagerMixin
 	private void HammerLib_replaceRecipeId(ResourceLocation id, CallbackInfoReturnable<Optional<? extends Recipe<?>>> cir)
 	{
 		if(id == null || !hammerLib$SpoofByName.containsKey(id)) return;
-		var recipe = findFirstRecipeHL(hammerLib$SpoofByName.getOrDefault(id, List.of(id)));
+		
+		var spofed = hammerLib$SpoofByName.get(id);
+		if(spofed.isEmpty()) return;
+		
+		var recipe = findFirstRecipeHL(spofed);
 		if(recipe.isPresent()) cir.setReturnValue(recipe);
-		else HammerLib.LOG.error("Failed to locate recipe with mapping " + id + "=" + hammerLib$SpoofByName.get(id));
+		else HammerLib.LOG.error("Failed to locate recipe with mapping {}={}", id, hammerLib$SpoofByName.get(id));
 	}
 	
 	@Inject(
@@ -63,7 +69,7 @@ public abstract class RecipeManagerMixin
 		RecipeHelper.injectRecipes(mgr, context);
 	}
 	
-	public Map<ResourceLocation, List<ResourceLocation>> isrm$getSpoofedRecipesHL()
+	public Multimap<ResourceLocation, ResourceLocation> isrm$getSpoofedRecipesHL()
 	{
 		return hammerLib$SpoofByName;
 	}

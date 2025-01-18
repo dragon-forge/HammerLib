@@ -1,33 +1,36 @@
 package org.zeith.hammerlib.event.recipe;
 
+import com.google.common.collect.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.fml.ModLoader;
 import net.minecraftforge.fml.event.IModBusEvent;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-
 public class SpoofRecipesEvent
 		extends Event
 		implements IModBusEvent
 {
-	private final Map<ResourceLocation, List<ResourceLocation>> spoofedRecipes;
+	private final Multimap<ResourceLocation, ResourceLocation> spoofedRecipes;
 	
-	public SpoofRecipesEvent(Map<ResourceLocation, List<ResourceLocation>> spoofedRecipes)
+	public SpoofRecipesEvent(Multimap<ResourceLocation, ResourceLocation> spoofedRecipes)
 	{
 		this.spoofedRecipes = spoofedRecipes;
 	}
 	
 	public void spoofRecipe(ResourceLocation oldId, ResourceLocation newId)
 	{
-		spoofedRecipes.computeIfAbsent(oldId, v -> new ArrayList<>()).add(newId);
+		spoofedRecipes.put(oldId, newId);
 	}
 	
-	public static Map<ResourceLocation, List<ResourceLocation>> gather()
+	public static Multimap<ResourceLocation, ResourceLocation> gather()
 	{
-		return Map.copyOf(ModLoader.get().postEventWithReturn(
-				new SpoofRecipesEvent(new ConcurrentHashMap<>())
-		).spoofedRecipes);
+		Multimap<ResourceLocation, ResourceLocation> mm = MultimapBuilder
+				.hashKeys()
+				.hashSetValues()
+				.build();
+		ModLoader.get().postEvent(
+				new SpoofRecipesEvent(Multimaps.synchronizedMultimap(mm))
+		);
+		return Multimaps.unmodifiableMultimap(mm);
 	}
 }

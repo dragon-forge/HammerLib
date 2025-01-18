@@ -1,5 +1,6 @@
 package org.zeith.api.level;
 
+import com.google.common.collect.Multimap;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Recipe;
 
@@ -9,5 +10,5 @@ public interface ISpoofedRecipeManager
 {
 	Optional<? extends Recipe<?>> findFirstRecipeHL(Collection<ResourceLocation> ids);
 	
-	Map<ResourceLocation, List<ResourceLocation>> getSpoofedRecipesHL();
+	Multimap<ResourceLocation, ResourceLocation> getSpoofedRecipesHL();
 }

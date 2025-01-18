@@ -1,9 +1,12 @@
 package org.zeith.hammerlib.event.recipe;
 
 import com.google.common.collect.*;
+import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.*;
+import net.minecraftforge.common.crafting.conditions.ICondition;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.fml.event.IModBusEvent;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -29,21 +32,25 @@ public class RegisterRecipesEvent
 	private final Set<ResourceLocation> removeRecipes = Sets.newHashSet();
 	private final Predicate<ResourceLocation> idInUse;
 	
+	@Setter
 	protected String contextModId;
 	
 	private final Map<String, RecipeRegistrationContext> contextMap = Maps.newHashMap();
 	
 	private final Map<Class<?>, RecipeBuilderExtension> extensions;
 	
-	public RegisterRecipesEvent(Predicate<ResourceLocation> idInUse)
+	@Getter
+	private final ICondition.IContext context;
+	
+	@Getter
+	private final Multimap<ResourceLocation, ResourceLocation> spoofedRecipesView;
+	
+	public RegisterRecipesEvent(Predicate<ResourceLocation> idInUse, ICondition.IContext context, Multimap<ResourceLocation, ResourceLocation> spoofedRecipesView)
 	{
 		this.idInUse = idInUse;
+		this.context = context;
+		this.spoofedRecipesView = spoofedRecipesView;
 		this.extensions = RecipeBuilderExtension.attach(this);
-	}
-	
-	public void setContextModId(String contextModId)
-	{
-		this.contextModId = contextModId;
 	}
 	
 	/**

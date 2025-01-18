@@ -1,5 +1,6 @@
 package org.zeith.hammerlib.core;
 
+import com.google.common.collect.Multimap;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
@@ -29,9 +30,9 @@ import java.util.stream.Stream;
 
 public class RecipeHelper
 {
-	public static void registerCustomRecipes(Predicate<ResourceLocation> idInUse, Consumer<Recipe<?>> addRecipe, Consumer<Set<ResourceLocation>> removeRecipes, Map<ResourceLocation, List<ResourceLocation>> spoofedRecipes, boolean silent, ICondition.IContext context)
+	public static void registerCustomRecipes(Predicate<ResourceLocation> idInUse, Consumer<Recipe<?>> addRecipe, Consumer<Set<ResourceLocation>> removeRecipes, Multimap<ResourceLocation, ResourceLocation> spoofedRecipes, boolean silent, ICondition.IContext context)
 	{
-		RegisterRecipesEvent rre = new RegisterRecipesEvent(idInUse);
+		RegisterRecipesEvent rre = new RegisterRecipesEvent(idInUse, context, spoofedRecipes);
 		ModList.get().forEachModInOrder(mc ->
 		{
 			if(!(mc instanceof FMLModContainer fmc)) return;
@@ -74,7 +75,7 @@ public class RecipeHelper
 		Internal.removeRecipes(mgr, removed::stream);
 	}
 	
-	public static void injectRecipesCustom(Map<ResourceLocation, Recipe<?>> handler, Set<ResourceLocation> removed, Map<ResourceLocation, List<ResourceLocation>> spoofedRecipes, ICondition.IContext ctx)
+	public static void injectRecipesCustom(Map<ResourceLocation, Recipe<?>> handler, Set<ResourceLocation> removed, Multimap<ResourceLocation, ResourceLocation> spoofedRecipes, ICondition.IContext ctx)
 	{
 		registerCustomRecipes(handler::containsKey, r -> handler.put(r.getId(), r), removed::addAll, spoofedRecipes, false, ctx);
 	}
