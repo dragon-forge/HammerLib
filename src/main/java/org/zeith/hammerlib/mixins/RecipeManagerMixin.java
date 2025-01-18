@@ -1,5 +1,6 @@
 package org.zeith.hammerlib.mixins;
 
+import com.google.common.collect.Multimap;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -27,7 +28,7 @@ public abstract class RecipeManagerMixin
 	public RecipeMap recipes;
 	
 	@Unique
-	private final Map<ResourceKey<Recipe<?>>, List<ResourceKey<Recipe<?>>>> hammerLib$SpoofByName = SpoofRecipesEvent.gather();
+	private final Multimap<ResourceKey<Recipe<?>>, ResourceKey<Recipe<?>>> hammerLib$SpoofByName = SpoofRecipesEvent.gather();
 	
 	@Inject(
 			method = "byKey",
@@ -37,9 +38,13 @@ public abstract class RecipeManagerMixin
 	private void HammerLib_replaceRecipeId(ResourceKey<Recipe<?>> id, CallbackInfoReturnable<Optional<? extends RecipeHolder<?>>> cir)
 	{
 		if(id == null || !hammerLib$SpoofByName.containsKey(id)) return;
-		var recipe = findFirstRecipeHL(hammerLib$SpoofByName.getOrDefault(id, List.of(id)));
+		
+		var spofed = hammerLib$SpoofByName.get(id);
+		if(spofed.isEmpty()) return;
+		
+		var recipe = findFirstRecipeHL(spofed);
 		if(recipe.isPresent()) cir.setReturnValue(recipe);
-		else HammerLib.LOG.error("Failed to locate recipe with mapping " + id + "=" + hammerLib$SpoofByName.get(id));
+		else HammerLib.LOG.error("Failed to locate recipe with mapping {}={}", id, hammerLib$SpoofByName.get(id));
 	}
 	
 	@Inject(
@@ -52,7 +57,7 @@ public abstract class RecipeManagerMixin
 		cir.setReturnValue(RecipeHelper.performInjectionWizardry(Cast.cast(this), cir.getReturnValue()));
 	}
 	
-	public Map<ResourceKey<Recipe<?>>, List<ResourceKey<Recipe<?>>>> isrm$getSpoofedRecipesHL()
+	public Multimap<ResourceKey<Recipe<?>>, ResourceKey<Recipe<?>>> isrm$getSpoofedRecipesHL()
 	{
 		return hammerLib$SpoofByName;
 	}
