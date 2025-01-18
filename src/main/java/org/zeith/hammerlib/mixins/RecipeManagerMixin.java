@@ -34,8 +34,6 @@ public abstract class RecipeManagerMixin
 	@Shadow
 	public Map<ResourceLocation, Recipe<?>> byName;
 	
-	@Shadow
-	public Map<RecipeType<?>, Map<ResourceLocation, Recipe<?>>> recipes;
 	@Unique
 	private final Multimap<ResourceLocation, ResourceLocation> hammerLib$SpoofByName = SpoofRecipesEvent.gather();
 	

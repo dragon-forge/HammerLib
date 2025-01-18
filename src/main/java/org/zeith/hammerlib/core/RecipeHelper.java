@@ -1,6 +1,5 @@
 package org.zeith.hammerlib.core;
 
-import com.google.common.collect.Multimap;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
@@ -13,7 +12,6 @@ import net.minecraftforge.common.crafting.conditions.ICondition;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.javafmlmod.FMLModContainer;
 import net.minecraftforge.registries.ForgeRegistries;
-import org.zeith.api.level.ISpoofedRecipeManager;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.api.items.IIngredientProvider;
 import org.zeith.hammerlib.core.adapter.OreDictionaryAdapter;
@@ -30,9 +28,15 @@ import java.util.stream.Stream;
 
 public class RecipeHelper
 {
-	public static void registerCustomRecipes(Predicate<ResourceLocation> idInUse, Consumer<Recipe<?>> addRecipe, Consumer<Set<ResourceLocation>> removeRecipes, Multimap<ResourceLocation, ResourceLocation> spoofedRecipes, boolean silent, ICondition.IContext context)
+	public static void registerCustomRecipes(
+			Predicate<ResourceLocation> idInUse,
+			Consumer<Recipe<?>> addRecipe,
+			Consumer<Set<ResourceLocation>> removeRecipes,
+			boolean silent,
+			ICondition.IContext context
+	)
 	{
-		RegisterRecipesEvent rre = new RegisterRecipesEvent(idInUse, context, spoofedRecipes);
+		RegisterRecipesEvent rre = new RegisterRecipesEvent(idInUse, context);
 		ModList.get().forEachModInOrder(mc ->
 		{
 			if(!(mc instanceof FMLModContainer fmc)) return;
@@ -65,19 +69,23 @@ public class RecipeHelper
 	public static void injectRecipes(RecipeManager mgr, ICondition.IContext context)
 	{
 		Internal.mutableManager(mgr);
-		var spoofed = ((ISpoofedRecipeManager) mgr).getSpoofedRecipesHL();
 		
 		List<Recipe<?>> recipeList = new ArrayList<>();
 		Set<ResourceLocation> removed = new HashSet<>();
-		registerCustomRecipes(id -> mgr.byKey(id)
-				.isPresent(), recipeList::add, removed::addAll, spoofed, false, context);
+		registerCustomRecipes(
+				id -> mgr.byKey(id).isPresent(),
+				recipeList::add,
+				removed::addAll,
+				false,
+				context
+		);
 		Internal.addRecipes(mgr, recipeList);
 		Internal.removeRecipes(mgr, removed::stream);
 	}
 	
-	public static void injectRecipesCustom(Map<ResourceLocation, Recipe<?>> handler, Set<ResourceLocation> removed, Multimap<ResourceLocation, ResourceLocation> spoofedRecipes, ICondition.IContext ctx)
+	public static void injectRecipesCustom(Map<ResourceLocation, Recipe<?>> handler, Set<ResourceLocation> removed, ICondition.IContext ctx)
 	{
-		registerCustomRecipes(handler::containsKey, r -> handler.put(r.getId(), r), removed::addAll, spoofedRecipes, false, ctx);
+		registerCustomRecipes(handler::containsKey, r -> handler.put(r.getId(), r), removed::addAll, false, ctx);
 	}
 	
 	public static <C extends Container, T extends Recipe<C>> Map<ResourceLocation, T> getRecipeMap(Level level, RecipeType<T> type)

@@ -4,13 +4,16 @@ import com.google.common.collect.*;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.*;
-import net.minecraft.world.item.crafting.*;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraftforge.common.crafting.conditions.ICondition;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.fml.event.IModBusEvent;
 import net.minecraftforge.registries.ForgeRegistries;
-import org.jetbrains.annotations.*;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 import org.zeith.hammerlib.api.recipes.RecipeBuilderExtension;
 import org.zeith.hammerlib.core.adapter.recipe.*;
 import org.zeith.hammerlib.util.java.Cast;
@@ -42,14 +45,10 @@ public class RegisterRecipesEvent
 	@Getter
 	private final ICondition.IContext context;
 	
-	@Getter
-	private final Multimap<ResourceLocation, ResourceLocation> spoofedRecipesView;
-	
-	public RegisterRecipesEvent(Predicate<ResourceLocation> idInUse, ICondition.IContext context, Multimap<ResourceLocation, ResourceLocation> spoofedRecipesView)
+	public RegisterRecipesEvent(Predicate<ResourceLocation> idInUse, ICondition.IContext context)
 	{
 		this.idInUse = idInUse;
 		this.context = context;
-		this.spoofedRecipesView = spoofedRecipesView;
 		this.extensions = RecipeBuilderExtension.attach(this);
 	}
 	
