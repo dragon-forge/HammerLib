@@ -1,7 +1,6 @@
 package org.zeith.hammerlib.client.flowgui.objects;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import lombok.Builder;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -9,10 +8,8 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.sounds.SoundManager;
-import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
@@ -22,8 +19,6 @@ import net.minecraft.util.Mth;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
 import org.jetbrains.annotations.Nullable;
 import org.zeith.hammerlib.client.flowgui.*;
 import org.zeith.hammerlib.client.utils.GLStencil;
@@ -236,6 +231,7 @@ public class GuiButtonObject
 					stencil.renderWithStencil(() ->
 					{
 						pGuiGraphics.drawString(pFont, pText, pMinX - (int) d3, j, pColor);
+						pGuiGraphics.flush();
 					});
 				}
 			else

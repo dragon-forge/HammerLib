@@ -22,9 +22,7 @@ public class GLStencil
 	
 	public static boolean isEnabled()
 	{
-		// TODO
-//		return Minecraft.getInstance().getMainRenderTarget().isStencilEnabled();
-		return false;
+		return Minecraft.getInstance().getMainRenderTarget().useStencil;
 	}
 	
 	private GLStencil() {}

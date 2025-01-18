@@ -5,6 +5,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.LogicalSide;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.javafmlmod.FMLModContainer;
+import net.neoforged.neoforge.client.event.ConfigureMainRenderTargetEvent;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.annotations.RequireStencil;
 import org.zeith.hammerlib.core.ConfigHL;
@@ -17,7 +18,7 @@ import java.lang.annotation.ElementType;
 import java.util.*;
 import java.util.function.BooleanSupplier;
 
-//@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class ScanRequireStencil
 {
 	private static final Map<String, FMLModContainer> REQUIRING_STENCIL = new HashMap<>();
@@ -55,10 +56,10 @@ public class ScanRequireStencil
 		return requestStencils = Cast.constantB(stencilReq);
 	}
 	
-//	@SubscribeEvent
-//	public static void setupStencils(ConfigureMainRenderTargetEvent e)
-//	{
-//		if(requestStencil().getAsBoolean())
-//			e.enableStencil();
-//	}
+	@SubscribeEvent
+	public static void setupStencils(ConfigureMainRenderTargetEvent e)
+	{
+		if(requestStencil().getAsBoolean())
+			e.enableStencil();
+	}
 }
