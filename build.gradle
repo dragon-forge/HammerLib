@@ -7,7 +7,7 @@ buildscript {
 plugins {
     id 'java-library'
     id 'maven-publish'
-    id 'net.neoforged.moddev' version '1.0.23'
+    id 'net.neoforged.gradle.userdev' version '7.0.173'
     id 'idea'
 
     id "com.modrinth.minotaur" version "2.+"
@@ -19,14 +19,11 @@ apply plugin: 'maven-publish'
 apply plugin: 'com.matthewprenger.cursegradle'
 
 ext.configFile = file("build.txt")
+def prop = new Properties()
 configFile.withReader {
-    def prop = new Properties()
     prop.load(it)
-    project.ext.config = new ConfigSlurper().parse(prop)
-    project.ext.hasConfig = { key ->
-        return config.isSet(key);
-    }
 }
+project.ext.config = new ConfigSlurper().parse(prop)
 
 tasks.named('wrapper', Wrapper).configure {
     // Define wrapper values here so as to not have to always do so when updating gradlew.properties.
@@ -43,91 +40,46 @@ base {
     archivesName = "${config.archive_name}-${mc_version}"
 }
 
-// Mojang ships Java 21 to end users starting in 1.20.5, so mods should target Java 21.
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+java.toolchain.languageVersion = JavaLanguageVersion.of(Integer.parseInt(mc_java))
+println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 
-neoForge {
-    // Specify the version of NeoForge to use.
-    version = neo_version
+minecraft {
+    accessTransformers {
+        file('src/main/resources/META-INF/accesstransformer.cfg')
+    }
+}
 
-    parchment {
-        mappingsVersion = parchment_mappings_version
-        minecraftVersion = parchment_minecraft_version
+runs {
+    configureEach {
+        systemProperty 'forge.logging.console.level', 'debug'
+        systemProperty 'forge.enabledGameTestNamespaces', config.mod_id
+
+        modSource project.sourceSets.main
     }
 
-    // This line is optional. Access Transformers are automatically detected
-    accessTransformers = project.files('src/main/resources/META-INF/accesstransformer.cfg')
+    client {
+        def args = new ArrayList()
 
-    // Default run configurations.
-    // These can be tweaked, removed, or duplicated as needed.
-    runs {
-        client {
-            client()
+        if (config.isSet("mc_user") && !config.mc_user.isEmpty()) {
+            def userId = config.mc_user.split(',', 2)
+            args.add "--username"
+            args.add userId[0]
 
-            if (hasConfig("mc_user") && !config.mc_user.isEmpty()) {
-                def userId = config.mc_user.split(',', 2)
-                programArgument "--username"
-                programArgument userId[0]
-
-                programArgument "--uuid"
-                if (userId.length > 1) programArgument userId[1]
-                else programArgument "00000000000000000000000000000001" // this is a default
-            }
-
-            // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
-            systemProperty 'neoforge.enabledGameTestNamespaces', config.mod_id
-
-            systemProperty 'hammerlib.flowgui.nocache', 'true'
+            args.add "--uuid"
+            if (userId.length > 1) args.add userId[1]
+            else args.add "00000000000000000000000000000001" // this is a default
         }
 
-        server {
-            server()
-            programArgument '--nogui'
-            systemProperty 'neoforge.enabledGameTestNamespaces', config.mod_id
-        }
+        // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
+        systemProperty 'neoforge.enabledGameTestNamespaces', config.mod_id
 
-        // This run config launches GameTestServer and runs all registered gametests, then exits.
-        // By default, the server will crash when no gametests are provided.
-        // The gametest system is also enabled by default for other run configs under the /test command.
-        gameTestServer {
-            type = "gameTestServer"
-            systemProperty 'neoforge.enabledGameTestNamespaces', config.mod_id
-        }
+        systemProperty 'hammerlib.flowgui.nocache', 'true'
 
-        clientData {
-            clientData()
-
-            // example of overriding the workingDirectory set in configureEach above, uncomment if you want to use it
-            // gameDirectory = project.file('run-data')
-
-            // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
-            programArguments.addAll '--mod', config.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
-        }
-
-        // applies to all the run configs above
-        configureEach {
-            // Recommended logging data for a userdev environment
-            // The markers can be added/remove as needed separated by commas.
-            // "SCAN": For mods scan.
-            // "REGISTRIES": For firing of registry events.
-            // "REGISTRYDUMP": For getting the contents of all registries.
-            systemProperty 'forge.logging.markers', 'REGISTRIES'
-
-            // Recommended logging level for the console
-            // You can set various levels here.
-            // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
-            logLevel = org.slf4j.event.Level.DEBUG
-        }
+        arguments(args)
     }
 
-    mods {
-        // define mod <-> source bindings
-        // these are used to tell the game which sources are for which mod
-        // mostly optional in a single mod project
-        // but multi mod projects should define one per mod
-        "${mod_id}" {
-            sourceSet(sourceSets.main)
-        }
+    server {
+        argument '--nogui'
     }
 }
 
@@ -155,20 +107,22 @@ repositories {
 }
 
 dependencies {
+    implementation "net.neoforged:neoforge:${neo_version}"
+
     ////// UTILITY STUFF //////
     compileOnly "org.projectlombok:lombok:${lombok}"
     annotationProcessor "org.projectlombok:lombok:${lombok}"
     ///////////////////////////
 
-    if (hasConfig("hl_version") && !config.hl_version.isEmpty()) {
+    if (config.isSet("hl_version") && !config.hl_version.isEmpty()) {
         implementation "org.zeith.hammerlib:HammerLib-${mc_version}:${config.hl_version}"
     }
 
-    if (hasConfig("hammeranims_version") && !config.hammeranims_version.isEmpty()) {
+    if (config.isSet("hammeranims_version") && !config.hammeranims_version.isEmpty()) {
         implementation "org.zeith.hammeranims:HammerAnimations-${mc_version}:${config.hammeranims_version}"
     }
 
-    if (hasConfig("jei_version") && !config.jei_version.isEmpty()) {
+    if (config.isSet("jei_version") && !config.jei_version.isEmpty()) {
         compileOnly "mezz.jei:jei-${mc_version}-common-api:${config.jei_version}"
         compileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${config.jei_version}"
         runtimeOnly "mezz.jei:jei-${mc_version}-neoforge:${config.jei_version}"
@@ -236,9 +190,7 @@ dependencies {
     } else libDir.mkdir();
 }
 
-
-var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
-    group "build"
+tasks.withType(ProcessResources).configureEach {
     var replaceProperties = [
             minecraft_version      : mc_version,
             minecraft_version_range: mc_range,
@@ -256,15 +208,11 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
             mod_credits            : config.mod_credits
     ]
     inputs.properties replaceProperties
-    expand replaceProperties
-    from "src/main/templates"
-    into "build/generated/sources/modMetadata"
+
+    filesMatching(['META-INF/neoforge.mods.toml']) {
+        expand replaceProperties
+    }
 }
-// Include the output of "generateModMetadata" as an input directory for the build
-// this works with both building through Gradle and the IDE.
-sourceSets.main.resources.srcDir generateModMetadata
-// To avoid having to run "generateModMetadata" manually, make it run on every project reload
-neoForge.ideSyncTask generateModMetadata
 
 jar {
     manifest {
@@ -442,7 +390,29 @@ curseforge {
     }
 }
 
-task generateChangelog(type: se.bjurr.gitchangelog.plugin.gradle.GitChangelogTask) {
+tasks.register('signJar', net.neoforged.gradle.common.tasks.PotentiallySignJar) {
+    dependsOn('jar')
+    onlyIf {
+        System.env.MC_KS_PASS != null
+    }
+    keyStore = System.env.MC_KS_PATH
+    alias = System.env.MC_KS_ALIAS
+    storePass = System.env.MC_KS_PASS
+    keyPass = System.env.MC_KS_PASS
+    input = jar.archiveFile
+    def origJar = jar.archiveFile.get().asFile
+    outputFileName = origJar.getName() + ".signed"
+    doLast {
+        def resF = output.get().asFile
+        def af = origJar
+        af.delete()
+        resF.renameTo(af)
+    }
+}
+
+assemble.finalizedBy('signJar')
+
+tasks.register('generateChangelog', se.bjurr.gitchangelog.plugin.gradle.GitChangelogTask) {
     group = "git changelog"
     if (config.last_git_commit != null && !config.last_git_commit.isEmpty()) fromRevision = config.last_git_commit
     templateContent = """
@@ -496,24 +466,26 @@ tasks.withType(JavaCompile).configureEach {
 
 import java.nio.file.Files
 
-def incrementBuild = {
-    if (!hasConfig("build_candidate") || !Boolean.parseBoolean(config.build_candidate)) {
-        def buildTxt = configFile.toPath()
-        List<String> lines = Files.readAllLines buildTxt
-        lines.replaceAll { String ln ->
-            if (ln.startsWith("mod_version")) {
-                def version = ln.split("=")[1]
-                def dot = version.lastIndexOf('.') + 1
-                def newVersion = version.substring(0, dot)
-                def lastOne = Integer.parseInt(version.substring(dot)) + 1
-                return "mod_version=" + newVersion + lastOne
-            }
-            if (ln.startsWith("last_git_commit")) {
-                def lastCommit = ln.split("=", 2)[1]
-                def truncated = se.bjurr.gitchangelog.api.GitChangelogApi.gitChangelogApiBuilder()
-                        .withFromRevision(lastCommit)
-                        .withFromRepo(projectDir)
-                        .withTemplateContent("""
+tasks.register("incrementBuildVersionProperty") {
+    group "upload"
+    doLast {
+        if (!project.ext.config.isSet("build_candidate") || !Boolean.parseBoolean(project.ext.config.build_candidate)) {
+            def buildTxt = configFile.toPath()
+            List<String> lines = Files.readAllLines buildTxt
+            lines.replaceAll { String ln ->
+                if (ln.startsWith("mod_version")) {
+                    def version = ln.split("=")[1]
+                    def dot = version.lastIndexOf('.') + 1
+                    def newVersion = version.substring(0, dot)
+                    def lastOne = Integer.parseInt(version.substring(dot)) + 1
+                    return "mod_version=" + newVersion + lastOne
+                }
+                if (ln.startsWith("last_git_commit")) {
+                    def lastCommit = ln.split("=", 2)[1]
+                    def truncated = se.bjurr.gitchangelog.api.GitChangelogApi.gitChangelogApiBuilder()
+                            .withFromRevision(lastCommit)
+                            .withFromRepo(projectDir)
+                            .withTemplateContent("""
 {{#tags}}
 {{#commits}}
 [START]{{hash}}[END]
@@ -521,25 +493,20 @@ def incrementBuild = {
 {{/tags}}
 """).render()
 
-                def found = truncated.indexOf("[START]")
-                def endIdx = truncated.indexOf("[END]", found)
-                if (found == -1 || endIdx == -1) return ln
-                return "last_git_commit=" + truncated.substring(found + 7, endIdx)
+                    def found = truncated.indexOf("[START]")
+                    def endIdx = truncated.indexOf("[END]", found)
+                    if (found == -1 || endIdx == -1) return ln
+                    return "last_git_commit=" + truncated.substring(found + 7, endIdx)
+                }
+                return ln
             }
-            return ln
-        }
-        Files.write buildTxt, lines, java.nio.file.StandardOpenOption.CREATE
-    } else println "Build candidate enabled, we are not increasing build number after this."
-}
-
-tasks.register("incrementBuildVersionProperty") {
-    group "upload"
-    doLast incrementBuild
+            Files.write buildTxt, lines, java.nio.file.StandardOpenOption.CREATE
+        } else println "Build candidate enabled, we are not increasing build number after this."
+    }
 }
 
 // This piece of garbage will ensure that the build number is updated after build is executed.
-tasks.build.doLast incrementBuild
-tasks.buildAndUploadMod.doLast incrementBuild
+tasks.buildAndUploadMod.finalizedBy('incrementBuildVersionProperty')
 
 idea {
     module {
