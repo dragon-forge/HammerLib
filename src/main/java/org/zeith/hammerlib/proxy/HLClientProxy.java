@@ -114,9 +114,9 @@ public class HLClientProxy
 		NeoForge.EVENT_BUS.register(this);
 	}
 	
-	private void registerReloadListeners(RegisterClientReloadListenersEvent e)
+	private void registerReloadListeners(AddClientReloadListenersEvent e)
 	{
-		e.registerReloadListener(RunnableReloader.of(FlowguiRegistry::reload));
+		e.addListener(HLConstants.id("flowgui"), RunnableReloader.of(FlowguiRegistry::reload));
 	}
 	
 	private void registerClientExtensions(RegisterClientExtensionsEvent e)
