@@ -296,6 +296,7 @@ modrinth {
     versionType = config.release_type
     uploadFile = jar
     gameVersions = [mc_version]
+    loaders = ["NeoForge"]
     setChangelog(providers.fileContents(layout.projectDirectory.file("CHANGELOG.md")).asText)
     dependencies {
         def mods = config.required_mods.split(";")
