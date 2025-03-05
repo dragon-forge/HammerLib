@@ -1,10 +1,10 @@
 # Mod Info
-mod_version=21.4.4
+mod_version=21.4.5
 build_candidate=false
 
 # Mod dependencies
-//jei_version=19.3.1.24
-//shimmer_version=0.1.15
+#jei_version=19.3.1.24
+#shimmer_version=0.1.15
 
 # Persistent mod info
 mod_id=hammerlib
@@ -30,7 +30,7 @@ modrinth_project=PlkSuVtM
 release_type=release
 
 # Keeping track of latest git commit for changelog generation!
-last_git_commit=8191eadfb304740
+last_git_commit=e64350b5afc64e5
 
 # List of mods separated by ;
 # If a specific mod for one platform is needed, @m: or @c: prefixes are used.
