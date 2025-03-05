@@ -7,16 +7,12 @@ import org.slf4j.Logger;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.api.items.CreativeTab;
 import org.zeith.hammerlib.core.init.ItemsHL;
-import org.zeith.hammerlib.util.CommonMessages;
 import org.zeith.hammerlib.util.mcf.Resources;
 
 public class HLConstants
 {
 	public static final Logger LOG = HammerLib.LOG;
 	public static final String MOD_ID = "hammerlib";
-	
-	@Deprecated // This should have not been placed here in the first place.
-	public static final Component CRAFTING_MATERIAL = CommonMessages.CRAFTING_MATERIAL;
 	
 	@CreativeTab.RegisterTab
 	public static final CreativeTab HL_TAB = new CreativeTab(id("root"),

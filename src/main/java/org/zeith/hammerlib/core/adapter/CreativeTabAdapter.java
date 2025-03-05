@@ -26,7 +26,7 @@ public class CreativeTabAdapter
 {
 	private static final List<Tuple2<ItemLike, CreativeTab[]>> REGISTRARS = new ArrayList<>();
 	
-	private static final List<CreativeTab> CUSTOM_TABS = new ArrayList<>();
+	private static final List<CreativeTab> CUSTOM_TABS = Collections.synchronizedList(new ArrayList<>());
 	private static final Map<CreativeModeTab, CreativeTab> REGISTERED = new ConcurrentHashMap<>();
 	private static final Supplier<Set<ITabItem>> CUSTOM_TAB_ITEMS = Suppliers.memoize(() ->
 			BuiltInRegistries.ITEM
