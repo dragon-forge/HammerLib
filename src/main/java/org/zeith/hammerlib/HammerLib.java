@@ -1,7 +1,6 @@
 package org.zeith.hammerlib;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.*;
 import net.neoforged.bus.api.*;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
@@ -10,12 +9,10 @@ import net.neoforged.fml.javafmlmod.FMLModContainer;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.slf4j.*;
 import org.zeith.hammerlib.api.io.NBTSerializationHelper;
 import org.zeith.hammerlib.api.proxy.IProxy;
-import org.zeith.hammerlib.compat.base.CompatContext;
-import org.zeith.hammerlib.compat.base.CompatList;
+import org.zeith.hammerlib.compat.base.*;
 import org.zeith.hammerlib.compat.base._hl.BaseHLCompat;
 import org.zeith.hammerlib.core.ConfigHL;
 import org.zeith.hammerlib.core.adapter.*;
@@ -23,11 +20,9 @@ import org.zeith.hammerlib.core.command.CommandHammerLib;
 import org.zeith.hammerlib.core.init.TagsHL;
 import org.zeith.hammerlib.core.scans.*;
 import org.zeith.hammerlib.core.scans.base.DataScanner;
-import org.zeith.hammerlib.event.fml.FMLFingerprintCheckEvent;
 import org.zeith.hammerlib.proxy.*;
 import org.zeith.hammerlib.tiles.tooltip.own.impl.TooltipRenderEngine;
-import org.zeith.hammerlib.util.CommonMessages;
-import org.zeith.hammerlib.util.ZeithLinkRepository;
+import org.zeith.hammerlib.util.*;
 import org.zeith.hammerlib.util.charging.ItemChargeHelper;
 
 import java.util.Locale;
@@ -76,12 +71,7 @@ public class HammerLib
 		ModList.get().forEachModContainer((modid, container) ->
 		{
 			if(container instanceof FMLModContainer ctr)
-			{
-				var bus = ctr.getEventBus();
-				bus.addListener((FMLCommonSetupEvent e) ->
-						ctr.getEventBus().post(new FMLFingerprintCheckEvent(ctr))
-				);
-			}
+				FingerprintCheckAdapter.service(ctr);
 		});
 	}
 	

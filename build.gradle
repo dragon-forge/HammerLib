@@ -55,6 +55,7 @@ runs {
         systemProperty 'forge.enabledGameTestNamespaces', config.mod_id
 
         modSource project.sourceSets.main
+        setWorkingDirectory(new File("runs/$mc_version/$name"))
     }
 
     client {

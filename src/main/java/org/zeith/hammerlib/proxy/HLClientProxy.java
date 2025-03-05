@@ -43,7 +43,7 @@ import org.zeith.hammerlib.client.model.SimpleModelGenerator;
 import org.zeith.hammerlib.client.render.tile.IBESR;
 import org.zeith.hammerlib.client.render.tile.TESRBase;
 import org.zeith.hammerlib.client.utils.TexturePixelGetter;
-import org.zeith.hammerlib.core.adapter.ConfigAdapter;
+import org.zeith.hammerlib.core.adapter.*;
 import org.zeith.hammerlib.core.items.tooltip.ClientTooltipColoredLine;
 import org.zeith.hammerlib.core.items.tooltip.ClientTooltipMulti;
 import org.zeith.hammerlib.core.scans.ScanRequireStencil;
@@ -140,7 +140,7 @@ public class HLClientProxy
 	
 	private void loadComplete(FMLLoadCompleteEvent e)
 	{
-	
+		FingerprintCheckAdapter.loadComplete();
 	}
 	
 	private void alterTooltip(RenderTooltipEvent.GatherComponents e)
