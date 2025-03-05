@@ -13,4 +13,5 @@ public class FlowguiTags
 	public static final String COM_item = HLConstants.MOD_ID + ":item";
 	public static final String COM_fluid = HLConstants.MOD_ID + ":fluid";
 	public static final String COM_tooltip = HLConstants.MOD_ID + ":tooltip";
+	public static final String COM_hover = HLConstants.MOD_ID + ":hover";
 }
