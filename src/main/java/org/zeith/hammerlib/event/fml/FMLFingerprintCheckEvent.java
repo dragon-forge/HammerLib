@@ -4,7 +4,6 @@ import com.google.common.base.Suppliers;
 import cpw.mods.jarhandling.SecureJar;
 import cpw.mods.niofs.union.UnionFileSystem;
 import lombok.Getter;
-import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.event.lifecycle.ModLifecycleEvent;
 import net.neoforged.fml.javafmlmod.FMLModContainer;
 import net.neoforged.fml.loading.FMLEnvironment;

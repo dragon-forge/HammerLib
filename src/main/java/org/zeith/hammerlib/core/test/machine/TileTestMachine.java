@@ -53,7 +53,7 @@ public class TileTestMachine
 	private int _maxProgress = 200;
 	
 	@NBTSerializable
-	public final SimpleInventory inventory = new SimpleInventory(3);
+	public final SimpleInventory inventory = new SimpleInventory(3, this::setChanged);
 	
 	@NBTSerializable
 	private ResourceKey<Recipe<?>> _activeRecipeId;

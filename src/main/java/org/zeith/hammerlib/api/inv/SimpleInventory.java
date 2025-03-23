@@ -24,10 +24,16 @@ public class SimpleInventory
 	public int stackSizeLimit = 64;
 	public ToIntFunction<Integer> getSlotLimit = s -> stackSizeLimit;
 	public BiPredicate<Integer, ItemStack> isStackValid = (i, s) -> true;
+	protected Runnable sync;
 	
 	public SimpleInventory(int slots)
 	{
 		this.items = NonNullList.withSize(slots, ItemStack.EMPTY);
+	}
+	public SimpleInventory(int slots, Runnable sync)
+	{
+		this(slots);
+		this.sync = sync;
 	}
 	
 	@Override
@@ -47,6 +53,7 @@ public class SimpleInventory
 	{
 		if(stack.isEmpty())
 			return ItemStack.EMPTY;
+		if(!isItemValid(slot, stack)) return stack;
 		
 		ItemStack stackInSlot = getStackInSlot(slot);
 		
@@ -59,8 +66,7 @@ public class SimpleInventory
 			if(!ItemStack.isSameItemSameComponents(stack, stackInSlot))
 				return stack;
 			
-			if(!isItemValid(slot, stack))
-				return stack;
+			
 			
 			m = Math.min(stack.getMaxStackSize(), getSlotLimit(slot)) - stackInSlot.getCount();
 			
@@ -92,9 +98,6 @@ public class SimpleInventory
 			}
 		} else
 		{
-			if(!isItemValid(slot, stack))
-				return stack;
-			
 			m = Math.min(stack.getMaxStackSize(), getSlotLimit(slot));
 			if(m < stack.getCount())
 			{
@@ -111,10 +114,7 @@ public class SimpleInventory
 				}
 			} else
 			{
-				if(!simulate)
-				{
-					setStackInSlot(slot, stack);
-				}
+				if(!simulate) setStackInSlot(slot, stack);
 				return ItemStack.EMPTY;
 			}
 		}
@@ -139,22 +139,21 @@ public class SimpleInventory
 				return stackInSlot.copy();
 			} else
 			{
-				ItemStack copy = stackInSlot.copy();
-				copy.setCount(amount);
-				return copy;
+				return stackInSlot.copyWithCount(amount);
 			}
 		} else
 		{
 			int m = Math.min(stackInSlot.getCount(), amount);
-			ItemStack decrStackSize = decrStackSize(slot, m);
-			return decrStackSize;
+			return decrStackSize(slot, m);
 		}
 	}
 	
 	public ItemStack decrStackSize(int slot, int amount)
 	{
 		ItemStack stack = getStackInSlot(slot);
-		return stack.split(amount);
+		var d = stack.split(amount);
+		if(!d.isEmpty()) this.setChanged();
+		return d;
 	}
 	
 	@Override
@@ -179,7 +178,10 @@ public class SimpleInventory
 	public void setStackInSlot(int slot, ItemStack stack)
 	{
 		if(slot >= 0 && slot < items.size())
+		{
 			items.set(slot, stack);
+			this.setChanged();
+		}
 	}
 	
 	@Override
@@ -218,7 +220,12 @@ public class SimpleInventory
 	public ItemStack removeItem(int slot, int count)
 	{
 		ItemStack stack = items.get(slot);
-		if(!stack.isEmpty()) return stack.split(count);
+		if(!stack.isEmpty())
+		{
+			var e = stack.split(count);
+			this.setChanged();
+			return e;
+		}
 		return ItemStack.EMPTY;
 	}
 	
@@ -232,6 +239,7 @@ public class SimpleInventory
 		} else
 		{
 			this.items.set(slot, ItemStack.EMPTY);
+			this.setChanged();
 			return itemstack;
 		}
 	}
@@ -248,6 +256,8 @@ public class SimpleInventory
 	@Override
 	public void setChanged()
 	{
+		if(sync != null)
+			sync.run();
 	}
 	
 	@Override
@@ -261,6 +271,7 @@ public class SimpleInventory
 	{
 		for(int i = 0; i < getSlots(); ++i)
 			this.items.set(i, ItemStack.EMPTY);
+		setChanged();
 	}
 	
 	@Override
