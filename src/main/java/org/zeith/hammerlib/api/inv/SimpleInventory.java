@@ -20,50 +20,55 @@ public class SimpleInventory
 		implements IItemHandlerModifiable, Iterable<ItemStack>, INBTSerializable<ListTag>, Container
 {
 	public final NonNullList<ItemStack> items;
-
+	
 	public int stackSizeLimit = 64;
 	public ToIntFunction<Integer> getSlotLimit = s -> stackSizeLimit;
 	public BiPredicate<Integer, ItemStack> isStackValid = (i, s) -> true;
-
+	
+	protected Runnable sync;
+	
 	public SimpleInventory(int slots)
 	{
 		this.items = NonNullList.withSize(slots, ItemStack.EMPTY);
 	}
-
+	
+	public SimpleInventory(int slots, Runnable sync)
+	{
+		this(slots);
+		this.sync = sync;
+	}
+	
 	@Override
 	public int getSlots()
 	{
 		return items.size();
 	}
-
+	
 	@Override
 	public ItemStack getStackInSlot(int slot)
 	{
 		return items.get(slot);
 	}
-
+	
 	@Override
 	public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
 	{
-		if(stack.isEmpty())
-			return ItemStack.EMPTY;
-
+		if(stack.isEmpty()) return ItemStack.EMPTY;
+		if(!isItemValid(slot, stack)) return stack;
+		
 		ItemStack stackInSlot = getStackInSlot(slot);
-
+		
 		int m;
 		if(!stackInSlot.isEmpty())
 		{
 			if(stackInSlot.getCount() >= Math.min(stackInSlot.getMaxStackSize(), getSlotLimit(slot)))
 				return stack;
-
+			
 			if(!ItemHandlerHelper.canItemStacksStack(stack, stackInSlot))
 				return stack;
-
-			if(!isItemValid(slot, stack))
-				return stack;
-
+			
 			m = Math.min(stack.getMaxStackSize(), getSlotLimit(slot)) - stackInSlot.getCount();
-
+			
 			if(stack.getCount() <= m)
 			{
 				if(!simulate)
@@ -72,7 +77,7 @@ public class SimpleInventory
 					copy.grow(stackInSlot.getCount());
 					setStackInSlot(slot, copy);
 				}
-
+				
 				return ItemStack.EMPTY;
 			} else
 			{
@@ -92,9 +97,6 @@ public class SimpleInventory
 			}
 		} else
 		{
-			if(!isItemValid(slot, stack))
-				return stack;
-
 			m = Math.min(stack.getMaxStackSize(), getSlotLimit(slot));
 			if(m < stack.getCount())
 			{
@@ -111,27 +113,24 @@ public class SimpleInventory
 				}
 			} else
 			{
-				if(!simulate)
-				{
-					setStackInSlot(slot, stack);
-				}
+				if(!simulate) setStackInSlot(slot, stack);
 				return ItemStack.EMPTY;
 			}
 		}
-
+		
 	}
-
+	
 	@Override
 	public ItemStack extractItem(int slot, int amount, boolean simulate)
 	{
 		if(amount == 0)
 			return ItemStack.EMPTY;
-
+		
 		ItemStack stackInSlot = getStackInSlot(slot);
-
+		
 		if(stackInSlot.isEmpty())
 			return ItemStack.EMPTY;
-
+		
 		if(simulate)
 		{
 			if(stackInSlot.getCount() < amount)
@@ -139,59 +138,61 @@ public class SimpleInventory
 				return stackInSlot.copy();
 			} else
 			{
-				ItemStack copy = stackInSlot.copy();
-				copy.setCount(amount);
-				return copy;
+				return stackInSlot.copyWithCount(amount);
 			}
 		} else
 		{
 			int m = Math.min(stackInSlot.getCount(), amount);
-			ItemStack decrStackSize = decrStackSize(slot, m);
-			return decrStackSize;
+			return decrStackSize(slot, m);
 		}
 	}
-
+	
 	public ItemStack decrStackSize(int slot, int amount)
 	{
 		ItemStack stack = getStackInSlot(slot);
-		return stack.split(amount);
+		var d = stack.split(amount);
+		if(!d.isEmpty()) this.setChanged();
+		return d;
 	}
-
+	
 	@Override
 	public int getSlotLimit(int slot)
 	{
 		return getSlotLimit.applyAsInt(slot);
 	}
-
+	
 	@Override
 	public boolean isItemValid(int slot, ItemStack stack)
 	{
 		return isStackValid.test(slot, stack);
 	}
-
+	
 	@Override
 	public boolean canPlaceItem(int slot, ItemStack stack)
 	{
 		return isItemValid(slot, stack);
 	}
-
+	
 	@Override
 	public void setStackInSlot(int slot, ItemStack stack)
 	{
 		if(slot >= 0 && slot < items.size())
+		{
 			items.set(slot, stack);
+			this.setChanged();
+		}
 	}
-
+	
 	public void writeToNBT(CompoundTag nbt, String label)
 	{
 		nbt.put(label, writeToNBT(new ListTag()));
 	}
-
+	
 	public void readFromNBT(CompoundTag nbt, String label)
 	{
 		readFromNBT(nbt.getList(label, Tag.TAG_COMPOUND));
 	}
-
+	
 	public ListTag writeToNBT(ListTag nbt)
 	{
 		for(int i = 0; i < items.size(); ++i)
@@ -206,7 +207,7 @@ public class SimpleInventory
 		}
 		return nbt;
 	}
-
+	
 	public void readFromNBT(ListTag nbt)
 	{
 		for(int i = 0; i < nbt.size(); ++i)
@@ -218,36 +219,36 @@ public class SimpleInventory
 				items.set(slot, stack);
 		}
 	}
-
+	
 	@Override
 	public Iterator<ItemStack> iterator()
 	{
 		return items.iterator();
 	}
-
+	
 	public Stream<ItemStack> stream()
 	{
 		return items.stream();
 	}
-
+	
 	@Override
 	public ListTag serializeNBT()
 	{
 		return writeToNBT(new ListTag());
 	}
-
+	
 	@Override
 	public void deserializeNBT(ListTag nbt)
 	{
 		readFromNBT(nbt);
 	}
-
+	
 	@Override
 	public int getContainerSize()
 	{
 		return getSlots();
 	}
-
+	
 	@Override
 	public boolean isEmpty()
 	{
@@ -256,21 +257,26 @@ public class SimpleInventory
 				return false;
 		return true;
 	}
-
+	
 	@Override
 	public ItemStack getItem(int slot)
 	{
 		return getStackInSlot(slot);
 	}
-
+	
 	@Override
 	public ItemStack removeItem(int slot, int count)
 	{
 		ItemStack stack = items.get(slot);
-		if(!stack.isEmpty()) return stack.split(count);
+		if(!stack.isEmpty())
+		{
+			var e = stack.split(count);
+			this.setChanged();
+			return e;
+		}
 		return ItemStack.EMPTY;
 	}
-
+	
 	@Override
 	public ItemStack removeItemNoUpdate(int slot)
 	{
@@ -281,10 +287,11 @@ public class SimpleInventory
 		} else
 		{
 			this.items.set(slot, ItemStack.EMPTY);
+			this.setChanged();
 			return itemstack;
 		}
 	}
-
+	
 	@Override
 	public void setItem(int slot, ItemStack item)
 	{
@@ -293,22 +300,25 @@ public class SimpleInventory
 			item.setCount(this.getMaxStackSize());
 		this.setChanged();
 	}
-
+	
 	@Override
 	public void setChanged()
 	{
+		if(sync != null)
+			sync.run();
 	}
-
+	
 	@Override
 	public boolean stillValid(Player player)
 	{
 		return true;
 	}
-
+	
 	@Override
 	public void clearContent()
 	{
 		for(int i = 0; i < getSlots(); ++i)
 			this.items.set(i, ItemStack.EMPTY);
+		setChanged();
 	}
 }
