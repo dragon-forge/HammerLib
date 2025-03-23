@@ -3,15 +3,14 @@ package org.zeith.hammerlib.event.fml;
 import com.google.common.base.Suppliers;
 import cpw.mods.jarhandling.SecureJar;
 import cpw.mods.niofs.union.UnionFileSystem;
-import net.minecraftforge.fml.ModContainer;
+import lombok.Getter;
 import net.minecraftforge.fml.event.lifecycle.ModLifecycleEvent;
+import net.minecraftforge.fml.javafmlmod.FMLModContainer;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.moddiscovery.ModFileInfo;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.*;
+import java.nio.file.*;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -19,13 +18,16 @@ import java.util.stream.Collectors;
 public class FMLFingerprintCheckEvent
 		extends ModLifecycleEvent
 {
-	@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-	private final Optional<String> gotFingerprint;
-	protected final ModContainer ctr;
+	private final Optional<String> gotFingerprint, trustData;
+	protected final FMLModContainer ctr;
 	
 	protected final Supplier<Set<String>> filesViolated;
+	protected Supplier<Boolean> anyFilesViolated;
 	
-	public FMLFingerprintCheckEvent(ModContainer container)
+	@Getter
+	protected String expectedSignature;
+	
+	public FMLFingerprintCheckEvent(FMLModContainer container)
 	{
 		super(container);
 		this.ctr = container;
@@ -33,28 +35,86 @@ public class FMLFingerprintCheckEvent
 		SecureJar jar = container.getModInfo().getOwningFile().getFile().getSecureJar();
 		Path root = ((UnionFileSystem) jar.getRootPath().getFileSystem()).getRoot();
 		
-		filesViolated = Suppliers.memoize(() ->
+		SecureJar.ModuleDataProvider mdp = jar.moduleDataProvider();
+		var mf = mdp.getManifest();
+		Supplier<List<String>> entries = Suppliers.memoize(() -> mf
+				.getEntries()
+				.entrySet()
+				.stream()
+				.filter(e -> e.getValue().keySet().stream().anyMatch(str -> Objects.toString(str).contains("Digest")))
+				.map(Map.Entry::getKey)
+				.toList()
+		);
+		
+		anyFilesViolated = Suppliers.memoize(() ->
 		{
-			if(!FMLEnvironment.production) return Collections.emptySet();
+			if(!FMLEnvironment.production) return false;
 			
 			try(var walk = Files.walk(root))
 			{
-				return walk.filter(Files::isRegularFile)
-						.filter(e -> jar.verifyPath(e) == SecureJar.Status.INVALID)
-						.map(root::relativize)
-						.map(Path::toString)
-						.collect(Collectors.toSet());
+				Set<String> allEntries = new HashSet<>(entries.get());
+				
+				boolean violated = walk
+						.filter(Files::isRegularFile)
+						.peek(pth -> allEntries.remove(pth.toString()))
+						.anyMatch(e -> jar.verifyPath(e) == SecureJar.Status.INVALID);
+				
+				return violated || !allEntries.isEmpty();
 			} catch(IOException e)
 			{
 				throw new UncheckedIOException(e);
 			}
 		});
 		
-		gotFingerprint = ((ModFileInfo) container.getModInfo().getOwningFile())
-				.getCodeSigningFingerprint();
+		filesViolated = Suppliers.memoize(() ->
+		{
+			if(!FMLEnvironment.production) return Collections.emptySet();
+			
+			try(var walk = Files.walk(root))
+			{
+				Set<String> allEntries = new HashSet<>(entries.get());
+				
+				Set<String> violated = new HashSet<>(walk
+						.filter(Files::isRegularFile)
+						.peek(pth -> allEntries.remove(pth.toString()))
+						.filter(e -> jar.verifyPath(e) == SecureJar.Status.INVALID)
+						.map(root::relativize)
+						.map(Path::toString)
+						.collect(Collectors.toSet()));
+				violated.addAll(allEntries);
+				
+				return Set.copyOf(violated);
+			} catch(IOException e)
+			{
+				throw new UncheckedIOException(e);
+			}
+		});
+		
+		ModFileInfo mfi = (ModFileInfo) container.getModInfo().getOwningFile();
+		
+		gotFingerprint = mfi.getCodeSigningFingerprint();
+		
+		Optional<String> trustData = Optional.empty();
+		try
+		{
+			trustData = mfi.getTrustData();
+		} catch(Exception ignored)
+		{
+		}
+		this.trustData = trustData;
 	}
 	
-	public ModContainer getModContainer()
+	private void expectSigned(String signature)
+	{
+		this.expectedSignature = signature;
+	}
+	
+	public boolean isJarSigned()
+	{
+		return trustData.isPresent() || gotFingerprint.isPresent();
+	}
+	
+	public FMLModContainer getModContainer()
 	{
 		return ctr;
 	}
@@ -64,13 +124,24 @@ public class FMLFingerprintCheckEvent
 		return gotFingerprint;
 	}
 	
+	public Optional<String> trustData()
+	{
+		return trustData;
+	}
+	
 	public Set<String> getInvalidSignedFiles()
 	{
 		return filesViolated.get();
 	}
 	
+	public boolean anyInvalidFiles()
+	{
+		return anyFilesViolated.get();
+	}
+	
 	public boolean isViolated(String expectFingerprint)
 	{
+		expectSigned(expectedSignature);
 		expectFingerprint = expectFingerprint.replace(":", "").toLowerCase(Locale.ROOT);
 		var gotFingerprint = fingerprint().map(f -> f.replace(":", "").toLowerCase(Locale.ROOT)).orElse(null);
 		return !Objects.equals(gotFingerprint, expectFingerprint) || !getInvalidSignedFiles().isEmpty();

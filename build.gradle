@@ -57,7 +57,7 @@ minecraft {
     copyIdeResources = true
     runs {
         client {
-            workingDirectory project.file('run/client')
+            workingDirectory project.file("runs/$config.mc_version/client")
             property 'forge.logging.console.level', 'debug'
             property 'forge.enabledGameTestNamespaces', config.mod_id
             property 'hammerlib.flowgui.nocache', 'true'
@@ -71,7 +71,7 @@ minecraft {
         }
 
         server {
-            workingDirectory project.file('run/server')
+            workingDirectory project.file("runs/$config.mc_version/server")
             property 'forge.logging.console.level', 'debug'
             setArgs(Arrays.asList("--mixin mixins.${config.mod_id}.json".split(' ')))
             property 'forge.enabledGameTestNamespaces', config.mod_id

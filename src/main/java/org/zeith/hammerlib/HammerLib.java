@@ -94,12 +94,7 @@ public class HammerLib
 		ModList.get().forEachModContainer((modid, container) ->
 		{
 			if(container instanceof FMLModContainer ctr)
-			{
-				var bus = ctr.getEventBus();
-				bus.addListener((FMLCommonSetupEvent e) ->
-						ctr.getEventBus().post(new FMLFingerprintCheckEvent(ctr))
-				);
-			}
+				FingerprintCheckAdapter.service(ctr);
 		});
 	}
 	

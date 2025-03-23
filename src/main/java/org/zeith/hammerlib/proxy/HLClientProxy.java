@@ -34,7 +34,7 @@ import org.zeith.hammerlib.client.flowgui.reader.*;
 import org.zeith.hammerlib.client.model.SimpleModelGenerator;
 import org.zeith.hammerlib.client.render.tile.*;
 import org.zeith.hammerlib.client.utils.TexturePixelGetter;
-import org.zeith.hammerlib.core.adapter.ConfigAdapter;
+import org.zeith.hammerlib.core.adapter.*;
 import org.zeith.hammerlib.core.items.tooltip.*;
 import org.zeith.hammerlib.core.scans.ScanRequireStencil;
 import org.zeith.hammerlib.core.scans.base.DataScanner;
@@ -102,7 +102,7 @@ public class HLClientProxy
 	
 	private void loadComplete(FMLLoadCompleteEvent e)
 	{
-	
+		FingerprintCheckAdapter.loadComplete();
 	}
 	
 	private void alterTooltip(RenderTooltipEvent.GatherComponents e)
