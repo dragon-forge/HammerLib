@@ -6,34 +6,26 @@ import com.zeitheron.hammercore.client.render.shader.GlShaderStack;
 import com.zeitheron.hammercore.client.utils.gl.GLBuffer;
 import com.zeitheron.hammercore.utils.OnetimeCaller;
 import com.zeitheron.hammercore.utils.base.EvtBus;
-import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.ints.*;
 import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.toasts.GuiToast;
-import net.minecraft.client.gui.toasts.IToast;
-import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.gui.toasts.*;
+import net.minecraft.client.renderer.*;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.*;
 import net.minecraftforge.client.resource.VanillaResourceType;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import org.lwjgl.opengl.ARBShaderObjects;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL32;
+import net.minecraftforge.fml.relauncher.*;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.*;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -45,6 +37,7 @@ import java.util.function.Consumer;
 @Mod.EventBusSubscriber(Side.CLIENT)
 public class VariableShaderProgram
 {
+	public static boolean hasInitialized;
 	private static final List<VariableShaderProgram> PROGRAMS = new ArrayList<>();
 	private static final Map<ResourceLocation, VariableShaderProgram> PROGRAM_REGISTRY = new HashMap<>();
 	private final Int2ObjectArrayMap<ShaderSource> sourcesStatic = new Int2ObjectArrayMap<>();
@@ -112,12 +105,12 @@ public class VariableShaderProgram
 
 	public VariableShaderProgram linkVertexSource(ShaderSource src)
 	{
-		return linkSource(GL20.GL_VERTEX_SHADER, src);
+		return linkSource(OpenGlHelper.GL_VERTEX_SHADER, src);
 	}
 
 	public VariableShaderProgram linkFragmentSource(ShaderSource src)
 	{
-		return linkSource(GL20.GL_FRAGMENT_SHADER, src);
+		return linkSource(OpenGlHelper.GL_FRAGMENT_SHADER, src);
 	}
 
 	public VariableShaderProgram linkSource(int type, ShaderSource src)
@@ -140,9 +133,9 @@ public class VariableShaderProgram
 
 		try
 		{
-			if(program != null) GL20.glDeleteProgram(program);
+			if(program != null) OpenGlHelper.glDeleteProgram(program);
 			uniformCache.clear();
-			program = GL20.glCreateProgram();
+			program = OpenGlHelper.glCreateProgram();
 			IntList shaders = new IntArrayList();
 
 			sources.clear();
@@ -152,28 +145,32 @@ public class VariableShaderProgram
 
 			for(int key : sources.keySet())
 			{
-				int shader = GL20.glCreateShader(key);
+				int shader = OpenGlHelper.glCreateShader(key);
 				if(shader == 0) continue;
-				GL20.glShaderSource(shader, sources.get(key).read(variables));
-				GL20.glCompileShader(shader);
-				String gl = GL20.glGetShaderInfoLog(shader, ARBShaderObjects.glGetObjectParameteriARB(shader, ARBShaderObjects.GL_OBJECT_INFO_LOG_LENGTH_ARB));
-				if(GL20.glGetShaderi(shader, GL20.GL_COMPILE_STATUS) == GL11.GL_FALSE)
+				byte[] abyte = sources.get(key).read(variables).getBytes(StandardCharsets.UTF_8);
+				ByteBuffer bytebuffer = BufferUtils.createByteBuffer(abyte.length);
+				bytebuffer.put(abyte);
+				bytebuffer.position(0);
+				OpenGlHelper.glShaderSource(shader, bytebuffer);
+				OpenGlHelper.glCompileShader(shader);
+				String gl = OpenGlHelper.glGetShaderInfoLog(shader, 32768);
+				if(OpenGlHelper.glGetShaderi(shader, OpenGlHelper.GL_COMPILE_STATUS) == GL11.GL_FALSE)
 				{
 					RuntimeException err = new RuntimeException("Failed to load shader(#" + Integer.toHexString(key) + ") source " + sources.get(key) + ":\n" + gl);
 					compilationErrors.add(err);
-					GL20.glDeleteShader(shader);
+					OpenGlHelper.glDeleteShader(shader);
 					continue;
-				} else if(gl.length() > 0)
+				} else if(!gl.isEmpty())
 				{
-					HammerCore.LOG.warn("GL log: for shader(#" + Integer.toHexString(key) + ") source " + sources.get(key) + ": " + gl);
+					HammerCore.LOG.warn("GL log: for shader(#{}) source {}: {}", Integer.toHexString(key), sources.get(key), gl);
 				}
-				GL20.glAttachShader(program, shader);
+				OpenGlHelper.glAttachShader(program, shader);
 				shaders.add(shader);
 			}
-			GL20.glLinkProgram(program);
-			String s = GL20.glGetProgramInfoLog(program, ARBShaderObjects.glGetObjectParameteriARB(program, ARBShaderObjects.GL_OBJECT_INFO_LOG_LENGTH_ARB));
+			OpenGlHelper.glLinkProgram(program);
+			String s = OpenGlHelper.glGetProgramInfoLog(program, 32768);
 			if(!s.isEmpty() && doGLLog) System.out.println("GL LOG: " + s.trim());
-			for(int i : shaders) GL20.glDeleteShader(i);
+			for(int i : shaders) OpenGlHelper.glDeleteShader(i);
 			hasCompiled = true;
 			compilationFailed = false;
 			collectUniforms();
@@ -184,11 +181,11 @@ public class VariableShaderProgram
 
 		if(!compilationErrors.isEmpty())
 		{
-			if(program != null) GL20.glDeleteProgram(program);
+			if(program != null) OpenGlHelper.glDeleteProgram(program);
 			program = null;
 			hasCompiled = false;
 			compilationFailed = true;
-			compilationErrors.forEach(err -> HammerCore.LOG.error("Shader " + getId() + " error:", err));
+			compilationErrors.forEach(err -> HammerCore.LOG.error("Shader {} error:", getId(), err));
 			onCompilationFailed.forEach(c -> c.accept(VariableShaderProgram.this));
 		}
 	}
@@ -199,7 +196,7 @@ public class VariableShaderProgram
 	{
 		uniformNames.clear();
 		if(program == null) return;
-		int ufs = GL20.glGetProgrami(program, GL20.GL_ACTIVE_UNIFORMS);
+		int ufs = OpenGlHelper.glGetProgrami(program, GL20.GL_ACTIVE_UNIFORMS);
 		for(int i = 0; i < ufs; ++i)
 			uniformNames.add(GL20.glGetActiveUniform(program, i, 128));
 	}
@@ -211,7 +208,7 @@ public class VariableShaderProgram
 
 	public void update()
 	{
-		if(program == null && variables.stream().peek(ShaderVar::update).anyMatch(v -> v.hasChanged))
+		if(program != null && variables.stream().peek(ShaderVar::update).anyMatch(v -> v.hasChanged))
 		{
 			createProgram();
 			variables.forEach(v -> v.hasChanged = false);
@@ -255,10 +252,10 @@ public class VariableShaderProgram
 		if(program == null) return 0;
 		if(!uniformCache.containsKey(location))
 		{
-			int loc = GL20.glGetUniformLocation(program, location);
+			int loc = OpenGlHelper.glGetUniformLocation(program, location);
 			if(loc == -1)
 			{
-				HammerCore.LOG.info("Attempted to access unknown uniform location " + location + " in shader " + id + "! This is not going to end well!");
+				HammerCore.LOG.info("Attempted to access unknown uniform location {} in shader {}! This is not going to end well!", location, id);
 				Thread.dumpStack();
 			}
 			uniformCache.put(location, loc);
@@ -269,13 +266,13 @@ public class VariableShaderProgram
 	public void setUniform(String uniform, int value)
 	{
 		if(!hasCompiled) return;
-		GL20.glUniform1i(getUniformLocation(uniform), value);
+		OpenGlHelper.glUniform1i(getUniformLocation(uniform), value);
 	}
 
 	public void setUniform(String uniform, boolean value)
 	{
 		if(!hasCompiled) return;
-		GL20.glUniform1i(getUniformLocation(uniform), value ? 1 : 0);
+		OpenGlHelper.glUniform1i(getUniformLocation(uniform), value ? 1 : 0);
 	}
 
 	public void setUniform(String uniform, float value)
@@ -325,13 +322,13 @@ public class VariableShaderProgram
 		if(compilationFailed) return;
 		if(program == null) createProgram();
 		if(!hasCompiled) return;
-		GL20.glUseProgram(program);
+		OpenGlHelper.glUseProgram(program);
 		if(!onBind.isEmpty()) onBind.forEach(c -> c.accept(this));
 	}
 
 	public void unbindShader()
 	{
-		GL20.glUseProgram(0);
+		OpenGlHelper.glUseProgram(0);
 	}
 
 	private static final OnetimeCaller initShaders = OnetimeCaller.of(() -> EvtBus.post(MinecraftForge.EVENT_BUS, new InitializeShadersEvent()));
@@ -339,7 +336,7 @@ public class VariableShaderProgram
 	@SubscribeEvent
 	public static void reloadShaders(ResourceManagerReloadEvent e)
 	{
-		if(e.isType(VanillaResourceType.SHADERS))
+		if(hasInitialized && e.isType(VanillaResourceType.SHADERS))
 			reload();
 	}
 
@@ -348,7 +345,7 @@ public class VariableShaderProgram
 		Minecraft.getMinecraft().addScheduledTask(() ->
 		{
 			initShaders.call();
-			HammerCore.LOG.info("Reloading " + PROGRAMS.size() + " variable shader programs.");
+			HammerCore.LOG.info("Reloading {} variable shader programs.", PROGRAMS.size());
 			PROGRAMS.forEach(VariableShaderProgram::onReload);
 		});
 	}

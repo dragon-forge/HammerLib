@@ -20,6 +20,7 @@ import com.zeitheron.hammercore.client.render.Render3D;
 import com.zeitheron.hammercore.client.render.item.TileEntityItemStackRendererHC;
 import com.zeitheron.hammercore.client.render.item.img.Stack2ImageRenderer;
 import com.zeitheron.hammercore.client.utils.*;
+import com.zeitheron.hammercore.client.utils.gl.shading.VariableShaderProgram;
 import com.zeitheron.hammercore.client.utils.texture.*;
 import com.zeitheron.hammercore.client.utils.texture.gui.theme.GuiTheme;
 import com.zeitheron.hammercore.client.witty.SplashTextHelper;
@@ -296,6 +297,9 @@ public class RenderProxy_Client
 	{
 		if(module != null)
 			module.init();
+		
+		VariableShaderProgram.hasInitialized = true;
+		VariableShaderProgram.reload();
 		
 		// This is an example of how to make custom textures!
 		// TextureSpriteCustom.createSprite(new ResourceLocation("hammercore",

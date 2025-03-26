@@ -2,56 +2,55 @@ package com.zeitheron.hammercore.api.lighting;
 
 import com.zeitheron.hammercore.client.utils.RenderUtil;
 import com.zeitheron.hammercore.client.utils.gl.shading.ShaderVar;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL31;
+import net.minecraftforge.fml.relauncher.*;
+import org.lwjgl.opengl.*;
 
 @SideOnly(Side.CLIENT)
 public class ShaderLightingVariable
-		extends ShaderVar
+		extends ShaderVar<Integer>
 {
+	// usually is 2048, but we should query OpenGL in case the limit ever gets increased.
 	private int blockLimit;
+	
 	private final String lightStructName;
-
+	
 	public ShaderLightingVariable(String key)
 	{
 		this(key, "Light");
 	}
-
+	
 	public ShaderLightingVariable(String key, String lightStructName)
 	{
 		super(key);
 		this.lightStructName = lightStructName;
 		RenderUtil.glTaskAsync(() -> blockLimit = GL11.glGetInteger(GL31.GL_MAX_UNIFORM_BLOCK_SIZE) / ColoredLight.FLOAT_SIZE / 4);
 	}
-
+	
 	@Override
-	protected String getCurrentValue()
+	protected Integer getState()
 	{
 		int lightCount = ColoredLightManager.UNIFORM_LIGHT_COUNT.getAsInt();
-		String layoutTemplate = "layout(std140) uniform lightBuffer%s\n{\n  " + lightStructName + " lights%s[2048];\n};\n\n";
-		String methodHeader = lightStructName + " getLight(int idx)\n{";
-		int blocks = (int) Math.ceil(lightCount / (float) blockLimit);
+		return (int) Math.ceil(lightCount / (float) blockLimit);
+	}
+	
+	@Override
+	protected String compute(Integer blocks)
+	{
+		String layoutTemplate = String.format("layout(std140) uniform lightBuffer%%s\n{\n  %s lights%%s[%d];\n};\n\n", lightStructName, blockLimit);
 		StringBuilder gen = new StringBuilder();
 		for(int i = 0; i < blocks; ++i)
 		{
 			String s = Integer.toString(i);
 			gen.append(String.format(layoutTemplate, s, s));
 		}
-
-		gen.append("\n" + methodHeader);
-
-//		gen.append("\n  " + lightStructName + " mat[" + blocks + "][];\n");
-//		for(int i = 0; i < blocks; ++i) gen.append("\n  mat[" + i + "] = lights" + i + ";");
-//		gen.append("\n  " + lightStructName + "[] arr = mat[0];");
-//		gen.append("\n  return arr[idx % 2048];");
-
+		
+		gen.append("\n").append(lightStructName).append(" getLight(int idx)\n{");
+		
 		for(int i = 0; i < blocks; ++i)
 		{
 			int start = blockLimit * i;
-			int end = Math.min(lightCount, blockLimit * (i + 1));
-			gen.append("\n  " + (i > 0 ? "else " : "") + "if(idx >= " + start + " && idx < " + end + ") return lights" + i + "[idx - " + start + "];");
+			int end = blockLimit * (i + 1);
+			gen.append(String.format("\n  %sif(idx >= %d && idx < %d) return lights%d[idx - %d];", i > 0 ? "else " : "", start, end, i, start));
 		}
 		gen.append("\n  return lights0[0];");
 		gen.append("\n}");
