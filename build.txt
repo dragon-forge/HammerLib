@@ -1,10 +1,10 @@
 forge_version=1.12.2-14.23.5.2847
 mappings=stable_39
 minecraft_version=1.12.2
-mod_version=12.2.57
+mod_version=12.2.58
 mod_name=HammerLib
 release_type=release
 jei_version=4.11.0.206
 
 project_id=247401
-start_git_commit=ebd28659bf2630cf6c2e6a20afca1aab7b1a67aa
+start_git_commit=1d7fa5e13cd8bf1f87bf9363e88a7afaaae563a1

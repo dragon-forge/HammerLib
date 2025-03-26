@@ -17,20 +17,20 @@ public class ShaderSource
 {
 	String toString;
 	IThrowableSupplier<InputStream, IOException> ioGenerator;
-
+	
 	public ShaderSource(ResourceLocation path)
 	{
 		this(() -> Minecraft.getMinecraft().getResourceManager().getResource(path).getInputStream());
 		toString = "resource='" + path + '\'';
 	}
-
+	
 	public ShaderSource(IThrowableSupplier<InputStream, IOException> ioGenerator)
 	{
 		this.ioGenerator = ioGenerator;
 		toString = "ioGenerator=" + ioGenerator;
 	}
-
-	public String read(List<ShaderVar> variables)
+	
+	public String read(List<ShaderVar<?>> variables)
 	{
 		String str = "";
 		try(InputStream in = ioGenerator.get())
@@ -40,11 +40,19 @@ public class ShaderSource
 		{
 			e.printStackTrace();
 		}
-		for(ShaderVar var : variables)
-			str = str.replaceAll("#variable " + var.key, var.getValue()).replaceAll("%" + var.key + "%", var.getValue());
+		for(ShaderVar<?> var : variables)
+		{
+			String val = var.getValue();
+			if(val == null)
+			{
+				var.update();
+				val = var.getValue();
+			}
+			str = str.replace("#variable " + var.key, val).replace("%" + var.key + "%", val);
+		}
 		return str;
 	}
-
+	
 	@Override
 	public String toString()
 	{
