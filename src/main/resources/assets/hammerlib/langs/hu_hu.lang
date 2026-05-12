@@ -1,0 +1,21 @@
+# Hammer Lib hungarian translations
+
+itemGroup.hammerlib=HammerLib
+config.jade.plugin_hammerlib.root=HammerLib
+
+block.hammerlib.test_machine=Tesztgép
+item.hammerlib.wrench=Csavarkulcs
+item.hammerlib.gears.wooden=Fa fogaskerék
+item.hammerlib.gears.stone=Kő fogaskerék
+item.hammerlib.gears.copper=Réz fogaskerék
+item.hammerlib.gears.iron=Vas fogaskerék
+item.hammerlib.gears.gold=Arany fogaskerék
+item.hammerlib.gears.diamond=Gyémánt fogaskerék
+item.hammerlib.gears.netherite=Netherit fogaskerék
+
+info.hammerlib.material=Barkácsolás hozzávaló
+info.hammerlib.fluid_uncapped=%s mB
+info.hammerlib.fluid_capped=%s / %s mB
+info.hammerlib.empty=Üres
+
+key.hammerlib.render_item=[HammerLib] GUI elem renderelése
