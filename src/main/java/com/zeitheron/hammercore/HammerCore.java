@@ -13,15 +13,12 @@ import com.zeitheron.hammercore.fluiddict.FluidDictionary;
 import com.zeitheron.hammercore.internal.*;
 import com.zeitheron.hammercore.internal.chunk.ChunkLoaderHC;
 import com.zeitheron.hammercore.internal.init.*;
-import com.zeitheron.hammercore.lib.zlib.database.SafeStore;
 import com.zeitheron.hammercore.lib.zlib.weupnp.AttuneResult;
 import com.zeitheron.hammercore.net.HCNet;
 import com.zeitheron.hammercore.net.internal.opts.PacketReqOpts;
 import com.zeitheron.hammercore.proxy.*;
 import com.zeitheron.hammercore.utils.*;
 import com.zeitheron.hammercore.utils.charging.ItemChargeHelper;
-import com.zeitheron.hammercore.utils.color.ColorHelper;
-import com.zeitheron.hammercore.utils.java.Hashers;
 import com.zeitheron.hammercore.utils.recipes.BrewingRecipe;
 import com.zeitheron.hammercore.utils.recipes.helper.*;
 import com.zeitheron.hammercore.utils.structure.StructureAPI;
@@ -32,7 +29,6 @@ import net.minecraft.entity.player.*;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.brewing.BrewingRecipeRegistry;
 import net.minecraftforge.common.config.Configuration;
@@ -55,9 +51,7 @@ import org.apache.logging.log4j.*;
 import org.xml.sax.SAXException;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.function.Supplier;
 
 /**
  * The core of Hammer Core. <br>
@@ -116,6 +110,8 @@ public class HammerCore
 	public static final Map<IHammerCoreAPI, HammerCoreAPI> APIS = new HashMap<>();
 	
 	public static final Logger LOG = LogManager.getLogger("HammerLib");
+	
+	public static boolean enableWorldGen = true;
 	
 	// public static final CSVFile FIELD_CSV, METHODS_CSV;
 	
@@ -263,7 +259,7 @@ public class HammerCore
 		meta.version = "@VERSION@";
 		meta.description = "Core used by most of Zeitheron's Mods.";
 		
-		meta.authorList = getHCAuthorsArray();
+		meta.authorList = Collections.singletonList("Zeitheron");
 		
 		ProgressManager.pop(bar);
 	}
@@ -284,7 +280,8 @@ public class HammerCore
 		
 		BrewingRecipeRegistry.addRecipe(BrewingRecipe.INSTANCE);
 		
-		GameRegistry.registerWorldGenerator(new WorldGenHammerCore(), 0);
+		if(enableWorldGen)
+			GameRegistry.registerWorldGenerator(new WorldGenHammerCore(), 0);
 		
 		StructureAPI.registerSpawnableStructure(HLConstants.id("well"));
 		
@@ -384,10 +381,10 @@ public class HammerCore
 		
 		for(RecipeRegistry rr : recipeRegistries)
 			rr //
-					.collect() //
-					.stream() //
-					.filter(r -> r != null && r.getRegistryName() != null) //
-					.forEach(fr::register);
+			   .collect() //
+			   .stream() //
+			   .filter(r -> r != null && r.getRegistryName() != null) //
+			   .forEach(fr::register);
 		
 		SimpleRegistration.$addRegisterRecipes(fr::register);
 	}
@@ -454,91 +451,9 @@ public class HammerCore
 			long start = System.currentTimeMillis();
 			reg.registerCubes(RayCubeRegistry.instance);
 			LOG.info("Registered raycast  plugin: " + reg.getClass().getName() + " in " +
-					 (System.currentTimeMillis() - start) + " ms");
+					(System.currentTimeMillis() - start) + " ms");
 		}
 	}
 	
 	public static int client_ticks = 0;
-	
-	private static final HCAuthor[] HCAUTHORS = //
-			{ //
-					new HCAuthor("Zeitheron", TextFormatting.DARK_PURPLE + "" + TextFormatting.ITALIC + "         " +
-											  TextFormatting.RESET + "   ", () ->
-					{
-						float sine = .5F * ((float) Math.sin(Math.toRadians(16 * client_ticks)) + 1);
-						
-						int r = 16;
-						int g = 180;
-						int b = 205 + (int) (sine * 50);
-						
-						return ColorHelper.packRGB(r / 255F, g / 255F, b / 255F);
-					}, true, new byte[] { 18, 50, -25, -30, 60, -127, -19, 74, 44, 106, 52, -81, 82, 69, -25, -10, -22, -128, -6, -120, -48, 26, 89, 123, 106, -27, -62, 0, -18, -73, -109, 90 }),
-					//
-			};
-	
-	public static HCAuthor[] getHCAuthors()
-	{
-		return HCAUTHORS.clone();
-	}
-	
-	public static List<String> getHCAuthorsArray()
-	{
-		List<String> a = new ArrayList<>();
-		for(HCAuthor h : HCAUTHORS)
-			if(h.isAuthor())
-				a.add(h.getUsername());
-		return Collections.unmodifiableList(a);
-	}
-	
-	public static String getHCMainDev()
-	{
-		return HCAUTHORS[0].getUsername();
-	}
-	
-	public static final List<String> AUTHORS = getHCAuthorsArray();
-	
-	public static class HCAuthor
-	{
-		private final String username, dname;
-		private final Supplier<Integer> color;
-		private final boolean isAuthor;
-		private final SafeStore store;
-		
-		private HCAuthor(String username, String dname, Supplier<Integer> color, boolean isAuthor, byte... passcode)
-		{
-			this.username = username;
-			this.dname = dname;
-			this.color = color;
-			this.isAuthor = isAuthor;
-			if(passcode.length > 0)
-				this.store = new SafeStore(passcode);
-			else
-				this.store = null;
-		}
-		
-		public SafeStore getStore()
-		{
-			return store;
-		}
-		
-		public boolean isAuthor()
-		{
-			return isAuthor;
-		}
-		
-		public String getUsername()
-		{
-			return username;
-		}
-		
-		public String getDisplayName()
-		{
-			return dname;
-		}
-		
-		public Supplier<Integer> getColor()
-		{
-			return color;
-		}
-	}
 }

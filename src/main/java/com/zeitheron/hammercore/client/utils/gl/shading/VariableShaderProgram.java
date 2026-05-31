@@ -7,7 +7,7 @@ import com.zeitheron.hammercore.client.utils.gl.GLBuffer;
 import com.zeitheron.hammercore.utils.OnetimeCaller;
 import com.zeitheron.hammercore.utils.base.EvtBus;
 import it.unimi.dsi.fastutil.ints.*;
-import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
+import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.toasts.*;
 import net.minecraft.client.renderer.*;
@@ -40,17 +40,24 @@ public class VariableShaderProgram
 	public static boolean hasInitialized;
 	private static final List<VariableShaderProgram> PROGRAMS = new ArrayList<>();
 	private static final Map<ResourceLocation, VariableShaderProgram> PROGRAM_REGISTRY = new HashMap<>();
-	private final Int2ObjectArrayMap<ShaderSource> sourcesStatic = new Int2ObjectArrayMap<>();
-	private final List<Consumer<IShaderLinker>> linkers = new ArrayList<>();
-	private final Int2ObjectArrayMap<ShaderSource> sources = new Int2ObjectArrayMap<>();
-	private final List<ShaderVar<?>> variables = new ArrayList<>();
-	private final Object2IntArrayMap<String> uniformCache = new Object2IntArrayMap<>();
-	private final List<Consumer<VariableShaderProgram>> onBind = new ArrayList<>();
-	private final List<Consumer<VariableShaderProgram>> onCompilationFailed = new ArrayList<>();
-	private Integer program;
-	private ResourceLocation id;
-	private boolean doGLLog = true, hasCompiled, compilationFailed;
-	private final List<Throwable> compilationErrors = new ArrayList<>();
+	
+	protected final Int2ObjectMap<ShaderSource> sourcesStatic = new Int2ObjectOpenHashMap<>();
+	protected final List<Consumer<IShaderLinker>> linkers = new ArrayList<>();
+	protected final Int2ObjectMap<ShaderSource> sources = new Int2ObjectOpenHashMap<>();
+	protected final List<ShaderVar<?>> variables = new ArrayList<>();
+	protected final Object2IntMap<String> uniformCache = new Object2IntOpenHashMap<>();
+	protected final List<Consumer<VariableShaderProgram>> onBind = new ArrayList<>();
+	protected final List<Consumer<VariableShaderProgram>> onCompilationFailed = new ArrayList<>();
+	protected Integer program;
+	protected ResourceLocation id;
+	protected boolean doGLLog = true, hasCompiled, compilationFailed;
+	protected final List<Throwable> compilationErrors = new ArrayList<>();
+	
+	protected boolean silentMissingUniforms;
+	
+	public final List<String> uniformNames = new ArrayList<>();
+	
+	protected final Int2FloatMap uniformValues1 = new Int2FloatOpenHashMap();
 	
 	public VariableShaderProgram id(ResourceLocation id)
 	{
@@ -70,6 +77,12 @@ public class VariableShaderProgram
 	public VariableShaderProgram doGLLog(boolean flag)
 	{
 		this.doGLLog = flag;
+		return this;
+	}
+	
+	public VariableShaderProgram silentMissingUniforms(boolean silentMissingUniforms)
+	{
+		this.silentMissingUniforms = silentMissingUniforms;
 		return this;
 	}
 	
@@ -125,6 +138,12 @@ public class VariableShaderProgram
 		return this;
 	}
 	
+	public void clearCache()
+	{
+		uniformValues1.clear();
+		uniformCache.clear();
+	}
+	
 	protected void createProgram()
 	{
 		hasCompiled = false;
@@ -134,7 +153,7 @@ public class VariableShaderProgram
 		try
 		{
 			if(program != null) OpenGlHelper.glDeleteProgram(program);
-			uniformCache.clear();
+			clearCache();
 			program = OpenGlHelper.glCreateProgram();
 			IntList shaders = new IntArrayList();
 			
@@ -153,6 +172,7 @@ public class VariableShaderProgram
 				bytebuffer.position(0);
 				OpenGlHelper.glShaderSource(shader, bytebuffer);
 				OpenGlHelper.glCompileShader(shader);
+				
 				String gl = OpenGlHelper.glGetShaderInfoLog(shader, 32768);
 				if(OpenGlHelper.glGetShaderi(shader, OpenGlHelper.GL_COMPILE_STATUS) == GL11.GL_FALSE)
 				{
@@ -164,6 +184,7 @@ public class VariableShaderProgram
 				{
 					HammerCore.LOG.warn("GL log: for shader(#{}) source {}: {}", Integer.toHexString(key), sources.get(key), gl);
 				}
+				
 				OpenGlHelper.glAttachShader(program, shader);
 				shaders.add(shader);
 			}
@@ -191,15 +212,17 @@ public class VariableShaderProgram
 		}
 	}
 	
-	public final List<String> uniformNames = new ArrayList<>();
-	
 	public void collectUniforms()
 	{
 		uniformNames.clear();
 		if(program == null) return;
 		int ufs = OpenGlHelper.glGetProgrami(program, GL20.GL_ACTIVE_UNIFORMS);
 		for(int i = 0; i < ufs; ++i)
-			uniformNames.add(GL20.glGetActiveUniform(program, i, 128));
+		{
+			String name = GL20.glGetActiveUniform(program, i, 128);
+			uniformCache.put(name, i);
+			uniformNames.add(name);
+		}
 	}
 	
 	public Integer getProgramId()
@@ -251,7 +274,7 @@ public class VariableShaderProgram
 		if(!uniformCache.containsKey(location))
 		{
 			int loc = OpenGlHelper.glGetUniformLocation(program, location);
-			if(loc == -1)
+			if(loc == -1 && !silentMissingUniforms)
 			{
 				HammerCore.LOG.info("Attempted to access unknown uniform location {} in shader {}! This is not going to end well!", location, id);
 				Thread.dumpStack();
@@ -264,19 +287,23 @@ public class VariableShaderProgram
 	public void setUniform(String uniform, int value)
 	{
 		if(!hasCompiled) return;
-		OpenGlHelper.glUniform1i(getUniformLocation(uniform), value);
+		final int loc = getUniformLocation(uniform);
+		if(uniformValues1.put(loc, value) == (float) value) return;
+		OpenGlHelper.glUniform1i(loc, value);
 	}
 	
 	public void setUniform(String uniform, boolean value)
 	{
 		if(!hasCompiled) return;
-		OpenGlHelper.glUniform1i(getUniformLocation(uniform), value ? 1 : 0);
+		setUniform(uniform, value ? 1 : 0);
 	}
 	
 	public void setUniform(String uniform, float value)
 	{
 		if(!hasCompiled) return;
-		GL20.glUniform1f(getUniformLocation(uniform), value);
+		final int loc = getUniformLocation(uniform);
+		if(uniformValues1.put(loc, value) == value) return;
+		GL20.glUniform1f(loc, value);
 	}
 	
 	public void setUniform(String uniform, int v1, int v2)

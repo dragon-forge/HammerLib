@@ -2,11 +2,10 @@ package com.zeitheron.hammercore.client.utils;
 
 import com.zeitheron.hammercore.api.RequiredDeps;
 import com.zeitheron.hammercore.cfg.HammerCoreConfigs;
-import com.zeitheron.hammercore.client.*;
+import com.zeitheron.hammercore.client.HammerCoreClient;
 import com.zeitheron.hammercore.client.gui.impl.*;
 import com.zeitheron.hammercore.client.gui.impl.smooth.*;
 import com.zeitheron.hammercore.lib.zlib.utils.IndexedMap;
-import com.zeitheron.hammercore.tile.TileSyncable;
 import com.zeitheron.hammercore.utils.base.Cast;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.*;
@@ -90,12 +89,6 @@ public class RenderGui
 	{
 		GuiScreen gui = evt.getGui();
 		final GuiScreen fgui = gui;
-		
-		if(!HCClientOptions.getOptions().checkAuthority())
-		{
-			evt.setGui(new GuiConfirmAuthority());
-			return;
-		}
 		
 		if(gui instanceof GuiCustomizeSkin)
 		{

@@ -1,8 +1,7 @@
 package com.zeitheron.hammercore.utils.color;
 
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.*;
 
 public class ColorHelper
 {
@@ -14,22 +13,36 @@ public class ColorHelper
 	public static int getColorByName(String name)
 	{
 		Integer i = ColorNamePicker.trySearchColorFor(name);
-		return i != null ? i.intValue() : 0xFFFFFF;
+		return i != null ? i : 0xFFFFFF;
 	}
 	
+	@SideOnly(Side.CLIENT)
 	public static void glColor1ia(int argb)
 	{
 		GlStateManager.color(getRed(argb), getGreen(argb), getBlue(argb), getAlpha(argb));
 	}
 	
+	@SideOnly(Side.CLIENT)
 	public static void glColor1i(int argb)
 	{
 		GlStateManager.color(getRed(argb), getGreen(argb), getBlue(argb));
 	}
 	
+	@Deprecated
+	@SideOnly(Side.CLIENT)
+	public static void gl(int rgba)
+	{
+		GlStateManager.color(getRed(rgba), getGreen(rgba), getBlue(rgba), getAlpha(rgba));
+	}
+	
 	public static int multiply(int argb, float multi)
 	{
 		return packARGB(getAlpha(argb) * multi, getRed(argb) * multi, getGreen(argb) * multi, getBlue(argb) * multi);
+	}
+	
+	public static int multiplyRGB(int argb, float multi)
+	{
+		return packARGB(getAlpha(argb), getRed(argb) * multi, getGreen(argb) * multi, getBlue(argb) * multi);
 	}
 	
 	public static int packARGB(float a, float r, float g, float b)
@@ -42,14 +55,26 @@ public class ColorHelper
 		return (((int) (r * 255F)) << 16) | (((int) (g * 255F)) << 8) | ((int) (b * 255F));
 	}
 	
+	@Deprecated
 	public static int packARGB(int a, int r, int g, int b)
 	{
 		return (a << 24) | (r << 16) | (b << 8) | b;
 	}
 	
+	@Deprecated
 	public static int packRGB(int r, int g, int b)
 	{
 		return (r << 16) | (b << 8) | b;
+	}
+	
+	public static int packARGBi(int a, int r, int g, int b)
+	{
+		return (a << 24) | (r << 16) | (g << 8) | b;
+	}
+	
+	public static int packRGBi(int r, int g, int b)
+	{
+		return (255 << 24) | (r << 16) | (g << 8) | b;
 	}
 	
 	public static float getAlpha(int rgb)
@@ -72,6 +97,26 @@ public class ColorHelper
 		return ((rgb >> 0) & 0xFF) / 255F;
 	}
 	
+	public static int getAlphai(int rgb)
+	{
+		return (rgb >> 24) & 0xFF;
+	}
+	
+	public static int getRedi(int rgb)
+	{
+		return (rgb >> 16) & 0xFF;
+	}
+	
+	public static int getGreeni(int rgb)
+	{
+		return (rgb >> 8) & 0xFF;
+	}
+	
+	public static int getBluei(int rgb)
+	{
+		return (rgb >> 0) & 0xFF;
+	}
+	
 	public static float getBrightnessF(int rgb)
 	{
 		return getRed(rgb) * getGreen(rgb) * getBlue(rgb);
@@ -83,10 +128,19 @@ public class ColorHelper
 		return bri << 16 | bri << 8 | bri;
 	}
 	
-	@SideOnly(Side.CLIENT)
-	public static void gl(int rgba)
+	public static float luma(float red, float green, float blue)
 	{
-		GlStateManager.color(getRed(rgba), getGreen(rgba), getBlue(rgba), getAlpha(rgba));
+		return red * 0.299F + green * 0.587F + blue * 0.114F;
+	}
+	
+	public static float lumai(int red, int green, int blue)
+	{
+		return red / 255F * 0.299F + green / 255F * 0.587F + blue / 255F * 0.114F;
+	}
+	
+	public static double luma(int rgb)
+	{
+		return luma(getRed(rgb), getGreen(rgb), getBlue(rgb));
 	}
 	
 	public static int interpolateSine(int a, int b, float progress)

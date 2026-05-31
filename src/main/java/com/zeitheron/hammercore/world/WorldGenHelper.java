@@ -212,7 +212,7 @@ public class WorldGenHelper
 	public static void chunkLoad(TickEvent.PlayerTickEvent e)
 	{
 		EntityPlayer player = e.player;
-		if(e.phase != TickEvent.Phase.END || e.side != Side.SERVER)
+		if(e.phase != TickEvent.Phase.END || e.side != Side.SERVER  || !HammerCore.enableWorldGen)
 			return;
 		if(player != null && !player.world.isRemote && player.ticksExisted % 10 == 0)
 			for(int x = -4; x < 4; ++x)

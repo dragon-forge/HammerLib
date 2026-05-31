@@ -1,29 +1,16 @@
 package com.zeitheron.hammercore.client;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-
 import com.zeitheron.hammercore.HammerCore;
-import com.zeitheron.hammercore.HammerCore.HCAuthor;
 import com.zeitheron.hammercore.client.utils.texture.gui.theme.GuiTheme;
-import com.zeitheron.hammercore.lib.zlib.json.JSONObject;
-import com.zeitheron.hammercore.lib.zlib.json.JSONTokener;
-import com.zeitheron.hammercore.lib.zlib.json.serapi.IgnoreSerialization;
-import com.zeitheron.hammercore.lib.zlib.json.serapi.Jsonable;
-import com.zeitheron.hammercore.lib.zlib.json.serapi.SerializationContext;
-import com.zeitheron.hammercore.lib.zlib.json.serapi.SerializedName;
-import com.zeitheron.hammercore.lib.zlib.utils.MD5;
+import com.zeitheron.hammercore.lib.zlib.json.*;
+import com.zeitheron.hammercore.lib.zlib.json.serapi.*;
 import com.zeitheron.hammercore.net.HCNet;
 import com.zeitheron.hammercore.net.internal.opts.PacketCHCOpts;
-
-import com.zeitheron.hammercore.utils.java.Hashers;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.JsonToNBT;
-import net.minecraft.nbt.NBTException;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.nbt.*;
+import net.minecraftforge.fml.relauncher.*;
+
+import java.io.*;
 
 public class HCClientOptions implements Jsonable
 {
@@ -53,22 +40,6 @@ public class HCClientOptions implements Jsonable
 		if(customData == null)
 			customData = new NBTTagCompound();
 		return customData;
-	}
-	
-	public boolean checkAuthority()
-	{
-		for(HCAuthor au : HammerCore.getHCAuthors())
-			if(Minecraft.getMinecraft().getSession().getUsername().equals(au.getUsername()))
-				return au.getStore().matches(authority);
-		return true;
-	}
-	
-	public static boolean checkAuthority(String passcode)
-	{
-		for(HCAuthor au : HammerCore.getHCAuthors())
-			if(au.getStore() != null && Minecraft.getMinecraft().getSession().getUsername().equals(au.getUsername()))
-				return au.getStore().matches(Hashers.SHA256.hashifyHex(passcode));
-		return true;
 	}
 	
 	public void setDefaults()

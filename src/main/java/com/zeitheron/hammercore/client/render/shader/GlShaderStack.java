@@ -1,6 +1,7 @@
 package com.zeitheron.hammercore.client.render.shader;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
+import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraftforge.fml.relauncher.*;
 import org.lwjgl.opengl.*;
 
@@ -17,7 +18,7 @@ public class GlShaderStack
 	
 	public static int glsGetActiveUniformLoc(String name)
 	{
-		return GL20.glGetUniformLocation(glsActiveProgram(), name);
+		return OpenGlHelper.glGetUniformLocation(glsActiveProgram(), name);
 	}
 	
 	public static void clearStack()
@@ -34,10 +35,10 @@ public class GlShaderStack
 	public static void glsPopShader()
 	{
 		if(!shaders.isEmpty())
-			GL20.glUseProgram(shaders.popInt());
+			OpenGlHelper.glUseProgram(shaders.popInt());
 		else
 		{
-			GL20.glUseProgram(0);
+			OpenGlHelper.glUseProgram(0);
 			System.out.println("GLShaderStack underflow!");
 		}
 	}
@@ -48,6 +49,12 @@ public class GlShaderStack
 	{
 		@Override
 		void close();
+		
+		default void set(int program)
+		{
+			if(!shaders.isEmpty() && shaders.peekInt(0) == program)
+				return;
+		}
 		
 		default int id()
 		{

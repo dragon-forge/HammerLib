@@ -1,16 +1,14 @@
 package com.zeitheron.hammercore.client.render.shader;
 
-import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
-import org.lwjgl.opengl.ARBFragmentShader;
-import org.lwjgl.opengl.ARBShaderObjects;
-import org.lwjgl.opengl.ARBVertexShader;
-import org.lwjgl.opengl.GL11;
+import it.unimi.dsi.fastutil.objects.*;
+import net.minecraft.client.renderer.OpenGlHelper;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.*;
 import org.lwjgl.util.vector.Matrix4f;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.function.Function;
 
@@ -21,24 +19,24 @@ public class ShaderProgram
 {
 	private int programID;
 	private final ArrayList<IShaderOperation> ops = new ArrayList<>();
-
+	
 	public ShaderProgram()
 	{
-		programID = glCreateProgramObjectARB();
+		programID = OpenGlHelper.glCreateProgram();
 		if(programID == 0)
 			throw new RuntimeException("Unable to allocate shader program object.");
 	}
-
+	
 	public void attachShaderOperation(IShaderOperation operation)
 	{
 		ops.add(operation);
 	}
-
+	
 	public void bindShader()
 	{
-		glUseProgramObjectARB(programID);
+		OpenGlHelper.glUseProgram(programID);
 	}
-
+	
 	/**
 	 * Allows you to bind the shader for use outside an IShaderOperation. You
 	 * can still pass variables to the shader using an IShaderOperation.
@@ -48,25 +46,25 @@ public class ShaderProgram
 	 */
 	public void freeBindShader()
 	{
-		glUseProgramObjectARB(programID);
+		OpenGlHelper.glUseProgram(programID);
 		for(IShaderOperation op : ops) op.operate(this);
 	}
-
+	
 	public static void unbindShader()
 	{
-		glUseProgramObjectARB(0);
+		OpenGlHelper.glUseProgram(0);
 	}
-
+	
 	public ShaderProgram attachVert(String resource)
 	{
 		return attach(ARBVertexShader.GL_VERTEX_SHADER_ARB, resource);
 	}
-
+	
 	public ShaderProgram attachFrag(String resource)
 	{
 		return attach(ARBFragmentShader.GL_FRAGMENT_SHADER_ARB, resource);
 	}
-
+	
 	public ShaderProgram attach(int shaderType, String resource)
 	{
 		InputStream stream = ShaderProgram.class.getResourceAsStream(resource);
@@ -74,40 +72,44 @@ public class ShaderProgram
 			throw new RuntimeException("Unable to locate resource: " + resource);
 		return attach(shaderType, stream);
 	}
-
+	
 	public ShaderProgram attach(int shaderType, InputStream stream)
 	{
 		if(stream == null)
 			throw new RuntimeException("Invalid shader inputstream");
-
+		
 		int shaderID = 0;
 		try
 		{
-			shaderID = glCreateShaderObjectARB(shaderType);
+			shaderID = OpenGlHelper.glCreateShader(shaderType);
 			if(shaderID == 0)
 				throw new RuntimeException("Unable to allocate shader object.");
-
+			
 			try
 			{
-				glShaderSourceARB(shaderID, asString(stream));
+				byte[] abyte = asString(stream).getBytes(StandardCharsets.UTF_8);
+				ByteBuffer bytebuffer = BufferUtils.createByteBuffer(abyte.length);
+				bytebuffer.put(abyte);
+				bytebuffer.position(0);
+				OpenGlHelper.glShaderSource(shaderID, bytebuffer);
 			} catch(IOException e)
 			{
 				throw new RuntimeException("Error reading inputstream.", e);
 			}
-
-			glCompileShaderARB(shaderID);
-			if(glGetObjectParameteriARB(shaderID, GL_OBJECT_COMPILE_STATUS_ARB) == GL11.GL_FALSE)
+			
+			OpenGlHelper.glCompileShader(shaderID);
+			if(OpenGlHelper.glGetShaderi(shaderID, OpenGlHelper.GL_COMPILE_STATUS) == GL11.GL_FALSE)
 				throw new RuntimeException("Error compiling shader: " + getInfoLog(shaderID));
-
-			glAttachObjectARB(programID, shaderID);
+			
+			OpenGlHelper.glAttachShader(programID, shaderID);
 		} catch(RuntimeException e)
 		{
-			glDeleteObjectARB(shaderID);
+			OpenGlHelper.glDeleteShader(shaderID);
 			throw e;
 		}
 		return this;
 	}
-
+	
 	/**
 	 * Call this once you have bound your frag and vert shader.
 	 *
@@ -115,7 +117,7 @@ public class ShaderProgram
 	 */
 	public ShaderProgram validate()
 	{
-		glLinkProgramARB(programID);
+		OpenGlHelper.glLinkProgram(programID);
 		if(glGetObjectParameteriARB(programID, GL_OBJECT_LINK_STATUS_ARB) == GL11.GL_FALSE)
 			throw new RuntimeException("Error linking program: " + getInfoLog(programID));
 		glValidateProgramARB(programID);
@@ -123,8 +125,9 @@ public class ShaderProgram
 			throw new RuntimeException("Error validating program: " + getInfoLog(programID));
 		return this;
 	}
-
-	public static String asString(InputStream stream) throws IOException
+	
+	public static String asString(InputStream stream)
+			throws IOException
 	{
 		StringBuilder sb = new StringBuilder();
 		BufferedReader bin = new BufferedReader(new InputStreamReader(stream));
@@ -134,31 +137,31 @@ public class ShaderProgram
 		stream.close();
 		return sb.toString();
 	}
-
+	
 	private static String getInfoLog(int shaderID)
 	{
 		return glGetInfoLogARB(shaderID, glGetObjectParameteriARB(shaderID, GL_OBJECT_INFO_LOG_LENGTH_ARB));
 	}
-
-	Object2IntArrayMap<String> uniforms = new Object2IntArrayMap<>(), attribs = new Object2IntArrayMap<>();
-	Function<String, Integer> getUniform = name -> ARBShaderObjects.glGetUniformLocationARB(programID, name);
-	Function<String, Integer> getAttrib = name -> ARBVertexShader.glGetAttribLocationARB(programID, name);
-
+	
+	Object2IntMap<String> uniforms = new Object2IntOpenHashMap<>(), attribs = new Object2IntOpenHashMap<>();
+	Function<String, Integer> getUniform = name -> OpenGlHelper.glGetUniformLocation(programID, name);
+	Function<String, Integer> getAttrib = name -> OpenGlHelper.glGetAttribLocation(programID, name);
+	
 	public int getUniformLoc(String name)
 	{
 		return uniforms.computeIfAbsent(name, getUniform);
 	}
-
+	
 	public int getAttribLoc(String name)
 	{
 		return attribs.computeIfAbsent(name, getAttrib);
 	}
-
+	
 	public void uniformTexture(String name, int textureIndex)
 	{
-		ARBShaderObjects.glUniform1iARB(getUniformLoc(name), textureIndex);
+		OpenGlHelper.glUniform1i(getUniformLoc(name), textureIndex);
 	}
-
+	
 	public void glVertexAttributeMat4(int loc, Matrix4f matrix)
 	{
 		ARBVertexShader.glVertexAttrib4fARB(loc, matrix.m00, matrix.m01, matrix.m02, matrix.m03);
@@ -166,7 +169,7 @@ public class ShaderProgram
 		ARBVertexShader.glVertexAttrib4fARB(loc + 2, matrix.m20, matrix.m21, matrix.m22, matrix.m23);
 		ARBVertexShader.glVertexAttrib4fARB(loc + 3, matrix.m30, matrix.m31, matrix.m32, matrix.m33);
 	}
-
+	
 	/**
 	 * This method will completely remove the shader.
 	 */
@@ -175,9 +178,10 @@ public class ShaderProgram
 		ops.clear();
 		ARBShaderObjects.glDeleteObjectARB(programID);
 	}
-
+	
 	@Override
-	protected void finalize() throws Throwable
+	protected void finalize()
+			throws Throwable
 	{
 		cleanup();
 		super.finalize();

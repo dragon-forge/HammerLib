@@ -1,20 +1,16 @@
 package com.zeitheron.hammercore.cfg.tickslip;
 
-import com.zeitheron.hammercore.lib.zlib.json.JSONObject;
-import com.zeitheron.hammercore.lib.zlib.json.JSONTokener;
-import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
+import com.zeitheron.hammercore.lib.zlib.json.*;
+import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.block.Block;
 import net.minecraft.util.ResourceLocation;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 
 public class TickSlipConfig
 {
-	public static Object2IntArrayMap<ResourceLocation> tileTicks = new Object2IntArrayMap<>();
+	public static Object2IntMap<ResourceLocation> tileTicks = new Object2IntOpenHashMap<>();
 
 	public static File ioFile;
 

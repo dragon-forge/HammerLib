@@ -9,7 +9,6 @@ import com.zeitheron.hammercore.client.adapter.ChatMessageAdapter;
 import org.lwjgl.opengl.GL11;
 
 import com.zeitheron.hammercore.HammerCore;
-import com.zeitheron.hammercore.HammerCore.HCAuthor;
 import com.zeitheron.hammercore.ServerHCClientPlayerData;
 import com.zeitheron.hammercore.client.HCClientOptions;
 import com.zeitheron.hammercore.client.particle.api.ParticleList;
@@ -54,7 +53,6 @@ import net.minecraftforge.fml.relauncher.Side;
 
 public class Render3D
 {
-	private static final HCAuthor[] AUTHORS = HammerCore.getHCAuthors();
 	public static int ticks = 0;
 	
 	private static final List<PositionRenderer> renders = new ArrayList<>();
@@ -207,80 +205,79 @@ public class Render3D
 		}
 	}
 	
-	@SubscribeEvent
-	public void rne(RenderGameOverlayEvent.Post event)
-	{
-		if(event.getType() == ElementType.CHAT)
-			try
-			{
-				GuiNewChat c = Minecraft.getMinecraft().ingameGUI.getChatGUI();
-				List<ChatLine> chatLines = c.drawnChatLines;
-				int updateCounter = Minecraft.getMinecraft().ingameGUI.updateCounter;
-				
-				for(int i = 0; c.getChatOpen() && i < chatLines.size() || !c.getChatOpen() && i < chatLines.size() && i < 10; i++)
-				{
-					ChatLine l = chatLines.get(i);
-					String s = l.getChatComponent().getUnformattedText();
-					for(int j = 0; j < s.length(); j++)
-					{
-						for(HCAuthor au : AUTHORS)
-							if((j < s.length() - au.getDisplayName().length() && s.substring(j, j + au.getDisplayName().length()).equals(au.getDisplayName())) | (j < s.length() - au.getUsername().length() && s.substring(j, j + au.getUsername().length()).equals(au.getUsername())))
-							{
-								HCClientOptions opts = ServerHCClientPlayerData.DATAS.get(Side.CLIENT).opts(au.getUsername());
-								NBTTagCompound data = opts == null ? null : opts.getCustomData();
-								
-								if(data != null && data.hasKey("SUsername") && !data.getBoolean("SUsername"))
-									continue;
-								
-								String before = s.substring(0, j);
-								float f = Minecraft.getMinecraft().gameSettings.chatOpacity * .9F + .1F;
-								int j1 = updateCounter - l.getUpdatedCounter();
-								if(j1 < 200 || c.getChatOpen())
-								{
-									double d0 = j1 / 200.0D;
-									d0 = 1.0D - d0;
-									d0 = d0 * 10.0D;
-									d0 = MathHelper.clamp(d0, 0, 1);
-									d0 = d0 * d0;
-									int l1 = (int) (255D * d0);
-									
-									if(c.getChatOpen())
-										l1 = 255;
-									
-									l1 = (int) (l1 * f);
-									if((20 * l1) / 255 > 3)
-									{
-										GlStateManager.enableAlpha();
-										GlStateManager.enableBlend();
-										GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE);
-										int dfunc = GL11.glGetInteger(GL11.GL_DEPTH_FUNC);
-										GlStateManager.depthFunc(GL11.GL_LEQUAL);
-										int func = GL11.glGetInteger(GL11.GL_ALPHA_TEST_FUNC);
-										float ref = GL11.glGetFloat(GL11.GL_ALPHA_TEST_REF);
-										GlStateManager.alphaFunc(GL11.GL_ALWAYS, 0);
-										GlStateManager.depthMask(false);
-										
-										GL11.glTranslated(.25, 0, 0);
-										drawTextGlowingAuraTransparent(Minecraft.getMinecraft().fontRenderer, au.getUsername(), chatX + 2 + Minecraft.getMinecraft().fontRenderer.getStringWidth(before), chatY - (Minecraft.getMinecraft().fontRenderer.FONT_HEIGHT) * i, l1, au.getColor().get());
-										GL11.glTranslated(-.25, 0, 0);
-										
-										GlStateManager.depthMask(true);
-										GlStateManager.alphaFunc(func, ref);
-										GlStateManager.depthFunc(dfunc);
-										GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
-										GlStateManager.disableBlend();
-										GlStateManager.disableAlpha();
-									}
-								}
-							}
-					}
-				}
-				
-			} catch(Throwable err)
-			{
-				
-			}
-	}
+//	@SubscribeEvent
+//	public void rne(RenderGameOverlayEvent.Post event)
+//	{
+//		if(event.getType() == ElementType.CHAT)
+//			try
+//			{
+//				GuiNewChat c = Minecraft.getMinecraft().ingameGUI.getChatGUI();
+//				List<ChatLine> chatLines = c.drawnChatLines;
+//				int updateCounter = Minecraft.getMinecraft().ingameGUI.updateCounter;
+//
+//				for(int i = 0; c.getChatOpen() && i < chatLines.size() || !c.getChatOpen() && i < chatLines.size() && i < 10; i++)
+//				{
+//					ChatLine l = chatLines.get(i);
+//					String s = l.getChatComponent().getUnformattedText();
+//					for(int j = 0; j < s.length(); j++)
+//					{
+//						for(HCAuthor au : AUTHORS)
+//							if((j < s.length() - au.getDisplayName().length() && s.substring(j, j + au.getDisplayName().length()).equals(au.getDisplayName())) | (j < s.length() - au.getUsername().length() && s.substring(j, j + au.getUsername().length()).equals(au.getUsername())))
+//							{
+//								HCClientOptions opts = ServerHCClientPlayerData.DATAS.get(Side.CLIENT).opts(au.getUsername());
+//								NBTTagCompound data = opts == null ? null : opts.getCustomData();
+//
+//								if(data != null && data.hasKey("SUsername") && !data.getBoolean("SUsername"))
+//									continue;
+//
+//								String before = s.substring(0, j);
+//								float f = Minecraft.getMinecraft().gameSettings.chatOpacity * .9F + .1F;
+//								int j1 = updateCounter - l.getUpdatedCounter();
+//								if(j1 < 200 || c.getChatOpen())
+//								{
+//									double d0 = j1 / 200.0D;
+//									d0 = 1.0D - d0;
+//									d0 = d0 * 10.0D;
+//									d0 = MathHelper.clamp(d0, 0, 1);
+//									d0 = d0 * d0;
+//									int l1 = (int) (255D * d0);
+//
+//									if(c.getChatOpen())
+//										l1 = 255;
+//
+//									l1 = (int) (l1 * f);
+//									if((20 * l1) / 255 > 3)
+//									{
+//										GlStateManager.enableAlpha();
+//										GlStateManager.enableBlend();
+//										GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE);
+//										int dfunc = GL11.glGetInteger(GL11.GL_DEPTH_FUNC);
+//										GlStateManager.depthFunc(GL11.GL_LEQUAL);
+//										int func = GL11.glGetInteger(GL11.GL_ALPHA_TEST_FUNC);
+//										float ref = GL11.glGetFloat(GL11.GL_ALPHA_TEST_REF);
+//										GlStateManager.alphaFunc(GL11.GL_ALWAYS, 0);
+//										GlStateManager.depthMask(false);
+//
+//										GL11.glTranslated(.25, 0, 0);
+//										drawTextGlowingAuraTransparent(Minecraft.getMinecraft().fontRenderer, au.getUsername(), chatX + 2 + Minecraft.getMinecraft().fontRenderer.getStringWidth(before), chatY - (Minecraft.getMinecraft().fontRenderer.FONT_HEIGHT) * i, l1, au.getColor().get());
+//										GL11.glTranslated(-.25, 0, 0);
+//
+//										GlStateManager.depthMask(true);
+//										GlStateManager.alphaFunc(func, ref);
+//										GlStateManager.depthFunc(dfunc);
+//										GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
+//										GlStateManager.disableBlend();
+//										GlStateManager.disableAlpha();
+//									}
+//								}
+//							}
+//					}
+//				}
+//
+//			} catch(Throwable err)
+//			{
+//			}
+//	}
 	
 	public static void drawTextGlowingAuraTransparent(FontRenderer font, String s, int x, int y, int a, int rgb)
 	{

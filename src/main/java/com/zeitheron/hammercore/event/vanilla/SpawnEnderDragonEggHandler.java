@@ -1,7 +1,6 @@
 package com.zeitheron.hammercore.event.vanilla;
 
 import com.zeitheron.hammercore.HammerCore;
-import com.zeitheron.hammercore.HammerCore.HCAuthor;
 import com.zeitheron.hammercore.api.IProcess;
 import com.zeitheron.hammercore.cfg.HammerCoreConfigs;
 import com.zeitheron.hammercore.utils.HolidayTrigger;
@@ -13,7 +12,6 @@ import net.minecraft.world.WorldServer;
 import net.minecraft.world.end.DragonFightManager;
 import net.minecraft.world.gen.feature.WorldGenEndPodium;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -70,16 +68,5 @@ public class SpawnEnderDragonEggHandler
 			if(shouldSpawnEgg)
 				HammerCore.updatables.add(SetEgg);
 		}
-	}
-
-	private static final HCAuthor[] authors = HammerCore.getHCAuthors();
-
-	@SubscribeEvent
-	@Deprecated
-	public static void onNameFormat(PlayerEvent.NameFormat event)
-	{
-//		for(HCAuthor author : authors)
-//			if(event.getUsername().equals(author.getUsername()))
-//				event.setDisplayname(author.getDisplayName());
 	}
 }
