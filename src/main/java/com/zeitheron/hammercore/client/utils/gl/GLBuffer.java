@@ -1,13 +1,11 @@
 package com.zeitheron.hammercore.client.utils.gl;
 
-import com.zeitheron.hammercore.utils.base.Cast;
 import org.lwjgl.BufferUtils;
 import sun.nio.ch.DirectBuffer;
 
-import java.nio.FloatBuffer;
+import java.nio.*;
 
-import static com.zeitheron.hammercore.client.utils.RenderUtil.glTask;
-import static com.zeitheron.hammercore.client.utils.RenderUtil.glTaskAsync;
+import static com.zeitheron.hammercore.client.utils.RenderUtil.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL30.glBindBufferBase;
 import static org.lwjgl.opengl.GL31.*;
@@ -21,10 +19,10 @@ public class GLBuffer
 {
 	public final int buffer;
 	private boolean disposed = false;
-
+	
 	public int drawType = GL_STREAM_DRAW;
 	public int bufferKind = GL_UNIFORM_BUFFER;
-
+	
 	/**
 	 * Constructs a new OpenGL buffer. It is not yet bound to any draw type or buffer kind.
 	 * The variables in this class may help with
@@ -34,7 +32,7 @@ public class GLBuffer
 		buffer = glTask(() -> glGenBuffers());
 		disposed = false;
 	}
-
+	
 	/**
 	 * Disposes this buffer for good. This frees GPU memory usage after your buffer is no longer used.
 	 */
@@ -44,7 +42,7 @@ public class GLBuffer
 		glTaskAsync(() -> glDeleteBuffers(buffer));
 		disposed = true;
 	}
-
+	
 	/**
 	 * Binds the current buffer to the specified buffer kind.
 	 */
@@ -52,7 +50,7 @@ public class GLBuffer
 	{
 		glBindBuffer(bufferKind, buffer);
 	}
-
+	
 	/**
 	 * Uploads raw buffer data to the GPU.
 	 */
@@ -64,7 +62,23 @@ public class GLBuffer
 			glBufferData(bufferKind, data, drawType);
 		});
 	}
-
+	
+	public void bufferDataAndFree(FloatBuffer data)
+	{
+		glTask(() ->
+		{
+			try
+			{
+				bindBuffer();
+				glBufferData(bufferKind, data, drawType);
+			} finally
+			{
+				// Deallocate the buffer after uploading
+				freeBuffer(data);
+			}
+		});
+	}
+	
 	/**
 	 * Uploads the given units of GL-writable data into this buffer to the GPU.
 	 * The data is serialized by order, and the resulting buffer data is a sequence
@@ -76,25 +90,25 @@ public class GLBuffer
 	public <T extends IGLWritable> void bufferData(T... writables)
 	{
 		int size = writables[0].getFloatSize() * writables.length;
+		
 		FloatBuffer buf = BufferUtils.createFloatBuffer(size);
 		for(T w : writables) w.writeFloats(buf::put);
 		buf.flip();
-
-		bufferData(buf);
-
-		// Deallocate the buffer after uploading
+		
+		bufferDataAndFree(buf);
+	}
+	
+	public static void freeBuffer(Buffer buf)
+	{
 		if(buf instanceof DirectBuffer)
 		{
 			DirectBuffer db = (DirectBuffer) buf;
 			if(db.cleaner() != null) db.cleaner().clean();
-			else Cast.optionally(db.attachment(), DirectBuffer.class).ifPresent(b2 ->
-			{
-				if(b2.cleaner() != null)
-					b2.cleaner().clean();
-			});
+			Object a = db.attachment();
+			if(a instanceof Buffer) freeBuffer((Buffer) a);
 		}
 	}
-
+	
 	/**
 	 * Binds this buffer to a shader program.
 	 * For this to function, your shader can (should) use <code>#version 330 compatibility</code>
@@ -112,9 +126,10 @@ public class GLBuffer
 		glUniformBlockBinding(program, glGetUniformBlockIndex(program, bufBlockName), blockBinding);
 		glBindBufferBase(bufferKind, 0, buffer);
 	}
-
+	
 	@Override
-	protected void finalize() throws Throwable
+	protected void finalize()
+			throws Throwable
 	{
 		dispose();
 		super.finalize();

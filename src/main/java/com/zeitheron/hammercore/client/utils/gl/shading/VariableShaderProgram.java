@@ -58,6 +58,9 @@ public class VariableShaderProgram
 	public final List<String> uniformNames = new ArrayList<>();
 	
 	protected final Int2FloatMap uniformValues1 = new Int2FloatOpenHashMap();
+	{
+		uniformValues1.defaultReturnValue(Float.NaN);
+	}
 	
 	public VariableShaderProgram id(ResourceLocation id)
 	{
@@ -220,7 +223,7 @@ public class VariableShaderProgram
 		for(int i = 0; i < ufs; ++i)
 		{
 			String name = GL20.glGetActiveUniform(program, i, 128);
-			uniformCache.put(name, i);
+			uniformCache.put(name, OpenGlHelper.glGetUniformLocation(program, name));
 			uniformNames.add(name);
 		}
 	}

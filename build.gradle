@@ -18,6 +18,7 @@ buildscript {
 plugins {
     id 'com.matthewprenger.cursegradle' version '1.4.0'
     id 'se.bjurr.gitchangelog.git-changelog-gradle-plugin' version '1.56'
+    id 'maven-publish'
 }
 
 apply plugin: 'net.minecraftforge.gradle.forge'
@@ -224,18 +225,6 @@ task signDeobfJar(type: SignJar, dependsOn: deobfJar) {
     outputFile = deobfJar.archivePath
 }
 
-task signSrcJar(type: SignJar, dependsOn: srcJar) {
-    onlyIf {
-        System.env.MC_KS_PASS != null
-    }
-    keyStore = System.env.MC_KS_PATH
-    alias = System.env.MC_KS_ALIAS
-    storePass = System.env.MC_KS_PASS
-    keyPass = System.env.MC_KS_PASS
-    inputFile = srcJar.archivePath
-    outputFile = srcJar.archivePath
-}
-
 task makeChangelog(type: se.bjurr.gitchangelog.plugin.gradle.GitChangelogTask) {
     file = new File("changelog.html")
     untaggedName = "Version ${project.version}"
@@ -255,14 +244,29 @@ task makeChangelog(type: se.bjurr.gitchangelog.plugin.gradle.GitChangelogTask) {
 """
 }
 
-build.dependsOn signJar
-build.dependsOn signDeobfJar
-build.dependsOn signSrcJar
 tasks.build.dependsOn makeChangelog
 
+tasks.jar.finalizedBy(signJar)
+tasks.deobfJar.finalizedBy(signDeobfJar)
+
 afterEvaluate {
-    tasks["curseforge${config.project_id}"].dependsOn.add(signJar)
-    tasks["curseforge${config.project_id}"].dependsOn.add(signDeobfJar)
-    tasks["curseforge${config.project_id}"].dependsOn.add(signSrcJar)
     tasks["curseforge${config.project_id}"].dependsOn.add(makeChangelog)
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact srcJar
+            artifact deobfJar
+
+            groupId = 'org.zeith.HammerLib'
+            artifactId = "HammerLib-1.12.2"
+        }
+    }
+    repositories {
+        maven {
+            url System.env.MAVEN_URL
+        }
+    }
 }

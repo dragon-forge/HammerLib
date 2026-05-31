@@ -456,4 +456,9 @@ public class HammerCore
 	}
 	
 	public static int client_ticks = 0;
+	
+	public static List<String> getHCAuthorsArray()
+	{
+		return Collections.singletonList("Zeitheron");
+	}
 }
