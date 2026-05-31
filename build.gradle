@@ -256,12 +256,23 @@ afterEvaluate {
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            from components.java
+            artifact(deobfJar) {
+                classifier null
+            }
+
             artifact srcJar
             artifact deobfJar
 
             groupId = 'org.zeith.HammerLib'
             artifactId = "HammerLib-1.12.2"
+
+            pom.withXml {
+                def root = asNode()
+
+                root.dependencies?.each {
+                    root.remove(it)
+                }
+            }
         }
     }
     repositories {
