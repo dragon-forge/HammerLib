@@ -447,16 +447,16 @@ public class HammerCore
 		
 		for(IRayRegistry reg : raytracePlugins)
 		{
-			LOG.info("Registering raycast plugin: " + reg.getClass().getName() + " ...");
+			LOG.info("Registering raycast plugin: {} ...", reg.getClass().getName());
 			long start = System.currentTimeMillis();
 			reg.registerCubes(RayCubeRegistry.instance);
-			LOG.info("Registered raycast  plugin: " + reg.getClass().getName() + " in " +
-					(System.currentTimeMillis() - start) + " ms");
+			LOG.info("Registered raycast  plugin: {} in {} ms", reg.getClass().getName(), System.currentTimeMillis() - start);
 		}
 	}
 	
 	public static int client_ticks = 0;
 	
+	public static final List<String> AUTHORS = getHCAuthorsArray();
 	public static List<String> getHCAuthorsArray()
 	{
 		return Collections.singletonList("Zeitheron");
