@@ -59,5 +59,15 @@ public class TileSourceType
 		{
 			return Cast.cast(world.getTileEntity(pos), TileEntity.class);
 		}
+		
+		@Override
+		public String toString()
+		{
+			return "TileSource{" +
+					"x=" + pos.getX() +
+					", y=" + pos.getY() +
+					", z=" + pos.getZ() +
+					'}';
+		}
 	}
 }

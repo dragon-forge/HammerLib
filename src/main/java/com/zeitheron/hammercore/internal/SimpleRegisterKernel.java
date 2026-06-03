@@ -1,5 +1,6 @@
 package com.zeitheron.hammercore.internal;
 
+import com.google.common.collect.ImmutableMap;
 import com.zeitheron.hammercore.HammerCore;
 import com.zeitheron.hammercore.annotations.*;
 import com.zeitheron.hammercore.api.*;
@@ -16,16 +17,15 @@ import net.minecraft.block.*;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Items;
 import net.minecraft.item.*;
+import net.minecraft.profiler.Profiler;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.fml.common.*;
+import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.discovery.ASMDataTable;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.registries.*;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 
@@ -40,8 +40,11 @@ public class SimpleRegisterKernel
 	protected CreativeTabs assignedTab;
 	protected boolean registeredItems, registeredBlocks;
 	
+	protected final Profiler profiler = new Profiler();
+	
 	public SimpleRegisterKernel(String className, SimpleRegisterKernelForMod container)
 	{
+		this.profiler.profilingEnabled = true;
 		this.className = className;
 		this.container = container;
 	}
@@ -86,11 +89,11 @@ public class SimpleRegisterKernel
 				}
 				
 				IAPContext ctx = ctxb.build();
-				AnnotationProcessorRegistry.scan(ctx, f, value);
+				AnnotationProcessorRegistry.fireFieldScan(ctx, f, value);
 			}
 			
 			for(Method m : ownerCls.getDeclaredMethods())
-				AnnotationProcessorRegistry.scan(IAPContext.DUMMY, m);
+				AnnotationProcessorRegistry.fireMethodScan(IAPContext.DUMMY, m);
 		} catch(Exception e)
 		{
 			HammerCore.LOG.error("Failed to register custom registrars from class {}", className, e);
@@ -102,8 +105,9 @@ public class SimpleRegisterKernel
 	public Map<Class<?>, List<RegisterEntry>> getFields()
 	{
 		if(fields != null) return fields;
-		fields = new HashMap<>();
+		Map<Class<?>, List<RegisterEntry>> fields = new HashMap<>();
 		
+		profiler.startSection("getFields");
 		try
 		{
 			Class<?> ownerCls = Class.forName(className);
@@ -141,6 +145,10 @@ public class SimpleRegisterKernel
 			HammerCore.LOG.error("Failed to register read class {}", className, e);
 		}
 		
+		// Freeze things.
+		this.fields = fields = ImmutableMap.copyOf(fields);
+		
+		profiler.endSection();
 		return fields;
 	}
 	
@@ -174,122 +182,127 @@ public class SimpleRegisterKernel
 		for(Tuple2<ICustomRegistrar, ResourceLocation> registrar : getCustomRegistrars())
 			registrar.a().register(registrar.b(), evtHL);
 		
-		if(toRegister != null)
-			try
+		if(toRegister == null) return;
+		
+		try
+		{
+			profiler.startSection("register." + base.getName());
+			for(RegisterEntry tup : toRegister)
 			{
-				for(RegisterEntry tup : toRegister)
+				IForgeRegistryEntry<?> ctr = tup.entry;
+				ResourceLocation regKey = tup.id;
+				boolean doReg = tup.register;
+				
+				IAPContext ctx = IAPContext.builder().shouldRegister(doReg).id(regKey).build();
+				
+				AnnotationProcessorRegistry.fireRegister(ctx, tup.field, ctr, false);
+				
+				if(!doReg) continue;
+				
+				ctr.setRegistryName(regKey);
+				
+				if(items)
 				{
-					IForgeRegistryEntry<?> ctr = tup.entry;
-					ResourceLocation regKey = tup.id;
-					boolean doReg = tup.register;
-					
-					IAPContext ctx = IAPContext.builder().shouldRegister(doReg).id(regKey).build();
-					
-					AnnotationProcessorRegistry.scanReg(ctx, tup.field, ctr, false);
-					
-					if(!doReg) continue;
-					
-					ctr.setRegistryName(regKey);
-					
-					if(items)
+					Cast.optionally(ctr, Item.class).ifPresent(it ->
 					{
-						Cast.optionally(ctr, Item.class).ifPresent(it ->
+						it.setTranslationKey(regKey.getNamespace().concat(":").concat(regKey.getPath()));
+						if(assignedTab != null) it.setCreativeTab(assignedTab);
+						ItemsHC.items.add(it);
+					});
+				} else if(blocks)
+				{
+					Cast.optionally(ctr, Block.class).ifPresent(block ->
+					{
+						block.setTranslationKey(regKey.getNamespace().concat(":").concat(regKey.getPath()));
+						if(assignedTab != null) block.setCreativeTab(assignedTab);
+						
+						// ItemBlockDefinition
+						Item ib;
+						
+						if(block instanceof BlockMultipartProvider)
+							ib = ((BlockMultipartProvider) block).createItem();
+						else if(block instanceof IItemBlock)
+							ib = ((IItemBlock) block).getItemBlock();
+						else
+							ib = new ItemBlock(block);
+						
+						if(!(block instanceof INoItemBlock))
 						{
-							it.setTranslationKey(regKey.getNamespace().concat(":").concat(regKey.getPath()));
-							if(assignedTab != null) it.setCreativeTab(assignedTab);
-							ItemsHC.items.add(it);
-						});
-					} else if(blocks)
-					{
-						Cast.optionally(ctr, Block.class).ifPresent(block ->
+							if(ib != null)
+							{
+								ForgeRegistries.ITEMS.register(ib.setRegistryName(block.getRegistryName()));
+								if(block instanceof IBlockItemRegisterListener)
+									((IBlockItemRegisterListener) block).onItemBlockRegistered(ib);
+							}
+							if(ib instanceof IRegisterListener)
+							{
+								IRegisterListener rl = (IRegisterListener) ib;
+								rl.onRegistered();
+								RegisterHook.HookCollector.propagate(rl);
+							}
+						}
+						
+						if(block instanceof INoBlockstate)
+							HammerCore.renderProxy.noModel(block);
+						
+						if(block instanceof IDontWantToRegisterTileEntity) ;
+						else if(block instanceof ITileBlock)
 						{
-							block.setTranslationKey(regKey.getNamespace().concat(":").concat(regKey.getPath()));
-							if(assignedTab != null) block.setCreativeTab(assignedTab);
+							Class<? extends TileEntity> c = ((ITileBlock) block).getTileClass();
 							
-							// ItemBlockDefinition
-							Item ib;
-							
-							if(block instanceof BlockMultipartProvider)
-								ib = ((BlockMultipartProvider) block).createItem();
-							else if(block instanceof IItemBlock)
-								ib = ((IItemBlock) block).getItemBlock();
-							else
-								ib = new ItemBlock(block);
-							
-							if(!(block instanceof INoItemBlock))
+							// Better registration of tiles. Maybe this will fix tile disappearing?
+							if(TileEntity.getKey(c) == null)
+								TileEntity.register(modid + ":" + c.getSimpleName().toLowerCase(), c);
+						} else if(block instanceof ITileEntityProvider)
+						{
+							try
 							{
-								if(ib != null)
+								ITileEntityProvider te = (ITileEntityProvider) block;
+								TileEntity t = te.createNewTileEntity(null, 0);
+								if(t != null)
 								{
-									ForgeRegistries.ITEMS.register(ib.setRegistryName(block.getRegistryName()));
-									if(block instanceof IBlockItemRegisterListener)
-										((IBlockItemRegisterListener) block).onItemBlockRegistered(ib);
+									Class<? extends TileEntity> c = t.getClass();
+									if(TileEntity.getKey(c) == null)
+										TileEntity.register(modid + ":" + c.getSimpleName().toLowerCase(), c);
 								}
-								if(ib instanceof IRegisterListener)
-								{
-									IRegisterListener rl = (IRegisterListener) ib;
-									rl.onRegistered();
-									RegisterHook.HookCollector.propagate(rl);
-								}
+							} catch(Throwable e)
+							{
+								e.printStackTrace();
 							}
-							
-							if(block instanceof INoBlockstate)
-								HammerCore.renderProxy.noModel(block);
-							
-							if(block instanceof IDontWantToRegisterTileEntity) ;
-							else if(block instanceof ITileBlock)
+						}
+						
+						if(!(block instanceof INoItemBlock))
+						{
+							Item i = Item.getItemFromBlock(block);
+							if(i != Items.AIR)
 							{
-								Class<? extends TileEntity> c = ((ITileBlock) block).getTileClass();
-								
-								// Better registration of tiles. Maybe this will fix tile disappearing?
-								if(TileEntity.getKey(c) == null)
-									TileEntity.register(modid + ":" + c.getSimpleName().toLowerCase(), c);
-							} else if(block instanceof ITileEntityProvider)
-							{
-								try
-								{
-									ITileEntityProvider te = (ITileEntityProvider) block;
-									TileEntity t = te.createNewTileEntity(null, 0);
-									if(t != null)
-									{
-										Class<? extends TileEntity> c = t.getClass();
-										if(TileEntity.getKey(c) == null)
-											TileEntity.register(modid + ":" + c.getSimpleName().toLowerCase(), c);
-									}
-								} catch(Throwable e)
-								{
-									e.printStackTrace();
-								}
+								ItemsHC.items.add(i);
+								if(assignedTab != null) i.setCreativeTab(assignedTab);
 							}
-							
-							if(!(block instanceof INoItemBlock))
-							{
-								Item i = Item.getItemFromBlock(block);
-								if(i != Items.AIR)
-								{
-									ItemsHC.items.add(i);
-									if(assignedTab != null) i.setCreativeTab(assignedTab);
-								}
-							}
-						});
-					}
-					
-					reg.register(Cast.cast(ctr));
-					
-					if(ctr instanceof IRegisterListener)
-					{
-						IRegisterListener rl = (IRegisterListener) ctr;
-						rl.onRegistered();
-						RegisterHook.HookCollector.propagate(rl);
-					}
-					
-					AnnotationProcessorRegistry.scanReg(ctx, tup.field, ctr, true);
-					
-					HammerCore.LOG.debug("Registered {}: {} ({})", base.getSimpleName(), ctr, regKey);
+						}
+					});
 				}
-			} catch(Exception e)
-			{
-				HammerCore.LOG.error("Failed to register {} from class {}", base.getSimpleName(), className, e);
+				
+				reg.register(Cast.cast(ctr));
+				
+				if(ctr instanceof IRegisterListener)
+				{
+					IRegisterListener rl = (IRegisterListener) ctr;
+					rl.onRegistered();
+					RegisterHook.HookCollector.propagate(rl);
+				}
+				
+				AnnotationProcessorRegistry.fireRegister(ctx, tup.field, ctr, true);
+				
+				HammerCore.LOG.debug("Registered {}: {} ({})", base.getSimpleName(), ctr, regKey);
 			}
+		} catch(Exception e)
+		{
+			HammerCore.LOG.error("Failed to register {} from class {}", base.getSimpleName(), className, e);
+		} finally
+		{
+			profiler.endSection();
+		}
 	}
 	
 	public static Map<String, SimpleRegisterKernelForMod> doScan(ASMDataTable table)
@@ -313,7 +326,7 @@ public class SimpleRegisterKernel
 		for(SimpleRegisterKernelForMod kernelCollection : kernels.values())
 			kernelCollection.sort(Comparator.comparing(SimpleRegisterKernel::className));
 		
-		return kernels;
+		return ImmutableMap.copyOf(kernels);
 	}
 	
 	public boolean is(String modid)

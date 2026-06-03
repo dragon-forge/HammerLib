@@ -19,7 +19,7 @@ import com.zeitheron.hammercore.lib.zlib.utils.TaskedThread;
  */
 class TransformerSystem
 {
-	public static interface iASMHook
+	public interface IASMHook
 	{
 		boolean accepts(String name);
 		
@@ -30,7 +30,7 @@ class TransformerSystem
 	
 	private String indentstr = "";
 	private int indents = 0;
-	private final List<iASMHook> hooks = new ArrayList<>();
+	private final List<IASMHook> hooks = new ArrayList<>();
 	
 	private final TaskedThread SAVE_THREAD = new TaskedThread();
 	private final File CLASS_SAVE_DIR = new File("HammerCore", "asm_classes");
@@ -44,10 +44,8 @@ class TransformerSystem
 		{
 			if(!CLASS_SAVE_DIR.isDirectory())
 				CLASS_SAVE_DIR.mkdirs();
-			try
+			try(ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(new File(CLASS_SAVE_DIR, clazz.replace("/", "_").replace(".", "_") + ".zip"))))
 			{
-				ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(new File(CLASS_SAVE_DIR, clazz.replaceAll("/", "_").replaceAll("[.]", "_") + ".zip")));
-				
 				zos.putNextEntry(new ZipEntry("origin.class"));
 				zos.write(original);
 				zos.closeEntry();
@@ -66,8 +64,6 @@ class TransformerSystem
 						zos.write((mn.name + " " + mn.desc + "\n").getBytes());
 				}
 				zos.closeEntry();
-				
-				zos.close();
 			} catch(IOException e)
 			{
 				info("Failed to save ASM class for " + clazz);
@@ -102,7 +98,7 @@ class TransformerSystem
 			HCASM.ASM_LOG.info(indentstr + "-" + text);
 	}
 	
-	public void addHook(iASMHook hook)
+	public void addHook(IASMHook hook)
 	{
 		hooks.add(hook);
 	}
@@ -126,7 +122,7 @@ class TransformerSystem
 		
 		byte[] origin = data;
 		boolean l = false;
-		for(iASMHook h : hooks)
+		for(IASMHook h : hooks)
 			if(h.accepts(transformedName) || h.accepts(name))
 			{
 				if(!l)

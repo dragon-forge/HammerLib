@@ -1,14 +1,15 @@
 package com.zeitheron.hammercore.api.lighting;
 
-import com.zeitheron.hammercore.client.utils.gl.IGLBufferStream;
-import com.zeitheron.hammercore.client.utils.gl.IGLWritable;
+import com.zeitheron.hammercore.client.utils.gl.*;
 import net.minecraft.entity.Entity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.*;
+
+import java.util.Objects;
 
 public class ColoredLight
 		implements IGLWritable
 {
+	public static final ColoredLight[] EMPTY_ARRAY = new ColoredLight[0];
 	public static final int FLOAT_SIZE = 3 + 4 + 1;
 	
 	public float x, y, z;
@@ -27,6 +28,18 @@ public class ColoredLight
 		this.radius = radius;
 	}
 	
+	public ColoredLight(ColoredLight toCopy)
+	{
+		this.x = toCopy.x;
+		this.y = toCopy.y;
+		this.z = toCopy.z;
+		this.r = toCopy.r;
+		this.g = toCopy.g;
+		this.b = toCopy.b;
+		this.a = toCopy.a;
+		this.radius = toCopy.radius;
+	}
+	
 	public ColoredLight reposition(Entity entity, float partialTicks)
 	{
 		x = (float) (entity.prevPosX + (entity.posX - entity.prevPosX) * partialTicks);
@@ -35,9 +48,40 @@ public class ColoredLight
 		return this;
 	}
 	
+	public ColoredLight reposition(Vec3d pos)
+	{
+		x = (float) pos.x;
+		y = (float) pos.y;
+		z = (float) pos.z;
+		return this;
+	}
+	
+	public ColoredLight recolor(float r, float g, float b)
+	{
+		this.r = r;
+		this.g = g;
+		this.b = b;
+		return this;
+	}
+	
+	public ColoredLight recolor(float r, float g, float b, float a)
+	{
+		this.r = r;
+		this.g = g;
+		this.b = b;
+		this.a = a;
+		return this;
+	}
+	
+	public ColoredLight resize(float radius)
+	{
+		this.radius = radius;
+		return this;
+	}
+	
 	public ColoredLight copy()
 	{
-		return new ColoredLight(x, y, z, r, g, b, a, radius);
+		return new ColoredLight(this);
 	}
 	
 	@Override
@@ -47,11 +91,43 @@ public class ColoredLight
 	}
 	
 	@Override
-	public void writeFloats(IGLBufferStream<Float> stream)
+	public void writeFloats(IGLFloatBufferStream stream)
 	{
-		stream.putAll(r, g, b, a);
-		stream.putAll(x, y, z);
-		stream.put(radius);
+		stream.putAll(
+				r, g, b, a,
+				x, y, z,
+				radius
+		);
+	}
+	
+	@Override
+	public boolean equals(Object o)
+	{
+		if(!(o instanceof ColoredLight)) return false;
+		ColoredLight that = (ColoredLight) o;
+		return Float.compare(x, that.x) == 0 && Float.compare(y, that.y) == 0 && Float.compare(z, that.z) == 0 && Float.compare(r, that.r) == 0 &&
+				Float.compare(g, that.g) == 0 && Float.compare(b, that.b) == 0 && Float.compare(a, that.a) == 0 && Float.compare(radius, that.radius) == 0;
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(x, y, z, r, g, b, a, radius);
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "ColoredLight{" +
+				"x=" + x +
+				", y=" + y +
+				", z=" + z +
+				", r=" + r +
+				", g=" + g +
+				", b=" + b +
+				", a=" + a +
+				", radius=" + radius +
+				'}';
 	}
 	
 	public Builder toBuilder()

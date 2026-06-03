@@ -1,5 +1,6 @@
 package com.zeitheron.hammercore.internal.ap;
 
+import com.zeitheron.hammercore.utils.data.KeyMap;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.Optional;
@@ -9,7 +10,7 @@ public interface IAPContext
 	IAPContext DUMMY = new IAPContext() {};
 	
 	/**
-	 * Provides the resource location for an object, if its a field with annotation.
+	 * Provides the resource location for an object, if it's a field with annotation.
 	 */
 	default Optional<ResourceLocation> getRegistryName()
 	{
@@ -23,6 +24,11 @@ public interface IAPContext
 	default boolean shouldRegister()
 	{
 		return true;
+	}
+	
+	default KeyMap keys()
+	{
+		return KeyMap.EMPTY;
 	}
 	
 	static IAPContext.Builder builder()
@@ -52,6 +58,8 @@ public interface IAPContext
 		{
 			return new IAPContext()
 			{
+				final KeyMap keys = KeyMap.createHash(1);
+				
 				@Override
 				public Optional<ResourceLocation> getRegistryName()
 				{
@@ -62,6 +70,12 @@ public interface IAPContext
 				public boolean shouldRegister()
 				{
 					return shouldRegister;
+				}
+				
+				@Override
+				public KeyMap keys()
+				{
+					return keys;
 				}
 			};
 		}

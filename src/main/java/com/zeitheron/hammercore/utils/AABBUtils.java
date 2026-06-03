@@ -38,6 +38,7 @@ public class AABBUtils
 				(int) Math.floor(aabb.maxZ)
 		);
 	}
+	
 	public static double volume(AxisAlignedBB aabb)
 	{
 		return (aabb.maxX - aabb.minX)
@@ -175,6 +176,22 @@ public class AABBUtils
 	public static Vec3d getCenter(AxisAlignedBB aabb)
 	{
 		return new Vec3d(aabb.minX + (aabb.maxX - aabb.minX) * 0.5D, aabb.minY + (aabb.maxY - aabb.minY) * 0.5D, aabb.minZ + (aabb.maxZ - aabb.minZ) * 0.5D);
+	}
+	
+	public static boolean contains(AxisAlignedBB aabb, Vec3i pos)
+	{
+		int x = pos.getX();
+		int y = pos.getY();
+		int z = pos.getZ();
+		return x > aabb.minX && x < aabb.maxX && y > aabb.minY && y < aabb.maxY && z > aabb.minZ && z < aabb.maxZ;
+	}
+	
+	public static boolean containsCenter(AxisAlignedBB aabb, Vec3i pos)
+	{
+		double x = pos.getX() + 0.5;
+		double y = pos.getY() + 0.5;
+		double z = pos.getZ() + 0.5;
+		return x > aabb.minX && x < aabb.maxX && y > aabb.minY && y < aabb.maxY && z > aabb.minZ && z < aabb.maxZ;
 	}
 	
 	public interface ILinable

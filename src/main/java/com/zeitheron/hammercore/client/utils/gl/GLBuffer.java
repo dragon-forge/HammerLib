@@ -92,7 +92,8 @@ public class GLBuffer
 		int size = writables[0].getFloatSize() * writables.length;
 		
 		FloatBuffer buf = BufferUtils.createFloatBuffer(size);
-		for(T w : writables) w.writeFloats(buf::put);
+		IGLFloatBufferStream wr = IGLFloatBufferStream.forBuffer(buf);
+		for(T w : writables) w.writeFloats(wr);
 		buf.flip();
 		
 		bufferDataAndFree(buf);

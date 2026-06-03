@@ -1,25 +1,29 @@
 package com.zeitheron.hammercore.utils.java.io.win32;
 
-import com.zeitheron.hammercore.HammerCore;
+import com.zeitheron.hammercore.HLConstants;
 import com.zeitheron.hammercore.lib.zlib.json.*;
 import com.zeitheron.hammercore.lib.zlib.web.HttpRequest;
-import com.zeitheron.hammercore.utils.java.StreamHelper;
+import com.zeitheron.hammercore.utils.java.*;
 import net.minecraftforge.fml.common.*;
+import org.apache.logging.log4j.*;
+import org.zeith.hammerlib.util.mcf.McUtil;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.io.*;
+import java.net.*;
 import java.util.*;
 import java.util.Optional;
+import java.util.concurrent.*;
 import java.util.function.Predicate;
 import java.util.stream.*;
 
 public class ModSourceAdapter
 {
+	private static final Logger LOG = LogManager.getLogger("HammerLib/ModSourceAdapter");
+	
 	/**
 	 * This lazy list contains a list of up-to-date illegal websites which allows to check with {@link ModSource}
 	 */
-	public static final List<IllegalSite> ILLEGAL_SITES;
+	public static final CompletableFuture<List<IllegalSite>> ILLEGAL_SITES = load();
 	
 	/**
 	 * Gets the source from where the given mod was downloaded.
@@ -31,11 +35,11 @@ public class ModSourceAdapter
 	{
 		Map<String, ModContainer> mods = Loader.instance().getIndexedModList();
 		return StreamHelper.optionalStream(Optional.ofNullable(mods.get(modId)))
-				.map(ModContainer::getSource)
-				.map(ZoneIdentifier::forFileSafe)
-				.flatMap(StreamHelper::optionalStream)
-				.map(ModSource::new)
-				.findFirst();
+		                   .map(ModContainer::getSource)
+		                   .map(ZoneIdentifier::forFileSafe)
+		                   .flatMap(StreamHelper::optionalStream)
+		                   .map(ModSource::new)
+		                   .findFirst();
 	}
 	
 	/**
@@ -65,7 +69,7 @@ public class ModSourceAdapter
 			return ZoneIdentifier.forFileSafe(modFile).map(ModSource::new);
 		} catch(Throwable err)
 		{
-			HammerCore.LOG.error(err);
+			LOG.error(err);
 		}
 		
 		return Optional.empty();
@@ -86,17 +90,16 @@ public class ModSourceAdapter
 			this(id.referrerUrl, id.hostUrl);
 		}
 		
-		public boolean wasDownloadedIllegally()
+		public CompletableFuture<Boolean> wasDownloadedIllegally()
 		{
 			try
 			{
 				List<URL> urls = Arrays.asList(new URL(referrerUrl), new URL(hostUrl));
-				return ILLEGAL_SITES.stream().anyMatch(site -> urls.stream().anyMatch(site));
+				return ILLEGAL_SITES.thenApply(f -> f.stream().anyMatch(site -> urls.stream().anyMatch(site)));
 			} catch(Throwable ignored)
 			{
 			}
-			
-			return false;
+			return CompletableFuture.completedFuture(false);
 		}
 		
 		public String referrerDomain()
@@ -138,27 +141,56 @@ public class ModSourceAdapter
 		}
 	}
 	
-	static
+	public static void bootstrap()
 	{
-		List<IllegalSite> illegalSites = Collections.emptyList();
+	}
+	
+	private static CompletableFuture<List<IllegalSite>> load()
+	{
+		List<CompletableFuture<List<IllegalSite>>> options = new ArrayList<>();
 		
-		try
-		{
-			illegalSites = StreamHelper.optionalStream(new JSONTokener(
-							HttpRequest.get("https://api.stopmodreposts.org/minecraft/sites.json")
-									.userAgent("HammerLib")
-									.body())
-							.nextValueARR())
-					.flatMap(array ->
-							IntStream.range(0, array.size())
-									.mapToObj(array::getJSONObject)
-									.map(IllegalSite::new))
-					.collect(Collectors.toList());
-		} catch(Throwable e)
-		{
-			e.printStackTrace();
-		}
+		// First source of truth
+		options.add(fetchSites("https://api.stopmodreposts.org/minecraft/sites.json", 30_000));
 		
-		ILLEGAL_SITES = illegalSites;
+		// Might be out of date
+		options.add(fetchSites("https://assets.zeith.org/stopmodreposts/sites.json", 30_000));
+		
+		// Test
+		options.add(CompletableFuture.supplyAsync(() ->
+				{
+					try(InputStream in = ModSourceAdapter.class.getResourceAsStream("/META-INF/stopmodreposts/sites.json"))
+					{
+						return parse((JSONArray) new JSONTokener(in).nextValue());
+					} catch(Exception e)
+					{
+						LOG.error("Missing/corrupted internal json file.", e);
+						throw new CompletionException(new FileNotFoundException("Missing/corrupted internal json file."));
+					}
+				}, McUtil.backgroundExecutor()
+		));
+		
+		return FuturesUtil.firstSuccessfulInOrder(options, idx -> LOG.info("Loaded from source {}", idx));
+	}
+	
+	private static CompletableFuture<List<IllegalSite>> fetchSites(String url, int timeoutMs)
+	{
+		return CompletableFuture.supplyAsync(() -> parse(new JSONArray(HttpRequest
+						.get(url)
+						.userAgent("Minecraft/1.12.2 HammerLib/" + HLConstants.VERSION)
+						.connectTimeout(timeoutMs)
+						.readTimeout(timeoutMs)
+						.body()
+				)),
+				McUtil.backgroundExecutor()
+		);
+	}
+	
+	private static List<IllegalSite> parse(JSONArray array)
+	{
+		return IntStream
+				.range(0, array.size())
+				.mapToObj(array::getJSONObject)
+				.map(IllegalSite::new)
+				.collect(Collectors.toList());
 	}
 }

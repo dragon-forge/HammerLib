@@ -55,5 +55,13 @@ public class EntitySourceType
 		{
 			return Entity.class;
 		}
+		
+		@Override
+		public String toString()
+		{
+			return "EntitySource{" +
+					"id=" + id +
+					'}';
+		}
 	}
 }

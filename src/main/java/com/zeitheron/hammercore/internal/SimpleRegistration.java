@@ -4,40 +4,25 @@ import com.google.common.collect.Maps;
 import com.zeitheron.hammercore.HammerCore;
 import com.zeitheron.hammercore.annotations.*;
 import com.zeitheron.hammercore.api.*;
-import com.zeitheron.hammercore.api.blocks.IBlockItemRegisterListener;
-import com.zeitheron.hammercore.api.blocks.INoBlockstate;
+import com.zeitheron.hammercore.api.blocks.*;
 import com.zeitheron.hammercore.api.multipart.BlockMultipartProvider;
 import com.zeitheron.hammercore.internal.blocks.IItemBlock;
 import com.zeitheron.hammercore.internal.init.ItemsHC;
-import com.zeitheron.hammercore.utils.IRegisterListener;
-import com.zeitheron.hammercore.utils.ReflectionUtil;
-import com.zeitheron.hammercore.utils.SoundObject;
+import com.zeitheron.hammercore.utils.*;
 import com.zeitheron.hammercore.utils.forge.RegisterHook;
-import net.minecraft.block.Block;
-import net.minecraft.block.ITileEntityProvider;
+import net.minecraft.block.*;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.item.crafting.ShapedRecipes;
-import net.minecraft.item.crafting.ShapelessRecipes;
+import net.minecraft.item.*;
+import net.minecraft.item.crafting.*;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.SoundEvent;
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.ModContainer;
+import net.minecraft.util.*;
+import net.minecraftforge.fml.common.*;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.oredict.OreIngredient;
 
 import java.lang.reflect.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
+import java.util.*;
+import java.util.function.*;
 
 public class SimpleRegistration
 {
@@ -265,22 +250,22 @@ public class SimpleRegistration
 	
 	public static boolean doRegister(Field f)
 	{
-		RegisterIf statement = f.getAnnotation(RegisterIf.class);
-		if(statement != null)
+		RegisterIf stmt = f.getAnnotation(RegisterIf.class);
+		if(stmt == null) return true;
+		
+		String parse = stmt.value();
+		int i;
+		String cls = parse.substring(0, i = parse.lastIndexOf('.'));
+		String fld = parse.substring(i + 1);
+		try
 		{
-			String parse = statement.value();
-			int i;
-			String cls = parse.substring(0, i = parse.lastIndexOf('.'));
-			String fld = parse.substring(i + 1);
-			try
-			{
-				boolean value = ReflectionUtil.getField(Class.forName(cls), fld).getBoolean(null);
-				return statement.invert() ? !value : value;
-			} catch(IllegalArgumentException | IllegalAccessException | ClassNotFoundException e)
-			{
-				e.printStackTrace();
-			}
+			boolean value = ReflectionUtil.getField(Class.forName(cls), fld).getBoolean(null);
+			return stmt.invert() != value;
+		} catch(IllegalArgumentException | IllegalAccessException | ClassNotFoundException | NullPointerException e)
+		{
+			HammerCore.LOG.warn("Failed to determine @RegisterIf for {} - {}", f, stmt, e);
 		}
+		
 		return true;
 	}
 	

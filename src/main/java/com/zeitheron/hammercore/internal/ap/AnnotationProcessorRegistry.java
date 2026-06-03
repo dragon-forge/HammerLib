@@ -9,54 +9,58 @@ import java.util.*;
  */
 public class AnnotationProcessorRegistry
 {
-	private static final Map<Class<? extends Annotation>, List<IAnnotationProcessor<?>>> AP = new HashMap<>();
+	public static final Comparator<IAnnotationProcessor<?>> PRIORITY_COMPARATOR = Comparator.<IAnnotationProcessor<?>>comparingInt(IAnnotationProcessor::priority).reversed();
+	private static final Map<Class<? extends Annotation>, List<IAnnotationProcessor<?>>> ANNOTATION_PROCESSORS = new HashMap<>();
+	private static final Set<Class<? extends Annotation>> UNSORTED = new HashSet<>();
 	
 	public static <T extends Annotation> void register(Class<T> annotation, IAnnotationProcessor<T> ap)
 	{
-		AP.computeIfAbsent(annotation, v -> new ArrayList<>()).add(ap);
+		ANNOTATION_PROCESSORS.computeIfAbsent(annotation, v -> new ArrayList<>()).add(ap);
+		UNSORTED.add(annotation);
 	}
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static void scan(IAPContext ctx, Field f, Object value)
+	public static List<IAnnotationProcessor<?>> getAnnotationProcessors(Class<? extends Annotation> annotation)
 	{
-		if(AP.isEmpty()) return;
+		List<IAnnotationProcessor<?>> lst = ANNOTATION_PROCESSORS.getOrDefault(annotation, Collections.emptyList());
+		if(UNSORTED.remove(annotation)) lst.sort(PRIORITY_COMPARATOR);
+		return Collections.unmodifiableList(lst);
+	}
+	
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	public static void fireFieldScan(IAPContext ctx, Field f, Object value)
+	{
+		if(ANNOTATION_PROCESSORS.isEmpty()) return;
 		for(Annotation annotation : f.getDeclaredAnnotations())
 		{
-			List<IAnnotationProcessor<?>> aps = AP.get(annotation.annotationType());
-			if(aps == null) continue;
-			for(IAnnotationProcessor ap : aps)
+			for(IAnnotationProcessor ap : getAnnotationProcessors(annotation.annotationType()))
 				ap.onScanned(ctx, annotation, f, value);
 		}
 	}
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static void scanReg(IAPContext ctx, Field f, Object value, boolean postReg)
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	public static void fireMethodScan(IAPContext ctx, Method m)
 	{
-		if(AP.isEmpty()) return;
+		if(ANNOTATION_PROCESSORS.isEmpty()) return;
+		for(Annotation annotation : m.getDeclaredAnnotations())
+		{
+			for(IAnnotationProcessor ap : getAnnotationProcessors(annotation.annotationType()))
+				ap.onScanned(ctx, annotation, m);
+		}
+	}
+	
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	public static void fireRegister(IAPContext ctx, Field f, Object value, boolean postReg)
+	{
+		if(ANNOTATION_PROCESSORS.isEmpty()) return;
 		for(Annotation annotation : f.getDeclaredAnnotations())
 		{
-			List<IAnnotationProcessor<?>> aps = AP.get(annotation.annotationType());
-			if(aps == null) continue;
-			for(IAnnotationProcessor ap : aps)
+			for(IAnnotationProcessor ap : getAnnotationProcessors(annotation.annotationType()))
 			{
 				if(postReg)
 					ap.onPostRegistered(ctx, annotation, f, value);
 				else
 					ap.onPreRegistered(ctx, annotation, f, value);
 			}
-		}
-	}
-	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static void scan(IAPContext ctx, Method m)
-	{
-		if(AP.isEmpty()) return;
-		for(Annotation annotation : m.getDeclaredAnnotations())
-		{
-			List<IAnnotationProcessor<?>> aps = AP.get(annotation.annotationType());
-			if(aps == null) continue;
-			for(IAnnotationProcessor ap : aps)
-				ap.onScanned(ctx, annotation, m);
 		}
 	}
 }

@@ -13,4 +13,12 @@ public interface IAnnotationProcessor<T extends Annotation>
 	default void onScanned(IAPContext context, T annotation, Field field, Object value) {}
 	
 	default void onScanned(IAPContext context, T annotation, Method method) {}
+	
+	/**
+	 * Higher priority processors will execute first.
+	 */
+	default int priority()
+	{
+		return 0;
+	}
 }

@@ -127,7 +127,7 @@ public class HammerCore
 	
 	public HammerCore()
 	{
-		CommonMessages.printMessageOnIllegalRedistribution(HammerCore.class,
+		CommonMessages.checkModSource(HammerCore.class,
 				LOG, "HammerLib", "https://www.curseforge.com/minecraft/mc-mods/hammer-lib"
 		);
 	}
@@ -171,6 +171,11 @@ public class HammerCore
 			kernel.registerBlocks();
 			kernel.registerItems();
 		}
+	}
+	
+	public static SimpleRegisterKernelForMod getKernelForMod(String modid)
+	{
+		return instance.kernels.get(modid);
 	}
 	
 	@EventHandler
@@ -293,6 +298,7 @@ public class HammerCore
 	public void postInit(FMLPostInitializationEvent e)
 	{
 		renderProxy.postInit();
+		CommonMessages.gameLoaded();
 	}
 	
 	@EventHandler
@@ -457,6 +463,7 @@ public class HammerCore
 	public static int client_ticks = 0;
 	
 	public static final List<String> AUTHORS = getHCAuthorsArray();
+	
 	public static List<String> getHCAuthorsArray()
 	{
 		return Collections.singletonList("Zeitheron");

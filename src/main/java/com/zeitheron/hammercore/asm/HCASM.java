@@ -2,6 +2,7 @@ package com.zeitheron.hammercore.asm;
 
 import java.util.Map;
 
+import com.zeitheron.hammercore.utils.java.io.win32.ModSourceAdapter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -43,6 +44,7 @@ public class HCASM implements IFMLLoadingPlugin
 		// } catch(Throwable err)
 		// {
 		// }
+		ModSourceAdapter.bootstrap();
 	}
 	
 	@Override

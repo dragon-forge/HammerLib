@@ -5,6 +5,7 @@ import net.minecraft.util.ResourceLocation;
 public class HLConstants
 {
 	public static final String MODID = "hammercore";
+	public static final String VERSION = "@VERSION@";
 	
 	public static ResourceLocation id(String path)
 	{
