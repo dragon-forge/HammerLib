@@ -1,6 +1,6 @@
 package com.zeitheron.hammercore.internal.ap;
 
-import com.zeitheron.hammercore.utils.data.KeyMap;
+import org.zeith.hammerlib.abstractions.props.KeyMap;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.Optional;
@@ -58,7 +58,7 @@ public interface IAPContext
 		{
 			return new IAPContext()
 			{
-				final KeyMap keys = KeyMap.createHash(1);
+				final KeyMap keys = KeyMap.createHash(0);
 				
 				@Override
 				public Optional<ResourceLocation> getRegistryName()

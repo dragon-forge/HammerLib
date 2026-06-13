@@ -1,4 +1,4 @@
-package com.zeitheron.hammercore.utils.data;
+package org.zeith.hammerlib.abstractions.props;
 
 import net.minecraft.util.ResourceLocation;
 

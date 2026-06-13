@@ -1,4 +1,4 @@
-package com.zeitheron.hammercore.utils.data;
+package org.zeith.hammerlib.abstractions.props;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,6 +13,11 @@ public class KeyMap
 	public KeyMap(Supplier<Map<Key<?>, Object>> mapSupplier)
 	{
 		this.values = mapSupplier.get();
+	}
+	
+	public boolean isEmpty()
+	{
+		return this.values.isEmpty();
 	}
 	
 	public <T> Optional<T> opt(Key<T> key)
@@ -46,6 +51,16 @@ public class KeyMap
 		return (T) values.put(key, value);
 	}
 	
+	public void putAll(KeyMap other)
+	{
+		this.values.putAll(other.values);
+	}
+	
+	public <T> T remove(Key<T> key)
+	{
+		return (T) this.values.remove(key);
+	}
+	
 	public <T> KeyMap with(Key<T> key, T value)
 	{
 		put(key, value);
@@ -55,6 +70,12 @@ public class KeyMap
 	public KeyMap withAll(KeyMap other)
 	{
 		this.values.putAll(other.values);
+		return this;
+	}
+	
+	public <T> KeyMap withExcept(Key<T> key)
+	{
+		remove(key);
 		return this;
 	}
 	
