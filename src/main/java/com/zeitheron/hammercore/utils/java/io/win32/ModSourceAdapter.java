@@ -2,6 +2,7 @@ package com.zeitheron.hammercore.utils.java.io.win32;
 
 import com.zeitheron.hammercore.HLConstants;
 import com.zeitheron.hammercore.lib.zlib.json.*;
+import com.zeitheron.hammercore.lib.zlib.utils.Threading;
 import com.zeitheron.hammercore.lib.zlib.web.HttpRequest;
 import com.zeitheron.hammercore.utils.java.*;
 import net.minecraftforge.fml.common.*;
@@ -137,7 +138,7 @@ public class ModSourceAdapter
 		public boolean test(URL url)
 		{
 			return (url.getHost().equalsIgnoreCase(domain) || url.getHost().endsWith("." + domain))
-					&& url.getPath().startsWith(path);
+			       && url.getPath().startsWith(path);
 		}
 	}
 	
@@ -150,35 +151,62 @@ public class ModSourceAdapter
 		List<CompletableFuture<List<IllegalSite>>> options = new ArrayList<>();
 		
 		// First source of truth
-		options.add(fetchSites("https://api.stopmodreposts.org/minecraft/sites.json", 30_000));
+		options.add(fetchSites("https://api.stopmodreposts.org/minecraft/sites.json"));
 		
 		// Might be out of date
-		options.add(fetchSites("https://assets.zeith.org/stopmodreposts/sites.json", 30_000));
+		options.add(fetchSites("https://assets.zeith.org/stopmodreposts/sites.json"));
 		
 		// Test
-		options.add(CompletableFuture.supplyAsync(() ->
+		options.add(readLocal());
+		
+		CompletableFuture<List<IllegalSite>> future = FuturesUtil.firstSuccessfulInOrder(options, idx -> LOG.info("Loaded from source {}", idx));
+		
+		Threading.createAndStart("HammerLibMSRCTimeoutThread", () ->
+				{
+					try
+					{
+						Thread.sleep(30_000L);
+					} catch(InterruptedException e)
+					{
+						Thread.currentThread().interrupt();
+						return;
+					}
+					
+					if(future.isDone()) return;
+					
+					readLocal().whenComplete((lst, err) ->
+					{
+						if(future.isDone()) return;
+						if(err != null) future.completeExceptionally(err);
+						else future.complete(lst);
+					});
+				}
+		);
+		
+		return future;
+	}
+	
+	private static CompletableFuture<List<IllegalSite>> readLocal()
+	{
+		return CompletableFuture.supplyAsync(() ->
 				{
 					try(InputStream in = ModSourceAdapter.class.getResourceAsStream("/META-INF/stopmodreposts/sites.json"))
 					{
-						return parse((JSONArray) new JSONTokener(in).nextValue());
+						return parse(new JSONArray(in));
 					} catch(Exception e)
 					{
 						LOG.error("Missing/corrupted internal json file.", e);
 						throw new CompletionException(new FileNotFoundException("Missing/corrupted internal json file."));
 					}
 				}, McUtil.backgroundExecutor()
-		));
-		
-		return FuturesUtil.firstSuccessfulInOrder(options, idx -> LOG.info("Loaded from source {}", idx));
+		);
 	}
 	
-	private static CompletableFuture<List<IllegalSite>> fetchSites(String url, int timeoutMs)
+	private static CompletableFuture<List<IllegalSite>> fetchSites(String url)
 	{
 		return CompletableFuture.supplyAsync(() -> parse(new JSONArray(HttpRequest
 						.get(url)
 						.userAgent("Minecraft/1.12.2 HammerLib/" + HLConstants.VERSION)
-						.connectTimeout(timeoutMs)
-						.readTimeout(timeoutMs)
 						.body()
 				)),
 				McUtil.backgroundExecutor()

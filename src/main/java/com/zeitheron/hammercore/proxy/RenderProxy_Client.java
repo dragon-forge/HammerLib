@@ -298,9 +298,6 @@ public class RenderProxy_Client
 		if(module != null)
 			module.init();
 		
-		VariableShaderProgram.hasInitialized = true;
-		VariableShaderProgram.reload();
-		
 		// This is an example of how to make custom textures!
 		// TextureSpriteCustom.createSprite(new ResourceLocation("hammercore",
 		// "builtin/animation_fx")).addTextureFX(new
@@ -365,6 +362,9 @@ public class RenderProxy_Client
 	@Override
 	public void postInit()
 	{
+		VariableShaderProgram.hasInitialized = true;
+		VariableShaderProgram.reload(Minecraft.getMinecraft().getResourceManager());
+		
 		if(module != null)
 			module.postInit();
 	}

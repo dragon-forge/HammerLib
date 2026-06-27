@@ -1,8 +1,12 @@
 package com.zeitheron.hammercore.client.utils.gl.shading;
 
 
+import net.minecraft.client.resources.IResourceManager;
+import net.minecraftforge.fml.relauncher.*;
+
 import java.util.Objects;
 
+@SideOnly(Side.CLIENT)
 public abstract class ShaderVar<STATE>
 {
 	public boolean hasChanged;
@@ -14,6 +18,11 @@ public abstract class ShaderVar<STATE>
 	public ShaderVar(String key)
 	{
 		this.key = key;
+	}
+	
+	public void onReload(IResourceManager resources)
+	{
+		reset();
 	}
 	
 	protected abstract STATE getState();
@@ -35,8 +44,19 @@ public abstract class ShaderVar<STATE>
 		}
 	}
 	
+	protected void reset()
+	{
+		state = null;
+		value = null;
+	}
+	
 	public String getValue()
 	{
+		if(value == null)
+		{
+			value = compute(state = getState());
+			hasChanged = false;
+		}
 		return value;
 	}
 	
@@ -56,8 +76,8 @@ public abstract class ShaderVar<STATE>
 	public String toString()
 	{
 		return "ShaderVar{" +
-				"key='" + key + '\'' +
-				", program=" + program +
-				'}';
+		       "key='" + key + '\'' +
+		       ", program=" + program +
+		       '}';
 	}
 }

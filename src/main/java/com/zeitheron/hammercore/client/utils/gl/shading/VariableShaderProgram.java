@@ -4,13 +4,14 @@ import com.zeitheron.hammercore.HammerCore;
 import com.zeitheron.hammercore.api.events.ResourceManagerReloadEvent;
 import com.zeitheron.hammercore.client.render.shader.GlShaderStack;
 import com.zeitheron.hammercore.client.utils.gl.GLBuffer;
-import com.zeitheron.hammercore.utils.OnetimeCaller;
 import com.zeitheron.hammercore.utils.base.EvtBus;
+import com.zeitheron.hammercore.utils.java.Once;
 import it.unimi.dsi.fastutil.ints.*;
 import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.toasts.*;
 import net.minecraft.client.renderer.*;
+import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.*;
 import net.minecraftforge.client.resource.VanillaResourceType;
@@ -58,6 +59,7 @@ public class VariableShaderProgram
 	public final List<String> uniformNames = new ArrayList<>();
 	
 	protected final Int2FloatMap uniformValues1 = new Int2FloatOpenHashMap();
+	
 	{
 		uniformValues1.defaultReturnValue(Float.NaN);
 	}
@@ -157,7 +159,10 @@ public class VariableShaderProgram
 		{
 			if(program != null) OpenGlHelper.glDeleteProgram(program);
 			clearCache();
-			program = OpenGlHelper.glCreateProgram();
+			
+			int program = OpenGlHelper.glCreateProgram();
+			if(program == 0) throw new RuntimeException("glCreateProgram returned 0");
+			this.program = program;
 			IntList shaders = new IntArrayList();
 			
 			sources.clear();
@@ -168,16 +173,21 @@ public class VariableShaderProgram
 			for(int key : sources.keySet())
 			{
 				int shader = OpenGlHelper.glCreateShader(key);
-				if(shader == 0) continue;
+				if(shader == 0) throw new RuntimeException("glCreateShader returned 0 for type #" + Integer.toHexString(key));
+				
 				byte[] abyte = sources.get(key).read(variables).getBytes(StandardCharsets.UTF_8);
 				ByteBuffer bytebuffer = BufferUtils.createByteBuffer(abyte.length);
 				bytebuffer.put(abyte);
 				bytebuffer.position(0);
 				OpenGlHelper.glShaderSource(shader, bytebuffer);
-				OpenGlHelper.glCompileShader(shader);
 				
-				String gl = OpenGlHelper.glGetShaderInfoLog(shader, 32768);
-				if(OpenGlHelper.glGetShaderi(shader, OpenGlHelper.GL_COMPILE_STATUS) == GL11.GL_FALSE)
+				OpenGlHelper.glCompileShader(shader);
+				int compileStatus = OpenGlHelper.glGetShaderi(shader, OpenGlHelper.GL_COMPILE_STATUS);
+				
+				int len = OpenGlHelper.glGetShaderi(shader, GL20.GL_INFO_LOG_LENGTH);
+				String gl = len > 1 ? OpenGlHelper.glGetShaderInfoLog(shader, len) : "";
+				
+				if(compileStatus == GL11.GL_FALSE)
 				{
 					RuntimeException err = new RuntimeException("Failed to load shader(#" + Integer.toHexString(key) + ") source " + sources.get(key) + ":\n" + gl);
 					compilationErrors.add(err);
@@ -191,14 +201,30 @@ public class VariableShaderProgram
 				OpenGlHelper.glAttachShader(program, shader);
 				shaders.add(shader);
 			}
+			
+			HammerCore.LOG.info("Linking shader program {}", id);
+			
 			OpenGlHelper.glLinkProgram(program);
-			String s = OpenGlHelper.glGetProgramInfoLog(program, 32768);
-			if(!s.isEmpty() && doGLLog) System.out.println("GL LOG: " + s.trim());
+			int err = GL11.glGetError();
+			if(err != GL11.GL_FALSE) HammerCore.LOG.info("GL error #{}", Integer.toHexString(err));
+			GL11.glFinish();
+			
+			int len = OpenGlHelper.glGetProgrami(program, GL20.GL_INFO_LOG_LENGTH);
+			String gl = len > 1 ? OpenGlHelper.glGetProgramInfoLog(program, len) : "";
+			HammerCore.LOG.info("GL link log: {}", gl);
+			int linkStatus = OpenGlHelper.glGetProgrami(program, OpenGlHelper.GL_LINK_STATUS);
+			
 			for(int i : shaders) OpenGlHelper.glDeleteShader(i);
+			
+			if(linkStatus == GL11.GL_FALSE)
+				throw new RuntimeException("Failed to link shader(" + id + "):\n" + gl);
+			
 			hasCompiled = true;
 			variables.forEach(v -> v.hasChanged = false); // Mark this as not changed
 			compilationFailed = false;
 			collectUniforms();
+			
+			HammerCore.LOG.info("Shader program {} has been linked.", id);
 		} catch(Throwable err)
 		{
 			compilationErrors.add(err);
@@ -235,12 +261,22 @@ public class VariableShaderProgram
 	
 	public void update()
 	{
-		if(program != null && variables.stream().peek(ShaderVar::update).anyMatch(v -> v.hasChanged))
+		if(program == null) return;
+		
+		boolean anyChanged = false;
+		for(ShaderVar<?> v : variables)
+		{
+			v.update();
+			if(v.hasChanged) anyChanged = true;
+		}
+		
+		if(anyChanged)
 			createProgram();
 	}
 	
-	public void onReload()
+	public void onReload(IResourceManager resources)
 	{
+		for(ShaderVar<?> v : variables) v.onReload(resources);
 		createProgram();
 	}
 	
@@ -359,22 +395,23 @@ public class VariableShaderProgram
 		OpenGlHelper.glUseProgram(0);
 	}
 	
-	private static final OnetimeCaller initShaders = OnetimeCaller.of(() -> EvtBus.post(MinecraftForge.EVENT_BUS, new InitializeShadersEvent()));
+	private static final Once initShaders = Once.run(() -> EvtBus.post(MinecraftForge.EVENT_BUS, new InitializeShadersEvent()));
 	
 	@SubscribeEvent
 	public static void reloadShaders(ResourceManagerReloadEvent e)
 	{
 		if(hasInitialized && e.isType(VanillaResourceType.SHADERS))
-			reload();
+			reload(e.getManager());
 	}
 	
-	public static void reload()
+	public static void reload(IResourceManager resources)
 	{
 		Minecraft.getMinecraft().addScheduledTask(() ->
 		{
 			initShaders.call();
 			HammerCore.LOG.info("Reloading {} variable shader programs.", PROGRAMS.size());
-			PROGRAMS.forEach(VariableShaderProgram::onReload);
+			for(VariableShaderProgram p : PROGRAMS)
+				p.onReload(resources);
 		});
 	}
 	
