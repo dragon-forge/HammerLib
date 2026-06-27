@@ -274,6 +274,12 @@ public class VariableShaderProgram
 			createProgram();
 	}
 	
+	public void prepareReload(IResourceManager resources)
+	{
+		for(ShaderVar<?> v : variables)
+			v.prepareReload(resources);
+	}
+	
 	public void onReload(IResourceManager resources)
 	{
 		for(ShaderVar<?> v : variables) v.onReload(resources);
@@ -397,11 +403,9 @@ public class VariableShaderProgram
 	
 	private static final Once initShaders = Once.run(() -> EvtBus.post(MinecraftForge.EVENT_BUS, new InitializeShadersEvent()));
 	
-	@SubscribeEvent
-	public static void reloadShaders(ResourceManagerReloadEvent e)
+	public static void reload()
 	{
-		if(hasInitialized && e.isType(VanillaResourceType.SHADERS))
-			reload(e.getManager());
+		reload(Minecraft.getMinecraft().getResourceManager());
 	}
 	
 	public static void reload(IResourceManager resources)
@@ -410,15 +414,23 @@ public class VariableShaderProgram
 		{
 			initShaders.call();
 			HammerCore.LOG.info("Reloading {} variable shader programs.", PROGRAMS.size());
-			for(VariableShaderProgram p : PROGRAMS)
-				p.onReload(resources);
+			for(VariableShaderProgram p : PROGRAMS) p.prepareReload(resources);
+			for(VariableShaderProgram p : PROGRAMS) p.onReload(resources);
 		});
+	}
+	
+	@SubscribeEvent
+	public static void reloadShaders(ResourceManagerReloadEvent e)
+	{
+		if(hasInitialized && e.isType(VanillaResourceType.SHADERS))
+			reload(e.getManager());
 	}
 	
 	@SubscribeEvent
 	public static void tickShader(TickEvent.ClientTickEvent e)
 	{
-		if(e.phase == TickEvent.Phase.START) PROGRAMS.forEach(VariableShaderProgram::update);
+		if(e.phase != TickEvent.Phase.START) return;
+		for(VariableShaderProgram p : PROGRAMS) p.update();
 	}
 	
 	public static VariableShaderProgram byId(ResourceLocation id)

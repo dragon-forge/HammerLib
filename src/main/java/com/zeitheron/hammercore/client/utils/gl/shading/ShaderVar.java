@@ -10,7 +10,7 @@ import java.util.Objects;
 public abstract class ShaderVar<STATE>
 {
 	public boolean hasChanged;
-	final String key;
+	protected final String key;
 	STATE state;
 	String value;
 	VariableShaderProgram program;
@@ -20,9 +20,13 @@ public abstract class ShaderVar<STATE>
 		this.key = key;
 	}
 	
-	public void onReload(IResourceManager resources)
+	public void prepareReload(IResourceManager resources)
 	{
 		reset();
+	}
+	
+	public void onReload(IResourceManager resources)
+	{
 	}
 	
 	protected abstract STATE getState();
