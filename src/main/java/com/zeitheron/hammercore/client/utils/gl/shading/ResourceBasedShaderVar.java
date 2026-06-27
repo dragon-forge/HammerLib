@@ -28,14 +28,19 @@ public abstract class ResourceBasedShaderVar<STATE>
 		try
 		{
 			getResource().reload(resources);
-			code = getResource().code;
+			code = postProcessCode(getResource().code);
 			isUsingFallback = false;
 		} catch(IOException e)
 		{
 			HammerCore.LOG.error("Failed to reload shader resource at {} required by variable {} ({})", getResource().location, this, this.key, e);
-			code = getFallbackCode();
+			code = postProcessCode(getFallbackCode());
 			isUsingFallback = true;
 		}
+	}
+	
+	protected String postProcessCode(String code)
+	{
+		return code;
 	}
 	
 	public abstract String getFallbackCode();
