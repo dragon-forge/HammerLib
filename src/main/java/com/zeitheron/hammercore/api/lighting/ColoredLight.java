@@ -11,6 +11,7 @@ public class ColoredLight
 {
 	public static final ColoredLight[] EMPTY_ARRAY = new ColoredLight[0];
 	public static final int FLOAT_SIZE = 3 + 4 + 1;
+	public static final int BYTE_SIZE = FLOAT_SIZE * 4;
 	
 	public float x, y, z;
 	public float r, g, b, a;

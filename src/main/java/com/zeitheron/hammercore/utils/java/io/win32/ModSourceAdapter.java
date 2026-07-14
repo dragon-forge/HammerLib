@@ -1,6 +1,7 @@
 package com.zeitheron.hammercore.utils.java.io.win32;
 
 import com.zeitheron.hammercore.HLConstants;
+import com.zeitheron.hammercore.lib.zlib.io.IOUtils;
 import com.zeitheron.hammercore.lib.zlib.json.*;
 import com.zeitheron.hammercore.lib.zlib.utils.Threading;
 import com.zeitheron.hammercore.lib.zlib.web.HttpRequest;
@@ -11,6 +12,7 @@ import org.zeith.hammerlib.util.mcf.McUtil;
 
 import java.io.*;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.Optional;
 import java.util.concurrent.*;
@@ -192,7 +194,7 @@ public class ModSourceAdapter
 				{
 					try(InputStream in = ModSourceAdapter.class.getResourceAsStream("/META-INF/stopmodreposts/sites.json"))
 					{
-						return parse(new JSONArray(in));
+						return parse(new JSONArray(new String(IOUtils.pipeOut(in), StandardCharsets.UTF_8)));
 					} catch(Exception e)
 					{
 						LOG.error("Missing/corrupted internal json file.", e);

@@ -1,9 +1,9 @@
 package com.zeitheron.hammercore.api.lighting;
 
+import com.zeitheron.hammercore.client.render.shader.ShaderLimits;
 import com.zeitheron.hammercore.client.utils.RenderUtil;
 import com.zeitheron.hammercore.client.utils.gl.shading.ShaderVar;
 import net.minecraftforge.fml.relauncher.*;
-import org.lwjgl.opengl.*;
 
 @SideOnly(Side.CLIENT)
 public class ShaderLightingVariable
@@ -14,16 +14,16 @@ public class ShaderLightingVariable
 	
 	private final String lightStructName;
 	
-	public ShaderLightingVariable(String key)
+	public ShaderLightingVariable(String functionName)
 	{
-		this(key, "Light");
+		this(functionName, "Light");
 	}
 	
-	public ShaderLightingVariable(String key, String lightStructName)
+	public ShaderLightingVariable(String functionName, String lightStructName)
 	{
-		super(key);
+		super(functionName);
 		this.lightStructName = lightStructName;
-		RenderUtil.glTaskAsync(() -> blockLimit = GL11.glGetInteger(GL31.GL_MAX_UNIFORM_BLOCK_SIZE) / ColoredLight.FLOAT_SIZE / 4);
+		RenderUtil.glTaskAsync(() -> blockLimit = ShaderLimits.getMaxUniformBlockSize() / ColoredLight.BYTE_SIZE);
 	}
 	
 	@Override
@@ -44,7 +44,7 @@ public class ShaderLightingVariable
 			gen.append(String.format(layoutTemplate, s, s));
 		}
 		
-		gen.append("\n").append(lightStructName).append(" getLight(int idx)\n{");
+		gen.append("\n").append(lightStructName).append(" ").append(key).append("(int idx)\n{");
 		
 		for(int i = 0; i < blocks; ++i)
 		{

@@ -216,10 +216,15 @@ public class ReflectionUtil
 	{
 		try
 		{
-			return Class.forName(Thread.currentThread().getStackTrace()[1].getClassName());
+			return Class.forName(Thread.currentThread().getStackTrace()[3].getClassName());
 		} catch(ClassNotFoundException e)
 		{
 			return null;
 		}
+	}
+	
+	public static String getCallerName()
+	{
+		return Thread.currentThread().getStackTrace()[3].getClassName();
 	}
 }

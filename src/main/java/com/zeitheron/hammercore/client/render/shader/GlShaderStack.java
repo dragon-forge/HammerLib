@@ -50,12 +50,6 @@ public class GlShaderStack
 		@Override
 		void close();
 		
-		default void set(int program)
-		{
-			if(!shaders.isEmpty() && shaders.peekInt(0) == program)
-				return;
-		}
-		
 		default int id()
 		{
 			return glsActiveProgram();
