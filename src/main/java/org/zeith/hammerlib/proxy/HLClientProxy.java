@@ -25,6 +25,7 @@ import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.settings.KeyConflictContext;
 import net.neoforged.neoforge.common.NeoForge;
+import org.zeith.api.level.IBlockEntityLevel;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.api.forge.ContainerAPI;
 import org.zeith.hammerlib.api.inv.IScreenContainer;
@@ -378,8 +379,10 @@ public class HLClientProxy
 	public void addF3Info(CustomizeGuiOverlayEvent.DebugText f3)
 	{
 		List<String> tip = f3.getLeft();
-		tip.add(ChatFormatting.GOLD + "[HammerLib]" + ChatFormatting.RESET + " Ping: ~" +
-				PingServerPacket.lastPingTime + " ms.");
+		tip.add(ChatFormatting.GOLD + "[HammerLib]" + ChatFormatting.RESET + " Ping: ~" + PingServerPacket.lastPingTime + " ms.");
+		
+		int cbe = Minecraft.getInstance().level instanceof IBlockEntityLevel l ? l.getLoadedBlockEntities_HammerLib().size() : -1;
+		tip.add(ChatFormatting.GOLD + "[HammerLib]" + ChatFormatting.RESET + " BlockEntities: " + (PingServerPacket.lastLoadedBEs >= 0 ? PingServerPacket.lastLoadedBEs + " S / " : "") + cbe + " C");
 	}
 	
 	@Override

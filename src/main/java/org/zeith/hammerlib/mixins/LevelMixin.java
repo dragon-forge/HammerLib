@@ -3,14 +3,11 @@ package org.zeith.hammerlib.mixins;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.spongepowered.asm.mixin.*;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.zeith.api.level.IBlockEntityLevel;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 @Mixin(Level.class)
 @Implements(
@@ -35,6 +32,11 @@ public abstract class LevelMixin
 	public void BEL$unloadBlockEntity_HammerLib(BlockEntity be)
 	{
 		unloadBlockEntitityQueue_HL.add(be);
+	}
+
+	public void BEL$unloadBlockEntities_HammerLib(Collection<BlockEntity> bes)
+	{
+		unloadBlockEntitityQueue_HL.addAll(bes);
 	}
 
 	@Inject(

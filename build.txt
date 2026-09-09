@@ -1,5 +1,5 @@
 # Mod Info
-mod_version=21.0.15
+mod_version=21.0.16
 build_candidate=false
 
 # Mod dependencies
@@ -17,7 +17,6 @@ issue_tracker_url=https://github.com/dragon-forge/HammerLib/issues
 
 # Maven Info
 maven_group=org.zeith.hammerlib
-maven_url=file:///R:/
 
 # MC Info
 mc_user=Zeitheron,63fa4c485b5640809727d5d59663e603
@@ -30,7 +29,7 @@ modrinth_project=PlkSuVtM
 release_type=release
 
 # Keeping track of latest git commit for changelog generation!
-last_git_commit=196425b35cb0400
+last_git_commit=2f473c9dc4ab8af
 
 # List of mods separated by ;
 # If a specific mod for one platform is needed, @m: or @c: prefixes are used.

@@ -3,8 +3,7 @@ package org.zeith.api.level;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Interface for adding additional functionality to the Level class for handling block entities.
@@ -51,8 +50,22 @@ public interface IBlockEntityLevel
 	 */
 	static void unloadBlockEntity(Level lvl, BlockEntity be)
 	{
-		if(lvl instanceof IBlockEntityLevel)
-			((IBlockEntityLevel) lvl).unloadBlockEntity_HammerLib(be);
+		if(lvl instanceof IBlockEntityLevel b)
+			b.unloadBlockEntity_HammerLib(be);
+	}
+	
+	/**
+	 * Unloads the provided block entity from the provided Level.
+	 *
+	 * @param lvl
+	 * 		Level to unload the block entity from
+	 * @param bes
+	 * 		block entities to be unloaded
+	 */
+	static void unloadBlockEntities(Level lvl, Collection<BlockEntity> bes)
+	{
+		if(lvl instanceof IBlockEntityLevel b)
+			b.unloadBlockEntities_HammerLib(bes);
 	}
 	
 	/**
@@ -74,6 +87,16 @@ public interface IBlockEntityLevel
 	 * @note For internal use only. Do not call directly.
 	 */
 	void unloadBlockEntity_HammerLib(BlockEntity be);
+	
+	/**
+	 * Unloads the provided block entities from the Level implementing this interface.
+	 *
+	 * @param bes
+	 * 		block entities to be unloaded
+	 *
+	 * @note For internal use only. Do not call directly.
+	 */
+	void unloadBlockEntities_HammerLib(Collection<BlockEntity> bes);
 	
 	/**
 	 * Returns a list of loaded block entities for the Level implementing this interface.

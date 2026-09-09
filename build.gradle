@@ -8,11 +8,12 @@ plugins {
     id "com.modrinth.minotaur" version "2.+"
     id 'net.neoforged.gradle.userdev' version '7.0.145'
     id "se.bjurr.gitchangelog.git-changelog-gradle-plugin" version "2.5.2"
+
+    id "net.darkhax.curseforgegradle" version "1.1.25"
 }
 
 apply plugin: 'idea'
 apply plugin: 'maven-publish'
-apply plugin: 'com.matthewprenger.cursegradle'
 
 ext.configFile = file("build.txt")
 configFile.withReader {
@@ -206,7 +207,7 @@ jar {
     }
 }
 
-task deobfJar(type: Jar) {
+tasks.register('deobfJar', Jar) {
     archiveClassifier = 'deobf'
     from sourceSets.main.output
     manifest {
@@ -221,7 +222,8 @@ task deobfJar(type: Jar) {
     }
 }
 
-task srcJar(type: Jar, dependsOn: classes) {
+tasks.register('srcJar', Jar) {
+    dependsOn classes
     from sourceSets.main.allJava
     archiveClassifier = 'sources'
 }
@@ -294,93 +296,73 @@ modrinth {
     }
 }
 
-curseforge {
-    apiKey = System.env.CURSEFORGE_TOKEN != null ? System.env.CURSEFORGE_TOKEN : "NONE"
-    project {
-        id = config.cf_project
-        changelogType = 'markdown'
-        changelog = file("CHANGELOG.md")
-        releaseType = config.release_type
-        addGameVersion mc_version
-        addGameVersion "NeoForge"
-        mainArtifact(jar) {
-            displayName = "[${mc_version}] ${config.mod_name} - ${config.mod_version}"
+tasks.register('curseforge', net.darkhax.curseforgegradle.TaskPublishCurseForge) {
+    apiToken = System.env.CURSEFORGE_TOKEN != null ? System.env.CURSEFORGE_TOKEN : "NONE"
+
+    // Defines the output of the jar task as the file to upload. This returns
+    // an UploadArtifact that can be used to configure things like versions and
+    // the changelog.
+    def mainFile = upload(config.cf_project, jar)
+    mainFile.changelog = 'The changelog string for this file.'
+    mainFile.addGameVersion(mc_version)
+    mainFile.addGameVersion('1.21.1')
+    mainFile.addGameVersion('NeoForge')
+    mainFile.changelog = file("CHANGELOG.md").text
+    mainFile.changelogType = "markdown"
+    mainFile.displayName = "[${mc_version}] ${config.mod_name} - ${config.mod_version}"
+    mainFile.addEnvironment("Client", "Server")
+
+    def mods = config.required_mods.split(";")
+    if (mods.length > 0 && (mods.length > 1 || !mods[0].isEmpty()))
+        for (final def one in mods) {
+            if (one.isBlank()) continue
+            if (one.startsWith("@")) {
+                def pars = one.substring(1).split(":", 2)
+                if (pars[0].equalsIgnoreCase("c")) {
+                    mainFile.addRequirement pars[1].trim()
+                }
+            } else
+                mainFile.addRequirement one.trim()
         }
 
-        def reqDeps = new ArrayList()
-        def optDeps = new ArrayList()
-        def incompat = new ArrayList()
-        def embLibs = new ArrayList()
-
-        def mods = config.required_mods.split(";")
-        if (mods.length > 0 && (mods.length > 1 || !mods[0].isEmpty()))
-            for (final def one in mods) {
-                if (one.isBlank()) continue
-                if (one.startsWith("@")) {
-                    def pars = one.substring(1).split(":", 2)
-                    if (pars[0].equalsIgnoreCase("c")) {
-                        reqDeps.add pars[1].trim()
-                    }
-                } else
-                    reqDeps.add one.trim()
-            }
-
-        mods = config.optional_mods.split(";")
-        if (mods.length > 0 && (mods.length > 1 || !mods[0].isEmpty()))
-            for (final def one in mods) {
-                if (one.isBlank()) continue
-                if (one.startsWith("@")) {
-                    def pars = one.substring(1).split(":", 2)
-                    if (pars[0].equalsIgnoreCase("c")) {
-                        optDeps.add pars[1].trim()
-                    }
-                } else
-                    optDeps.add one.trim()
-            }
-
-        mods = config.incompatible_mods.split(";")
-        if (mods.length > 0 && (mods.length > 1 || !mods[0].isEmpty()))
-            for (final def one in mods) {
-                if (one.isBlank()) continue
-                if (one.startsWith("@")) {
-                    def pars = one.substring(1).split(":", 2)
-                    if (pars[0].equalsIgnoreCase("c")) {
-                        incompat.add pars[1].trim()
-                    }
-                } else
-                    incompat.add one.trim()
-            }
-
-        mods = config.embedded_mods.split(";")
-        if (mods.length > 0 && (mods.length > 1 || !mods[0].isEmpty()))
-            for (final def one in mods) {
-                if (one.isBlank()) continue
-                if (one.startsWith("@")) {
-                    def pars = one.substring(1).split(":", 2)
-                    if (pars[0].equalsIgnoreCase("c")) {
-                        embLibs.add pars[1].trim()
-                    }
-                } else
-                    embLibs.add one.trim()
-            }
-
-        if (reqDeps.size() > 0 || optDeps.size() > 0 || incompat.size() > 0 || embLibs.size() > 0) {
-            relations {
-                reqDeps.each { dep ->
-                    requiredDependency dep
+    mods = config.optional_mods.split(";")
+    if (mods.length > 0 && (mods.length > 1 || !mods[0].isEmpty()))
+        for (final def one in mods) {
+            if (one.isBlank()) continue
+            if (one.startsWith("@")) {
+                def pars = one.substring(1).split(":", 2)
+                if (pars[0].equalsIgnoreCase("c")) {
+                    mainFile.addOptional pars[1].trim()
                 }
-                optDeps.each { dep ->
-                    optionalDependency dep
-                }
-                incompat.each { dep ->
-                    incompatible dep
-                }
-                embLibs.each { dep ->
-                    embeddedLibrary dep
-                }
-            }
+            } else
+                mainFile.addOptional one.trim()
         }
-    }
+
+    mods = config.incompatible_mods.split(";")
+    if (mods.length > 0 && (mods.length > 1 || !mods[0].isEmpty()))
+        for (final def one in mods) {
+            if (one.isBlank()) continue
+            if (one.startsWith("@")) {
+                def pars = one.substring(1).split(":", 2)
+                if (pars[0].equalsIgnoreCase("c")) {
+                    mainFile.addIncompatibility pars[1].trim()
+                }
+            } else
+                mainFile.addIncompatibility one.trim()
+        }
+
+    mods = config.embedded_mods.split(";")
+    if (mods.length > 0 && (mods.length > 1 || !mods[0].isEmpty()))
+        for (final def one in mods) {
+            if (one.isBlank()) continue
+            if (one.startsWith("@")) {
+                def pars = one.substring(1).split(":", 2)
+                if (pars[0].equalsIgnoreCase("c")) {
+                    mainFile.addEmbedded pars[1].trim()
+                }
+            } else
+                mainFile.addEmbedded one.trim()
+        }
 }
 
 import net.neoforged.gradle.common.tasks.PotentiallySignJar
@@ -434,7 +416,7 @@ Changelog:
 
 tasks.register('buildAndUploadMod') {
     group = "upload"
-    dependsOn "curseforge${config.cf_project}", 'modrinth'
+    dependsOn "curseforge", 'modrinth'
 
     doLast {
         println "Upload complete."
@@ -442,11 +424,11 @@ tasks.register('buildAndUploadMod') {
 }
 
 afterEvaluate {
-    tasks["curseforge${config.cf_project}"].dependsOn.add(generateChangelog)
+    tasks["curseforge"].dependsOn.add(generateChangelog)
     tasks["modrinth"].dependsOn.add(generateChangelog)
 
-    if (!config.maven_url.isEmpty()) {
-        tasks["curseforge${config.cf_project}"].dependsOn.add(publish)
+    if (System.env.MAVEN_URL != null && !System.env.MAVEN_URL.isEmpty()) {
+        tasks["curseforge"].dependsOn.add(publish)
         tasks["modrinth"].dependsOn.add(publish)
     }
 }
@@ -461,7 +443,7 @@ publishing {
     }
     repositories {
         maven {
-            url config.maven_url
+            url System.env.MAVEN_URL
         }
     }
 }
