@@ -1,10 +1,19 @@
 package org.zeith.hammerlib.core.init;
 
+import net.minecraft.sounds.SoundEvents;
+import net.neoforged.neoforge.common.SoundActions;
+import net.neoforged.neoforge.fluids.FluidType;
+import org.zeith.hammerlib.annotations.*;
+import org.zeith.hammerlib.api.fluid.FluidFactory;
+import org.zeith.hammerlib.proxy.HLConstants;
+
 //@SimplyRegister
 public interface FluidsHL
 {
 //	@RegistryName("water")
-//	FluidFactory WOOH = FluidFactory.builder(FluidType.Properties.create()
+//	FluidFactory WOOH = FluidFactory
+//			.builder(FluidType.Properties
+//					.create()
 //					.canSwim(false)
 //					.canDrown(true)
 //					.canConvertToSource(true)

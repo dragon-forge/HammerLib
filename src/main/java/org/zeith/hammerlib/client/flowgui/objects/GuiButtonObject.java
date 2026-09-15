@@ -4,23 +4,22 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import lombok.Builder;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.*;
 import net.minecraft.util.Mth;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.*;
 import org.jetbrains.annotations.NotNull;
 import org.zeith.hammerlib.client.flowgui.*;
+import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.math.Point;
+
+import java.util.function.Supplier;
 
 public class GuiButtonObject
 		extends GuiObject
@@ -32,7 +31,8 @@ public class GuiButtonObject
 	public boolean enabled;
 	public Component message;
 	public OnPress callback;
-	public Holder<SoundEvent> pressSound;
+	public Supplier<Holder<SoundEvent>> pressSound;
+	public float pressSoundPitch = 1F;
 	
 	protected static final WidgetSprites SPRITES = new WidgetSprites(
 			ResourceLocation.withDefaultNamespace("widget/button"),
@@ -42,12 +42,13 @@ public class GuiButtonObject
 	
 	@Builder
 	public GuiButtonObject(@NotNull String name,
-						   float alpha,
-						   int packedFGColor,
-						   boolean enabled,
-						   @NotNull Component message,
-						   @NotNull OnPress callback,
-						   Holder<SoundEvent> pressSound
+	                       float alpha,
+	                       int packedFGColor,
+	                       boolean enabled,
+	                       @NotNull Component message,
+	                       @NotNull OnPress callback,
+	                       Supplier<Holder<SoundEvent>> pressSound,
+	                       Float pressSoundPitch
 	)
 	{
 		super(name);
@@ -57,6 +58,7 @@ public class GuiButtonObject
 		this.message = message;
 		this.callback = callback;
 		this.pressSound = pressSound;
+		if(pressSoundPitch != null) this.pressSoundPitch = pressSoundPitch;
 	}
 	
 	public GuiButtonObject setAlpha(float alpha)
@@ -83,6 +85,12 @@ public class GuiButtonObject
 		return this;
 	}
 	
+	public GuiButtonObject setPressSoundPitch(float pressSoundPitch)
+	{
+		this.pressSoundPitch = pressSoundPitch;
+		return this;
+	}
+	
 	public static GuiButtonObjectBuilder builder(String name)
 	{
 		return new GuiButtonObjectBuilder()
@@ -92,23 +100,27 @@ public class GuiButtonObject
 				.enabled(true)
 				.message(Component.empty())
 				.callback(OnPress.NONE)
-				.pressSound(SoundEvents.UI_BUTTON_CLICK);
+				.pressSound(Cast.constant(SoundEvents.UI_BUTTON_CLICK));
 	}
 	
 	@Override
 	protected void render(Graphics gfx, MousePos pos)
 	{
 		Minecraft minecraft = Minecraft.getInstance();
-		
+		renderButtonBg(gfx, pos);
 		var pGuiGraphics = gfx.gfx();
-		
-		pGuiGraphics.setColor(1.0F, 1.0F, 1.0F, this.alpha);
-		RenderSystem.enableBlend();
-		RenderSystem.enableDepthTest();
-		pGuiGraphics.blitSprite(SPRITES.get(enabled, pos.isMouseWithin(this)), 0, 0, (int) width, (int) height);
-		pGuiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
 		int i = getFGColor();
 		this.renderString(pGuiGraphics, minecraft.font, i | Mth.ceil(this.alpha * 255.0F) << 24);
+	}
+	
+	protected void renderButtonBg(Graphics gfx, MousePos pos)
+	{
+		RenderSystem.enableBlend();
+		RenderSystem.enableDepthTest();
+		var gg = gfx.gfx();
+		gg.setColor(1.0F, 1.0F, 1.0F, this.alpha);
+		gg.blitSprite(getSprite(enabled, pos.isMouseWithin(this)), 0, 0, (int) width, (int) height);
+		gg.setColor(1.0F, 1.0F, 1.0F, 1.0F);
 	}
 	
 	public void onPress()
@@ -118,7 +130,7 @@ public class GuiButtonObject
 	}
 	
 	@Override
-	protected boolean onMouseClicked(Point globalMousePos, MousePos pos, int button)
+	protected boolean onMouseClicked(Point globalMousePos, MousePos pos, int button, boolean fake)
 	{
 		if(button == 0 && enabled && pos.isMouseWithin(this))
 		{
@@ -132,21 +144,16 @@ public class GuiButtonObject
 	public void playDownSound(SoundManager pHandler)
 	{
 		if(pressSound != null)
-			pHandler.play(SimpleSoundInstance.forUI(pressSound, 1.0F));
+		{
+			var s = pressSound.get();
+			if(s == null) return;
+			pHandler.play(SimpleSoundInstance.forUI(s, pressSoundPitch));
+		}
 	}
 	
-	private int getTextureY(boolean hovered)
+	private ResourceLocation getSprite(boolean enabled, boolean hovered)
 	{
-		int i = 1;
-		if(!this.enabled)
-		{
-			i = 0;
-		} else if(hovered)
-		{
-			i = 2;
-		}
-		
-		return 46 + i * 20;
+		return SPRITES.get(enabled, hovered);
 	}
 	
 	public int getFGColor()

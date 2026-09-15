@@ -14,5 +14,8 @@ item.hammerlib.gears.diamond=Elmas Dişli
 item.hammerlib.gears.netherite=Netherit Dişli
 
 info.hammerlib.material=Üretim Malzemesi
+info.hammerlib.fluid_uncapped=%s mB
+info.hammerlib.fluid_capped=%s / %s mB
+info.hammerlib.empty=Empty
 
 key.hammerlib.render_item=[HammerLib] GUI Eşyasını Oluştur

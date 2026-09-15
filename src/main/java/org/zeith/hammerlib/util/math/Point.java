@@ -34,6 +34,16 @@ public class Point
 		return b;
 	}
 	
+	public Point withX(float x)
+	{
+		return new Point(x, y());
+	}
+	
+	public Point withY(float y)
+	{
+		return new Point(x(), y);
+	}
+	
 	@Override
 	public Stream<Float> stream()
 	{

@@ -13,5 +13,8 @@ item.hammerlib.gears.diamond=Алмазная шестерня
 item.hammerlib.gears.netherite=Незеритовая шестерня
 
 info.hammerlib.material=Крафтовый материал
+info.hammerlib.fluid_uncapped=%s мВ
+info.hammerlib.fluid_capped=%s / %s мВ
+info.hammerlib.empty=Пусто
 
 key.hammerlib.render_item=[HammerLib] Render GUI Item

@@ -239,7 +239,7 @@ modrinth {
     versionNumber = config.mod_version
     versionType = config.release_type
     uploadFile = jar
-    gameVersions = [mc_version]
+    gameVersions = [mc_version, "1.21.1"]
     setChangelog(providers.fileContents(layout.projectDirectory.file("CHANGELOG.md")).asText)
     dependencies {
         def mods = config.required_mods.split(";")
@@ -307,6 +307,7 @@ tasks.register('curseforge', net.darkhax.curseforgegradle.TaskPublishCurseForge)
     mainFile.addGameVersion(mc_version)
     mainFile.addGameVersion('1.21.1')
     mainFile.addGameVersion('NeoForge')
+    mainFile.releaseType = config.release_type;
     mainFile.changelog = file("CHANGELOG.md").text
     mainFile.changelogType = "markdown"
     mainFile.displayName = "[${mc_version}] ${config.mod_name} - ${config.mod_version}"

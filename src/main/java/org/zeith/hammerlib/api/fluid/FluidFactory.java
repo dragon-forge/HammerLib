@@ -1,4 +1,4 @@
-package org.zeith.hammerlib.api.registrars;
+package org.zeith.hammerlib.api.fluid;
 
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
@@ -174,42 +174,42 @@ public class FluidFactory
 	public boolean has(ItemStack stack)
 	{
 		return !stack.isEmpty() &&
-			   FluidUtil.getFluidHandler(stack)
-					   .map(h ->
-					   {
-						   int t = h.getTanks();
-						   for(int i = 0; i < t; i++)
-						   {
-							   var ft = h.getFluidInTank(i);
-							   if(is(ft))
-								   return true;
-						   }
-						   return false;
-					   })
-					   .orElse(false);
+		       FluidUtil.getFluidHandler(stack)
+		                .map(h ->
+						{
+							int t = h.getTanks();
+							for(int i = 0; i < t; i++)
+							{
+								var ft = h.getFluidInTank(i);
+								if(is(ft))
+									return true;
+							}
+							return false;
+						})
+		                .orElse(false);
 	}
 	
 	public boolean has(ItemStack stack, int minAmount)
 	{
 		return !stack.isEmpty() &&
-			   FluidUtil.getFluidHandler(stack)
-					   .map(h ->
-					   {
-						   int amt = 0;
-						   int t = h.getTanks();
-						   for(int i = 0; i < t; i++)
-						   {
-							   var ft = h.getFluidInTank(i);
-							   if(is(ft))
-							   {
-								   amt += ft.getAmount();
-								   if(amt >= minAmount)
-									   return true;
-							   }
-						   }
-						   return amt >= minAmount;
-					   })
-					   .orElse(false);
+		       FluidUtil.getFluidHandler(stack)
+		                .map(h ->
+						{
+							int amt = 0;
+							int t = h.getTanks();
+							for(int i = 0; i < t; i++)
+							{
+								var ft = h.getFluidInTank(i);
+								if(is(ft))
+								{
+									amt += ft.getAmount();
+									if(amt >= minAmount)
+										return true;
+								}
+							}
+							return amt >= minAmount;
+						})
+		                .orElse(false);
 	}
 	
 	@Override
@@ -312,13 +312,13 @@ public class FluidFactory
 		{
 			return withBlock(flowing -> new LiquidBlock(flowing.get(),
 					BlockBehaviour.Properties.of()
-							.replaceable()
-							.noCollission()
-							.strength(100.0F)
-							.pushReaction(PushReaction.DESTROY)
-							.noLootTable()
-							.liquid()
-							.sound(SoundType.EMPTY)
+					                         .replaceable()
+					                         .noCollission()
+					                         .strength(100.0F)
+					                         .pushReaction(PushReaction.DESTROY)
+					                         .noLootTable()
+					                         .liquid()
+					                         .sound(SoundType.EMPTY)
 			));
 		}
 		
@@ -393,8 +393,8 @@ public class FluidFactory
 					sourceGen,
 					flowingGen
 			).withRenderType(renderType)
-					.addFluidTags(fluidTags)
-					.addToTabs(tabs);
+			 .addFluidTags(fluidTags)
+			 .addToTabs(tabs);
 		}
 	}
 }

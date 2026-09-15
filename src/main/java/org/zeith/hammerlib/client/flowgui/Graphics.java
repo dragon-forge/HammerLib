@@ -1,6 +1,7 @@
 package org.zeith.hammerlib.client.flowgui;
 
-import lombok.Builder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import lombok.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Builder
+@With
 public record Graphics(GuiGraphics gfx, Minecraft game, float partialTime, boolean debugBounds)
 {
 	public void setColor(float r, float g, float b, float a)
@@ -243,5 +245,10 @@ public record Graphics(GuiGraphics gfx, Minecraft game, float partialTime, boole
 	public void blitInscribed(ResourceLocation tex, int x, int y, int boundsWidth, int boundsHeight, int rectWidth, int rectHeight, boolean centerX, boolean centerY)
 	{
 		gfx.blitInscribed(tex, x, y, boundsWidth, boundsHeight, rectWidth, rectHeight, centerX, centerY);
+	}
+	
+	public PoseStack pose()
+	{
+		return gfx.pose();
 	}
 }

@@ -15,7 +15,7 @@ import java.util.function.Consumer;
  */
 public class FluidTypeHL
 		extends FluidType
-		implements IRegisterListener
+		implements IRegisterListener, IExtendedFluidType
 {
 	protected ResourceLocation
 			still = HLConstants.id("block/machine_down"),

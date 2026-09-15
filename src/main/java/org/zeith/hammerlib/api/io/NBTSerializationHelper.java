@@ -3,7 +3,9 @@ package org.zeith.hammerlib.api.io;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.*;
 import net.minecraft.nbt.*;
+import net.neoforged.neoforge.common.MutableDataComponentHolder;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
@@ -20,7 +22,7 @@ import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
+import java.util.*;
 
 public class NBTSerializationHelper
 {
@@ -60,33 +62,36 @@ public class NBTSerializationHelper
 		
 		registerSerializer(BigInteger.class, new NumberSerializer<>(Tag.TAG_BYTE_ARRAY, b -> new ByteArrayTag(b.toByteArray()), (ByteArrayTag nbt) -> new BigInteger(nbt.getAsByteArray())));
 		registerSerializer(BigDecimal.class, new NumberSerializer<>(Tag.TAG_BYTE_ARRAY, b -> new ByteArrayTag(b.toString()
-				.getBytes(StandardCharsets.UTF_8)), (ByteArrayTag nbt) -> new BigDecimal(new String(nbt.getAsByteArray(), StandardCharsets.UTF_8))));
+		                                                                                                       .getBytes(StandardCharsets.UTF_8)), (ByteArrayTag nbt) -> new BigDecimal(new String(nbt.getAsByteArray(), StandardCharsets.UTF_8))
+				)
+		);
 		
 		ScanDataHelper.lookupAnnotatedObjects(NBTSerializer.class).forEach(data ->
 		{
 			data.getProperty("value").map(List.class::cast).ifPresentOrElse(ts ->
-			{
-				try
-				{
-					List<Type> types = Cast.cast(ts);
-					var ctor = data.getOwnerClass().getDeclaredConstructor();
-					ctor.setAccessible(true);
-					INBTSerializer<?> ser = Cast.cast(ctor.newInstance());
-					for(Type type : types)
 					{
-						Class<?> c = ReflectionUtil.fetchClassAny(type);
-						if(c != null)
+						try
 						{
-							SERIALIZER_MAP.putIfAbsent(c, ser);
-							LOG.debug("Registered NBT serializer for type {}: {}", c, ser);
-						} else
-							LOG.error("Unable to find class {}!", type.getInternalName());
-					}
-				} catch(ReflectiveOperationException roe)
-				{
-					LOG.error("Failed to create an instance of {}", data.getOwnerClass().getName(), roe);
-				}
-			}, () -> LOG.error("Completely ignored broken @NBTSerializer annotation with data {}", data.parent.annotationData()));
+							List<Type> types = Cast.cast(ts);
+							var ctor = data.getOwnerClass().getDeclaredConstructor();
+							ctor.setAccessible(true);
+							INBTSerializer<?> ser = Cast.cast(ctor.newInstance());
+							for(Type type : types)
+							{
+								Class<?> c = ReflectionUtil.fetchClassAny(type);
+								if(c != null)
+								{
+									SERIALIZER_MAP.putIfAbsent(c, ser);
+									LOG.debug("Registered NBT serializer for type {}: {}", c, ser);
+								} else
+									LOG.error("Unable to find class {}!", type.getInternalName());
+							}
+						} catch(ReflectiveOperationException roe)
+						{
+							LOG.error("Failed to create an instance of {}", data.getOwnerClass().getName(), roe);
+						}
+					}, () -> LOG.error("Completely ignored broken @NBTSerializer annotation with data {}", data.parent.annotationData())
+			);
 		});
 		
 		ScanDataHelper.lookupAnnotatedObjects(CodecSerializer.class).forEach(data ->
@@ -122,6 +127,22 @@ public class NBTSerializationHelper
 			registerCodecSerializer(codecSer);
 			LOG.debug("Registered NBT serializer for type {}: {}", c, ser);
 		});
+	}
+	
+	public static void readDataPatchFromNbt(CompoundTag tag, MutableDataComponentHolder target)
+	{
+		try
+		{
+			var res = NbtOps.INSTANCE.withDecoder(DataComponentPatch.CODEC).apply(tag).getOrThrow().getFirst();
+			for(Map.Entry<DataComponentType<?>, Optional<?>> e : res.entrySet())
+			{
+				DataComponentType key = e.getKey();
+				var o = e.getValue().orElse(null);
+				if(key != null && o != null) target.set(key, o);
+			}
+		} catch(Exception e)
+		{
+		}
 	}
 	
 	public static <T> INBTSerializer<T> getSerializer(Class<T> type)
