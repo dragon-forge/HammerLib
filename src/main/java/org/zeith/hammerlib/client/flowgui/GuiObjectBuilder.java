@@ -6,8 +6,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import org.zeith.hammerlib.client.flowgui.objects.*;
+import org.zeith.hammerlib.client.flowgui.util.Tooltip;
 import org.zeith.hammerlib.util.java.Cast;
+
+import java.util.function.Supplier;
 
 public class GuiObjectBuilder
 {
@@ -31,6 +35,57 @@ public class GuiObjectBuilder
 	public GuiSlotLinkObject slot(Slot slot)
 	{
 		return new GuiSlotLinkObject(name).bindToSlot(slot);
+	}
+	
+	public GuiImageObject fullImage(
+			ResourceLocation tex,
+			float width, float height
+	)
+	{
+		return image(tex, 0, 0, width, height, width, height);
+	}
+	
+	public GuiImageObject image(
+			ResourceLocation tex,
+			float uOffset, float vOffset,
+			float width, float height,
+			float txWidth, float txHeight)
+	{
+		return new GuiImageObject(name, Cast.constant(tex), uOffset, vOffset, width, height, txWidth, txHeight);
+	}
+	
+	public GuiImageObject image(
+			ResourceLocation tex,
+			float uOffset, float vOffset,
+			float width, float height)
+	{
+		return image(tex, uOffset, vOffset, width, height, 256, 256);
+	}
+	
+	
+	public GuiImageObject fullImage(
+			Supplier<ResourceLocation> tex,
+			float width, float height
+	)
+	{
+		return image(tex, 0, 0, width, height, width, height);
+	}
+	
+	public GuiImageObject image(
+			Supplier<ResourceLocation> tex,
+			float uOffset, float vOffset,
+			float width, float height,
+			float txWidth, float txHeight)
+	{
+		return new GuiImageObject(name, tex, uOffset, vOffset, width, height, txWidth, txHeight);
+	}
+	
+	public GuiImageObject image(
+			Supplier<ResourceLocation> tex,
+			float uOffset, float vOffset,
+			float width, float height)
+	{
+		return image(tex, uOffset, vOffset, width, height, 256, 256);
 	}
 	
 	public GuiImageObject image(
@@ -68,5 +123,25 @@ public class GuiObjectBuilder
 	public GuiButtonObject.GuiButtonObjectBuilder button()
 	{
 		return GuiButtonObject.builder(name);
+	}
+	
+	public GuiSpriteButtonObject.SpriteButtonBuilder spriteButton()
+	{
+		return GuiSpriteButtonObject.of(name);
+	}
+	
+	public GuiEditBoxObject.EditBoxBuilder editBox()
+	{
+		return GuiEditBoxObject.builder(name);
+	}
+	
+	public GuiItemObject item(Supplier<ItemStack> stack)
+	{
+		return new GuiItemObject(name, stack);
+	}
+	
+	public GuiTooltipObject tooltip(Tooltip tooltip)
+	{
+		return new GuiTooltipObject(name).tooltip(tooltip);
 	}
 }

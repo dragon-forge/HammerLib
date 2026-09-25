@@ -29,7 +29,7 @@ modrinth_project=PlkSuVtM
 release_type=release
 
 # Keeping track of latest git commit for changelog generation!
-last_git_commit=34d170696eac6b7
+last_git_commit=19cc5c798574d5c
 
 # List of mods separated by ;
 # If a specific mod for one platform is needed, @m: or @c: prefixes are used.

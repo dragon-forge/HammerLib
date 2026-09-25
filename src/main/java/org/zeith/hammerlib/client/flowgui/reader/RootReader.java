@@ -33,7 +33,7 @@ public final class RootReader
 		root.onPreRender((partialTime, mouse) ->
 		{
 			if(smooth)
-				partialTime = Minecraft.getInstance().getTimer().getRealtimeDeltaTicks();
+				partialTime = Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(true);
 			query.partialTime = partialTime;
 			query.time = (query.ticks + query.partialTime) / 20D;
 		});

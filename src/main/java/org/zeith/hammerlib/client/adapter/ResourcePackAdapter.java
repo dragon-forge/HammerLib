@@ -2,8 +2,8 @@ package org.zeith.hammerlib.client.adapter;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.*;
-import net.minecraft.server.packs.repository.Pack;
-import net.minecraft.server.packs.repository.PackSource;
+import net.minecraft.server.packs.repository.*;
+import net.minecraft.world.flag.FeatureFlagSet;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
@@ -33,34 +33,38 @@ public class ResourcePackAdapter
 				if(pack instanceof IRegisterListener rl)
 					rl.onPreRegistered(Resources.locationOrNull(pack.packId()));
 				
-				add.accept(Pack.readMetaAndCreate(
-						new PackLocationInfo(
-								pack.packId(),
-								Component.literal(pack.packId()),
-								PackSource.BUILT_IN,
-								Optional.empty()
-						),
-						new Pack.ResourcesSupplier()
-						{
-							@Override
-							public PackResources openPrimary(PackLocationInfo info)
-							{
-								return pack;
-							}
-							
-							@Override
-							public PackResources openFull(PackLocationInfo info, Pack.Metadata meta)
-							{
-								return pack;
-							}
-						},
-						PackType.CLIENT_RESOURCES,
-						new PackSelectionConfig(
-								true,
-								Pack.Position.TOP,
-								true
-						)
-				));
+				var location = pack.location();
+				
+				var resourceSupplier = new Pack.ResourcesSupplier()
+				{
+					@Override
+					public PackResources openPrimary(PackLocationInfo info)
+					{
+						return pack;
+					}
+					
+					@Override
+					public PackResources openFull(PackLocationInfo info, Pack.Metadata meta)
+					{
+						return pack;
+					}
+				};
+				
+				Pack.Metadata metadata = new Pack.Metadata(
+						Component.literal(pack.packId()),
+						PackCompatibility.COMPATIBLE,
+						FeatureFlagSet.of(),
+						List.of(),
+						pack.isHidden()
+				);
+				
+				var config = new PackSelectionConfig(
+						true,
+						Pack.Position.TOP,
+						true
+				);
+				
+				add.accept(new Pack(location, resourceSupplier, metadata, config));
 				
 				if(pack instanceof IRegisterListener rl)
 					rl.onPostRegistered(Resources.locationOrNull(pack.packId()));

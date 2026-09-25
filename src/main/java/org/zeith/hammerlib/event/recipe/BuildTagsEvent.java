@@ -1,19 +1,25 @@
 package org.zeith.hammerlib.event.recipe;
 
+import com.google.common.collect.Maps;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.*;
 import net.minecraft.tags.*;
-import net.minecraft.world.item.Item;
 import net.neoforged.bus.api.Event;
+import org.jetbrains.annotations.ApiStatus;
+import org.zeith.hammerlib.util.mcf.TagRegistrationContext;
 
 import java.util.*;
 
 public class BuildTagsEvent
 		extends Event
 {
+	private static final Object IO_SYNC = new Object();
+	
 	public final String directory;
 	public final Map<ResourceLocation, List<TagLoader.EntryWithSource>> tags;
 	public final Registry reg;
+	
+	private final Map<String, TagRegistrationContext> contextMap = Maps.newHashMap();
 	
 	public BuildTagsEvent(Registry reg, String directory, Map<ResourceLocation, List<TagLoader.EntryWithSource>> tags)
 	{
@@ -25,7 +31,11 @@ public class BuildTagsEvent
 	public <T> void addToTag(TagKey<T> key, T value)
 	{
 		var te = valueToEntry(value);
-		if(te != null) tags.computeIfAbsent(key.location(), k -> new ArrayList<>()).add(te);
+		if(te == null) return;
+		ResourceLocation id = te.entry().getId();
+		if(!getContext(id.getNamespace()).addToTag(key, id))
+			return;
+		tags.computeIfAbsent(key.location(), k -> new ArrayList<>()).add(te);
 	}
 	
 	public <T> void addAllToTag(TagKey<T> key, Collection<T> values)
@@ -36,8 +46,34 @@ public class BuildTagsEvent
 		for(T value : values)
 		{
 			var te = valueToEntry(value);
-			if(te != null) regTag.add(te);
+			if(te == null) continue;
+			ResourceLocation id = te.entry().getId();
+			if(!getContext(id.getNamespace()).addToTag(key, id)) continue;
+			regTag.add(te);
 		}
+	}
+	
+	protected TagRegistrationContext getContext(String modid)
+	{
+		return contextMap.computeIfAbsent(modid, m ->
+				{
+					synchronized(IO_SYNC)
+					{
+						return TagRegistrationContext.load(m);
+					}
+				}
+		);
+	}
+	
+	@ApiStatus.Internal
+	public void cleanup()
+	{
+		synchronized(IO_SYNC)
+		{
+			for(TagRegistrationContext value : contextMap.values())
+				value.save();
+		}
+		contextMap.clear();
 	}
 	
 	public TagLoader.EntryWithSource valueToEntry(Object value)

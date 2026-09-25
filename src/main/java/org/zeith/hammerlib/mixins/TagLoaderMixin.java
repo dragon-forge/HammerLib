@@ -1,12 +1,10 @@
 package org.zeith.hammerlib.mixins;
 
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
+import net.minecraft.core.registries.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagLoader;
 import org.spongepowered.asm.mixin.*;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.event.recipe.BuildTagsEvent;
@@ -34,7 +32,9 @@ public class TagLoaderMixin
 		
 		if(reg != null)
 		{
-			HammerLib.postEvent(new BuildTagsEvent(reg, directory, value));
+			var ev = new BuildTagsEvent(reg, directory, value);
+			HammerLib.postEvent(ev);
+			ev.cleanup();
 			HammerLib.LOG.info("Built tags for registry {}", reg.key().location());
 		}
 		else

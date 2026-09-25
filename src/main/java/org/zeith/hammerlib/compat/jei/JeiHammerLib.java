@@ -1,14 +1,14 @@
 package org.zeith.hammerlib.compat.jei;
 
 import com.google.common.base.Preconditions;
-import mezz.jei.api.IModPlugin;
-import mezz.jei.api.JeiPlugin;
+import com.mojang.blaze3d.platform.InputConstants;
+import mezz.jei.api.*;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.ingredients.IIngredientType;
 import mezz.jei.api.neoforge.NeoForgeTypes;
+import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.registration.*;
-import mezz.jei.api.runtime.IIngredientListOverlay;
-import mezz.jei.api.runtime.IJeiRuntime;
+import mezz.jei.api.runtime.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -16,8 +16,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.neoforged.neoforge.fluids.FluidStack;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.*;
+import org.jetbrains.annotations.Nullable;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.abstractions.recipes.*;
 import org.zeith.hammerlib.client.screen.IAdvancedGui;
@@ -25,8 +25,7 @@ import org.zeith.hammerlib.core.RecipeHelper;
 import org.zeith.hammerlib.proxy.HLConstants;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.java.tuples.Tuple2;
-import org.zeith.hammerlib.util.mcf.Resources;
-import org.zeith.hammerlib.util.mcf.ScanDataHelper;
+import org.zeith.hammerlib.util.mcf.*;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -157,9 +156,7 @@ public class JeiHammerLib
 				registration.addRecipeClickArea(area.menu(), area.x(), area.y(), area.width(), area.height(), jeiRT);
 		});
 		
-		for(var data : ScanDataHelper.lookupAnnotatedObjects(IRecipeVisualizer.JEIClickArea.class)
-				.stream()
-				.toList())
+		for(var data : ScanDataHelper.lookupAnnotatedObjects(IRecipeVisualizer.JEIClickArea.class).stream().toList())
 		{
 			try
 			{
@@ -197,16 +194,16 @@ public class JeiHammerLib
 				registration.addRecipeClickArea(unas.menu(), unas.x(), unas.y(), unas.width(), unas.height(), jeiType);
 			} catch(ReflectiveOperationException e)
 			{
-				LOG.error("Failed to read click area " + data.clazz() + "." + data.getMemberName());
+				LOG.error("Failed to read click area {}.{}", data.clazz(), data.getMemberName());
 			}
 		}
 		
 		ScanDataHelper.lookupAnnotatedObjects(IAdvancedGui.ApplyToJEI.class)
-				.stream()
-				.map(ScanDataHelper.ModAwareAnnotationData::getOwnerClass)
-				.filter(raw -> AbstractContainerScreen.class.isAssignableFrom(raw) &&
-							   IAdvancedGui.class.isAssignableFrom(raw))
-				.forEach(f -> registration.addGuiContainerHandler(f.asSubclass(AbstractContainerScreen.class), Cast.cast(AdvancedGuiToJeiWrapper.get())));
+		              .stream()
+		              .map(ScanDataHelper.ModAwareAnnotationData::getOwnerClass)
+		              .filter(raw -> AbstractContainerScreen.class.isAssignableFrom(raw) &&
+		                             IAdvancedGui.class.isAssignableFrom(raw))
+		              .forEach(f -> registration.addGuiContainerHandler(f.asSubclass(AbstractContainerScreen.class), Cast.cast(AdvancedGuiToJeiWrapper.get())));
 	}
 	
 	@Override
@@ -226,12 +223,40 @@ public class JeiHammerLib
 	@Override
 	public <T> Optional<T> getIngredientUnderMouseJEI(Class<T> type)
 	{
-		return Optional.ofNullable(runtime)
+		return Optional
+				.ofNullable(runtime)
 				.map(IJeiRuntime::getIngredientListOverlay)
 				.flatMap(IIngredientListOverlay::getIngredientUnderMouse)
 				.filter(ing -> ing.getType().getIngredientClass().equals(ing.getType().getIngredientClass()))
 				.filter(ing -> type.isInstance(ing.getIngredient()))
 				.map(ing -> Cast.cast(ing.getIngredient()));
+	}
+	
+	@Override
+	public @Nullable JeiKeyRole getRoleForKey(InputConstants.Key key)
+	{
+		var keys = runtime.getKeyMappings();
+		if(keys.getShowRecipe().isActiveAndMatches(key)) return JeiKeyRole.RECIPES;
+		if(keys.getShowUses().isActiveAndMatches(key)) return JeiKeyRole.USES;
+		return null;
+	}
+	
+	@Override
+	public void showRecipes(Object o)
+	{
+		var ff = runtime.getJeiHelpers().getFocusFactory();
+		Optional<IIngredientType<Object>> type = runtime.getIngredientManager().getIngredientTypeChecked(o);
+		type.map(t -> ff.createFocus(RecipeIngredientRole.OUTPUT, t, o))
+		    .ifPresent(runtime.getRecipesGui()::show);
+	}
+	
+	@Override
+	public void showUses(Object o)
+	{
+		var ff = runtime.getJeiHelpers().getFocusFactory();
+		Optional<IIngredientType<Object>> type = runtime.getIngredientManager().getIngredientTypeChecked(o);
+		type.map(t -> ff.createFocus(RecipeIngredientRole.INPUT, t, o))
+		    .ifPresent(runtime.getRecipesGui()::show);
 	}
 	
 	public static <T extends Recipe<C>, C extends RecipeInput> Stream<RecipeHolder<T>> getRecipes(RecipeType<T> type)
