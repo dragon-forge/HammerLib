@@ -55,9 +55,33 @@ public abstract class LevelMixin
 	)
 	public void tickBlockEntities_HammerLib(CallbackInfo ci)
 	{
-		while(!loadBlockEntitityQueue_HL.isEmpty())
-			loadedBlockEntities_HL.add(loadBlockEntitityQueue_HL.remove(0));
-		while(!unloadBlockEntitityQueue_HL.isEmpty())
-			loadedBlockEntities_HL.remove(unloadBlockEntitityQueue_HL.remove(0));
+		if (!loadBlockEntitityQueue_HL.isEmpty())
+		{
+			loadedBlockEntities_HL.addAll(loadBlockEntitityQueue_HL);
+			loadBlockEntitityQueue_HL.clear();
+		}
+
+		if (!unloadBlockEntitityQueue_HL.isEmpty())
+		{
+			Map<BlockEntity, Integer> removals = new HashMap<>();
+
+			for (BlockEntity be : unloadBlockEntitityQueue_HL)
+				removals.merge(be, 1, Integer::sum);
+
+			loadedBlockEntities_HL.removeIf(be -> {
+				Integer remaining = removals.get(be);
+				if (remaining == null)
+					return false;
+
+				if (remaining == 1)
+					removals.remove(be);
+				else
+					removals.put(be, remaining - 1);
+
+				return true;
+			});
+
+			unloadBlockEntitityQueue_HL.clear();
+		}
 	}
 }
