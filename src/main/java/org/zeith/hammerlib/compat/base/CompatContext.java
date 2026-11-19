@@ -1,6 +1,6 @@
 package org.zeith.hammerlib.compat.base;
 
-import lombok.*;
+import lombok.Getter;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.loading.FMLEnvironment;
@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 @Getter
-@Builder(builderClassName = "Builder")
+@lombok.Builder(builderClassName = "Builder")
 public class CompatContext
 {
 	protected final IEventBus modBus;

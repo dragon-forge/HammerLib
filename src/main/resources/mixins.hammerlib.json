@@ -4,7 +4,7 @@
 	"package": "org.zeith.hammerlib.mixins",
 	"refmap": "mixins.hammerlib.refmap.json",
 	"target": "@env(DEFAULT)",
-	"compatibilityLevel": "JAVA_17",
+	"compatibilityLevel": "JAVA_21",
 	"injectors": {
 		"maxShiftBy": 5
 	},
@@ -23,7 +23,7 @@
 		"RecipeManagerMixin",
 		"ServerLevelMixin",
 		"TagLoaderMixin",
-		"bs.kubejs.RecipeEventJSMixin",
+		"compat.kubejs.RecipeEventJSMixin",
 		"data.RegistryDataLoaderMixin",
 		"data.ReloadableServerRegistriesMixin",
 		"languages.ServerLanguageMixin"

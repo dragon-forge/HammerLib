@@ -3,8 +3,7 @@ package org.zeith.hammerlib.proxy;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.datafixers.util.Either;
 import net.minecraft.*;
-import net.minecraft.client.KeyMapping;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.*;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.particle.*;
 import net.minecraft.client.renderer.blockentity.*;
@@ -15,13 +14,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.bus.api.SubscribeEvent;
+import net.minecraft.world.level.block.entity.*;
+import net.neoforged.bus.api.*;
 import net.neoforged.fml.LogicalSide;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
+import net.neoforged.fml.event.lifecycle.*;
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.settings.KeyConflictContext;
 import net.neoforged.neoforge.common.NeoForge;
@@ -29,32 +25,30 @@ import org.zeith.api.level.IBlockEntityLevel;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.api.forge.ContainerAPI;
 import org.zeith.hammerlib.api.inv.IScreenContainer;
-import org.zeith.hammerlib.api.items.tooltip.TooltipColoredLine;
-import org.zeith.hammerlib.api.items.tooltip.TooltipMulti;
-import org.zeith.hammerlib.api.lighting.ColoredLight;
-import org.zeith.hammerlib.api.lighting.HandleLightOverrideEvent;
+import org.zeith.hammerlib.api.items.tooltip.*;
+import org.zeith.hammerlib.api.lighting.*;
 import org.zeith.hammerlib.api.lighting.impl.IGlowingEntity;
 import org.zeith.hammerlib.api.proxy.IClientProxy;
 import org.zeith.hammerlib.client.adapter.ChatMessageAdapter;
+import org.zeith.hammerlib.client.flowgui.reader.*;
 import org.zeith.hammerlib.client.model.SimpleModelGenerator;
-import org.zeith.hammerlib.client.render.tile.IBESR;
-import org.zeith.hammerlib.client.render.tile.TESRBase;
+import org.zeith.hammerlib.client.render.tile.*;
 import org.zeith.hammerlib.client.utils.TexturePixelGetter;
 import org.zeith.hammerlib.core.adapter.ConfigAdapter;
-import org.zeith.hammerlib.core.items.tooltip.ClientTooltipColoredLine;
-import org.zeith.hammerlib.core.items.tooltip.ClientTooltipMulti;
+import org.zeith.hammerlib.core.items.tooltip.*;
+import org.zeith.hammerlib.core.scans.ScanRequireStencil;
+import org.zeith.hammerlib.core.scans.base.*;
 import org.zeith.hammerlib.event.client.ClientLoadedInEvent;
 import org.zeith.hammerlib.mixins.client.ParticleEngineAccessor;
 import org.zeith.hammerlib.net.Network;
-import org.zeith.hammerlib.net.packets.PacketPlayerReady;
-import org.zeith.hammerlib.net.packets.PingServerPacket;
+import org.zeith.hammerlib.net.packets.*;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.mcf.LogicalSidePredictor;
 
+import java.lang.annotation.ElementType;
 import java.lang.reflect.Constructor;
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.function.*;
 import java.util.stream.Stream;
 
 public class HLClientProxy
@@ -82,6 +76,14 @@ public class HLClientProxy
 	}
 	
 	@Override
+	public void appendScans(DataScanner data)
+	{
+		data.add(IAnnotationScanListener.forAnnotation(FlowguiReader.class, ElementType.TYPE, FlowguiRegistry::handleReader));
+		data.add(IAnnotationScanListener.forAnnotation(XmlFlowgui.class, ElementType.TYPE, FlowguiRegistry::handleXml));
+		data.add(ScanRequireStencil.create());
+	}
+	
+	@Override
 	public void construct(IEventBus modBus)
 	{
 		modBus.addListener(this::registerKeybinds);
@@ -90,6 +92,7 @@ public class HLClientProxy
 		modBus.addListener(this::loadComplete);
 		modBus.addListener(this::registerGuis);
 		modBus.addListener(TexturePixelGetter::reloadTexture);
+		modBus.addListener(this::clientSetup);
 		SimpleModelGenerator.setup();
 
 		NeoForge.EVENT_BUS.register(this);
@@ -132,10 +135,10 @@ public class HLClientProxy
 				.orElse(null));
 	}
 	
-	@Override
-	public void clientSetup()
+	private void clientSetup(FMLClientSetupEvent e)
 	{
 		PARTICLE_MAP = ((ParticleEngineAccessor) Minecraft.getInstance().particleEngine).getParticles();
+		e.enqueueWork(ScanRequireStencil.requestStencil());
 	}
 	
 	public static Stream<Particle> streamParticles()

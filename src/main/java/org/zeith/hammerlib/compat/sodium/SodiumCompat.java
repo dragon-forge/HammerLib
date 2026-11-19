@@ -1,4 +1,4 @@
-package org.zeith.hammerlib.compat.rubidium;
+package org.zeith.hammerlib.compat.sodium;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.*;
@@ -14,22 +14,22 @@ import org.zeith.hammerlib.compat.base._hl.BaseHLCompat;
 import org.zeith.hammerlib.util.mcf.ModHelper;
 
 @BaseCompat.LoadCompat(
-		modid = "rubidium",
+		modid = "sodium",
 		compatType = BaseHLCompat.class,
 		shouldLoad = @OnlyIf(owner = ModHelper.class, member = "isClient")
 )
-public class RubidiumCompat
+public class SodiumCompat
 		extends BaseHLCompat
 {
-	public RubidiumCompat(CompatContext ctx)
+	public SodiumCompat(CompatContext ctx)
 	{
 		super(ctx);
 		
-		if(ModHelper.isModLoaded("embeddium"))
-		{
-			HammerLib.LOG.info("Detected Rubidium from Embeddium. Disabling safeguard.");
-			return; // Embeddium does a compat wrapper for any other vertex consumer.
-		}
+//		if(ModHelper.isModLoaded("embeddium"))
+//		{
+//			HammerLib.LOG.info("Detected Rubidium from Embeddium. Disabling safeguard.");
+//			return; // Embeddium does a compat wrapper for any other vertex consumer.
+//		}
 		
 		ctx.runWhenOn(Dist.CLIENT, () -> () ->
 		{
@@ -39,7 +39,7 @@ public class RubidiumCompat
 		
 		ctx.runWhenOn(Dist.DEDICATED_SERVER, () -> () ->
 		{
-			HammerLib.LOG.error("You tried to start a dedicated server with Rubidium installed. This is probably not a good idea.");
+			HammerLib.LOG.error("You tried to start a dedicated server with Sodium installed. This is probably not a good idea.");
 		});
 		
 		var url = "https://www.curseforge.com/minecraft/mc-mods/embeddium";
@@ -58,21 +58,21 @@ public class RubidiumCompat
 	
 	public void reload()
 	{
-		if(doesRubidiumSupportHL() && !CustomFoilConfigs.disable_with_rubidium)
-			enableRubidiumTint();
+		if(doesVBWriterClassExist() && !CustomFoilConfigs.disable_with_sodium)
+			enableSodiumTint();
 		else
-			useFallbackRubidiumTint();
+			useFallbackTint();
 	}
 	
-	public void enableRubidiumTint()
+	public void enableSodiumTint()
 	{
 		TintingVertexConsumer.TINT4f = TintingVertexConsumerRB::new;
 		TintingVertexConsumer.TINT1i = TintingVertexConsumerRB::new;
 		TintingVertexConsumer.tintingEnabled = true;
-		HammerLib.LOG.info("Using Rubidium-adapted vertex consumers.");
+		HammerLib.LOG.info("Using Sodium-adapted vertex consumers.");
 	}
 	
-	public void useFallbackRubidiumTint()
+	public void useFallbackTint()
 	{
 		// Pass-through the tinting part.
 		TintingVertexConsumer.TINT4f = (vc, r, g, b, a) -> vc;
@@ -82,7 +82,7 @@ public class RubidiumCompat
 	}
 	
 	// Mixin target for Rubidium (or any patcher in the future to enable tinting)
-	public static boolean doesRubidiumSupportHL()
+	public static boolean doesVBWriterClassExist()
 	{
 		// If we have the class, try enabling support.
 		try

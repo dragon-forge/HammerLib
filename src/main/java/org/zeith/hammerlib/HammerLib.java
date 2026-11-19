@@ -1,50 +1,32 @@
 package org.zeith.hammerlib;
 
-import net.minecraft.core.registries.Registries;
-import net.minecraft.world.item.CreativeModeTab;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.*;
 import net.neoforged.bus.api.*;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.*;
 import net.neoforged.fml.javafmlmod.FMLModContainer;
-import net.neoforged.fml.loading.FMLEnvironment;
-import net.neoforged.fml.loading.modscan.ModAnnotation;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
-import net.neoforged.neoforge.registries.RegisterEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.zeith.hammerlib.annotations.*;
-import org.zeith.hammerlib.annotations.client.ClientSetup;
-import org.zeith.hammerlib.api.IRecipeProvider;
+import org.slf4j.*;
 import org.zeith.hammerlib.api.io.NBTSerializationHelper;
-import org.zeith.hammerlib.api.items.CreativeTab;
 import org.zeith.hammerlib.api.proxy.IProxy;
-import org.zeith.hammerlib.compat.base.CompatContext;
-import org.zeith.hammerlib.compat.base.CompatList;
+import org.zeith.hammerlib.compat.base.*;
 import org.zeith.hammerlib.compat.base._hl.BaseHLCompat;
 import org.zeith.hammerlib.core.ConfigHL;
 import org.zeith.hammerlib.core.adapter.*;
 import org.zeith.hammerlib.core.command.CommandHammerLib;
 import org.zeith.hammerlib.core.init.TagsHL;
+import org.zeith.hammerlib.core.scans.*;
+import org.zeith.hammerlib.core.scans.base.DataScanner;
 import org.zeith.hammerlib.event.fml.FMLFingerprintCheckEvent;
 import org.zeith.hammerlib.proxy.*;
 import org.zeith.hammerlib.tiles.tooltip.own.impl.TooltipRenderEngine;
-import org.zeith.hammerlib.util.CommonMessages;
-import org.zeith.hammerlib.util.ZeithLinkRepository;
+import org.zeith.hammerlib.util.*;
 import org.zeith.hammerlib.util.charging.ItemChargeHelper;
-import org.zeith.hammerlib.util.configured.io.UnsafeHax;
-import org.zeith.hammerlib.util.java.ReflectionUtil;
-import org.zeith.hammerlib.util.mcf.ScanDataHelper;
 
-import java.lang.annotation.ElementType;
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Locale;
 
 @Mod(HLConstants.MOD_ID)
 public class HammerLib
@@ -72,116 +54,16 @@ public class HammerLib
 		TagsHL.init();
 		ZeithLinkRepository.initialize(); // Ask to initialize the link repository offthread somewhere.
 		
-		ItemChargeHelper.setup();
-		
-		// Register all recipe providers
-		ScanDataHelper.lookupAnnotatedObjects(ProvideRecipes.class).forEach(data ->
-		{
-			var ow = data.getOwnerMod().orElse(null);
-			if(ow == null)
-			{
-				LOG.info("Skipping mod-less @ProvideRecipes annotation in " + data.getOwnerClass());
-				return;
-			}
-			
-			Class<?> c = data.getOwnerClass();
-			if(IRecipeProvider.class.isAssignableFrom(c))
-			{
-				IRecipeProvider provider = (IRecipeProvider) UnsafeHax.unitializedInstance(c);
-				if(provider != null)
-				{
-					var bus = ow.getEventBus();
-					bus.addListener(provider::provideRecipes);
-					bus.addListener(provider::spoofRecipes);
-				}
-			}
-		});
-		
-		ScanDataHelper.lookupAnnotatedObjects(CreativeTab.RegisterTab.class).forEach(data ->
-		{
-			if(data.getTargetType() == ElementType.FIELD)
-				data.getOwnerMod().ifPresent(mc -> mc.getEventBus().addListener((Consumer<RegisterEvent>) e ->
-				{
-					var registrar = RegistryAdapter.createRegisterer(e, Registries.CREATIVE_MODE_TAB, null);
-					
-					registrar.ifPresent(register ->
-					{
-						Optional<CreativeTab> tab = ReflectionUtil.getStaticFinalField(data.getOwnerClass(), data.getMemberName());
-						tab.ifPresent(t0 -> t0.register(t ->
-						{
-							var tabBuilder = CreativeModeTab.builder();
-							t.factory().accept(tabBuilder);
-							var ct = tabBuilder.build();
-							register.accept(t.id(), ct);
-							return ct;
-						}));
-					});
-				}));
-		});
-		
-		// Register all content providers
-		ScanDataHelper.lookupAnnotatedObjects(SimplyRegister.class).forEach(data ->
-		{
-			if(data.getTargetType() == ElementType.TYPE)
-				data.getOwnerMod()
-						.ifPresent(mc ->
-						{
-							LOG.info("Hooked " + data.clazz() + " from " + mc.getModId() + " to register it's stuff.");
-							mc.getEventBus()
-									.addListener((Consumer<RegisterEvent>) event ->
-											RegistryAdapter.register(event, data.getOwnerClass(), mc, data.getProperty("prefix").map(Objects::toString).orElse(""))
-									);
-						});
-		});
-		
-		// Prepare configs
-		ConfigAdapter.setup();
-		
-		List<ModAnnotation.EnumHolder> bothSides = Stream.of(Dist.values())
-				.map(dst -> new ModAnnotation.EnumHolder("Lnet/neoforged/api/distmarker/Dist;", dst.name()))
-				.collect(Collectors.toList());
-		
-		// Register all setups
-		ScanDataHelper.lookupAnnotatedObjects(Setup.class).forEach(data ->
-		{
-			Object side = data.getProperty("side")
-					.orElse(bothSides);
-			
-			if(side instanceof List<?> lst && !lst.isEmpty())
-			{
-				for(Object o : lst)
-				{
-					if(o instanceof ModAnnotation.EnumHolder h && FMLEnvironment.dist.name().equals(h.value()))
-					{
-						if(data.getTargetType() == ElementType.METHOD)
-						{
-							HammerLib.LOG.info("Injecting setup into " + data.clazz().getClassName());
-							data.getOwnerMod()
-									.map(FMLModContainer::getEventBus)
-									.ifPresent(b -> b.addListener((Consumer<FMLCommonSetupEvent>) event -> RegistryAdapter.setup(event, data.getOwnerClass(), data.getMemberName())));
-						}
-						
-						break;
-					}
-				}
-			} else
-				HammerLib.LOG.warn("What the hell is this? " + data.parent.clazz() + "->" + data.getMemberName());
-		});
-		
-		ScanDataHelper.lookupAnnotatedObjects(ClientSetup.class).forEach(data ->
-		{
-			if(data.getTargetType() == ElementType.METHOD)
-			{
-				HammerLib.LOG.info("Injecting client-setup into " + data.clazz().getClassName());
-				data.getOwnerMod()
-						.map(FMLModContainer::getEventBus)
-						.ifPresent(b -> b.addListener((Consumer<FMLClientSetupEvent>) event ->
-								RegistryAdapter.clientSetup(event, data.getOwnerClass(), data.getMemberName())
-						));
-			}
-		});
-		
-		NBTSerializationHelper.construct();
+		DataScanner data = DataScanner.start();
+		data.add(ItemChargeHelper.create());
+		data.add(ScanRecipes.create());
+		data.add(ScanTabs.create());
+		data.add(ScanRegisters.create());
+		data.add(ScanSetups.create());
+		data.add(ConfigAdapter.create());
+		data.add(NBTSerializationHelper.create());
+		PROXY.appendScans(data);
+		DataScanner.finish(data);
 	}
 	
 	@SubscribeEvent
@@ -197,13 +79,6 @@ public class HammerLib
 				);
 			}
 		});
-	}
-	
-	@SubscribeEvent
-	@OnlyIn(Dist.CLIENT)
-	public void clientSetup(FMLClientSetupEvent e)
-	{
-		PROXY.clientSetup();
 	}
 	
 	// Fixme: Need to figure out why jar signing results in a null fingerprint (corrupted jdks?!)

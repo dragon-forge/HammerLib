@@ -1,4 +1,4 @@
-package org.zeith.hammerlib.compat.rubidium;
+package org.zeith.hammerlib.compat.sodium;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
