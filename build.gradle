@@ -73,6 +73,10 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
     maven {
+        name = "CaffeineMC"
+        url = "https://maven.caffeinemc.net/releases"
+    }
+    maven {
         name = "Zeitheron Maven"
         url = "https://maven.zeith.org/"
         content {
@@ -113,6 +117,8 @@ dependencies {
         compileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${config.jei_version}"
         runtimeOnly "mezz.jei:jei-${mc_version}-neoforge:${config.jei_version}"
     }
+
+    compileOnly "net.caffeinemc:sodium-neoforge-api:0.8.13+mc1.21.1"
 
     def libraries = new File(file("libraries"), "${mc_version}")
     if (!libraries.isDirectory()) libraries.mkdirs()
@@ -308,8 +314,8 @@ tasks.register('curseforge', net.darkhax.curseforgegradle.TaskPublishCurseForge)
     mainFile.addGameVersion('1.21.1')
     mainFile.addGameVersion('NeoForge')
     mainFile.releaseType = config.release_type;
-    mainFile.changelog = file("CHANGELOG.md").text
-    mainFile.changelogType = "markdown"
+    def changelogFile = file("CHANGELOG.md")
+    mainFile.changelog = changelogFile.exists() ? changelogFile.text : ""
     mainFile.displayName = "[${mc_version}] ${config.mod_name} - ${config.mod_version}"
     mainFile.addEnvironment("Client", "Server")
 
