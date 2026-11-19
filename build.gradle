@@ -465,6 +465,14 @@ publishing {
             from components.java
             it.artifactId = config.archive_name + "-" + mc_version
             it.artifact srcJar
+
+            pom.withXml {
+                def pomNode = asNode()
+                def dependenciesNode = pomNode.dependencies
+
+                if (dependenciesNode != null)
+                    pomNode.remove(dependenciesNode)
+            }
         }
     }
     repositories {
