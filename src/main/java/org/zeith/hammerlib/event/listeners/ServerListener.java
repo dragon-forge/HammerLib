@@ -31,7 +31,7 @@ public class ServerListener
 		
 		while(!NEED_SYNC.isEmpty())
 		{
-			BlockEntity tile = NEED_SYNC.remove(0);
+			BlockEntity tile = NEED_SYNC.removeLast();
 			if(!processed.add(tile.getBlockPos())) continue;
 			
 			if(tile instanceof ISyncableTile s)
@@ -44,7 +44,7 @@ public class ServerListener
 		
 		while(!NEED_PROP_SYNC.isEmpty())
 		{
-			BlockEntity tile = NEED_PROP_SYNC.remove(0);
+			BlockEntity tile = NEED_PROP_SYNC.removeLast();
 			if(!processed.add(tile.getBlockPos())) continue;
 			
 			if(tile instanceof IPropertyTile ipt)
@@ -53,7 +53,7 @@ public class ServerListener
 		
 		while(!NEED_PROP_SYNC_GENERIC.isEmpty())
 		{
-			var data = NEED_PROP_SYNC_GENERIC.remove(0);
+			var data = NEED_PROP_SYNC_GENERIC.removeLast();
 			if(data != null)
 				data.syncPropertiesNow();
 		}
