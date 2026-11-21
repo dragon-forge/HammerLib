@@ -34,6 +34,16 @@ base {
 java.toolchain.languageVersion = JavaLanguageVersion.of(Integer.parseInt(mc_java))
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 
+configurations.all {
+    def owasm = "9.10.1"
+    resolutionStrategy {
+        force "org.ow2.asm:asm-analysis:$owasm"
+        force "org.ow2.asm:asm:$owasm"
+        force "org.ow2.asm:asm-tree:$owasm"
+        force "org.ow2.asm:asm-util:$owasm"
+    }
+}
+
 minecraft {
     accessTransformers {
         file('src/main/resources/META-INF/accesstransformer.cfg')
@@ -72,6 +82,10 @@ runs {
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
+    flatDir { dirs "libraries/${mc_version}/all" }
+    flatDir { dirs "libraries/${mc_version}/classpathOnly" }
+    flatDir { dirs "libraries/${mc_version}/runtimeOnly" }
+    flatDir { dirs "libraries/embedded" }
     maven {
         name = "CaffeineMC"
         url = "https://maven.caffeinemc.net/releases"
@@ -90,10 +104,11 @@ repositories {
             includeGroupByRegex "mezz\\.jei.*"
         }
     }
-    flatDir { dirs "libraries/${mc_version}/all" }
-    flatDir { dirs "libraries/${mc_version}/classpathOnly" }
-    flatDir { dirs "libraries/${mc_version}/runtimeOnly" }
-    flatDir { dirs "libraries/embedded" }
+    maven {
+        // location of a maven mirror for JEI files, as a fallback
+        name = "ModMaven"
+        url = "https://modmaven.dev"
+    }
 }
 
 dependencies {
@@ -115,7 +130,7 @@ dependencies {
     if (hasConfig("jei_version") && !config.jei_version.isEmpty()) {
         compileOnly "mezz.jei:jei-${mc_version}-common-api:${config.jei_version}"
         compileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${config.jei_version}"
-        runtimeOnly "mezz.jei:jei-${mc_version}-neoforge:${config.jei_version}"
+        implementation "mezz.jei:jei-${mc_version}-neoforge:${config.jei_version}"
     }
 
     compileOnly "net.caffeinemc:sodium-neoforge-api:0.8.13+mc1.21.1"
@@ -245,7 +260,7 @@ modrinth {
     versionNumber = config.mod_version
     versionType = config.release_type
     uploadFile = jar
-    gameVersions = [mc_version, "1.21.1"]
+    gameVersions = [mc_version]
     setChangelog(providers.fileContents(layout.projectDirectory.file("CHANGELOG.md")).asText)
     dependencies {
         def mods = config.required_mods.split(";")
@@ -303,6 +318,10 @@ modrinth {
 }
 
 tasks.register('curseforge', net.darkhax.curseforgegradle.TaskPublishCurseForge) {
+    onlyIf {
+        System.env.CURSEFORGE_TOKEN != null
+    }
+
     apiToken = System.env.CURSEFORGE_TOKEN != null ? System.env.CURSEFORGE_TOKEN : "NONE"
 
     // Defines the output of the jar task as the file to upload. This returns
@@ -311,11 +330,11 @@ tasks.register('curseforge', net.darkhax.curseforgegradle.TaskPublishCurseForge)
     def mainFile = upload(config.cf_project, jar)
     mainFile.changelog = 'The changelog string for this file.'
     mainFile.addGameVersion(mc_version)
-    mainFile.addGameVersion('1.21.1')
     mainFile.addGameVersion('NeoForge')
-    mainFile.releaseType = config.release_type;
+    mainFile.releaseType = config.release_type
     def changelogFile = file("CHANGELOG.md")
     mainFile.changelog = changelogFile.exists() ? changelogFile.text : ""
+    mainFile.changelogType = "markdown"
     mainFile.displayName = "[${mc_version}] ${config.mod_name} - ${config.mod_version}"
     mainFile.addEnvironment("Client", "Server")
 
@@ -446,6 +465,14 @@ publishing {
             from components.java
             it.artifactId = config.archive_name + "-" + mc_version
             it.artifact srcJar
+
+            pom.withXml {
+                def pomNode = asNode()
+                def dependenciesNode = pomNode.dependencies
+
+                if (dependenciesNode != null)
+                    pomNode.remove(dependenciesNode)
+            }
         }
     }
     repositories {

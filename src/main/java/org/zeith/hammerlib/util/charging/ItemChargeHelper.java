@@ -1,13 +1,16 @@
 package org.zeith.hammerlib.util.charging;
 
+import lombok.SneakyThrows;
 import net.minecraft.world.entity.player.*;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import org.objectweb.asm.Type;
 import org.zeith.hammerlib.HammerLib;
+import org.zeith.hammerlib.core.scans.base.*;
 import org.zeith.hammerlib.util.java.*;
 import org.zeith.hammerlib.util.mcf.ScanDataHelper;
 
+import java.lang.annotation.ElementType;
 import java.lang.reflect.Constructor;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -21,57 +24,48 @@ public class ItemChargeHelper
 	
 	public static final List<IPlayerInventoryLister> playerInvListers = new ArrayList<>();
 	
-	public static void setup()
+	public static IScanListener create()
 	{
-		ScanDataHelper.lookupAnnotatedObjects(IChargeHandler.ChargeHandler.class)
-				.forEach(data ->
-				{
-					Class<?> registerer = data.getOwnerClass();
-					
-					if(IChargeHandler.class.isAssignableFrom(registerer))
-					{
-						try
-						{
-							Constructor<? extends IChargeHandler> ctor = registerer.asSubclass(IChargeHandler.class)
-									.getDeclaredConstructor();
-							ctor.setAccessible(true);
-							
-							Type typeRaw = Cast.cast(data.getProperty("value").orElse(null));
-							Class<? extends AbstractCharge> type = ReflectionUtil.fetchClass(typeRaw);
-							IChargeHandler handler = ctor.newInstance();
-							
-							HammerLib.LOG.info(
-									"Registered charge handler for type " + type.getName() + " - " + handler);
-							
-							CHARGE_HANDLERS.put(type, handler);
-							CHARGE_HANDLERS_BY_ID.put(handler.getId(), handler);
-						} catch(ReflectiveOperationException e)
-						{
-							throw new RuntimeException(e);
-						}
-					}
-				});
+		return IAnnotationScanListener
+				.forAnnotation(IChargeHandler.ChargeHandler.class, ElementType.TYPE, ItemChargeHelper::chargeHandler)
+				.then(IAnnotationScanListener.forAnnotation(IPlayerInventoryLister.InventoryLister.class, ElementType.TYPE, ItemChargeHelper::inventoryLister));
+	}
+	
+	@SneakyThrows
+	public static void chargeHandler(ScanDataHelper.ModAwareAnnotationData data)
+	{
+		Class<?> registerer = data.getOwnerClass();
 		
-		ScanDataHelper.lookupAnnotatedObjects(IPlayerInventoryLister.InventoryLister.class)
-				.forEach(data ->
-				{
-					Class<?> registerer = data.getOwnerClass();
-					
-					if(IPlayerInventoryLister.class.isAssignableFrom(registerer))
-					{
-						try
-						{
-							Constructor<? extends IPlayerInventoryLister> ctor = registerer.asSubclass(IPlayerInventoryLister.class)
-									.getDeclaredConstructor();
-							ctor.setAccessible(true);
-							registerInventoryFactory(ctor.newInstance());
-							HammerLib.LOG.info("Registered inventory lister " + registerer.getName());
-						} catch(ReflectiveOperationException e)
-						{
-							throw new RuntimeException(e);
-						}
-					}
-				});
+		if(IChargeHandler.class.isAssignableFrom(registerer))
+		{
+			Constructor<? extends IChargeHandler> ctor = registerer.asSubclass(IChargeHandler.class)
+			                                                       .getDeclaredConstructor();
+			ctor.setAccessible(true);
+			
+			Type typeRaw = Cast.cast(data.getProperty("value").orElse(null));
+			Class<? extends AbstractCharge> type = ReflectionUtil.fetchClass(typeRaw);
+			IChargeHandler handler = ctor.newInstance();
+			
+			HammerLib.LOG.info("Registered charge handler for type {} - {}", type.getName(), handler);
+			
+			CHARGE_HANDLERS.put(type, handler);
+			CHARGE_HANDLERS_BY_ID.put(handler.getId(), handler);
+		}
+	}
+	
+	@SneakyThrows
+	public static void inventoryLister(ScanDataHelper.ModAwareAnnotationData data)
+	{
+		Class<?> registerer = data.getOwnerClass();
+		
+		if(IPlayerInventoryLister.class.isAssignableFrom(registerer))
+		{
+			Constructor<? extends IPlayerInventoryLister> ctor = registerer.asSubclass(IPlayerInventoryLister.class)
+			                                                               .getDeclaredConstructor();
+			ctor.setAccessible(true);
+			registerInventoryFactory(ctor.newInstance());
+			HammerLib.LOG.info("Registered inventory lister {}", registerer.getName());
+		}
 	}
 	
 	public static void registerInventoryFactory(IPlayerInventoryLister lister)
@@ -128,7 +122,7 @@ public class ItemChargeHelper
 	public static Stream<IItemHandlerModifiable> listPlayerInventories(Player player)
 	{
 		return playerInvListers.stream()
-				.mapMulti((pil, c) -> pil.listItemHandlers(player, c));
+		                       .mapMulti((pil, c) -> pil.listItemHandlers(player, c));
 	}
 	
 	/**

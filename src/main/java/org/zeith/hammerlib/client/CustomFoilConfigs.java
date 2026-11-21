@@ -1,7 +1,6 @@
 package org.zeith.hammerlib.client;
 
-import net.minecraft.CrashReport;
-import net.minecraft.ReportedException;
+import net.minecraft.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.*;
@@ -9,32 +8,28 @@ import net.minecraft.world.level.ItemLike;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.InterModComms;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.event.lifecycle.InterModEnqueueEvent;
-import net.neoforged.fml.event.lifecycle.InterModProcessEvent;
+import net.neoforged.fml.event.lifecycle.*;
 import net.neoforged.fml.loading.FMLPaths;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.api.items.IColoredFoilItem;
 import org.zeith.hammerlib.core.init.ItemsHL;
 import org.zeith.hammerlib.core.test.machine.BlockTestMachine;
 import org.zeith.hammerlib.proxy.HLConstants;
-import org.zeith.hammerlib.util.java.Cast;
-import org.zeith.hammerlib.util.java.IOUtils;
-import org.zeith.hammerlib.util.java.tuples.Tuple2;
-import org.zeith.hammerlib.util.java.tuples.Tuples;
+import org.zeith.hammerlib.util.java.*;
+import org.zeith.hammerlib.util.java.tuples.*;
 import org.zeith.hammerlib.util.shaded.json.*;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.util.*;
 import java.util.function.ToIntFunction;
 
-@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber
 public class CustomFoilConfigs
 {
 	private static final List<Tuple2<Item, IColoredFoilItem>> overrides = new ArrayList<>();
 	
-	public static boolean disable_with_rubidium = true;
+	public static boolean disable_with_sodium = false;
 	public static Runnable rubidiumInstaller = null;
 	
 	@SubscribeEvent
@@ -48,7 +43,8 @@ public class CustomFoilConfigs
 		// Dynamic color example
 		InterModComms.sendTo("hammerlib", "registerFoil",
 				() -> Map.<ItemLike, ToIntFunction<ItemStack>>entry(BlockTestMachine.TEST_MACHINE, (ItemStack stack) ->
-						0x0F0FFF | IColoredFoilItem.FULL_ALPHA)
+						0x0F0FFF | IColoredFoilItem.FULL_ALPHA
+				)
 		);
 	}
 	
@@ -119,7 +115,7 @@ public class CustomFoilConfigs
 			{
 				JSONObject $ = new JSONObject();
 				
-				$.put("disable_with_rubidium", true);
+				$.put("disable_with_sodium", false);
 				
 				$.put("constant_colors",
 						new JSONObject()
@@ -134,15 +130,22 @@ public class CustomFoilConfigs
 				Files.writeString(path, $.toString(2));
 			}
 			
-			var $ = new JSONTokener(Files.readString(path)).nextValueOBJ().orElseThrow();
+			var $ = new JSONObject(Files.readString(path));
+			boolean hasChanged = false;
 			
-			if(!$.has("disable_with_rubidium"))
+			if(!$.has("disable_with_sodium"))
 			{
-				$.put("disable_with_rubidium", true);
-				Files.writeString(path, $.toString(2));
+				$.put("disable_with_sodium", false);
+				hasChanged = true;
 			}
 			
-			disable_with_rubidium = $.optBoolean("disable_with_rubidium");
+			if($.has("disable_with_rubidium"))
+			{
+				$.remove("disable_with_rubidium");
+				hasChanged = true;
+			}
+			
+			disable_with_sodium = $.optBoolean("disable_with_sodium");
 			
 			var constant_colors = $.getJSONObject("constant_colors");
 			
@@ -166,6 +169,9 @@ public class CustomFoilConfigs
 				overrides.add(Tuples.immutable(item, foil));
 				IColoredFoilItem.override(item, foil);
 			}
+			
+			if(hasChanged)
+				Files.writeString(path, $.toString(2));
 			
 			if(rubidiumInstaller != null) rubidiumInstaller.run();
 		} catch(IOException | JSONException e)

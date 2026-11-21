@@ -1,13 +1,10 @@
 package org.zeith.hammerlib.core.test.machine;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
-import org.zeith.hammerlib.client.screen.IAdvancedGui;
-import org.zeith.hammerlib.client.screen.ScreenWTFMojang;
-import org.zeith.hammerlib.client.utils.FXUtils;
-import org.zeith.hammerlib.client.utils.RenderUtils;
+import org.zeith.hammerlib.client.screen.*;
+import org.zeith.hammerlib.client.utils.*;
 import org.zeith.hammerlib.proxy.HLConstants;
 
 @IAdvancedGui.ApplyToJEI

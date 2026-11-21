@@ -1,12 +1,11 @@
-package org.zeith.hammerlib.mixins.bs.kubejs;
+package org.zeith.hammerlib.mixins.compat.kubejs;
 
 import com.google.gson.JsonElement;
 import dev.latvian.mods.kubejs.core.RecipeManagerKJS;
 import dev.latvian.mods.kubejs.recipe.RecipesKubeEvent;
 import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Map;
