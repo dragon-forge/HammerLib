@@ -23,7 +23,7 @@ import org.zeith.hammerlib.core.scans.base.DataScanner;
 import org.zeith.hammerlib.event.fml.FMLFingerprintCheckEvent;
 import org.zeith.hammerlib.proxy.*;
 import org.zeith.hammerlib.tiles.tooltip.own.impl.TooltipRenderEngine;
-import org.zeith.hammerlib.util.*;
+import org.zeith.hammerlib.util.ZeithLinkRepository;
 import org.zeith.hammerlib.util.charging.ItemChargeHelper;
 
 import java.util.Locale;
@@ -39,9 +39,7 @@ public class HammerLib
 	
 	public HammerLib(IEventBus modEventBus)
 	{
-		CommonMessages.printMessageOnIllegalRedistribution(HammerLib.class,
-				LOG, "HammerLib", "https://www.curseforge.com/minecraft/mc-mods/hammer-lib"
-		);
+		GradleBuild.construct(getClass());
 		
 		hlCompatList = CompatList.gather(BaseHLCompat.class, CompatContext.builder(modEventBus).build());
 		
@@ -72,23 +70,15 @@ public class HammerLib
 		ModList.get().forEachModContainer((modid, container) ->
 		{
 			if(container instanceof FMLModContainer ctr)
-			{
-				var bus = ctr.getEventBus();
-				bus.addListener((FMLCommonSetupEvent e) ->
-						ctr.getEventBus().post(new FMLFingerprintCheckEvent(ctr))
-				);
-			}
+				FingerprintCheckAdapter.service(ctr);
 		});
 	}
 	
-	// Fixme: Need to figure out why jar signing results in a null fingerprint (corrupted jdks?!)
-//	@SubscribeEvent
-//	public void checkFingerprint(FMLFingerprintCheckEvent e)
-//	{
-//		CommonMessages.printMessageOnFingerprintViolation(e, "97e852e9b3f01b83574e8315f7e77651c6605f2b455919a7319e9869564f013c",
-//				LOG, "HammerLib", "https://www.curseforge.com/minecraft/mc-mods/hammer-lib"
-//		);
-//	}
+	@SubscribeEvent
+	public void checkFingerprint(FMLFingerprintCheckEvent e)
+	{
+		GradleBuild.fingerprint(e);
+	}
 	
 	@SubscribeEvent
 	@OnlyIn(Dist.CLIENT)

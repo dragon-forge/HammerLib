@@ -59,19 +59,19 @@ runs {
     }
 
     client {
-		def args = new ArrayList()
-		
-		if (hasConfig("mc_user") && !config.mc_user.isEmpty()) {
-			def userId = config.mc_user.split(',', 2)
-			args.add "--username"
-			args.add userId[0]
+        def args = new ArrayList()
 
-			args.add "--uuid"
-			if (userId.length > 1) args.add userId[1]
-			else args.add "00000000000000000000000000000001" // this is a default
-		}
-		
-		programArguments(args)
+        if (hasConfig("mc_user") && !config.mc_user.isEmpty()) {
+            def userId = config.mc_user.split(',', 2)
+            args.add "--username"
+            args.add userId[0]
+
+            args.add "--uuid"
+            if (userId.length > 1) args.add userId[1]
+            else args.add "00000000000000000000000000000001" // this is a default
+        }
+
+        programArguments(args)
     }
 
     server {
@@ -201,7 +201,7 @@ def resourceTargets = ['META-INF/neoforge.mods.toml', 'pack.mcmeta']
 def replaceProperties = [
         minecraft_version: mc_version, minecraft_version_range: mc_range,
         forge_version    : "${mc_version}-${forge_version}", forge_version_range: forge_range, javafml_range: javafml_range,
-        mod_id           : config.mod_id, mod_name: config.mod_name, mod_license: config.mod_license, mod_version: config.mod_version,
+        mod_id           : config.mod_id, mod_name: config.mod_name, mod_version: config.mod_version,
         mod_authors      : config.mod_authors, mod_description: config.mod_description,
         hl_version       : config.hl_version, modrinth_project: config.modrinth_project,
         issue_tracker_url: config.issue_tracker_url, mod_credits: config.mod_credits
@@ -215,6 +215,12 @@ processResources {
 }
 
 jar {
+    eachFile {
+        if (it.path == 'InternalProps.txt') {
+            it.name = 'InternalProps.txt'
+        }
+    }
+
     manifest {
         attributes([
                 "Specification-Title"     : config.mod_id,
@@ -391,7 +397,15 @@ tasks.register('curseforge', net.darkhax.curseforgegradle.TaskPublishCurseForge)
         }
 }
 
+//region Jar Signing
+import groovy.json.JsonOutput
 import net.neoforged.gradle.common.tasks.PotentiallySignJar
+
+import java.nio.file.Files
+import java.security.MessageDigest
+import java.util.jar.JarFile
+
+def baseSignedPkg = group
 
 task signJar(type: PotentiallySignJar, dependsOn: jar) {
     onlyIf {
@@ -426,6 +440,191 @@ publish.dependsOn('signJar')
 
 build.dependsOn signJar
 
+def generatedSignerDir = layout.buildDirectory.dir("generated/sources/signer/java")
+sourceSets.main.java.srcDir(generatedSignerDir)
+
+tasks.register("generateSignerFingerprint") {
+    def signerFingerprint = providers.environmentVariable("MC_SIGN_SHA256").orElse("")
+
+    inputs.property("signerFingerprint", signerFingerprint)
+    outputs.dir(generatedSignerDir)
+
+    doLast {
+        def fingerprint = signerFingerprint.get()
+                .replace(":", "")
+                .trim()
+                .toLowerCase(Locale.ROOT)
+
+        if (!fingerprint.isEmpty() && !(fingerprint ==~ /[0-9a-f]{64}/)) {
+            throw new GradleException("Invalid MC_SIGN_SHA256 fingerprint!")
+        }
+
+        def output = new File(generatedSignerDir.get().getAsFile(), "$baseSignedPkg".replace(".", "/") + "/GradleBuild.java").getAbsoluteFile()
+
+        output.parentFile.mkdirs()
+
+        def modDownloadLinks = config.mod_sources
+                .split(/\s+/)
+                .findAll { !it.isBlank() }
+                .collect { JsonOutput.toJson(it) }
+                .join(", ")
+
+        output.text = """\
+package ${baseSignedPkg};
+
+import org.slf4j.*;
+import org.zeith.hammerlib.event.fml.FMLFingerprintCheckEvent;
+import org.zeith.hammerlib.util.CommonMessages;
+
+import java.util.List;
+
+final class GradleBuild
+{
+    private GradleBuild() {}
+
+    static final String BASE_NAME = ${JsonOutput.toJson(config.archive_name)};
+    static final Logger LOG = LoggerFactory.getLogger(BASE_NAME);
+    static final List<String> DOWNLOAD_URLS = List.of($modDownloadLinks);
+    
+    static void construct(Class<?> modClass)
+    {
+        CommonMessages.printMessageOnIllegalRedistribution(modClass,
+				LOG, BASE_NAME,
+				DOWNLOAD_URLS
+		);
+    }
+    
+    static void fingerprint(FMLFingerprintCheckEvent e)
+    {
+		CommonMessages.printMessageOnFingerprintViolation(e, "${fingerprint}",
+				LOG, BASE_NAME,
+				DOWNLOAD_URLS
+		);
+    }
+}
+"""
+    }
+}
+
+tasks.named("compileJava") {
+    dependsOn("generateSignerFingerprint")
+}
+tasks.named("idePostSync") {
+    dependsOn("generateSignerFingerprint")
+}
+
+tasks.register('validateSignedJar') {
+    onlyIf {
+        System.env.MC_SIGN_SHA256 != null
+    }
+    group = 'verification'
+    description = 'Verifies the signed JAR and its certificate fingerprint.'
+
+    // Ensure signing and replacement have completed.
+    dependsOn 'placeSignedJar'
+
+    inputs.file(jar.archiveFile)
+    inputs.property('expectedFingerprint', providers.environmentVariable('MC_SIGN_SHA256').orElse(''))
+
+    doLast {
+        def artifact = jar.archiveFile.get().asFile
+
+        if (!artifact.exists()) {
+            throw new GradleException("Signed JAR does not exist: ${artifact}")
+        }
+
+        def expected = System.getenv('MC_SIGN_SHA256')
+                ?.replace(':', '')
+                ?.replaceAll('\\s', '')
+                ?.toLowerCase(Locale.ROOT)
+
+        if (!expected || !(expected ==~ /[0-9a-f]{64}/)) {
+            throw new GradleException('MC_SIGN_SHA256 is missing or invalid!')
+        }
+
+        def sha256 = MessageDigest.getInstance('SHA-256')
+        def verifiedEntries = 0
+        def jarFile = new JarFile(artifact, true)
+
+        try {
+            def entries = jarFile.entries()
+
+            while (entries.hasMoreElements()) {
+                def entry = entries.nextElement()
+
+                if (entry.isDirectory()) continue
+
+                def name = entry.name
+
+                if (name ==~ /(?i)META-INF\/MANIFEST\.MF/) continue
+                if (name ==~ /(?i)META-INF\/[^\/]+\.(SF|RSA|DSA|EC)/) continue
+                if (name ==~ /(?i)META-INF\/SIG-[^\/]+/) continue
+
+                // Fully read the entry to trigger signature verification.
+                jarFile.getInputStream(entry).withCloseable { stream ->
+                    byte[] buffer = new byte[8192]
+                    while (stream.read(buffer) != -1); // Consume the entire entry.
+                }
+
+                def signers = entry.codeSigners
+
+                if (!signers || signers.length == 0) throw new GradleException("Unsigned JAR entry: ${name}")
+
+                def trustedSignerFound = false
+
+                for (def signer : signers) {
+                    for (def certificate : signer.signerCertPath.certificates) {
+                        def fingerprint = sha256.digest(certificate.encoded)
+                                .encodeHex()
+                                .toString()
+                                .toLowerCase(Locale.ROOT)
+
+                        if (fingerprint == expected) {
+                            certificate.checkValidity()
+                            trustedSignerFound = true
+                            break
+                        }
+                    }
+
+                    if (trustedSignerFound) break
+                }
+
+                if (!trustedSignerFound) throw new GradleException("Unexpected signing certificate in: ${name}")
+
+                verifiedEntries++
+            }
+        } catch (SecurityException e) {
+            throw new GradleException("JAR signature verification failed: ${e.message}", e)
+        } finally {
+            jarFile.close()
+        }
+
+        if (verifiedEntries == 0) throw new GradleException('JAR contains no verifiable signed entries!')
+
+        println ""
+        println "=========================================="
+        println " JAR SIGNATURE VALIDATION PASSED"
+        println "=========================================="
+        println "Artifact: ${artifact.name}"
+        println "SHA-256:  ${expected}"
+        println "Entries:  ${verifiedEntries}"
+        println "=========================================="
+    }
+}
+
+// Always validate after the build finishes.
+build.finalizedBy('validateSignedJar')
+//endregion
+
+tasks.register('buildAndUploadMod') {
+    group = "upload"
+    dependsOn "curseforge", 'modrinth'
+
+    doLast {
+        println "Upload complete."
+    }
+}
+
 task generateChangelog(type: se.bjurr.gitchangelog.plugin.gradle.GitChangelogTask) {
     group = "git changelog"
     if (config.last_git_commit != null && !config.last_git_commit.isEmpty()) fromRevision = config.last_git_commit
@@ -440,15 +639,6 @@ Changelog:
 """
 }
 
-tasks.register('buildAndUploadMod') {
-    group = "upload"
-    dependsOn "curseforge", 'modrinth'
-
-    doLast {
-        println "Upload complete."
-    }
-}
-
 afterEvaluate {
     tasks["curseforge"].dependsOn.add(generateChangelog)
     tasks["modrinth"].dependsOn.add(generateChangelog)
@@ -457,6 +647,10 @@ afterEvaluate {
         tasks["curseforge"].dependsOn.add(publish)
         tasks["modrinth"].dependsOn.add(publish)
     }
+}
+
+tasks.withType(GenerateModuleMetadata).configureEach {
+    enabled = false
 }
 
 publishing {
@@ -485,8 +679,6 @@ publishing {
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
 }
-
-import java.nio.file.Files
 
 def incrementBuild = {
     if (!hasConfig("build_candidate") || !Boolean.parseBoolean(config.build_candidate)) {

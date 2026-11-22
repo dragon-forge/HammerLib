@@ -1,5 +1,5 @@
 # Mod Info
-mod_version=21.1.20
+mod_version=21.1.21
 build_candidate=false
 
 # Mod dependencies
@@ -10,9 +10,9 @@ shimmer_version=0.1.15
 mod_id=hammerlib
 archive_name=HammerLib
 mod_name=HammerLib
-mod_license=All Rights Reserved
 mod_authors=Zeitheron
-mod_description=HammerLib is an essential tool for developing mods easily.\nPacked with a lot of utilities, this library provides nearly anything a modder would need, in one handy package!
+mod_description=HammerLib is an essential tool for developing mods easily.\nPacked with a lot of utilities, this library provides a lot of utility for developers who would want to develop mods across multiple game versions.
+mod_sources=https://www.curseforge.com/minecraft/mc-mods/hammer-lib https://modrinth.com/mod/hammer-lib
 issue_tracker_url=https://github.com/dragon-forge/HammerLib/issues
 
 # Maven Info
@@ -29,7 +29,7 @@ modrinth_project=PlkSuVtM
 release_type=release
 
 # Keeping track of latest git commit for changelog generation!
-last_git_commit=dee26a56e0c9ef7
+last_git_commit=57c5bb3ebb68866
 
 # List of mods separated by ;
 # If a specific mod for one platform is needed, @m: or @c: prefixes are used.

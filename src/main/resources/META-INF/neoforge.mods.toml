@@ -1,7 +1,7 @@
 modLoader = "javafml"
 loaderVersion = "${javafml_range}"
 issueTrackerURL = "${issue_tracker_url}"
-license = "${mod_license}"
+license = "https://zeith.dev/license/zsfl"
 
 [[mods]]
     modId = "${mod_id}"

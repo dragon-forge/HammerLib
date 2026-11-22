@@ -10,6 +10,7 @@ import org.zeith.hammerlib.event.fml.FMLFingerprintCheckEvent;
 import org.zeith.hammerlib.proxy.HLConstants;
 
 import java.net.URL;
+import java.util.List;
 import java.util.function.Supplier;
 
 public class CommonMessages
@@ -28,6 +29,16 @@ public class CommonMessages
 		return printMessageOnIllegalRedistribution(modClass, AbstractLogger.ofSlf4j(log), modName, downloadUrl);
 	}
 	
+	public static CheckResult printMessageOnIllegalRedistribution(Class<?> modClass, Logger log, String modName, List<String> downloadUrl)
+	{
+		return printMessageOnIllegalRedistribution(modClass, AbstractLogger.ofLog4j(log), modName, List.copyOf(downloadUrl));
+	}
+	
+	public static CheckResult printMessageOnIllegalRedistribution(Class<?> modClass, org.slf4j.Logger log, String modName, List<String> downloadUrl)
+	{
+		return printMessageOnIllegalRedistribution(modClass, AbstractLogger.ofSlf4j(log), modName, List.copyOf(downloadUrl));
+	}
+	
 	public static CheckResult printMessageOnFingerprintViolation(FMLFingerprintCheckEvent event, String expectFingerprint, Logger log, String modName, String downloadUrl)
 	{
 		return printMessageOnFingerprintViolation(event, expectFingerprint, AbstractLogger.ofLog4j(log), modName, downloadUrl);
@@ -38,12 +49,33 @@ public class CommonMessages
 		return printMessageOnFingerprintViolation(event, expectFingerprint, AbstractLogger.ofSlf4j(log), modName, downloadUrl);
 	}
 	
+	public static CheckResult printMessageOnFingerprintViolation(FMLFingerprintCheckEvent event, String expectFingerprint, Logger log, String modName, List<String> downloadUrls)
+	{
+		return printMessageOnFingerprintViolation(event, expectFingerprint, AbstractLogger.ofLog4j(log), modName, downloadUrls);
+	}
+	
+	public static CheckResult printMessageOnFingerprintViolation(FMLFingerprintCheckEvent event, String expectFingerprint, org.slf4j.Logger log, String modName, List<String> downloadUrls)
+	{
+		return printMessageOnFingerprintViolation(event, expectFingerprint, AbstractLogger.ofSlf4j(log), modName, downloadUrls);
+	}
+	
 	public static CheckResult printMessageOnIllegalRedistribution(Class<?> modClass, AbstractLogger log, String modName, String downloadUrl)
+	{
+		return printMessageOnIllegalRedistribution(modClass, log, modName, List.of(downloadUrl));
+	}
+	
+	public static CheckResult printMessageOnIllegalRedistribution(Class<?> modClass, AbstractLogger log, String modName, List<String> downloadUrls)
+	{
+		return printMessageOnIllegalRedistribution(modClass, log, modName, String.join(" or ", downloadUrls), createDownloadComponent(downloadUrls));
+	}
+	
+	public static CheckResult printMessageOnIllegalRedistribution(Class<?> modClass, AbstractLogger log, String modName, String downloadUrl, Component downloadComponent)
 	{
 		if(!FMLEnvironment.production)
 			return CheckResult.DEV_ENV;
 		
-		var illegalSourceNotice = ModSourceAdapter.getModSource(modClass)
+		var illegalSourceNotice = ModSourceAdapter
+				.getModSource(modClass)
 				.filter(ModSourceAdapter.ModSource::wasDownloadedIllegally)
 				.orElse(null);
 		
@@ -51,38 +83,30 @@ public class CommonMessages
 		{
 			log.error("=".repeat(52));
 			log.error("== WARNING: " + modName + " was downloaded from " + illegalSourceNotice.referrerDomain() +
-					  ", which has been marked as illegal site over at stopmodreposts.org.");
+					", which has been marked as illegal site over at stopmodreposts.org.");
 			log.error("== Please download the mod from " + downloadUrl);
 			log.error("=".repeat(52));
 			
-			var illegalUri = Component.literal(illegalSourceNotice.referrerDomain())
+			final String smr = "https://stopmodreposts.org/";
+			var illegalUri = Component
+					.literal(illegalSourceNotice.referrerDomain())
 					.withStyle(s -> s.withColor(ChatFormatting.RED));
-			var smrUri = Component.literal("stopmodreposts.org")
-					.withStyle(s -> s.withColor(ChatFormatting.BLUE)
+			var smrUri = Component
+					.literal(getWebsiteName(smr))
+					.withStyle(s -> s
+							.withColor(ChatFormatting.BLUE)
 							.withUnderlined(true)
-							.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://stopmodreposts.org/"))
-							.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("Click to open webpage."))));
+							.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, smr))
+							.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("Click to open webpage.")))
+					);
 			
-			String host = downloadUrl;
-			try
-			{
-				host = new URL(downloadUrl).getAuthority();
-			} catch(Exception err)
-			{
-			}
-			
-			var curseforgeUri = Component.literal(host)
-					.withStyle(s -> s.withColor(ChatFormatting.BLUE)
-							.withUnderlined(true)
-							.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, downloadUrl))
-							.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("Click to open webpage."))));
-			
-			ChatMessageAdapter.sendOnFirstWorldLoad(Component.literal("WARNING: " + modName + " was downloaded from ")
+			ChatMessageAdapter.sendOnFirstWorldLoad(Component
+					.literal("WARNING: " + modName + " was downloaded from ")
 					.append(illegalUri)
 					.append(", which has been marked as illegal site over at ")
 					.append(smrUri)
 					.append(". Please download the mod from ")
-					.append(curseforgeUri)
+					.append(downloadComponent)
 					.append(".")
 			);
 			
@@ -92,7 +116,18 @@ public class CommonMessages
 		return CheckResult.OK;
 	}
 	
+	
 	public static CheckResult printMessageOnFingerprintViolation(FMLFingerprintCheckEvent event, String expectFingerprint, AbstractLogger log, String modName, String downloadUrl)
+	{
+		return printMessageOnFingerprintViolation(event, expectFingerprint, log, modName, downloadUrl, createDownloadComponent(List.of(downloadUrl)));
+	}
+	
+	public static CheckResult printMessageOnFingerprintViolation(FMLFingerprintCheckEvent event, String expectFingerprint, AbstractLogger log, String modName, List<String> downloadUrls)
+	{
+		return printMessageOnFingerprintViolation(event, expectFingerprint, log, modName, String.join(" or ", downloadUrls), createDownloadComponent(List.copyOf(downloadUrls)));
+	}
+	
+	public static CheckResult printMessageOnFingerprintViolation(FMLFingerprintCheckEvent event, String expectFingerprint, AbstractLogger log, String modName, String downloadUrl, Component downloadCom)
 	{
 		if(!FMLEnvironment.production)
 			return CheckResult.DEV_ENV;
@@ -119,26 +154,49 @@ public class CommonMessages
 		}
 		log.error("=".repeat(52));
 		
-		String host = downloadUrl;
-		try
-		{
-			host = new URL(downloadUrl).getAuthority();
-		} catch(Exception err)
-		{
-		}
-		
-		var curseforgeUri = Component.literal(host)
-				.withStyle(s -> s.withColor(ChatFormatting.BLUE)
-						.withUnderlined(true)
-						.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, downloadUrl))
-						.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("Click to open webpage."))));
-		
-		ChatMessageAdapter.sendOnFirstWorldLoad(Component.literal("WARNING: " + modName + " was tampered by someone. Please download the mod from ")
-				.append(curseforgeUri)
+		ChatMessageAdapter.sendOnFirstWorldLoad(Component
+				.literal("WARNING: " + modName + " was tampered by someone. Please download the mod from ")
+				.append(downloadCom)
 				.append(".")
 		);
 		
 		return CheckResult.VIOLATION_FOUND;
+	}
+	
+	public static MutableComponent createDownloadComponent(List<String> downloadUrls)
+	{
+		var downloadCom = Component.empty();
+		var added = false;
+		
+		for(String url : downloadUrls)
+		{
+			var subCom = Component
+					.literal(getWebsiteName(url))
+					.withStyle(s -> s
+							.withColor(ChatFormatting.BLUE)
+							.withUnderlined(true)
+							.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url))
+							.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("Click to open webpage.")))
+					);
+			if(added) downloadCom = downloadCom.append(" or ");
+			downloadCom = downloadCom.append(subCom);
+			added = true;
+		}
+		return downloadCom;
+	}
+	
+	public static String getWebsiteName(String uri)
+	{
+		String host = uri;
+		try
+		{
+			host = new URL(uri).getAuthority();
+		} catch(Exception err)
+		{
+		}
+		if(host.endsWith(".curseforge.com") || host.equals("curseforge.com")) return "CurseForge";
+		if(host.equals("modrinth.com")) return "Modrinth";
+		return host;
 	}
 	
 	public enum CheckResult

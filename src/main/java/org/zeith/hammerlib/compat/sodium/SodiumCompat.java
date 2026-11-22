@@ -1,15 +1,11 @@
 package org.zeith.hammerlib.compat.sodium;
 
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.*;
 import net.neoforged.api.distmarker.Dist;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.annotations.OnlyIf;
 import org.zeith.hammerlib.client.CustomFoilConfigs;
-import org.zeith.hammerlib.client.adapter.ChatMessageAdapter;
 import org.zeith.hammerlib.client.render.TintingVertexConsumer;
-import org.zeith.hammerlib.compat.base.BaseCompat;
-import org.zeith.hammerlib.compat.base.CompatContext;
+import org.zeith.hammerlib.compat.base.*;
 import org.zeith.hammerlib.compat.base._hl.BaseHLCompat;
 import org.zeith.hammerlib.util.mcf.ModHelper;
 
@@ -41,19 +37,6 @@ public class SodiumCompat
 		{
 			HammerLib.LOG.error("You tried to start a dedicated server with Sodium installed. This is probably not a good idea.");
 		});
-		
-		var url = "https://www.curseforge.com/minecraft/mc-mods/embeddium";
-		
-		var curseforgeUri = Component.literal("Embeddium")
-				.withStyle(s -> s.withColor(ChatFormatting.BLUE)
-						.withUnderlined(true)
-						.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url))
-						.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("Click to open webpage."))));
-		
-		ChatMessageAdapter.sendOnFirstWorldLoad(Component.literal("WARNING: HammerLib has limited some of it's functions due to Rubidium. We recommend using ")
-				.append(curseforgeUri)
-				.append(" instead, as it does causes less issues.")
-		);
 	}
 	
 	public void reload()
