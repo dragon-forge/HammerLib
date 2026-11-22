@@ -1,8 +1,8 @@
 package org.zeith.hammerlib.net.lft;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.zeith.hammerlib.util.java.ByteHelper;
 
+import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -11,11 +11,13 @@ public class TransportSessionBuilder
 	public final String sessionId = UUID.randomUUID().toString();
 
 	public Class<? extends ITransportAcceptor> acceptor;
-	public byte[] data = new byte[0];
+	private final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
 	public TransportSessionBuilder addData(byte[] data)
 	{
-		this.data = ArrayUtils.addAll(this.data, data);
+		if(data != null)
+			buffer.writeBytes(data);
+
 		return this;
 	}
 
@@ -27,6 +29,7 @@ public class TransportSessionBuilder
 
 	public TransportSession build()
 	{
+		byte[] data = buffer.toByteArray();
 		return new TransportSession(sessionId, acceptor, Arrays.asList(ByteHelper.divide(16384, data)), null, data.length);
 	}
 }

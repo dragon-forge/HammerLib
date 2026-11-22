@@ -40,16 +40,30 @@ public class HLCommonProxy
 		if(!level.isClientSide)
 			serverTickTasks.add(new QueuedTask(delay, task));
 	}
-	
+
 	private void serverTick(ServerTickEvent.Pre e)
 	{
-		for(int i = 0; i < serverTickTasks.size(); i++)
+		tickQueuedTasks(serverTickTasks);
+	}
+
+	static void tickQueuedTasks(List<QueuedTask> tasks)
+	{
+		int read = 0;
+		int write = 0;
+		try
 		{
-			if(serverTickTasks.get(i).shouldRemove())
+			for(; read < tasks.size(); ++read)
 			{
-				serverTickTasks.remove(i);
-				--i;
+				var task = tasks.get(read);
+				if(task.shouldRemove()) continue;
+
+				if(write != read) tasks.set(write, task);
+				++write;
 			}
+		}
+		finally
+		{
+			if(write < read) tasks.subList(write, read).clear();
 		}
 	}
 	

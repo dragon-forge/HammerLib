@@ -367,15 +367,8 @@ public class HLClientProxy
 		
 		if(mc.level == null)
 			clientTickTasks.clear();
-		
-		for(int i = 0; i < clientTickTasks.size(); i++)
-		{
-			if(clientTickTasks.get(i).shouldRemove())
-			{
-				clientTickTasks.remove(i);
-				--i;
-			}
-		}
+
+		tickQueuedTasks(clientTickTasks);
 	}
 	
 	@SubscribeEvent
