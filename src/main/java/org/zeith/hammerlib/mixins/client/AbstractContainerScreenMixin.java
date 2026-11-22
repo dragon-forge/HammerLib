@@ -13,7 +13,7 @@ import org.zeith.hammerlib.api.client.gui.IClientSlotPatch;
 import org.zeith.hammerlib.api.inv.ICustomHoverSlot;
 import org.zeith.hammerlib.util.java.Cast;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @Mixin(AbstractContainerScreen.class)
 public abstract class AbstractContainerScreenMixin

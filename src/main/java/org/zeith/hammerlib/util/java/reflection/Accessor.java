@@ -3,7 +3,7 @@ package org.zeith.hammerlib.util.java.reflection;
 import com.google.common.base.Suppliers;
 import org.zeith.hammerlib.util.java.Cast;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.function.Supplier;
 

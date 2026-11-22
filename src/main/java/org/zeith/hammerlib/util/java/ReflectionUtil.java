@@ -1,10 +1,10 @@
 package org.zeith.hammerlib.util.java;
 
 import com.google.common.collect.Lists;
+import org.jetbrains.annotations.*;
 import org.objectweb.asm.Type;
 import org.zeith.hammerlib.HammerLib;
 
-import javax.annotation.*;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.function.*;
@@ -131,14 +131,13 @@ public class ReflectionUtil
 		return null;
 	}
 	
-	public static Iterable<Field> getFieldsUpTo(@Nonnull Class<?> startClass,
-												@Nullable Class<?> exclusiveParent)
+	public static Iterable<Field> getFieldsUpTo(@NotNull Class<?> startClass, @Nullable Class<?> exclusiveParent)
 	{
 		
 		List<Field> currentClassFields = Lists.newArrayList(startClass.getDeclaredFields());
 		Class<?> parentClass = startClass.getSuperclass();
 		
-		if(parentClass != null && (exclusiveParent == null || !(parentClass.equals(exclusiveParent))))
+		if(parentClass != null && !parentClass.equals(exclusiveParent))
 		{
 			List<Field> parentClassFields =
 					(List<Field>) getFieldsUpTo(parentClass, exclusiveParent);

@@ -129,7 +129,7 @@ public class HttpTextureWithHeaders
 		image.upload(0, 0, 0, true);
 	}
 	
-	@javax.annotation.Nullable
+	@org.jetbrains.annotations.Nullable
 	private NativeImage load(InputStream stream)
 	{
 		NativeImage nativeimage = null;

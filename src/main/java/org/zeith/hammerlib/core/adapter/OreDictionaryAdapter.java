@@ -1,16 +1,15 @@
 package org.zeith.hammerlib.core.adapter;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.TagKey;
+import net.minecraft.tags.*;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.common.Tags;
+import org.jetbrains.annotations.NotNull;
 import org.zeith.hammerlib.core.RecipeHelper;
 import org.zeith.hammerlib.core.init.TagsHL;
 import org.zeith.hammerlib.proxy.HLConstants;
 import org.zeith.hammerlib.util.mcf.Resources;
 
-import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.function.Function;
 
@@ -45,7 +44,7 @@ public class OreDictionaryAdapter
 		addMapping(key, value);
 	}
 
-	@Nonnull
+	@NotNull
 	public static List<ResourceLocation> get(String od)
 	{
 		if(!MAPPING.containsKey(od))

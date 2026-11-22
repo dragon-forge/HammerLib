@@ -11,7 +11,7 @@ import org.zeith.hammerlib.net.packets.RequestPropertiesPacket;
 import org.zeith.hammerlib.net.packets.SendPropertiesPacket;
 import org.zeith.hammerlib.util.mcf.ByteBufTransposer;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;

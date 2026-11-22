@@ -1,6 +1,7 @@
 package org.zeith.hammerlib.util.java;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.*;
 
 public class RoundRobinList<E>
@@ -17,7 +18,7 @@ public class RoundRobinList<E>
 		super(initialCapacity);
 	}
 	
-	public RoundRobinList(@Nonnull Collection<? extends E> c)
+	public RoundRobinList(@NotNull Collection<? extends E> c)
 	{
 		super(c);
 	}

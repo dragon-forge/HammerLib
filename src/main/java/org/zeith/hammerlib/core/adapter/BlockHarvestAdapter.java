@@ -1,11 +1,10 @@
 package org.zeith.hammerlib.core.adapter;
 
 import net.minecraft.tags.*;
-import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.Tiers;
 import net.minecraft.world.level.block.Block;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.Objects;
 
 public class BlockHarvestAdapter
@@ -26,7 +25,7 @@ public class BlockHarvestAdapter
 		bindToolTier(tier, blocks);
 	}
 	
-	public record MineableType(@Nonnull TagKey<Block> blockTag)
+	public record MineableType(@NotNull TagKey<Block> blockTag)
 	{
 		public static final MineableType AXE = new MineableType(BlockTags.MINEABLE_WITH_AXE);
 		public static final MineableType HOE = new MineableType(BlockTags.MINEABLE_WITH_HOE);

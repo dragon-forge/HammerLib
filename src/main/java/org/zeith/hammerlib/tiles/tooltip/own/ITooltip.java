@@ -16,7 +16,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 import org.zeith.hammerlib.tiles.tooltip.ProgressBar;
 import org.zeith.hammerlib.tiles.tooltip.own.inf.*;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public interface ITooltip
 {

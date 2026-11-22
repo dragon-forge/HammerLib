@@ -1,10 +1,8 @@
 package org.zeith.hammerlib.util.java;
 
-import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.*;
 import org.zeith.hammerlib.util.java.itf.FloatSupplier;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.lang.reflect.Constructor;
 import java.util.*;
 import java.util.function.*;
@@ -65,7 +63,7 @@ public class Cast
 		return () -> result;
 	}
 	
-	@Nonnull
+	@NotNull
 	public static <T> Optional<T> optionally(Object thing, Class<T> type)
 	{
 		return type.isInstance(thing) ? Optional.of(type.cast(thing)) : Optional.empty();

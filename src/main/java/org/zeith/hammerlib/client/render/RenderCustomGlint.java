@@ -11,13 +11,12 @@ import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.RegisterShadersEvent;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.zeith.hammerlib.HammerLib;
 import org.zeith.hammerlib.proxy.HLConstants;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 
 public class RenderCustomGlint
@@ -252,7 +251,7 @@ public class RenderCustomGlint
 		}
 	}
 	
-	@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+	@EventBusSubscriber(Dist.CLIENT)
 	public static class GlintShaders
 	{
 		private static ShaderInstance armorGlintShader;

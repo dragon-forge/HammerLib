@@ -6,11 +6,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.*;
 import org.zeith.hammerlib.core.RegistriesHL;
 import org.zeith.hammerlib.util.java.Cast;
 
-import javax.annotation.*;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -30,12 +29,12 @@ public interface IObjectSource<T>
 		return Cast.optionally(get(level), base);
 	}
 	
-	static Supplier<EntitySourceType.EntitySource> ofEntity(@Nonnull Entity entity)
+	static Supplier<EntitySourceType.EntitySource> ofEntity(@NotNull Entity entity)
 	{
 		return () -> new EntitySourceType.EntitySource(entity.getId());
 	}
 	
-	static Supplier<TileSourceType.TileSource> ofTile(@Nonnull BlockEntity tile)
+	static Supplier<TileSourceType.TileSource> ofTile(@NotNull BlockEntity tile)
 	{
 		return () -> new TileSourceType.TileSource(tile.getBlockPos());
 	}

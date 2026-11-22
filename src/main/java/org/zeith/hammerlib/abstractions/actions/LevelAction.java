@@ -3,9 +3,9 @@ package org.zeith.hammerlib.abstractions.actions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 import org.zeith.hammerlib.core.RegistriesHL;
 
-import javax.annotation.Nullable;
 import java.util.Optional;
 
 /**

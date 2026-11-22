@@ -23,7 +23,7 @@ import org.zeith.hammerlib.util.colors.ColorHelper;
 import org.zeith.hammerlib.util.java.Cast;
 import org.zeith.hammerlib.util.java.itf.IntToIntFunction;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.Random;
 
 public class RenderUtils

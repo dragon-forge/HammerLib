@@ -14,7 +14,7 @@ import org.zeith.hammerlib.annotations.SimplyRegister;
 import org.zeith.hammerlib.api.tiles.IContainerTile;
 import org.zeith.hammerlib.util.java.Cast;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 @SimplyRegister
 public class ContainerAPI
