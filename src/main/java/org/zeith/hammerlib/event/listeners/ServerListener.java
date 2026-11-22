@@ -1,6 +1,6 @@
 package org.zeith.hammerlib.event.listeners;
 
-import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -14,7 +14,10 @@ import org.zeith.hammerlib.net.properties.IBasePropertyHolder;
 import org.zeith.hammerlib.net.properties.IPropertyTile;
 import org.zeith.hammerlib.util.mcf.LogicalSidePredictor;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @EventBusSubscriber
 public class ServerListener
@@ -27,12 +30,13 @@ public class ServerListener
 	public static void serverTick(ServerTickEvent.Post e)
 	{
 		// After we're done with ticking tiles...
-		Set<BlockPos> processed = new HashSet<>();
+		Set<GlobalPos> processed = new HashSet<>();
 		
 		while(!NEED_SYNC.isEmpty())
 		{
-			BlockEntity tile = NEED_SYNC.remove(0);
-			if(!processed.add(tile.getBlockPos())) continue;
+			BlockEntity tile = NEED_SYNC.removeLast();
+			var level = tile.getLevel();
+			if(level == null || !processed.add(GlobalPos.of(level.dimension(), tile.getBlockPos()))) continue;
 			
 			if(tile instanceof ISyncableTile s)
 				s.syncNow();
@@ -44,8 +48,9 @@ public class ServerListener
 		
 		while(!NEED_PROP_SYNC.isEmpty())
 		{
-			BlockEntity tile = NEED_PROP_SYNC.remove(0);
-			if(!processed.add(tile.getBlockPos())) continue;
+			BlockEntity tile = NEED_PROP_SYNC.removeLast();
+			var level = tile.getLevel();
+			if(level == null || !processed.add(GlobalPos.of(level.dimension(), tile.getBlockPos()))) continue;
 			
 			if(tile instanceof IPropertyTile ipt)
 				ipt.syncPropertiesNow();
@@ -53,7 +58,7 @@ public class ServerListener
 		
 		while(!NEED_PROP_SYNC_GENERIC.isEmpty())
 		{
-			var data = NEED_PROP_SYNC_GENERIC.remove(0);
+			var data = NEED_PROP_SYNC_GENERIC.removeLast();
 			if(data != null)
 				data.syncPropertiesNow();
 		}
