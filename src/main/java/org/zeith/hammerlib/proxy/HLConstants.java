@@ -20,7 +20,7 @@ public class HLConstants
 	
 	@CreativeTab.RegisterTab
 	public static final CreativeTab HL_TAB = new CreativeTab(id("root"),
-			b -> b.icon(() -> ItemsHL.WRENCH.getDefaultInstance())
+			b -> b.icon(ItemsHL.WRENCH::getDefaultInstance)
 					.title(Component.translatable("itemGroup." + MOD_ID))
 					.withTabsBefore(
 							CreativeModeTabs.BUILDING_BLOCKS,

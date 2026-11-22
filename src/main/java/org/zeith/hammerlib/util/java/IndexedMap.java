@@ -150,13 +150,20 @@ public class IndexedMap<K, V>
 	{
 		return values;
 	}
-	
+
 	@Override
 	public Set<Entry<K, V>> entrySet()
 	{
 		Set<Entry<K, V>> set = new LinkedHashSet<>();
-		for(K key : keys)
-			set.add(new ArrayEntry<K, V>(key, values.get(keys.indexOf(key))));
+		Map<K, Integer> firstIndex = new HashMap<>();
+
+		for(int i = 0; i < keys.size(); i++)
+		{
+			K key = keys.get(i);
+			Integer previous = firstIndex.putIfAbsent(key, i);
+			set.add(new ArrayEntry<>(key, values.get(previous == null ? i : previous)));
+		}
+
 		return set;
 	}
 	

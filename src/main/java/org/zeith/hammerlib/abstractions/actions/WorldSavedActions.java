@@ -1,7 +1,9 @@
 package org.zeith.hammerlib.abstractions.actions;
 
 import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.*;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -10,16 +12,18 @@ import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import org.jetbrains.annotations.Contract;
 import org.zeith.hammerlib.HammerLib;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @EventBusSubscriber
 public class WorldSavedActions
 		extends SavedData
 {
 	private final ServerLevel level;
-	
-	private final List<RunnableLevelAction> actions = new ArrayList<>();
+
+	private final ArrayDeque<RunnableLevelAction> actions = new ArrayDeque<>();
 	private final List<ContinuousLevelAction> continuousActions = new ArrayList<>();
 	
 	public WorldSavedActions(ServerLevel level)
@@ -52,45 +56,45 @@ public class WorldSavedActions
 			else actions.add(r);
 		}
 	}
-	
+
 	public void tick()
 	{
-		boolean hasNone = actions.isEmpty() && continuousActions.isEmpty();
-		
-		while(!actions.isEmpty())
+		if(actions.isEmpty() && continuousActions.isEmpty()) return;
+
+		RunnableLevelAction next;
+		while((next = actions.pollFirst()) != null)
+			next.run(level);
+
+		boolean needsCleanup = false;
+		try
 		{
-			var a = actions.remove(0);
-			if(a instanceof ContinuousLevelAction c)
+			for(int i = 0; i < continuousActions.size(); i++)
 			{
-				continuousActions.add(c);
-				continue;
-			}
-			a.run(level);
-		}
-		
-		for(int i = 0; i < continuousActions.size(); i++)
-		{
-			var a = continuousActions.get(i);
-			a.run(level);
-			if(a.isDone())
-			{
-				continuousActions.remove(i);
-				--i;
+				var action = continuousActions.get(i);
+				action.run(level);
+
+				if(action.isDone())
+				{
+					continuousActions.set(i, null);
+					needsCleanup = true;
+				}
 			}
 		}
-		
-		if(hasNone && continuousActions.isEmpty())
-			return;
-		
+		finally
+		{
+			if(needsCleanup)
+				continuousActions.removeIf(Objects::isNull);
+		}
+
 		setDirty();
 	}
-	
+
 	@Override
 	public CompoundTag save(CompoundTag nbt, HolderLookup.Provider provider)
 	{
 		ListTag actionsTag = new ListTag();
 		for(RunnableLevelAction action : actions) actionsTag.add(LevelAction.write(level, action));
-		for(RunnableLevelAction action : continuousActions) actionsTag.add(LevelAction.write(level, action));
+		for(RunnableLevelAction action : continuousActions) if(action != null) actionsTag.add(LevelAction.write(level, action));
 		nbt.put("Actions", actionsTag);
 		return nbt;
 	}
