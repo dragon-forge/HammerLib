@@ -241,11 +241,23 @@ public class GuiObject
 		GuiObject go = byName.remove(name);
 		if(go == null) return null;
 		children.remove(go);
+		dispatchChildRemoval(go);
+		return go;
+	}
+	
+	public final void clearChildren()
+	{
+		byName.clear();
+		while(!children.isEmpty()) dispatchChildRemoval(children.removeLast());
+	}
+	
+	private void dispatchChildRemoval(GuiObject go)
+	{
+		if(go == null) return;
 		go.parent = null;
 		go.name = go.originalName;
 		go.onRemovedFrom(this);
 		onChildRemoved(go);
-		return go;
 	}
 	
 	public final void remove()
