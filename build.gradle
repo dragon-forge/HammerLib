@@ -238,21 +238,6 @@ jar {
     }
 }
 
-tasks.register('deobfJar', Jar) {
-    archiveClassifier = 'deobf'
-    from sourceSets.main.output
-    manifest {
-        attributes(["Specification-Title"     : config.mod_id,
-                    "Specification-Vendor"    : "Zeitheron",
-                    "Specification-Version"   : "1",
-                    "Implementation-Title"    : project.name,
-                    "Implementation-Version"  : archiveVersion,
-                    "Implementation-Vendor"   : config.mod_authors,
-                    "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        ])
-    }
-}
-
 tasks.register('srcJar', Jar) {
     dependsOn classes
     from sourceSets.main.allJava
@@ -260,7 +245,6 @@ tasks.register('srcJar', Jar) {
 }
 
 artifacts {
-    archives deobfJar
     archives srcJar
 }
 
