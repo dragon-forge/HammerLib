@@ -232,7 +232,6 @@ public class GuiObject
 			child.myPathCache = null;
 		}
 		
-		
 		return this;
 	}
 	
@@ -251,13 +250,13 @@ public class GuiObject
 		while(!children.isEmpty()) dispatchChildRemoval(children.removeLast());
 	}
 	
-	private void dispatchChildRemoval(GuiObject go)
+	private void dispatchChildRemoval(GuiObject c)
 	{
-		if(go == null) return;
-		go.parent = null;
-		go.name = go.originalName;
-		go.onRemovedFrom(this);
-		onChildRemoved(go);
+		if(c == null) return;
+		c.parent = null;
+		c.name = c.originalName;
+		c.onRemovedFrom(this);
+		onChildRemoved(c);
 	}
 	
 	public final void remove()
@@ -329,39 +328,85 @@ public class GuiObject
 		return this;
 	}
 	
+	public GuiObject centerInParent()
+	{
+		if(parent == null) return this;
+		return centered(parent.getUnscaledWidth(), parent.getUnscaledHeight());
+	}
+	
+	public GuiObject centerXInParent()
+	{
+		if(parent == null) return this;
+		return centeredX(parent.getUnscaledWidth());
+	}
+	
+	public GuiObject leftInParent()
+	{
+		if(parent == null) return this;
+		pos(0, pos.y());
+		return this;
+	}
+	
+	public GuiObject rightInParent()
+	{
+		if(parent == null) return this;
+		pos(parent.getUnscaledWidth() - getScaledWidth(), pos.y());
+		return this;
+	}
+	
+	public GuiObject topInParent()
+	{
+		if(parent == null) return this;
+		pos(pos.x(), 0);
+		return this;
+	}
+	
+	public GuiObject bottomInParent()
+	{
+		if(parent == null) return this;
+		pos(0, parent.getUnscaledHeight() - getScaledHeight());
+		return this;
+	}
+	
+	public GuiObject centerYInParent()
+	{
+		if(parent == null) return this;
+		return centeredY(parent.getUnscaledWidth());
+	}
+	
 	public GuiObject centered(float width, float height)
 	{
-		pos((width - this.width) / 2, (height - this.height) / 2);
+		pos((width - this.getScaledWidth()) / 2, (height - this.getScaledHeight()) / 2);
 		return this;
 	}
 	
 	public GuiObject centered(int width, int height)
 	{
-		pos((int) ((width - this.width) / 2), (int) ((height - this.height) / 2));
+		pos((int) ((width - this.getScaledWidth()) / 2), (int) ((height - this.getScaledHeight()) / 2));
 		return this;
 	}
 	
 	public GuiObject centeredX(float width)
 	{
-		pos((width - this.width) / 2, pos.y());
+		pos((width - this.getScaledWidth()) / 2, pos.y());
 		return this;
 	}
 	
 	public GuiObject centeredX(int width)
 	{
-		pos((int) ((width - this.width) / 2), pos.y());
+		pos((int) ((width - this.getScaledWidth()) / 2), pos.y());
 		return this;
 	}
 	
 	public GuiObject centeredY(float height)
 	{
-		pos(pos.x(), (height - this.height) / 2);
+		pos(pos.x(), (height - this.getScaledHeight()) / 2);
 		return this;
 	}
 	
 	public GuiObject centeredY(int height)
 	{
-		pos(pos.x(), (int) ((height - this.height) / 2));
+		pos(pos.x(), (int) ((height - this.getScaledHeight()) / 2));
 		return this;
 	}
 	
