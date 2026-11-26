@@ -1,3 +1,5 @@
+import java.nio.file.Files
+
 buildscript {
     dependencies {
         classpath "gradle.plugin.com.matthewprenger:CurseGradle:1.4.+"
