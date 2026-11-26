@@ -340,6 +340,12 @@ public class GuiObject
 		return centeredX(parent.getUnscaledWidth());
 	}
 	
+	public GuiObject centerYInParent()
+	{
+		if(parent == null) return this;
+		return centeredY(parent.getUnscaledWidth());
+	}
+	
 	public GuiObject leftInParent()
 	{
 		if(parent == null) return this;
@@ -368,10 +374,32 @@ public class GuiObject
 		return this;
 	}
 	
-	public GuiObject centerYInParent()
+	public GuiObject leftInParent(float inset)
 	{
 		if(parent == null) return this;
-		return centeredY(parent.getUnscaledWidth());
+		pos(inset, pos.y());
+		return this;
+	}
+	
+	public GuiObject rightInParent(float inset)
+	{
+		if(parent == null) return this;
+		pos(parent.getUnscaledWidth() - getScaledWidth() - inset, pos.y());
+		return this;
+	}
+	
+	public GuiObject topInParent(float inset)
+	{
+		if(parent == null) return this;
+		pos(pos.x(), inset);
+		return this;
+	}
+	
+	public GuiObject bottomInParent(float inset)
+	{
+		if(parent == null) return this;
+		pos(0, parent.getUnscaledHeight() - getScaledHeight() - inset);
+		return this;
 	}
 	
 	public GuiObject centered(float width, float height)
@@ -413,6 +441,18 @@ public class GuiObject
 	public GuiObject pos(float x, float y)
 	{
 		this.pos = new Point(x, y);
+		return this;
+	}
+	
+	public GuiObject posX(float x)
+	{
+		this.pos = new Point(x, this.pos.y());
+		return this;
+	}
+	
+	public GuiObject posY(float y)
+	{
+		this.pos = new Point(this.pos.x(), y);
 		return this;
 	}
 	
