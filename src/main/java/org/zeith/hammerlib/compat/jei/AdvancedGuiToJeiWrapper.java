@@ -15,7 +15,7 @@ import org.zeith.hammerlib.client.screen.IAdvancedGui;
 import java.util.*;
 
 @SuppressWarnings("ALL")
-public class AdvancedGuiToJeiWrapper<T extends AbstractContainerScreen<CTR> & IAdvancedGui<T>, CTR extends AbstractContainerMenu>
+public class AdvancedGuiToJeiWrapper<T extends AbstractContainerScreen<CTR> & IAdvancedGui, CTR extends AbstractContainerMenu>
 		implements IGuiContainerHandler<T>
 {
 	private static final AdvancedGuiToJeiWrapper RAW_INSTANCE = new AdvancedGuiToJeiWrapper();
