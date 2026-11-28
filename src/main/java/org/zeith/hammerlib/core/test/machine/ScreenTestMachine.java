@@ -10,7 +10,7 @@ import org.zeith.hammerlib.proxy.HLConstants;
 @IAdvancedGui.ApplyToJEI
 public class ScreenTestMachine
 		extends ScreenWTFMojang<ContainerTestMachine>
-		implements IAdvancedGui<ScreenTestMachine>
+		implements IAdvancedGui
 {
 	public TileTestMachine tile;
 	

@@ -10,9 +10,8 @@ import java.util.List;
 /**
  * An abstract interface to be applied
  */
-@SuppressWarnings("rawtypes")
 @OnlyIn(Dist.CLIENT)
-public interface IAdvancedGui<G extends AbstractContainerScreen & IAdvancedGui<G>>
+public interface IAdvancedGui
 	extends IAdvancedComponent
 {
 	@Override

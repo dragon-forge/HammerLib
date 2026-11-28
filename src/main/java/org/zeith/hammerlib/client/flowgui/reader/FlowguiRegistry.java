@@ -218,7 +218,8 @@ public class FlowguiRegistry
 		return provider;
 	}
 	
-	public static ResourceLocation getId(Class<? extends Screen> gui)
+	@NotNull
+	public static ResourceLocation getId(@NotNull Class<? extends Screen> gui)
 	{
 		return Objects.requireNonNull(PRELOADED.get(Type.getType(gui)), "XmlFlowgui.value() on " + gui);
 	}
