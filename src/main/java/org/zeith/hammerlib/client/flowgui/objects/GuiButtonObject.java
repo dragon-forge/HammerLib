@@ -26,6 +26,12 @@ public class GuiButtonObject
 {
 	public static final int UNSET_FG_COLOR = -1;
 	
+	protected static final WidgetSprites SPRITES = new WidgetSprites(
+			ResourceLocation.withDefaultNamespace("widget/button"),
+			ResourceLocation.withDefaultNamespace("widget/button_disabled"),
+			ResourceLocation.withDefaultNamespace("widget/button_highlighted")
+	);
+	
 	public float alpha;
 	protected int packedFGColor;
 	public boolean enabled;
@@ -33,12 +39,7 @@ public class GuiButtonObject
 	public OnPress callback;
 	public Supplier<Holder<SoundEvent>> pressSound;
 	public float pressSoundPitch = 1F;
-	
-	protected static final WidgetSprites SPRITES = new WidgetSprites(
-			ResourceLocation.withDefaultNamespace("widget/button"),
-			ResourceLocation.withDefaultNamespace("widget/button_disabled"),
-			ResourceLocation.withDefaultNamespace("widget/button_highlighted")
-	);
+	public WidgetSprites sprites = SPRITES;
 	
 	@Builder
 	public GuiButtonObject(@NotNull String name,
@@ -153,7 +154,7 @@ public class GuiButtonObject
 	
 	private ResourceLocation getSprite(boolean enabled, boolean hovered)
 	{
-		return SPRITES.get(enabled, hovered);
+		return sprites.get(enabled, hovered);
 	}
 	
 	public int getFGColor()
