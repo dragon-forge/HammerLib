@@ -43,7 +43,7 @@ import org.zeith.hammerlib.mixins.client.ParticleEngineAccessor;
 import org.zeith.hammerlib.net.Network;
 import org.zeith.hammerlib.net.packets.*;
 import org.zeith.hammerlib.util.java.Cast;
-import org.zeith.hammerlib.util.mcf.LogicalSidePredictor;
+import org.zeith.hammerlib.util.mcf.*;
 
 import java.lang.annotation.ElementType;
 import java.lang.reflect.Constructor;
@@ -96,6 +96,8 @@ public class HLClientProxy
 		SimpleModelGenerator.setup();
 
 		NeoForge.EVENT_BUS.register(this);
+		
+		Minecraft.getInstance().resourceManager.registerReloadListener(RunnableReloader.of(FlowguiRegistry::reload));
 	}
 	
 	private void loadComplete(FMLLoadCompleteEvent e)

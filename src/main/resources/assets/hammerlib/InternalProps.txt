@@ -3,3 +3,7 @@
 
 # Adding this property is probably a bad idea, but it logs all events that Hammer Lib posts to it's own Event Bus.
 -Dhammerlib.logevents=true
+
+# Adding this property could be useful in DEV env when working on Flowgui XML.
+# Disabling cache forces Flowgui to read file on every GUI construction at cost of a slight hiccup.
+-Dhammerlib.flowgui.nocache=true
