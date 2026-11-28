@@ -1,5 +1,5 @@
 # Mod Info
-mod_version=21.1.28
+mod_version=21.1.29
 build_candidate=false
 
 # Mod dependencies
@@ -30,7 +30,7 @@ modrinth_project=PlkSuVtM
 release_type=release
 
 # Keeping track of latest git commit for changelog generation!
-last_git_commit=0acb12b8bdcfa30
+last_git_commit=92d345210618948
 
 # List of mods separated by ;
 # If a specific mod for one platform is needed, @m: or @c: prefixes are used.

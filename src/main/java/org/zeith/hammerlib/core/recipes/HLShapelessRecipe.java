@@ -13,6 +13,7 @@ import org.zeith.api.registry.RegistryMapping;
 import org.zeith.hammerlib.core.RegistriesHL;
 import org.zeith.hammerlib.core.init.RecipesHL;
 import org.zeith.hammerlib.core.recipes.replacers.IRemainingItemReplacer;
+import org.zeith.hammerlib.event.listeners.TagsUpdateListener;
 
 import java.util.*;
 
@@ -129,7 +130,7 @@ public class HLShapelessRecipe
 		public static HLShapelessRecipe fromNetwork(RegistryFriendlyByteBuf buf)
 		{
 			var base = RecipeSerializer.SHAPELESS_RECIPE.streamCodec().decode(buf);
-			var mod = new HLShapelessRecipe(base.getGroup(), base.category(), base.getIngredients(), base.getResultItem(RegistryAccess.EMPTY));
+			var mod = new HLShapelessRecipe(base.getGroup(), base.category(), base.getIngredients(), base.getResultItem(TagsUpdateListener.getRegistryAccess()));
 			
 			mod.inputModifier.addAll(IRemainingItemReplacer.fromNetwork(buf));
 			

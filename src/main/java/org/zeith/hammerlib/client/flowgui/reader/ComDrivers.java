@@ -4,7 +4,6 @@ import com.google.common.base.MoreObjects;
 import com.google.gson.*;
 import lombok.extern.slf4j.Slf4j;
 import net.minecraft.*;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.*;
 import net.minecraft.util.LowerCaseEnumTypeAdapterFactory;
 import org.jetbrains.annotations.NotNull;
@@ -12,6 +11,7 @@ import org.openjdk.nashorn.api.scripting.ScriptObjectMirror;
 import org.zeith.hammerlib.annotations.ide.AllowedValues;
 import org.zeith.hammerlib.api.data.IDataNode;
 import org.zeith.hammerlib.core.js.*;
+import org.zeith.hammerlib.event.listeners.TagsUpdateListener;
 import org.zeith.hammerlib.util.java.*;
 import org.zeith.hammerlib.util.java.cbqs.cbq3.*;
 import org.zeith.hammerlib.util.java.itf.*;
@@ -252,7 +252,7 @@ public class ComDrivers
 	{
 		try
 		{
-			return Component.Serializer.fromJson(str, RegistryAccess.EMPTY);
+			return Component.Serializer.fromJson(str, TagsUpdateListener.getRegistryAccess());
 		} catch(Exception e)
 		{
 		}
@@ -279,11 +279,11 @@ public class ComDrivers
 				List<Component> coms = new ArrayList<>(arr.size());
 				for(int i = 0; i < arr.size(); i++)
 				{
-					coms.add(Component.Serializer.fromJson(arr.get(i), RegistryAccess.EMPTY));
+					coms.add(Component.Serializer.fromJson(arr.get(i), TagsUpdateListener.getRegistryAccess()));
 				}
 				return coms;
 			} else
-				return List.of(MoreObjects.firstNonNull(Component.Serializer.fromJson(t, RegistryAccess.EMPTY), Component.empty()));
+				return List.of(MoreObjects.firstNonNull(Component.Serializer.fromJson(t, TagsUpdateListener.getRegistryAccess()), Component.empty()));
 		} catch(Exception e)
 		{
 		}
